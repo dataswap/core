@@ -1,0 +1,2 @@
+CounterTest:testIncrement() (gas: 28334)
+CounterTest:testSetNumber(uint256) (runs: 256, μ: 27320, ~: 28409)
