@@ -1,6 +1,7 @@
 # Compiler files
 cache-foundry/
 out/
+bin/
 
 # Ignores development broadcast logs
 !/broadcast

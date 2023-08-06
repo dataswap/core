@@ -3,6 +3,7 @@ pragma solidity ^0.8.21;
 
 import "./types/DatasetType.sol";
 import "../interfaces/IDatasetVerify.sol";
+import "../interfaces/IDataswapDAO.sol";
 
 /// @notice Explain to an end user what this does
 /// @dev Explain to a developer any extra details
@@ -54,6 +55,7 @@ library Dataset {
         } else if (result == DatasetType.VerifyResult.RequestDispute) {
             requireDipute(dataset);
             //TODO:require dispute through Call _governanceContract
+            //IDataswapDAO.propose()
         }
 
         return result;
