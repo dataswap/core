@@ -2,20 +2,22 @@
 
 pragma solidity ^0.8.21;
 
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "./libraries/types/DatasetType.sol";
+import "./libraries/types/RoleType.sol";
 import "./libraries/Dataset.sol";
 import "./libraries/Common.sol";
-import "./interfaces/IRoles.sol";
+import "./interfaces/IRole.sol";
 
 /// @notice Explain to an end user what this does
 /// @dev Explain to a developer any extra details
-contract Datasets {
+contract Datasets is Ownable2Step {
     uint256 private datasetCount;
     mapping(uint256 => DatasetType.Dataset) public datasets;
     ///TODO: contact call logic
     address public governanceContract; // Address of the governance contract
     address public verifyContract;
-    address public rolesContract;
+    address public roleContract;
 
     using Dataset for DatasetType.Dataset;
 
@@ -31,10 +33,10 @@ contract Datasets {
 
     /// @notice Explain to an end user what this does
     /// @dev Explain to a developer any extra details
-    modifier onlyDatasetAuditor() {
-        IRoles roles = IRoles(rolesContract);
+    modifier onlyRole(bytes32 _role) {
+        IRole role = IRole(roleContract);
         require(
-            roles.isDatasetAuditor(msg.sender),
+            !role.hasRole(_role, msg.sender),
             "Only dataset auditor can call this function"
         );
         _;
@@ -63,7 +65,7 @@ contract Datasets {
     function submitProof(
         uint256 datasetId,
         DatasetType.Proof calldata _proof
-    ) public {
+    ) public onlyRole(RoleType.DATASET_PROVIDER) {
         // Ensure the provided datasetId is within the valid range
         require(
             datasetId > 0 && datasetId <= datasetCount,
@@ -85,7 +87,11 @@ contract Datasets {
     function submitVerification(
         uint256 datasetId,
         DatasetType.Verification calldata _verification
-    ) public onlyDatasetAuditor returns (DatasetType.VerifyResult) {
+    )
+        public
+        onlyRole(RoleType.DATASET_AUDITOR)
+        returns (DatasetType.VerifyResult)
+    {
         // Ensure the provided datasetId is within the valid range
         require(
             datasetId > 0 && datasetId <= datasetCount,
