@@ -1,0 +1,150 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+pragma solidity ^0.8.21;
+
+import "./libraries/types/DatasetType.sol";
+import "./libraries/Dataset.sol";
+import "./libraries/Common.sol";
+import "./interfaces/IRoles.sol";
+
+/// @notice Explain to an end user what this does
+/// @dev Explain to a developer any extra details
+contract Datasets {
+    uint256 private datasetCount;
+    mapping(uint256 => DatasetType.Dataset) public datasets;
+    ///TODO: contact call logic
+    address public governanceContract; // Address of the governance contract
+    address public verifyContract;
+    address public rolesContract;
+
+    using Dataset for DatasetType.Dataset;
+
+    /// @notice Explain to an end user what this does
+    /// @dev Explain to a developer any extra details
+    modifier onlyGovernance() {
+        require(
+            msg.sender == governanceContract,
+            "Only governance contract can call this function"
+        );
+        _;
+    }
+
+    /// @notice Explain to an end user what this does
+    /// @dev Explain to a developer any extra details
+    modifier onlyDatasetAuditor() {
+        IRoles roles = IRoles(rolesContract);
+        require(
+            roles.isDatasetAuditor(msg.sender),
+            "Only dataset auditor can call this function"
+        );
+        _;
+    }
+
+    /// @notice Explain to an end user what this does
+    /// @dev Explain to a developer any extra details
+    /// @param _metadata a parameter just like in doxygen (must be followed by parameter name)
+    function submitMetadata(DatasetType.Metadata calldata _metadata) public {
+        Common.requireValidDataset(_metadata);
+
+        // Increment the datasetCount
+        datasetCount++;
+
+        // Create a new DatasetType.Dataset instance for the new dataset
+        DatasetType.Dataset storage newDataset = datasets[datasetCount];
+
+        // Use the Dataset library method to submit metadata
+        newDataset.submitMetadata(_metadata);
+    }
+
+    /// @notice Explain to an end user what this does
+    /// @dev Explain to a developer any extra details
+    /// @param datasetId a parameter just like in doxygen (must be followed by parameter name)
+    /// @param _proof a parameter just like in doxygen (must be followed by parameter name)
+    function submitProof(
+        uint256 datasetId,
+        DatasetType.Proof calldata _proof
+    ) public {
+        // Ensure the provided datasetId is within the valid range
+        require(
+            datasetId > 0 && datasetId <= datasetCount,
+            "Invalid dataset ID"
+        );
+
+        // Get the Dataset instance for the provided datasetId
+        DatasetType.Dataset storage dataset = datasets[datasetId];
+
+        // Use the Dataset library method to submit the proof
+        dataset.submitProof(_proof);
+    }
+
+    /// @notice Explain to an end user what this does
+    /// @dev Explain to a developer any extra details
+    /// @param datasetId a parameter just like in doxygen (must be followed by parameter name)
+    /// @param _verification a parameter just like in doxygen (must be followed by parameter name)
+    /// @return Documents the return variables of a contract’s function state variable
+    function submitVerification(
+        uint256 datasetId,
+        DatasetType.Verification calldata _verification
+    ) public onlyDatasetAuditor returns (DatasetType.VerifyResult) {
+        // Ensure the provided datasetId is within the valid range
+        require(
+            datasetId > 0 && datasetId <= datasetCount,
+            "Invalid dataset ID"
+        );
+
+        // Get the Dataset instance for the provided datasetId
+        DatasetType.Dataset storage dataset = datasets[datasetId];
+
+        // Use the Dataset library method to submit the verification and return the result
+        return
+            dataset.submitVerification(
+                _verification,
+                verifyContract,
+                governanceContract
+            );
+    }
+
+    /// @notice Explain to an end user what this does
+    /// @dev Explain to a developer any extra details
+    /// @param datasetId a parameter just like in doxygen (must be followed by parameter name)
+    function approveMetadata(uint256 datasetId) public onlyGovernance {
+        // Get the Dataset instance for the provided datasetId
+        DatasetType.Dataset storage dataset = datasets[datasetId];
+
+        // Use the Dataset library method to approve metadata
+        dataset.approveMetadata();
+    }
+
+    /// @notice Explain to an end user what this does
+    /// @dev Explain to a developer any extra details
+    /// @param datasetId a parameter just like in doxygen (must be followed by parameter name)
+    function rejectMetadata(uint256 datasetId) public onlyGovernance {
+        // Get the Dataset instance for the provided datasetId
+        DatasetType.Dataset storage dataset = datasets[datasetId];
+
+        // Use the Dataset library method to reject metadata
+        dataset.rejectMetadata();
+    }
+
+    /// @notice Explain to an end user what this does
+    /// @dev Explain to a developer any extra details
+    /// @param datasetId a parameter just like in doxygen (must be followed by parameter name)
+    function approveDataset(uint256 datasetId) public onlyGovernance {
+        // Get the Dataset instance for the provided datasetId
+        DatasetType.Dataset storage dataset = datasets[datasetId];
+
+        // Use the Dataset library method to approve the dataset
+        dataset.approveDataset();
+    }
+
+    /// @notice Explain to an end user what this does
+    /// @dev Explain to a developer any extra details
+    /// @param datasetId a parameter just like in doxygen (must be followed by parameter name)
+    function rejectDataset(uint256 datasetId) public onlyGovernance {
+        // Get the Dataset instance for the provided datasetId
+        DatasetType.Dataset storage dataset = datasets[datasetId];
+
+        // Use the Dataset library method to reject the dataset
+        dataset.rejectDataset();
+    }
+}
