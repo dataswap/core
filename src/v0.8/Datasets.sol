@@ -7,6 +7,7 @@ import "./libraries/types/DatasetType.sol";
 import "./libraries/types/RoleType.sol";
 import "./libraries/Dataset.sol";
 import "./libraries/Common.sol";
+import "./libraries/utils/StringUtils.sol";
 import "./interfaces/IRole.sol";
 import "./interfaces/IDatasets.sol";
 
@@ -16,7 +17,7 @@ contract Datasets is Ownable2Step, IDatasets {
     uint256 private datasetCount;
     mapping(uint256 => DatasetType.Dataset) public datasets;
     ///TODO: contact call logic
-    address public governanceContract; // Address of the governance contract
+    address payable public governanceContract; // Address of the governance contract
     address public verifyContract;
     address public roleContract;
 
@@ -107,7 +108,9 @@ contract Datasets is Ownable2Step, IDatasets {
             dataset.submitVerification(
                 _verification,
                 verifyContract,
-                governanceContract
+                governanceContract,
+                datasetId,
+                address(this)
             );
     }
 
