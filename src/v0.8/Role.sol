@@ -2,10 +2,11 @@
 
 pragma solidity ^0.8.21;
 
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
-import "./libraries/types/RoleType.sol";
+import "./interfaces/IRole.sol";
 
-contract Roles is AccessControlEnumerable {
+contract Role is Ownable2Step, AccessControlEnumerable, IRole {
     constructor(address admin) {
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
     }

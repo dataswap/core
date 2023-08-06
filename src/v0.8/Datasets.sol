@@ -8,10 +8,11 @@ import "./libraries/types/RoleType.sol";
 import "./libraries/Dataset.sol";
 import "./libraries/Common.sol";
 import "./interfaces/IRole.sol";
+import "./interfaces/IDatasets.sol";
 
 /// @notice Explain to an end user what this does
 /// @dev Explain to a developer any extra details
-contract Datasets is Ownable2Step {
+contract Datasets is Ownable2Step, IDatasets {
     uint256 private datasetCount;
     mapping(uint256 => DatasetType.Dataset) public datasets;
     ///TODO: contact call logic
