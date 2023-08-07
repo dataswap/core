@@ -81,7 +81,7 @@ abstract contract IDataswapDAO is
         onlyRole(RoleType.DATASET_AUDITOR)
         returns (uint256 balance)
     {
-        return Governor.castVote(proposalId, support);
+        return super.castVote(proposalId, support);
     }
 
     // The functions below are overrides required by Solidity.
