@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.21;
 
+import "./CarReplicaType.sol";
+
 library StorageDealType {
     enum State {
         None,
@@ -28,5 +30,7 @@ library StorageDealType {
     struct StorageDeal {
         uint256 matchingId;
         State state;
+        uint256 carCount;
+        mapping(uint256 => CarReplicaType.Car) cars;
     }
 }

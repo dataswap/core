@@ -21,15 +21,14 @@ library CarReplicaType {
     }
 
     struct Replica {
-        uint256 id;
         uint256 matchingId;
         uint256 storageDealId;
+        uint256 filecoinDealId;
         State state;
     }
 
     struct Car {
-        uint256 replicaCount;
-        // replica number => CarReplica
-        mapping(uint256 => Replica) replicas;
+        bytes32 cid;
+        Replica[] replicas;
     }
 }

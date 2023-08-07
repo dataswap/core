@@ -9,26 +9,34 @@ library CarLIB {
     using CarReplicaLIB for CarReplicaType.Replica;
 
     function submitRepica(
-        CarReplicaType.Car storage self,
+        CarReplicaType.Car memory self,
         uint256 _matchingId,
-        uint256 _storageDealId
-    ) external {
-        self.replicaCount++;
-        CarReplicaType.Replica storage newReplica = self.replicas[
-            self.replicaCount
-        ];
-        newReplica.id = self.replicaCount;
-        newReplica.matchingId = _matchingId;
-        newReplica.storageDealId = _storageDealId;
-        newReplica.state = CarReplicaType.State.Notverified;
+        uint256 _storageDealId,
+        uint256 _filecoinDealId
+    ) external pure {
+        CarReplicaType.Replica memory replica = CarReplicaLIB.create(
+            _matchingId,
+            _storageDealId,
+            _filecoinDealId
+        );
+        CarReplicaType.Replica[]
+            memory newReplicas = new CarReplicaType.Replica[](
+                self.replicas.length + 1
+            );
+        for (uint256 i = 0; i < self.replicas.length; i++) {
+            newReplicas[i] = self.replicas[i];
+        }
+        newReplicas[self.replicas.length] = replica;
+
+        self.replicas = newReplicas;
     }
 
     function updateRepicaState(
-        CarReplicaType.Car storage self,
+        CarReplicaType.Car memory self,
         uint256 _repicaId,
         CarReplicaType.Event _event
-    ) internal {
-        CarReplicaType.Replica storage replica = self.replicas[_repicaId];
+    ) internal pure {
+        CarReplicaType.Replica memory replica = self.replicas[_repicaId];
         replica.updateState(_event);
     }
 }

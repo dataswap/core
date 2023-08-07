@@ -3,6 +3,7 @@
 pragma solidity ^0.8.21;
 
 import "./types/StorageDealType.sol";
+import "./types/CarReplicaType.sol";
 
 library StorageDealLIB {
     //TODO:require matching contract
@@ -45,7 +46,8 @@ library StorageDealLIB {
     }
 
     function submitPreviousDataCapProof(
-        StorageDealType.StorageDeal storage self
+        StorageDealType.StorageDeal storage self,
+        CarReplicaType.Car[] storage _proof
     ) external {
         require(
             self.state == StorageDealType.State.DataCapChunkAllocated,
@@ -54,11 +56,13 @@ library StorageDealLIB {
 
         //TODO:require SubmitPreviousDataCapProof condition
         updateState(self, StorageDealType.Event.SubmitPreviousDataCapProof);
+        verifyDataCapChunkProof(self, _proof);
     }
 
     function verifyDataCapChunkProof(
-        StorageDealType.StorageDeal storage self
-    ) external {
+        StorageDealType.StorageDeal storage self,
+        CarReplicaType.Car[] storage /*_proof*/
+    ) internal {
         require(
             self.state ==
                 StorageDealType.State.PreviousDataCapDataProofSubmitted,

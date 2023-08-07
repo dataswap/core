@@ -5,10 +5,24 @@ pragma solidity ^0.8.21;
 import "./types/CarReplicaType.sol";
 
 library CarReplicaLIB {
+    function create(
+        uint256 _matchingId,
+        uint256 _storageDealId,
+        uint256 _filecoinDealId
+    ) internal pure returns (CarReplicaType.Replica memory) {
+        return
+            CarReplicaType.Replica(
+                _matchingId,
+                _storageDealId,
+                _filecoinDealId,
+                CarReplicaType.State.Notverified
+            );
+    }
+
     function updateState(
-        CarReplicaType.Replica storage self,
+        CarReplicaType.Replica memory self,
         CarReplicaType.Event _event
-    ) internal {
+    ) internal pure {
         CarReplicaType.State currentState = self.state;
         CarReplicaType.State newState;
 
