@@ -8,7 +8,7 @@ import "../libraries/utils/StringUtils.sol";
 
 /// @notice Explain to an end user what this does
 /// @dev Explain to a developer any extra details
-library Dataset {
+library DatasetLIB {
     /// @notice Explain to an end user what this does
     /// @dev Explain to a developer any extra details
     /// @param dataset a parameter just like in doxygen (must be followed by parameter name)

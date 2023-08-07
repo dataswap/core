@@ -5,7 +5,7 @@ pragma solidity ^0.8.21;
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "./libraries/types/DatasetType.sol";
 import "./libraries/types/RoleType.sol";
-import "./libraries/Dataset.sol";
+import "./libraries/DatasetLIB.sol";
 import "./libraries/Common.sol";
 import "./libraries/utils/StringUtils.sol";
 import "./interfaces/IRole.sol";
@@ -21,7 +21,7 @@ contract Datasets is Ownable2Step, IDatasets {
     address public verifyContract;
     address public roleContract;
 
-    using Dataset for DatasetType.Dataset;
+    using DatasetLIB for DatasetType.Dataset;
 
     /// @notice Explain to an end user what this does
     /// @dev Explain to a developer any extra details
