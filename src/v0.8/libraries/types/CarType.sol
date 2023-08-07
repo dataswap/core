@@ -12,8 +12,7 @@ library CarType {
 
     struct Replica {
         uint256 id;
-        uint256 matchType;
-        uint256 matchId;
+        uint256 matchingId;
         State state;
         uint256 dealId;
     }
