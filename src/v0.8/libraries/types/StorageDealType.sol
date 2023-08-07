@@ -4,15 +4,29 @@ pragma solidity ^0.8.21;
 
 library StorageDealType {
     enum State {
+        None,
         DataCapChunkAllocated,
         SubmitPreviousDataCapProofExpired,
         PreviousDataCapDataProofSubmitted,
         PreviousDataCapChunkVerificationFailed,
-        StorageFailed,
-        StoragePartiallyCompleted,
-        StorageCompleted
+        Failed,
+        PartiallyCompleted,
+        Completed
     }
+
     enum Event {
-        SubmitPreviousDataCapProof
+        MatchingCompleted,
+        SubmitPreviousDataCapProofExpired,
+        SubmitPreviousDataCapProof,
+        DataCapChunkProofVerificationFailed,
+        DataCapChunkProofVerified_And_PreviousDataCapIsNotLastChunk,
+        DataCapChunkProofVerified_And_PreviousDataCapIsLastChunk,
+        Failed_PreviousDataCapChunkIsInitailChunk,
+        Failed_PreviousDataCapChunkIsNotInitailChunk
+    }
+
+    struct StorageDeal {
+        uint256 matchingId;
+        State state;
     }
 }
