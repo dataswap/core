@@ -4,6 +4,7 @@ pragma solidity ^0.8.21;
 
 import "./types/MatchingType.sol";
 
+//TODO: role control
 library MatchingLIB {
     /// As follows need publish:
     // Target target;
@@ -203,5 +204,11 @@ library MatchingLIB {
         MatchingType.Matching storage /*self*/
     ) internal pure returns (bool) {
         return true;
+    }
+
+    function getState(
+        MatchingType.Matching storage self
+    ) internal view returns (MatchingType.State) {
+        return self.state;
     }
 }

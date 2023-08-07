@@ -34,10 +34,16 @@ library MatchingType {
         LowestBid
     }
 
+    enum DataType {
+        MetaDataset,
+        Dataset
+    }
+
     struct Target {
         uint256 datasetID;
         bytes32[] carIDs;
         uint256 size;
+        DataType dataType;
         uint256 associatedMetaDatasetMatchingID;
     }
 

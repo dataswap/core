@@ -157,4 +157,11 @@ contract Datasets is Ownable2Step, IDatasets {
         // Use the Dataset library method to reject the dataset
         dataset.rejectDataset();
     }
+
+    function getState(
+        uint256 datasetId
+    ) public view returns (DatasetType.State) {
+        DatasetType.Dataset storage dataset = datasets[datasetId];
+        return dataset.getState();
+    }
 }

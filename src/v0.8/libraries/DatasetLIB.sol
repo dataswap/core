@@ -202,4 +202,10 @@ library DatasetLIB {
 
         return dataswapDao.propose(targets, values, calldatas, description);
     }
+
+    function getState(
+        DatasetType.Dataset storage dataset
+    ) public view returns (DatasetType.State) {
+        return dataset.state;
+    }
 }

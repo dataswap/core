@@ -4,10 +4,15 @@ pragma solidity ^0.8.21;
 
 import "../libraries/types/MatchingType.sol";
 import "../libraries/MatchingLIB.sol";
+import "./IDatasets.sol";
+import "../libraries/types/DatasetType.sol";
 
 abstract contract IMatchings {
     uint256 private matchingsCount;
     mapping(uint256 => MatchingType.Matching) internal matchings;
+    address payable public governanceContract; // Address of the governance contract
+    address public datasetsContract;
+    address public roleContract;
 
     using MatchingLIB for MatchingType.Matching;
 
@@ -27,6 +32,23 @@ abstract contract IMatchings {
         uint256 _biddingThreshold,
         string memory _additionalInfo
     ) external {
+        IDatasets datasets = IDatasets(datasetsContract);
+        require(
+            DatasetType.State.DatasetApproved ==
+                datasets.getState(_target.datasetID),
+            "dataset isn't approved"
+        );
+        if (_target.dataType == MatchingType.DataType.Dataset) {
+            MatchingType.Matching storage metaDatasetMatching = matchings[
+                _target.associatedMetaDatasetMatchingID
+            ];
+            require(
+                MatchingType.State.Completed == metaDatasetMatching.getState(),
+                "meta dataset matching isn't completed"
+            );
+            //TODO: require storage completed
+        }
+
         matchingsCount++;
         MatchingType.Matching storage newMatching = matchings[matchingsCount];
 
@@ -80,7 +102,15 @@ abstract contract IMatchings {
         matching.close(rule);
     }
 
+    /// TODO:
     function filPlusCheck(
         MatchingType.Matching storage /*self*/
     ) internal pure virtual returns (bool);
+
+    function getState(
+        uint256 matchingId
+    ) public view returns (MatchingType.State) {
+        MatchingType.Matching storage matching = matchings[matchingId];
+        return matching.getState();
+    }
 }

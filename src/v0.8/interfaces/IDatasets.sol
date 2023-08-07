@@ -50,4 +50,8 @@ interface IDatasets {
     /// @dev Explain to a developer any extra details
     /// @param datasetId a parameter just like in doxygen (must be followed by parameter name)
     function rejectDataset(uint256 datasetId) external;
+
+    function getState(
+        uint256 datasetId
+    ) external view returns (DatasetType.State);
 }
