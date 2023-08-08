@@ -87,7 +87,7 @@ abstract contract ICarStorage {
     function reportReplicaStorageFailed(
         bytes32 _cid,
         uint256 _matchingId
-    ) external {
+    ) external onlyCarExists(_cid) {
         require(
             _matchingId != 0,
             "Invalid matching id for reportReplicaStorageFailed"
@@ -102,7 +102,7 @@ abstract contract ICarStorage {
     function reportReplicaStorageDealExpired(
         bytes32 _cid,
         uint256 _matchingId
-    ) external {
+    ) external onlyCarExists(_cid) {
         require(
             _matchingId != 0,
             "Invalid matching id for reportReplicaStorageDealExpired"
@@ -117,7 +117,7 @@ abstract contract ICarStorage {
     function reportReplicaStorageSlashed(
         bytes32 _cid,
         uint256 _matchingId
-    ) external {
+    ) external onlyCarExists(_cid) {
         require(
             _matchingId != 0,
             "Invalid matching id for reportReplicaStorageSlashed"
