@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.21;
 
-library RoleType {
+library RolesType {
     bytes32 public constant STORAGE_PROVIDER = keccak256("SP");
     bytes32 public constant RETRIEVE_PROVIDER = keccak256("RP");
     bytes32 public constant COMPUTE_PROVIDER = keccak256("CP");

@@ -4,20 +4,56 @@ pragma solidity ^0.8.21;
 
 import "../libraries/types/MatchingType.sol";
 import "../libraries/MatchingLIB.sol";
+import "./IRoles.sol";
 import "./IDatasets.sol";
+import "../libraries/types/RolesType.sol";
 import "../libraries/types/DatasetType.sol";
 
-//TODO: role control
 abstract contract IMatchings {
     uint256 public matchingsCount;
     mapping(uint256 => MatchingType.Matching) public matchings;
+    address rolesContract;
+    address carsStorageContract;
+    address datasetsContract;
 
     using MatchingLIB for MatchingType.Matching;
+
+    constructor(
+        address _rolesContract,
+        address _carsStorageContract,
+        address _datasetsContract
+    ) {
+        rolesContract = _rolesContract;
+        carsStorageContract = _carsStorageContract;
+        datasetsContract = _datasetsContract;
+    }
 
     modifier validMatchingId(uint256 _matchingId) {
         require(
             _matchingId > 0 && _matchingId <= matchingsCount,
             "Invalid matching ID"
+        );
+        _;
+    }
+
+    modifier onlyInitiator(uint256 _matchingId) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        require(matching.initiator == msg.sender, "No permission!");
+        _;
+    }
+
+    modifier onlyRole(bytes32 _role) {
+        IRoles role = IRoles(rolesContract);
+        require(role.hasRole(_role, msg.sender), "No permission!");
+        _;
+    }
+
+    modifier onlyDPorSP() {
+        IRoles role = IRoles(rolesContract);
+        require(
+            role.hasRole(RolesType.DATASET_PROVIDER, msg.sender) ||
+                role.hasRole(RolesType.STORAGE_PROVIDER, msg.sender),
+            "No permission!"
         );
         _;
     }
@@ -28,10 +64,9 @@ abstract contract IMatchings {
         uint256 _biddingPeriodBlockCount,
         uint256 _storagePeriodBlockCount,
         uint256 _biddingThreshold,
-        string memory _additionalInfo,
-        address _datasetsContract
-    ) external {
-        IDatasets datasets = IDatasets(_datasetsContract);
+        string memory _additionalInfo
+    ) external onlyDPorSP {
+        IDatasets datasets = IDatasets(datasetsContract);
         require(
             DatasetType.State.DatasetApproved ==
                 datasets.getState(_target.datasetID),
@@ -39,11 +74,11 @@ abstract contract IMatchings {
         );
         if (_target.dataType == MatchingType.DataType.Dataset) {
             MatchingType.Matching storage metaDatasetMatching = matchings[
-                _target.associatedMetaDatasetMatchingID
+                _target.associatedMappingFilesMatchingID
             ];
             require(
                 MatchingType.State.Completed == metaDatasetMatching.getState(),
-                "meta dataset matching isn't completed"
+                "associated mapping files matching isn't completed"
             );
             //TODO: require storage completed
         }
@@ -63,7 +98,9 @@ abstract contract IMatchings {
         newMatching.publish();
     }
 
-    function pause(uint256 _matchingId) external validMatchingId(_matchingId) {
+    function pause(
+        uint256 _matchingId
+    ) external validMatchingId(_matchingId) onlyInitiator(_matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching.pause();
     }
@@ -75,12 +112,16 @@ abstract contract IMatchings {
         matching.reportPauseExpired();
     }
 
-    function resume(uint256 _matchingId) external validMatchingId(_matchingId) {
+    function resume(
+        uint256 _matchingId
+    ) external validMatchingId(_matchingId) onlyInitiator(_matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching.resume();
     }
 
-    function cancel(uint256 _matchingId) external validMatchingId(_matchingId) {
+    function cancel(
+        uint256 _matchingId
+    ) external validMatchingId(_matchingId) onlyInitiator(_matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching.cancel();
     }
@@ -88,18 +129,17 @@ abstract contract IMatchings {
     function bidding(
         uint256 _matchingId,
         MatchingType.Bid memory _bid
-    ) external validMatchingId(_matchingId) {
+    ) external validMatchingId(_matchingId) onlyDPorSP {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching.bidding(_bid);
     }
 
     function close(
         uint256 _matchingId,
-        MatchingType.WinnerBidRule _rule,
-        address _carsStorageContractAddress
+        MatchingType.WinnerBidRule _rule
     ) external validMatchingId(_matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        matching.close(_rule, _carsStorageContractAddress, _matchingId);
+        matching.close(_rule, carsStorageContract, _matchingId);
     }
 
     /// TODO: cid check,etc

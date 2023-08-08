@@ -220,7 +220,7 @@ library StorageDealLIB {
         StorageDealType.CarProof[] memory _proofs,
         address _carsStorageContractAddress
     ) internal {
-        ICarStorage cars = ICarStorage(_carsStorageContractAddress);
+        ICarsStorage cars = ICarsStorage(_carsStorageContractAddress);
         //TODO: require: cars of proofs should included in matching and in carsStorage
         for (uint256 i = 0; i < _proofs.length; i++) {
             cars.setReplicaFilecoinDealId(

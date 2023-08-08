@@ -6,8 +6,8 @@ import "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBr
 import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
-import "./IRole.sol";
-import "../libraries/types/RoleType.sol";
+import "./IRoles.sol";
+import "../libraries/types/RolesType.sol";
 
 abstract contract IDataswapDAO is
     Governor,
@@ -16,21 +16,18 @@ abstract contract IDataswapDAO is
     GovernorVotesQuorumFraction,
     GovernorTimelockControl
 {
-    IRole public immutable roleContact;
+    IRoles public immutable rolesContract;
 
     /// @notice Explain to an end user what this does
     /// @dev Explain to a developer any extra details
     modifier onlyRole(bytes32 _role) {
-        require(
-            !roleContact.hasRole(_role, msg.sender),
-            "Only dataset auditor can call this function"
-        );
+        require(rolesContract.hasRole(_role, msg.sender), "No permission!");
         _;
     }
 
     constructor(
         IVotes _token,
-        IRole _role,
+        IRoles _rolesContract,
         TimelockController _timelock
     )
         Governor("DataswapDAO")
@@ -38,7 +35,7 @@ abstract contract IDataswapDAO is
         GovernorVotesQuorumFraction(4)
         GovernorTimelockControl(_timelock)
     {
-        roleContact = _role;
+        rolesContract = _rolesContract;
     }
 
     function votingDelay()
@@ -78,7 +75,7 @@ abstract contract IDataswapDAO is
         public
         virtual
         override(IGovernor, Governor)
-        onlyRole(RoleType.DATASET_AUDITOR)
+        onlyRole(RolesType.DATASET_AUDITOR)
         returns (uint256 balance)
     {
         return super.castVote(proposalId, support);

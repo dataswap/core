@@ -4,12 +4,51 @@ pragma solidity ^0.8.21;
 
 import "../libraries/StorageDealLIB.sol";
 import "../libraries/types/StorageDealType.sol";
+import "./IRoles.sol";
+import "../libraries/types/RolesType.sol";
 
 abstract contract IStorageDeals {
     uint256 public storageDealsCount;
     mapping(uint256 => StorageDealType.StorageDeal) public storageDeals;
+    address rolesContract;
+    address carsStorageContract;
+    address datasetsContract;
+    address matchingContract;
 
     using StorageDealLIB for StorageDealType.StorageDeal;
+
+    constructor(
+        address _rolesContract,
+        address _carsStorageContract,
+        address _datasetsContract,
+        address _matchingContract
+    ) {
+        rolesContract = _rolesContract;
+        carsStorageContract = _carsStorageContract;
+        datasetsContract = _datasetsContract;
+        matchingContract = _matchingContract;
+    }
+
+    modifier onlyRole(bytes32 _role) {
+        IRoles role = IRoles(rolesContract);
+        require(role.hasRole(_role, msg.sender), "No permission!");
+        _;
+    }
+
+    modifier onlyDPorSP() {
+        IRoles role = IRoles(rolesContract);
+        require(
+            role.hasRole(RolesType.DATASET_PROVIDER, msg.sender) ||
+                role.hasRole(RolesType.STORAGE_PROVIDER, msg.sender),
+            "No permission!"
+        );
+        _;
+    }
+
+    modifier onlyAddress(address _address) {
+        require(_address == msg.sender, "No permission!");
+        _;
+    }
 
     modifier onlyStorageDealExistsByMatchingId(uint256 _matchingId) {
         (bool exsits, ) = hasStorageDealByMatchingId(_matchingId);
@@ -41,7 +80,11 @@ abstract contract IStorageDeals {
 
     function submitMatchingCompletedEvent(
         uint256 _matchingId
-    ) external onlyStorageDealNotExistsByMatchingId(_matchingId) {
+    )
+        external
+        onlyStorageDealNotExistsByMatchingId(_matchingId)
+        onlyAddress(matchingContract)
+    {
         storageDealsCount++;
         StorageDealType.StorageDeal storage storageDeal = storageDeals[
             storageDealsCount
@@ -61,16 +104,17 @@ abstract contract IStorageDeals {
 
     function submitPreviousDataCapProof(
         uint256 _storageDealId,
-        StorageDealType.CarProof[] memory _proofs,
-        address _carsStorageContractAddress
-    ) external virtual onlyStorageDealExistsByStorageId(_storageDealId) {
+        StorageDealType.CarProof[] memory _proofs
+    )
+        external
+        virtual
+        onlyStorageDealExistsByStorageId(_storageDealId)
+        onlyDPorSP
+    {
         StorageDealType.StorageDeal storage storageDeal = storageDeals[
             _storageDealId
         ];
-        storageDeal.submitPreviousDataCapProof(
-            _proofs,
-            _carsStorageContractAddress
-        );
+        storageDeal.submitPreviousDataCapProof(_proofs, carsStorageContract);
     }
 
     function getState(

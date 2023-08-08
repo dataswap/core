@@ -6,7 +6,7 @@ import "../libraries/types/CarReplicaType.sol";
 import "../libraries/CarReplicaLIB.sol";
 import "../libraries/CarLIB.sol";
 
-abstract contract ICarStorage {
+abstract contract ICarsStorage {
     uint256 public carsCount;
     //car cid => Car
     mapping(bytes32 => CarReplicaType.Car) public cars;

@@ -75,7 +75,7 @@ library MatchingLIB {
     function close(
         MatchingType.Matching storage self,
         MatchingType.WinnerBidRule _rule,
-        address _carsStorageContractAddress,
+        address _carsStorageContract,
         uint256 _matchingId
     ) external {
         require(
@@ -90,13 +90,13 @@ library MatchingLIB {
             "Matching: Bidding period not expired"
         );
         postEvent(self, MatchingType.Event.Close);
-        chooseWinner(self, _rule, _carsStorageContractAddress, _matchingId);
+        chooseWinner(self, _rule, _carsStorageContract, _matchingId);
     }
 
     function chooseWinner(
         MatchingType.Matching storage self,
         MatchingType.WinnerBidRule _rule,
-        address _carsStorageContractAddress,
+        address _carsStorageContract,
         uint256 _matchingId
     ) internal {
         require(
@@ -135,11 +135,7 @@ library MatchingLIB {
         if (winner == address(0)) {
             postEvent(self, MatchingType.Event.NoWinner);
         } else {
-            postCompletionAction(
-                self,
-                _carsStorageContractAddress,
-                _matchingId
-            );
+            postCompletionAction(self, _carsStorageContract, _matchingId);
             self.winner = winner;
             postEvent(self, MatchingType.Event.HasWinner);
         }
@@ -219,10 +215,10 @@ library MatchingLIB {
 
     function postCompletionAction(
         MatchingType.Matching storage self,
-        address _carsStorageContractAddress,
+        address _carsStorageContract,
         uint256 _matchingId
     ) internal {
-        ICarStorage cars = ICarStorage(_carsStorageContractAddress);
+        ICarsStorage cars = ICarsStorage(_carsStorageContract);
         require(cars.hasCars(self.target.cars), "cars cids invalid");
         for (uint256 i = 0; i < self.target.cars.length; i++) {
             cars.addReplica(self.target.cars[i], _matchingId);

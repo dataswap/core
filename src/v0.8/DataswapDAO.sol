@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.21;
 
-import "./interfaces/IRole.sol";
+import "./interfaces/IRoles.sol";
 import "./interfaces/IDataswapDAO.sol";
-import "./libraries/types/RoleType.sol";
+import "./libraries/types/RolesType.sol";
 
 contract DataswapDAO is IDataswapDAO {
     constructor(
         IVotes _token,
-        IRole _role,
+        IRoles _role,
         TimelockController _timelock
     ) IDataswapDAO(_token, _role, _timelock) {}
 
@@ -30,7 +30,7 @@ contract DataswapDAO is IDataswapDAO {
     )
         public
         override
-        onlyRole(RoleType.DATASET_AUDITOR)
+        onlyRole(RolesType.DATASET_AUDITOR)
         returns (uint256 balance)
     {
         return super.castVote(proposalId, support);

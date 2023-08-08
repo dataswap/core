@@ -44,7 +44,7 @@ library MatchingType {
         bytes32[] cars;
         uint256 size;
         DataType dataType;
-        uint256 associatedMetaDatasetMatchingID;
+        uint256 associatedMappingFilesMatchingID;
     }
 
     struct Bid {

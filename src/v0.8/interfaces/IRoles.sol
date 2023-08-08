@@ -5,6 +5,6 @@ import "@openzeppelin/contracts/access/IAccessControlEnumerable.sol";
 
 /// @notice Explain to an end user what this does
 /// @dev Explain to a developer any extra details
-interface IRole is IAccessControlEnumerable {
+interface IRoles is IAccessControlEnumerable {
 
 }
