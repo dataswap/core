@@ -3,16 +3,9 @@
 pragma solidity ^0.8.21;
 
 import "./types/MatchingType.sol";
+import "../interfaces/ICarsStorage.sol";
 
-//TODO: role control
 library MatchingLIB {
-    /// As follows need publish:
-    // Target target;
-    ///uint256 biddingDelayBlockCount;
-    // uint256 biddingPeriodBlockCount;
-    // uint256 storagePeriodBlockCount;
-    // uint256 biddingThreshold;
-    // string additionalInfo;
     function publish(MatchingType.Matching storage self) external {
         require(
             self.state == MatchingType.State.None,
@@ -21,6 +14,7 @@ library MatchingLIB {
         updateState(self, MatchingType.Event.Publish);
 
         if (filPlusCheck(self)) {
+            //TODO:peherps add notary auditor
             updateState(self, MatchingType.Event.FilPlusCheckSuccessed);
         } else {
             updateState(self, MatchingType.Event.FilPlusCheckFailed);
@@ -63,7 +57,7 @@ library MatchingLIB {
 
     function bidding(
         MatchingType.Matching storage self,
-        MatchingType.Bid memory bid
+        MatchingType.Bid memory _bid
     ) external {
         require(
             self.state == MatchingType.State.InProgress,
@@ -75,12 +69,14 @@ library MatchingLIB {
             "Matching: Bidding is not start"
         );
 
-        self.bids.push(bid);
+        self.bids.push(_bid);
     }
 
     function close(
         MatchingType.Matching storage self,
-        MatchingType.WinnerBidRule rule
+        MatchingType.WinnerBidRule _rule,
+        address _carsStorageContractAddress,
+        uint256 _matchingId
     ) external {
         require(
             self.state == MatchingType.State.InProgress,
@@ -94,12 +90,14 @@ library MatchingLIB {
             "Matching: Bidding period not expired"
         );
         updateState(self, MatchingType.Event.Close);
-        chooseWinner(self, rule);
+        chooseWinner(self, _rule, _carsStorageContractAddress, _matchingId);
     }
 
     function chooseWinner(
         MatchingType.Matching storage self,
-        MatchingType.WinnerBidRule _rule
+        MatchingType.WinnerBidRule _rule,
+        address _carsStorageContractAddress,
+        uint256 _matchingId
     ) internal {
         require(
             self.state == MatchingType.State.Closed,
@@ -107,7 +105,9 @@ library MatchingLIB {
         );
         require(
             block.number >=
-                self.biddingDelayBlockCount + self.biddingPeriodBlockCount,
+                self.createdBlockNumber +
+                    self.biddingDelayBlockCount +
+                    self.biddingPeriodBlockCount,
             "Matching: Bidding period has not ended yet"
         );
         require(
@@ -137,6 +137,11 @@ library MatchingLIB {
         } else {
             self.winner = winner;
             updateState(self, MatchingType.Event.HasWinner);
+            postCompletionAction(
+                self,
+                _carsStorageContractAddress,
+                _matchingId
+            );
         }
     }
 
@@ -210,5 +215,17 @@ library MatchingLIB {
         MatchingType.Matching storage self
     ) internal view returns (MatchingType.State) {
         return self.state;
+    }
+
+    function postCompletionAction(
+        MatchingType.Matching storage self,
+        address _carsStorageContractAddress,
+        uint256 _matchingId
+    ) internal {
+        ICarStorage cars = ICarStorage(_carsStorageContractAddress);
+        require(cars.hasCars(self.target.cars), "cars cids invalid");
+        for (uint256 i; i < self.target.cars.length; i++) {
+            cars.addReplica(self.target.cars[i], _matchingId);
+        }
     }
 }

@@ -41,7 +41,7 @@ library MatchingType {
 
     struct Target {
         uint256 datasetID;
-        bytes32[] carIDs;
+        bytes32[] cars;
         uint256 size;
         DataType dataType;
         uint256 associatedMetaDatasetMatchingID;

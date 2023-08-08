@@ -24,7 +24,13 @@ abstract contract ICarStorage {
         _;
     }
 
-    function addCar(bytes32 _cid) external onlyCarNotExists(_cid) {
+    function addCars(bytes32[] memory _cids) external {
+        for (uint256 i; i < _cids.length; i++) {
+            addCar(_cids[i]);
+        }
+    }
+
+    function addCar(bytes32 _cid) internal onlyCarNotExists(_cid) {
         carsCount++;
         cars[_cid].cid = _cid;
     }
@@ -73,6 +79,13 @@ abstract contract ICarStorage {
 
     function hasCar(bytes32 _cid) public view returns (bool) {
         return cars[_cid].cid == _cid;
+    }
+
+    function hasCars(bytes32[] memory _cids) public view returns (bool) {
+        for (uint256 i; i < _cids.length; i++) {
+            if (!hasCar(_cids[i])) return false;
+        }
+        return true;
     }
 
     function hasReplica(

@@ -7,18 +7,19 @@ import "../libraries/MatchingLIB.sol";
 import "./IDatasets.sol";
 import "../libraries/types/DatasetType.sol";
 
+//TODO: role control
 abstract contract IMatchings {
-    uint256 private matchingsCount;
-    mapping(uint256 => MatchingType.Matching) internal matchings;
+    uint256 public matchingsCount;
+    mapping(uint256 => MatchingType.Matching) public matchings;
     address payable public governanceContract; // Address of the governance contract
     address public datasetsContract;
     address public roleContract;
 
     using MatchingLIB for MatchingType.Matching;
 
-    modifier validMatchingId(uint256 matchingId) {
+    modifier validMatchingId(uint256 _matchingId) {
         require(
-            matchingId > 0 && matchingId <= matchingsCount,
+            _matchingId > 0 && _matchingId <= matchingsCount,
             "Invalid matching ID"
         );
         _;
@@ -64,53 +65,54 @@ abstract contract IMatchings {
         newMatching.publish();
     }
 
-    function pause(uint256 matchingId) external validMatchingId(matchingId) {
-        MatchingType.Matching storage matching = matchings[matchingId];
+    function pause(uint256 _matchingId) external validMatchingId(_matchingId) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
         matching.pause();
     }
 
     function reportPauseExpired(
-        uint256 matchingId
-    ) external validMatchingId(matchingId) {
-        MatchingType.Matching storage matching = matchings[matchingId];
+        uint256 _matchingId
+    ) external validMatchingId(_matchingId) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
         matching.reportPauseExpired();
     }
 
-    function resume(uint256 matchingId) external validMatchingId(matchingId) {
-        MatchingType.Matching storage matching = matchings[matchingId];
+    function resume(uint256 _matchingId) external validMatchingId(_matchingId) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
         matching.resume();
     }
 
-    function cancel(uint256 matchingId) external validMatchingId(matchingId) {
-        MatchingType.Matching storage matching = matchings[matchingId];
+    function cancel(uint256 _matchingId) external validMatchingId(_matchingId) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
         matching.cancel();
     }
 
     function bidding(
-        uint256 matchingId,
-        MatchingType.Bid memory bid
-    ) external validMatchingId(matchingId) {
-        MatchingType.Matching storage matching = matchings[matchingId];
-        matching.bidding(bid);
+        uint256 _matchingId,
+        MatchingType.Bid memory _bid
+    ) external validMatchingId(_matchingId) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        matching.bidding(_bid);
     }
 
     function close(
-        uint256 matchingId,
-        MatchingType.WinnerBidRule rule
-    ) external validMatchingId(matchingId) {
-        MatchingType.Matching storage matching = matchings[matchingId];
-        matching.close(rule);
+        uint256 _matchingId,
+        MatchingType.WinnerBidRule _rule,
+        address _carsStorageContractAddress
+    ) external validMatchingId(_matchingId) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        matching.close(_rule, _carsStorageContractAddress, _matchingId);
     }
 
-    /// TODO:
+    /// TODO: cid check,etc
     function filPlusCheck(
-        MatchingType.Matching storage /*self*/
+        uint256 _matchingId
     ) internal pure virtual returns (bool);
 
     function getState(
-        uint256 matchingId
-    ) public view returns (MatchingType.State) {
-        MatchingType.Matching storage matching = matchings[matchingId];
+        uint256 _matchingId
+    ) public view validMatchingId(_matchingId) returns (MatchingType.State) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
         return matching.getState();
     }
 }
