@@ -31,10 +31,4 @@ library CarReplicaType {
         uint256 replicasCount;
         mapping(uint256 => Replica) replicas;
     }
-
-    struct CarsStorage {
-        uint256 carsCount;
-        //car cid => Car
-        mapping(bytes32 => Car) cars;
-    }
 }
