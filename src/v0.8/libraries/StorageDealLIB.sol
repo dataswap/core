@@ -14,7 +14,7 @@ library StorageDealLIB {
             self.state == StorageDealType.State.None,
             "Invalid state for submitMatchingCompletedEvent"
         );
-        updateState(self, StorageDealType.Event.MatchingCompleted);
+        postEvent(self, StorageDealType.Event.MatchingCompleted);
     }
 
     function reportSubmitPreviousDataCapProofExpired(
@@ -25,17 +25,17 @@ library StorageDealLIB {
             "Invalid state for report SubmitPreviousDataCapProofExpired"
         );
         //TODO:require expired condition
-        updateState(
+        postEvent(
             self,
             StorageDealType.Event.SubmitPreviousDataCapProofExpired
         );
         if (isPreviousDataCapChunkIsInitailChunk(self)) {
-            updateState(
+            postEvent(
                 self,
                 StorageDealType.Event.Failed_PreviousDataCapChunkIsInitailChunk
             );
         } else {
-            updateState(
+            postEvent(
                 self,
                 StorageDealType
                     .Event
@@ -53,7 +53,7 @@ library StorageDealLIB {
             self.state == StorageDealType.State.DataCapChunkAllocated,
             "Invalid state for submitting previous data cap proof"
         );
-        updateState(self, StorageDealType.Event.SubmitPreviousDataCapProof);
+        postEvent(self, StorageDealType.Event.SubmitPreviousDataCapProof);
         verifyDataCapChunkProof(self, _proofs, _carsStorageContractAddress);
     }
 
@@ -73,14 +73,14 @@ library StorageDealLIB {
             self.storedCarsCount += _proofs.length;
             postCarVerifiedAction(self, _proofs, _carsStorageContractAddress);
             if (isPreviousDataCapIsLastChunk(self)) {
-                updateState(
+                postEvent(
                     self,
                     StorageDealType
                         .Event
                         .DataCapChunkProofVerified_And_PreviousDataCapIsLastChunk
                 );
             } else {
-                updateState(
+                postEvent(
                     self,
                     StorageDealType
                         .Event
@@ -88,19 +88,19 @@ library StorageDealLIB {
                 );
             }
         } else {
-            updateState(
+            postEvent(
                 self,
                 StorageDealType.Event.DataCapChunkProofVerificationFailed
             );
             if (isPreviousDataCapChunkIsInitailChunk(self)) {
-                updateState(
+                postEvent(
                     self,
                     StorageDealType
                         .Event
                         .Failed_PreviousDataCapChunkIsInitailChunk
                 );
             } else {
-                updateState(
+                postEvent(
                     self,
                     StorageDealType
                         .Event
@@ -110,7 +110,7 @@ library StorageDealLIB {
         }
     }
 
-    function updateState(
+    function postEvent(
         StorageDealType.StorageDeal storage self,
         StorageDealType.Event _event
     ) internal {

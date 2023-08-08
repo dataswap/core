@@ -11,13 +11,13 @@ library MatchingLIB {
             self.state == MatchingType.State.None,
             "Matching: Invalid state for publishing"
         );
-        updateState(self, MatchingType.Event.Publish);
+        postEvent(self, MatchingType.Event.Publish);
 
         if (filPlusCheck(self)) {
             //TODO:peherps add notary auditor
-            updateState(self, MatchingType.Event.FilPlusCheckSuccessed);
+            postEvent(self, MatchingType.Event.FilPlusCheckSuccessed);
         } else {
-            updateState(self, MatchingType.Event.FilPlusCheckFailed);
+            postEvent(self, MatchingType.Event.FilPlusCheckFailed);
         }
     }
 
@@ -26,7 +26,7 @@ library MatchingLIB {
             self.state == MatchingType.State.InProgress,
             "Matching: Invalid state for pausing"
         );
-        updateState(self, MatchingType.Event.Pause);
+        postEvent(self, MatchingType.Event.Pause);
     }
 
     function reportPauseExpired(MatchingType.Matching storage self) external {
@@ -34,7 +34,7 @@ library MatchingLIB {
             self.state == MatchingType.State.Paused,
             "Matching: Invalid state for reportPauseExpired"
         );
-        updateState(self, MatchingType.Event.PauseExpired);
+        postEvent(self, MatchingType.Event.PauseExpired);
     }
 
     function resume(MatchingType.Matching storage self) external {
@@ -42,7 +42,7 @@ library MatchingLIB {
             self.state == MatchingType.State.Paused,
             "Matching: Invalid state for resuming"
         );
-        updateState(self, MatchingType.Event.Resume);
+        postEvent(self, MatchingType.Event.Resume);
     }
 
     function cancel(MatchingType.Matching storage self) external {
@@ -52,7 +52,7 @@ library MatchingLIB {
                 self.state == MatchingType.State.Paused,
             "Matching: Invalid state for canceling"
         );
-        updateState(self, MatchingType.Event.Cancel);
+        postEvent(self, MatchingType.Event.Cancel);
     }
 
     function bidding(
@@ -89,7 +89,7 @@ library MatchingLIB {
                     self.biddingPeriodBlockCount,
             "Matching: Bidding period not expired"
         );
-        updateState(self, MatchingType.Event.Close);
+        postEvent(self, MatchingType.Event.Close);
         chooseWinner(self, _rule, _carsStorageContractAddress, _matchingId);
     }
 
@@ -133,7 +133,7 @@ library MatchingLIB {
         }
 
         if (winner == address(0)) {
-            updateState(self, MatchingType.Event.NoWinner);
+            postEvent(self, MatchingType.Event.NoWinner);
         } else {
             postCompletionAction(
                 self,
@@ -141,11 +141,11 @@ library MatchingLIB {
                 _matchingId
             );
             self.winner = winner;
-            updateState(self, MatchingType.Event.HasWinner);
+            postEvent(self, MatchingType.Event.HasWinner);
         }
     }
 
-    function updateState(
+    function postEvent(
         MatchingType.Matching storage self,
         MatchingType.Event _event
     ) internal {

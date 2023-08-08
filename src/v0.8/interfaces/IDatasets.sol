@@ -15,14 +15,24 @@ import "./ICarsStorage.sol";
 /// @notice Explain to an end user what this does
 /// @dev Explain to a developer any extra details
 abstract contract IDatasets is Ownable2Step {
-    uint256 private datasetCount;
+    uint256 public datasetCount;
     mapping(uint256 => DatasetType.Dataset) public datasets;
     ///TODO: contact call logic
-    address payable public governanceContract; // Address of the governance contract
-    address public verifyContract;
-    address public roleContract;
+    address payable public immutable governanceContract; // Address of the governance contract
+    address public immutable verifyContract;
+    address public immutable roleContract;
 
     using DatasetLIB for DatasetType.Dataset;
+
+    constructor(
+        address payable _governanceContract,
+        address _roleContract,
+        address _verifyContract
+    ) {
+        governanceContract = _governanceContract;
+        roleContract = _roleContract;
+        verifyContract = _verifyContract;
+    }
 
     /// @notice Explain to an end user what this does
     /// @dev Explain to a developer any extra details
@@ -49,6 +59,7 @@ abstract contract IDatasets is Ownable2Step {
     /// @dev Explain to a developer any extra details
     /// @param _metadata a parameter just like in doxygen (must be followed by parameter name)
     function submitMetadata(DatasetType.Metadata calldata _metadata) public {
+        //TODO:check if metadata exsits
         Common.requireValidDataset(_metadata);
 
         // Increment the datasetCount

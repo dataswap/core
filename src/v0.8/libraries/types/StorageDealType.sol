@@ -28,7 +28,7 @@ library StorageDealType {
     }
 
     struct CarProof {
-        bytes32 car;
+        bytes32 car; //TODO: delete
         uint256 filcoinDealId;
     }
 

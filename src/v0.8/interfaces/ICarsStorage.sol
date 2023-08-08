@@ -92,7 +92,7 @@ abstract contract ICarStorage {
             _matchingId != 0,
             "Invalid matching id for reportReplicaStorageFailed"
         );
-        updateRepicaStateByMatchingId(
+        postRepicaEventByMatchingId(
             _cid,
             _matchingId,
             CarReplicaType.Event.StorageFailed
@@ -107,7 +107,7 @@ abstract contract ICarStorage {
             _matchingId != 0,
             "Invalid matching id for reportReplicaStorageDealExpired"
         );
-        updateRepicaStateByMatchingId(
+        postRepicaEventByMatchingId(
             _cid,
             _matchingId,
             CarReplicaType.Event.StorageDealExpired
@@ -122,27 +122,27 @@ abstract contract ICarStorage {
             _matchingId != 0,
             "Invalid matching id for reportReplicaStorageSlashed"
         );
-        updateRepicaStateByMatchingId(
+        postRepicaEventByMatchingId(
             _cid,
             _matchingId,
             CarReplicaType.Event.StorageSlashed
         );
     }
 
-    function updateRepicaStateByIndex(
+    function postRepicaEventReplicaIndex(
         bytes32 _cid,
-        uint256 _repicaId,
+        uint256 _replicaIndex,
         CarReplicaType.Event _event
     ) internal onlyCarExists(_cid) {
         CarReplicaType.Car storage car = cars[_cid];
         require(
-            _repicaId < car.replicasCount,
+            _replicaIndex < car.replicasCount,
             "Invalid replica id for updateRepicaStateByIndex"
         );
-        car.updateRepicaStateByIndex(_repicaId, _event);
+        car.postRepicaEventReplicaIndex(_replicaIndex, _event);
     }
 
-    function updateRepicaStateByMatchingId(
+    function postRepicaEventByMatchingId(
         bytes32 _cid,
         uint256 _matchingId,
         CarReplicaType.Event _event
@@ -152,6 +152,6 @@ abstract contract ICarStorage {
             "Invalid matching id for updateRepicaStateByMatchingId"
         );
         CarReplicaType.Car storage car = cars[_cid];
-        car.updateRepicaStateByMatchingId(_matchingId, _event);
+        car.postRepicaEventByMatchingId(_matchingId, _event);
     }
 }

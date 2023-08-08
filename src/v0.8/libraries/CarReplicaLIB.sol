@@ -21,7 +21,7 @@ library CarReplicaLIB {
         self.filecoinDealId = _filecoinDealId;
     }
 
-    function updateState(
+    function postEvent(
         CarReplicaType.Replica storage self,
         CarReplicaType.Event _event
     ) internal {

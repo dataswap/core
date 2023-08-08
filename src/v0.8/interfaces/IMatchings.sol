@@ -11,9 +11,6 @@ import "../libraries/types/DatasetType.sol";
 abstract contract IMatchings {
     uint256 public matchingsCount;
     mapping(uint256 => MatchingType.Matching) public matchings;
-    address payable public governanceContract; // Address of the governance contract
-    address public datasetsContract;
-    address public roleContract;
 
     using MatchingLIB for MatchingType.Matching;
 
@@ -31,9 +28,10 @@ abstract contract IMatchings {
         uint256 _biddingPeriodBlockCount,
         uint256 _storagePeriodBlockCount,
         uint256 _biddingThreshold,
-        string memory _additionalInfo
+        string memory _additionalInfo,
+        address _datasetsContract
     ) external {
-        IDatasets datasets = IDatasets(datasetsContract);
+        IDatasets datasets = IDatasets(_datasetsContract);
         require(
             DatasetType.State.DatasetApproved ==
                 datasets.getState(_target.datasetID),

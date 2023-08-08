@@ -5,7 +5,7 @@ library ArrayUtil {
     function appendArrayBytes32(
         bytes32[] storage self,
         bytes32[] memory _newArray
-    ) public {
+    ) internal {
         for (uint256 i = 0; i < _newArray.length; i++) {
             self.push(_newArray[i]);
         }

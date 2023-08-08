@@ -12,11 +12,10 @@ library DatasetType {
     /// @param source where is the dataset from.
     /// @param accessInfo how to access the source dataset
     /// @param submitter
-    /// @param createTime
+    /// @param createdBlockNumber
     /// @param size dataset size
     /// @param isPublic wherther datast is public
     /// @param version
-    /// @param noProofRequired
     struct Metadata {
         string title;
         string industry;
@@ -25,11 +24,10 @@ library DatasetType {
         string source;
         string accessInfo;
         address submitter;
-        uint256 createTime;
+        uint256 createdBlockNumber;
         uint256 size;
         bool isPublic;
         uint64 version;
-        bool noProofRequired;
     }
 
     /// @notice Explain to an end user what this does

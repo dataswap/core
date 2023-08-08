@@ -24,7 +24,7 @@ library CarLIB {
         self.replicas[self.replicasCount] = replica;
 
         //Adding a replica indicates that the matching has been completed.
-        updateRepicaStateByMatchingId(
+        postRepicaEventByMatchingId(
             self,
             _matchingId,
             CarReplicaType.Event.MatchingCompleted
@@ -86,27 +86,27 @@ library CarLIB {
         replica.setFilecoinDealId(_filecoinDealId);
 
         //Set a replica filecoin deal id indicates that the storage has been completed.
-        updateRepicaStateByMatchingId(
+        postRepicaEventByMatchingId(
             self,
             _matchingId,
             CarReplicaType.Event.StorageCompleted
         );
     }
 
-    function updateRepicaStateByIndex(
+    function postRepicaEventReplicaIndex(
         CarReplicaType.Car storage self,
-        uint256 _repicaId,
+        uint256 _repicaIndex,
         CarReplicaType.Event _event
     ) internal {
         require(
-            _repicaId < self.replicasCount,
+            _repicaIndex < self.replicasCount,
             "Invalid replica id for updateRepicaStateByIndex"
         );
-        CarReplicaType.Replica storage replica = self.replicas[_repicaId];
-        replica.updateState(_event);
+        CarReplicaType.Replica storage replica = self.replicas[_repicaIndex];
+        replica.postEvent(_event);
     }
 
-    function updateRepicaStateByMatchingId(
+    function postRepicaEventByMatchingId(
         CarReplicaType.Car storage self,
         uint256 _matchingId,
         CarReplicaType.Event _event
@@ -114,6 +114,6 @@ library CarLIB {
         (bool exists, uint256 replicaIndex) = hasReplica(self, _matchingId);
         require(exists, "Replica is not exists");
         CarReplicaType.Replica storage replica = self.replicas[replicaIndex];
-        replica.updateState(_event);
+        replica.postEvent(_event);
     }
 }

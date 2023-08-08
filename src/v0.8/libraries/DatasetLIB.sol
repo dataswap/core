@@ -11,61 +11,61 @@ import "../libraries/utils/StringUtils.sol";
 library DatasetLIB {
     /// @notice Explain to an end user what this does
     /// @dev Explain to a developer any extra details
-    /// @param dataset a parameter just like in doxygen (must be followed by parameter name)
+    /// @param self a parameter just like in doxygen (must be followed by parameter name)
     /// @param _metadata  parameter just like in doxygen (must be followed by parameter name)
     function submitMetadata(
-        DatasetType.Dataset storage dataset,
+        DatasetType.Dataset storage self,
         DatasetType.Metadata calldata _metadata
-    ) public {
-        dataset.metadata = _metadata;
-        updateState(dataset, DatasetType.Event.SubmitMetadata);
-        //TODO:requestAudit
+    ) external {
+        self.metadata = _metadata;
+        postEvent(self, DatasetType.Event.SubmitMetadata);
     }
 
     /// @notice Explain to an end user what this does
     /// @dev Explain to a developer any extra details
-    /// @param dataset a parameter just like in doxygen (must be followed by parameter name)
+    /// @param self parameter just like in doxygen (must be followed by parameter name)
     /// @param _proof parameter just like in doxygen (must be followed by parameter name)
     function submitProof(
-        DatasetType.Dataset storage dataset,
+        DatasetType.Dataset storage self,
         DatasetType.Proof calldata _proof
-    ) public {
-        dataset.proof = _proof;
-        updateState(dataset, DatasetType.Event.SubmitDatasetProof);
-        //TODO:requestAudit
+    ) external {
+        //TODO:require check
+        self.proof = _proof;
+        postEvent(self, DatasetType.Event.SubmitDatasetProof);
     }
 
     /// @notice Explain to an end user what this does
     /// @dev Explain to a developer any extra details
-    /// @param dataset a parameter just like in doxygen (must be followed by parameter name)
+    /// @param self parameter just like in doxygen (must be followed by parameter name)
     /// @param _verification parameter just like in doxygen (must be followed by parameter name)
     /// @param _verification parameter just like in doxygen (must be followed by parameter name)
     /// @param _verifyContract parameter just like in doxygen (must be followed by parameter name)
     function submitVerification(
-        DatasetType.Dataset storage dataset,
+        DatasetType.Dataset storage self,
         DatasetType.Verification calldata _verification,
         address _verifyContract,
         address payable _governanceContract,
-        uint256 datasetId,
-        address callbackTarget
-    ) public returns (DatasetType.VerifyResult) {
-        dataset.verifications.push(_verification);
+        uint256 _datasetId,
+        address _callbackTarget
+    ) external returns (DatasetType.VerifyResult) {
+        //TODO: require check
+        self.verifications.push(_verification);
         IDatasetVerify verifyContract = IDatasetVerify(_verifyContract);
-        DatasetType.VerifyResult result = verifyContract.verify(dataset);
+        DatasetType.VerifyResult result = verifyContract.verify(self);
 
         if (result == DatasetType.VerifyResult.Approved) {
-            approveDataset(dataset);
+            approveDataset(self);
         } else if (result == DatasetType.VerifyResult.Rejected) {
-            rejectDataset(dataset);
+            rejectDataset(self);
         } else if (result == DatasetType.VerifyResult.RequestDispute) {
             requestAudit(
-                dataset,
+                self,
                 IDataswapDAO(_governanceContract),
                 "Dataset Verification Audit:",
-                datasetId,
-                callbackTarget
+                _datasetId,
+                _callbackTarget
             );
-            requireDipute(dataset);
+            requireDipute(self);
         }
 
         return result;
@@ -73,70 +73,64 @@ library DatasetLIB {
 
     /// @notice Explain to an end user what this does
     /// @dev Explain to a developer any extra details
-    /// @param dataset a parameter just like in doxygen (must be followed by parameter name)
-    function approveMetadata(DatasetType.Dataset storage dataset) public {
+    function approveMetadata(DatasetType.Dataset storage self) external {
         require(
-            dataset.state == DatasetType.State.MetadataSubmitted,
+            self.state == DatasetType.State.MetadataSubmitted,
             "Invalid state for approval metadata"
         );
-        updateState(dataset, DatasetType.Event.MetadataApproved);
+        postEvent(self, DatasetType.Event.MetadataApproved);
     }
 
     /// @notice Explain to an end user what this does
     /// @dev Explain to a developer any extra details
-    /// @param dataset a parameter just like in doxygen (must be followed by parameter name)
-    function rejectMetadata(DatasetType.Dataset storage dataset) public {
+    function rejectMetadata(DatasetType.Dataset storage self) external {
         require(
-            dataset.state == DatasetType.State.MetadataSubmitted,
+            self.state == DatasetType.State.MetadataSubmitted,
             "Invalid state for rejection metadata"
         );
-        updateState(dataset, DatasetType.Event.MetadataRejected);
+        postEvent(self, DatasetType.Event.MetadataRejected);
     }
 
     /// @notice Explain to an end user what this does
     /// @dev Explain to a developer any extra details
-    /// @param dataset a parameter just like in doxygen (must be followed by parameter name)
-    function approveDataset(DatasetType.Dataset storage dataset) public {
+    function approveDataset(DatasetType.Dataset storage self) public {
         require(
-            dataset.state == DatasetType.State.DatasetProofSubmitted ||
-                dataset.state == DatasetType.State.DatasetApprovalInDispute,
+            self.state == DatasetType.State.DatasetProofSubmitted ||
+                self.state == DatasetType.State.DatasetApprovalInDispute,
             "Invalid state for approval dataset"
         );
-        updateState(dataset, DatasetType.Event.DatasetApproved);
+        postEvent(self, DatasetType.Event.DatasetApproved);
     }
 
     /// @notice Explain to an end user what this does
     /// @dev Explain to a developer any extra details
-    /// @param dataset a parameter just like in doxygen (must be followed by parameter name)
-    function rejectDataset(DatasetType.Dataset storage dataset) public {
+    function rejectDataset(DatasetType.Dataset storage self) public {
         require(
-            dataset.state == DatasetType.State.DatasetProofSubmitted ||
-                dataset.state == DatasetType.State.DatasetApprovalInDispute,
+            self.state == DatasetType.State.DatasetProofSubmitted ||
+                self.state == DatasetType.State.DatasetApprovalInDispute,
             "Invalid state for rejection dataset"
         );
-        updateState(dataset, DatasetType.Event.DatasetRejected);
+        postEvent(self, DatasetType.Event.DatasetRejected);
     }
 
     /// @notice Explain to an end user what this does
     /// @dev Explain to a developer any extra details
-    /// @param dataset a parameter just like in doxygen (must be followed by parameter name)
-    function requireDipute(DatasetType.Dataset storage dataset) internal {
+    function requireDipute(DatasetType.Dataset storage self) internal {
         require(
-            dataset.state == DatasetType.State.DatasetProofSubmitted,
+            self.state == DatasetType.State.DatasetProofSubmitted,
             "Invalid state for require dipute dataset"
         );
-        updateState(dataset, DatasetType.Event.DatasetRequireDispute);
+        postEvent(self, DatasetType.Event.DatasetRequireDispute);
     }
 
     /// @notice Explain to an end user what this does
     /// @dev Explain to a developer any extra details
-    /// @param dataset a parameter just like in doxygen (must be followed by parameter name)
     /// @param _event a parameter just like in doxygen (must be followed by parameter name)
-    function updateState(
-        DatasetType.Dataset storage dataset,
+    function postEvent(
+        DatasetType.Dataset storage self,
         DatasetType.Event _event
     ) internal {
-        DatasetType.State currentState = dataset.state;
+        DatasetType.State currentState = self.state;
         DatasetType.State newState;
         // Apply the state transition based on the event
         if (_event == DatasetType.Event.SubmitMetadata) {
@@ -177,35 +171,35 @@ library DatasetLIB {
 
         // Update the state if newState is not None (i.e., a valid transition)
         if (newState != DatasetType.State.None) {
-            dataset.state = newState;
+            self.state = newState;
         }
     }
 
     function requestAudit(
-        DatasetType.Dataset storage /*dataset*/,
-        IDataswapDAO dataswapDao,
+        DatasetType.Dataset storage /*self*/,
+        IDataswapDAO _dataswapDao,
         string memory _description,
-        uint256 datasetId,
-        address target
+        uint256 _datasetId,
+        address _target
     ) internal returns (uint256) {
-        // Perform any checks or operations required before creating the proposal
+        //TODO: Perform any checks or operations required before creating the proposal
 
         address[] memory targets = new address[](1);
-        targets[0] = address(target); // Use the address of this contract as the target
+        targets[0] = address(_target); // Use the address of this contract as the target
 
         uint256[] memory values = new uint256[](0); // Set values to an empty array
         bytes[] memory calldatas = new bytes[](0); // Set calldatas to an empty array
         string memory description = StringUtils.concat(
             _description,
-            StringUtils.uint256ToString(datasetId)
+            StringUtils.uint256ToString(_datasetId)
         );
 
-        return dataswapDao.propose(targets, values, calldatas, description);
+        return _dataswapDao.propose(targets, values, calldatas, description);
     }
 
     function getState(
-        DatasetType.Dataset storage dataset
+        DatasetType.Dataset storage self
     ) public view returns (DatasetType.State) {
-        return dataset.state;
+        return self.state;
     }
 }

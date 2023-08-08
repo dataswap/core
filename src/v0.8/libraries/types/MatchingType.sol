@@ -35,7 +35,7 @@ library MatchingType {
     }
 
     enum DataType {
-        MetaDataset,
+        MappingFiles,
         Dataset
     }
 

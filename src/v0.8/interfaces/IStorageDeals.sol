@@ -11,22 +11,22 @@ abstract contract IStorageDeals {
 
     using StorageDealLIB for StorageDealType.StorageDeal;
 
-    modifier onlyStorageDealExists(uint256 _matchingId) {
+    modifier onlyStorageDealExistsByMatchingId(uint256 _matchingId) {
         (bool exsits, ) = hasStorageDealByMatchingId(_matchingId);
-        require(exsits, "StorageDeal is exists");
+        require(exsits, "StorageDeal is not exists");
         _;
     }
 
-    modifier onlyStorageDealNotExists(uint256 _matchingId) {
+    modifier onlyStorageDealNotExistsByMatchingId(uint256 _matchingId) {
         (bool exsits, ) = hasStorageDealByMatchingId(_matchingId);
-        require(!exsits, "StorageDeal is not exists");
+        require(!exsits, "StorageDeal is exists");
         _;
     }
 
     modifier onlyStorageDealExistsByStorageId(uint256 _storageDealId) {
         require(
             hasStorageDealbyStorageDealId(_storageDealId),
-            "StorageDeal is exists"
+            "StorageDeal is not exists"
         );
         _;
     }
@@ -34,14 +34,14 @@ abstract contract IStorageDeals {
     modifier onlyStorageDealNotExistsByStorageId(uint256 _storageDealId) {
         require(
             !hasStorageDealbyStorageDealId(_storageDealId),
-            "StorageDeal is not exists"
+            "StorageDeal is exists"
         );
         _;
     }
 
     function submitMatchingCompletedEvent(
         uint256 _matchingId
-    ) external onlyStorageDealNotExists(_matchingId) {
+    ) external onlyStorageDealNotExistsByMatchingId(_matchingId) {
         storageDealsCount++;
         StorageDealType.StorageDeal storage storageDeal = storageDeals[
             storageDealsCount
@@ -56,7 +56,6 @@ abstract contract IStorageDeals {
         StorageDealType.StorageDeal storage storageDeal = storageDeals[
             _storageDealId
         ];
-
         storageDeal.reportSubmitPreviousDataCapProofExpired();
     }
 
@@ -68,7 +67,6 @@ abstract contract IStorageDeals {
         StorageDealType.StorageDeal storage storageDeal = storageDeals[
             _storageDealId
         ];
-
         storageDeal.submitPreviousDataCapProof(
             _proofs,
             _carsStorageContractAddress
