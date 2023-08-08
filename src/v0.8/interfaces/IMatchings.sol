@@ -12,9 +12,9 @@ import "../libraries/types/DatasetType.sol";
 abstract contract IMatchings {
     uint256 public matchingsCount;
     mapping(uint256 => MatchingType.Matching) public matchings;
-    address rolesContract;
-    address carsStorageContract;
-    address datasetsContract;
+    address public immutable rolesContract;
+    address public immutable carsStorageContract;
+    address public immutable datasetsContract;
 
     using MatchingLIB for MatchingType.Matching;
 

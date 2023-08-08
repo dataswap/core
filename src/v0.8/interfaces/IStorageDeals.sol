@@ -10,10 +10,10 @@ import "../libraries/types/RolesType.sol";
 abstract contract IStorageDeals {
     uint256 public storageDealsCount;
     mapping(uint256 => StorageDealType.StorageDeal) public storageDeals;
-    address rolesContract;
-    address carsStorageContract;
-    address datasetsContract;
-    address matchingContract;
+    address public immutable rolesContract;
+    address public immutable carsStorageContract;
+    address public immutable datasetsContract;
+    address public immutable matchingContract;
 
     using StorageDealLIB for StorageDealType.StorageDeal;
 
