@@ -77,9 +77,11 @@ library DatasetType {
     /// @param metadataAccessInfo the access info of DatasetProof metadata
     struct Proof {
         bytes32 rootHash;
-        bytes32[] leafHashes;
+        bytes32[] leafHashes; //cars
         string leafAccessInfo;
         string metadataAccessInfo;
+        bytes32 mappingFilesRootHash;
+        bytes32[] mappingFilesLeafHashes;
     }
 
     /// @notice Explain to an end user what this does

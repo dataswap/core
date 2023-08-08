@@ -30,7 +30,7 @@ library CarReplicaLIB {
 
         // Apply the state transition based on the event
         if (_event == CarReplicaType.Event.MatchingCompleted) {
-            if (currentState == CarReplicaType.State.None) {
+            if (currentState == CarReplicaType.State.Approved) {
                 newState = CarReplicaType.State.Matched;
             }
         } else if (_event == CarReplicaType.Event.StorageCompleted) {
@@ -39,20 +39,20 @@ library CarReplicaLIB {
             }
         } else if (_event == CarReplicaType.Event.StorageFailed) {
             if (currentState == CarReplicaType.State.Matched) {
-                newState = CarReplicaType.State.None;
+                newState = CarReplicaType.State.Approved;
             }
         } else if (_event == CarReplicaType.Event.StorageDealExpired) {
             if (currentState == CarReplicaType.State.Stored) {
-                newState = CarReplicaType.State.None;
+                newState = CarReplicaType.State.Approved;
             }
         } else if (_event == CarReplicaType.Event.StorageSlashed) {
             if (currentState == CarReplicaType.State.Stored) {
-                newState = CarReplicaType.State.None;
+                newState = CarReplicaType.State.Approved;
             }
         }
 
         // Update the state if newState is not None (i.e., a valid transition)
-        if (newState != CarReplicaType.State.None) {
+        if (newState != CarReplicaType.State.Approved) {
             self.state = newState;
         }
     }

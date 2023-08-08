@@ -4,7 +4,7 @@ pragma solidity ^0.8.21;
 
 library CarReplicaType {
     enum State {
-        None,
+        Approved,
         Matched,
         Stored
     }
