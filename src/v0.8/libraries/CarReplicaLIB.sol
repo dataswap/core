@@ -13,14 +13,6 @@ library CarReplicaLIB {
         self.matchingId = _matchingId;
     }
 
-    function setStorageDealId(
-        CarReplicaType.Replica storage self,
-        uint256 _storageDealId
-    ) internal {
-        require(_storageDealId != 0 && self.storageDealId != _storageDealId);
-        self.storageDealId = _storageDealId;
-    }
-
     function setFilecoinDealId(
         CarReplicaType.Replica storage self,
         uint256 _filecoinDealId

@@ -63,29 +63,6 @@ library CarLIB {
         replica.setMatchingId(_matchingId);
     }
 
-    function setStorageDealId(
-        CarReplicaType.Car storage self,
-        uint256 _matchingId,
-        uint256 _storageDealId
-    ) internal {
-        require(
-            !(_matchingId == 0),
-            "Invalid matching id for setStorageDealId"
-        );
-        require(
-            !(_storageDealId == 0),
-            "Invalid storage deal id for setStorageDealId"
-        );
-        (bool exists, uint256 replicaIndex) = hasReplica(self, _matchingId);
-        require(exists, "Replica is not exists");
-        CarReplicaType.Replica storage replica = self.replicas[replicaIndex];
-        require(
-            (_storageDealId != replica.storageDealId),
-            "Invalid set the same storage deal id for setStorageDealId"
-        );
-        replica.setStorageDealId(_storageDealId);
-    }
-
     function setFilecoinDealId(
         CarReplicaType.Car storage self,
         uint256 _matchingId,
@@ -102,10 +79,6 @@ library CarLIB {
         (bool exists, uint256 replicaIndex) = hasReplica(self, _matchingId);
         require(exists, "Replica is not exists");
         CarReplicaType.Replica storage replica = self.replicas[replicaIndex];
-        require(
-            replica.storageDealId != 0,
-            "Invalid storage deal id for setFilecoinDealId"
-        );
         require(
             _filecoinDealId != replica.filecoinDealId,
             "Invalid set the same filecoin deal id for setFilecoinDealId"

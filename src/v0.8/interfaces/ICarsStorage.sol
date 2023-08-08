@@ -44,19 +44,6 @@ abstract contract ICarStorage {
         car.addRepica(_matchingId);
     }
 
-    function setReplicaStorageDealId(
-        bytes32 _cid,
-        uint256 _matchingId,
-        uint256 _storageDealId
-    ) external onlyCarExists(_cid) {
-        require(
-            _matchingId != 0 && _storageDealId != 0,
-            "Invalid matching id or storage deal id for setReplicaStorageDealId"
-        );
-        CarReplicaType.Car storage car = cars[_cid];
-        car.setStorageDealId(_matchingId, _storageDealId);
-    }
-
     function setReplicaFilecoinDealId(
         bytes32 _cid,
         uint256 _matchingId,
