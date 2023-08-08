@@ -135,13 +135,13 @@ library MatchingLIB {
         if (winner == address(0)) {
             updateState(self, MatchingType.Event.NoWinner);
         } else {
-            self.winner = winner;
-            updateState(self, MatchingType.Event.HasWinner);
             postCompletionAction(
                 self,
                 _carsStorageContractAddress,
                 _matchingId
             );
+            self.winner = winner;
+            updateState(self, MatchingType.Event.HasWinner);
         }
     }
 
@@ -224,7 +224,7 @@ library MatchingLIB {
     ) internal {
         ICarStorage cars = ICarStorage(_carsStorageContractAddress);
         require(cars.hasCars(self.target.cars), "cars cids invalid");
-        for (uint256 i; i < self.target.cars.length; i++) {
+        for (uint256 i = 0; i < self.target.cars.length; i++) {
             cars.addReplica(self.target.cars[i], _matchingId);
         }
     }

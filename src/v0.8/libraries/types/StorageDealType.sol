@@ -27,10 +27,14 @@ library StorageDealType {
         Failed_PreviousDataCapChunkIsNotInitailChunk
     }
 
+    struct CarProof {
+        bytes32 car;
+        uint256 filcoinDealId;
+    }
+
     struct StorageDeal {
         uint256 matchingId;
+        uint256 storedCarsCount;
         State state;
-        uint256 carCount;
-        mapping(uint256 => CarReplicaType.Car) cars;
     }
 }

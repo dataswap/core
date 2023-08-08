@@ -2,27 +2,46 @@
 
 pragma solidity ^0.8.21;
 
-import "../libraries/CarLIB.sol";
-import "../libraries/CarReplicaLIB.sol";
-import "../libraries/StorageDealLIB.sol";
 import "../libraries/StorageDealLIB.sol";
 import "../libraries/types/StorageDealType.sol";
-import "../libraries/types/CarReplicaType.sol";
-import "../libraries/utils/ArrayUtils.sol";
 
 abstract contract IStorageDeals {
-    uint256 private storageDealsCount;
-    mapping(uint256 => StorageDealType.StorageDeal) storageDeals;
-    //TODO:delete
-    CarReplicaType.Car[] cars;
+    uint256 public storageDealsCount;
+    mapping(uint256 => StorageDealType.StorageDeal) public storageDeals;
 
     using StorageDealLIB for StorageDealType.StorageDeal;
-    using ArrayUtil for bytes32[];
-    using CarLIB for CarReplicaType.Car;
-    using CarReplicaLIB for CarReplicaType.Replica;
 
-    //TODO:require matching contract
-    function submitMatchingCompletedEvent(uint256 _matchingId) external {
+    modifier onlyStorageDealExists(uint256 _matchingId) {
+        (bool exsits, ) = hasStorageDealByMatchingId(_matchingId);
+        require(exsits, "StorageDeal is exists");
+        _;
+    }
+
+    modifier onlyStorageDealNotExists(uint256 _matchingId) {
+        (bool exsits, ) = hasStorageDealByMatchingId(_matchingId);
+        require(!exsits, "StorageDeal is not exists");
+        _;
+    }
+
+    modifier onlyStorageDealExistsByStorageId(uint256 _storageDealId) {
+        require(
+            hasStorageDealbyStorageDealId(_storageDealId),
+            "StorageDeal is exists"
+        );
+        _;
+    }
+
+    modifier onlyStorageDealNotExistsByStorageId(uint256 _storageDealId) {
+        require(
+            !hasStorageDealbyStorageDealId(_storageDealId),
+            "StorageDeal is not exists"
+        );
+        _;
+    }
+
+    function submitMatchingCompletedEvent(
+        uint256 _matchingId
+    ) external onlyStorageDealNotExists(_matchingId) {
         storageDealsCount++;
         StorageDealType.StorageDeal storage storageDeal = storageDeals[
             storageDealsCount
@@ -32,53 +51,61 @@ abstract contract IStorageDeals {
     }
 
     function reportSubmitPreviousDataCapProofExpired(
-        uint256 storageDealId
-    ) external {
+        uint256 _storageDealId
+    ) external onlyStorageDealExistsByStorageId(_storageDealId) {
         StorageDealType.StorageDeal storage storageDeal = storageDeals[
-            storageDealId
+            _storageDealId
         ];
+
         storageDeal.reportSubmitPreviousDataCapProofExpired();
     }
 
     function submitPreviousDataCapProof(
-        uint256 storageDealId,
-        bytes32[] memory _carCids,
-        uint256[] memory /*_filecoinDealIds*/
-    ) external {
+        uint256 _storageDealId,
+        StorageDealType.CarProof[] memory _proofs,
+        address _carsStorageContractAddress
+    ) external virtual onlyStorageDealExistsByStorageId(_storageDealId) {
         StorageDealType.StorageDeal storage storageDeal = storageDeals[
-            storageDealId
+            _storageDealId
         ];
 
-        //TODO
-        for (uint256 i; i < _carCids.length; i++) {
-            // storageDeal.carCount++;
-            // CarReplicaType.Replica memory replica = CarReplicaType.Replica(
-            //     storageDeal.matchingId,
-            //     storageDealId,
-            //     _filecoinDealIds[i],
-            //     CarReplicaType.State.Notverified
-            // );
-            // CarReplicaType.Replica[1] memory replicas = [replica];
-            // storageDeal.cars[storageDeal.carCount] = CarReplicaType.Car(
-            //     _carCids[i],
-            // );
-            // cars.push(CarReplicaType.Car(_carCids[i], []));
-        }
-
-        // bytes32[] storage cids = storageDeal.proof.cids;
-        // bytes32[] storage filecoinDealIds = storageDeal.proof.filecoinDealIds;
-        // cids.appendArrayBytes32(_proof.cids);
-        // filecoinDealIds.appendArrayBytes32(_proof.filecoinDealIds);
-
-        storageDeal.submitPreviousDataCapProof(cars);
+        storageDeal.submitPreviousDataCapProof(
+            _proofs,
+            _carsStorageContractAddress
+        );
     }
 
     function getState(
-        uint256 storageDealId
-    ) public view returns (StorageDealType.State) {
+        uint256 _storageDealId
+    )
+        public
+        view
+        onlyStorageDealExistsByStorageId(_storageDealId)
+        returns (StorageDealType.State)
+    {
         StorageDealType.StorageDeal storage storageDeal = storageDeals[
-            storageDealId
+            _storageDealId
         ];
         return storageDeal.getState();
+    }
+
+    function hasStorageDealByMatchingId(
+        uint256 _matchingId
+    ) public view returns (bool, uint256) {
+        require(_matchingId != 0, "Invalid matching id");
+        for (uint256 i = 1; i <= storageDealsCount; i++) {
+            if (_matchingId == storageDeals[i].matchingId) return (true, i);
+        }
+        return (false, 0);
+    }
+
+    function hasStorageDealbyStorageDealId(
+        uint256 _storageDealId
+    ) public view returns (bool) {
+        require(
+            _storageDealId != 0 && _storageDealId < storageDealsCount,
+            "Invalid storage deal id"
+        );
+        return storageDeals[_storageDealId].matchingId != 0;
     }
 }

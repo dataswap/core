@@ -4,9 +4,9 @@ pragma solidity ^0.8.21;
 
 import "./types/StorageDealType.sol";
 import "./types/CarReplicaType.sol";
+import "../interfaces/ICarsStorage.sol";
 
 library StorageDealLIB {
-    //TODO:require matching contract
     function submitMatchingCompletedEvent(
         StorageDealType.StorageDeal storage self
     ) external {
@@ -29,8 +29,7 @@ library StorageDealLIB {
             self,
             StorageDealType.Event.SubmitPreviousDataCapProofExpired
         );
-        //TODO:check PreviousDataCapChunkIsInitailChunk
-        if (true) {
+        if (isPreviousDataCapChunkIsInitailChunk(self)) {
             updateState(
                 self,
                 StorageDealType.Event.Failed_PreviousDataCapChunkIsInitailChunk
@@ -47,21 +46,21 @@ library StorageDealLIB {
 
     function submitPreviousDataCapProof(
         StorageDealType.StorageDeal storage self,
-        CarReplicaType.Car[] storage _proof
+        StorageDealType.CarProof[] memory _proofs,
+        address _carsStorageContractAddress
     ) external {
         require(
             self.state == StorageDealType.State.DataCapChunkAllocated,
             "Invalid state for submitting previous data cap proof"
         );
-
-        //TODO:require SubmitPreviousDataCapProof condition
         updateState(self, StorageDealType.Event.SubmitPreviousDataCapProof);
-        verifyDataCapChunkProof(self, _proof);
+        verifyDataCapChunkProof(self, _proofs, _carsStorageContractAddress);
     }
 
     function verifyDataCapChunkProof(
         StorageDealType.StorageDeal storage self,
-        CarReplicaType.Car[] storage /*_proof*/
+        StorageDealType.CarProof[] memory _proofs,
+        address _carsStorageContractAddress
     ) internal {
         require(
             self.state ==
@@ -71,8 +70,9 @@ library StorageDealLIB {
 
         //TODO:require verify condition
         if (true) {
-            //TODO: check previousDataCapIsLastChunk
-            if (true) {
+            self.storedCarsCount += _proofs.length;
+            postCarVerifiedAction(self, _proofs, _carsStorageContractAddress);
+            if (isPreviousDataCapIsLastChunk(self)) {
                 updateState(
                     self,
                     StorageDealType
@@ -92,8 +92,7 @@ library StorageDealLIB {
                 self,
                 StorageDealType.Event.DataCapChunkProofVerificationFailed
             );
-            //TODO:check PreviousDataCapChunkIsInitailChunk
-            if (true) {
+            if (isPreviousDataCapChunkIsInitailChunk(self)) {
                 updateState(
                     self,
                     StorageDealType
@@ -214,5 +213,34 @@ library StorageDealLIB {
         StorageDealType.StorageDeal storage self
     ) public view returns (StorageDealType.State) {
         return self.state;
+    }
+
+    function postCarVerifiedAction(
+        StorageDealType.StorageDeal storage self,
+        StorageDealType.CarProof[] memory _proofs,
+        address _carsStorageContractAddress
+    ) internal {
+        ICarStorage cars = ICarStorage(_carsStorageContractAddress);
+        //TODO: require: cars of proofs should included in matching and in carsStorage
+        for (uint256 i = 0; i < _proofs.length; i++) {
+            cars.setReplicaFilecoinDealId(
+                _proofs[i].car,
+                self.matchingId,
+                _proofs[i].filcoinDealId
+            );
+        }
+    }
+
+    function isPreviousDataCapChunkIsInitailChunk(
+        StorageDealType.StorageDeal storage self
+    ) internal view returns (bool) {
+        return self.storedCarsCount == 0;
+    }
+
+    function isPreviousDataCapIsLastChunk(
+        StorageDealType.StorageDeal storage self
+    ) internal view returns (bool) {
+        //TODO:call matching contract,checkout cids[] length
+        return self.storedCarsCount > 0;
     }
 }
