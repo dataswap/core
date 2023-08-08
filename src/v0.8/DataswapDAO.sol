@@ -8,9 +8,9 @@ import "./libraries/types/RolesType.sol";
 contract DataswapDAO is IDataswapDAO {
     constructor(
         IVotes _token,
-        IRoles _role,
+        address _roleContract,
         TimelockController _timelock
-    ) IDataswapDAO(_token, _role, _timelock) {}
+    ) IDataswapDAO(_token, _roleContract, _timelock) {}
 
     function votingDelay() public pure override returns (uint256) {
         return 2880; // 1days

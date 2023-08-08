@@ -16,18 +16,19 @@ abstract contract IDataswapDAO is
     GovernorVotesQuorumFraction,
     GovernorTimelockControl
 {
-    IRoles public immutable rolesContract;
+    address public immutable rolesContract;
 
     /// @notice Explain to an end user what this does
     /// @dev Explain to a developer any extra details
     modifier onlyRole(bytes32 _role) {
-        require(rolesContract.hasRole(_role, msg.sender), "No permission!");
+        IRoles role = IRoles(rolesContract);
+        require(role.hasRole(_role, msg.sender), "No permission!");
         _;
     }
 
     constructor(
         IVotes _token,
-        IRoles _rolesContract,
+        address _rolesContract,
         TimelockController _timelock
     )
         Governor("DataswapDAO")
