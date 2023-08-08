@@ -4,20 +4,19 @@ pragma solidity ^0.8.21;
 
 library CarReplicaType {
     enum State {
-        Notverified,
-        WaitingForDealMatching,
-        DealMatched,
+        None,
+        Matched,
         Stored
     }
 
     enum Event {
-        DatasetAppoved, //Condition_DatasetAppoved
-        MatchingCompleted, //Condition_AuctionOrTenderCompleted
-        StorageCompleted, //Condition_StorageCompleted
-        StorageFailed, //Condition_StorageFailed
-        RenewalDeal,
-        StorageDealExpired, //Condition_StorageDealExpired_Or_Slashed,
-        StorageSlashed //Condition_StorageDealExpired_Or_Slashed
+        //Adding a replica indicates that the matching has been completed.
+        MatchingCompleted,
+        //Set a replica filecoin deal id indicates that the storage has been completed.
+        StorageCompleted,
+        StorageFailed,
+        StorageDealExpired,
+        StorageSlashed
     }
 
     struct Replica {
@@ -29,6 +28,13 @@ library CarReplicaType {
 
     struct Car {
         bytes32 cid;
-        Replica[] replicas;
+        uint256 replicasCount;
+        mapping(uint256 => Replica) replicas;
+    }
+
+    struct CarsStorage {
+        uint256 carsCount;
+        //car cid => Car
+        mapping(bytes32 => Car) cars;
     }
 }
