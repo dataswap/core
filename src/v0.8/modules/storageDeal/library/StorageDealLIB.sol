@@ -1,3 +1,19 @@
+/*******************************************************************************
+ *   (c) 2023 DataSwap
+ *
+ *  Licensed under the GNU General Public License, Version 3.0 or later (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ********************************************************************************/
+
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 pragma solidity ^0.8.21;
@@ -6,7 +22,11 @@ import "../../../types/StorageDealType.sol";
 import "../../../types/CarReplicaType.sol";
 import "../../../core/carsStorage/abstract/CarsStorageBase.sol";
 
+/// @title StorageDeal Library
+/// @notice A library containing functions related to storage deals and their processing.
 library StorageDealLIB {
+    /// @notice Submit a MatchingCompleted event to signal the completion of a matching
+    /// @param self The StorageDeal storage instance
     function submitMatchingCompletedEvent(
         StorageDealType.StorageDeal storage self
     ) external {
@@ -17,6 +37,8 @@ library StorageDealLIB {
         postEvent(self, StorageDealType.Event.MatchingCompleted);
     }
 
+    /// @notice Report the expiration of submitting previous data cap proof
+    /// @param self The StorageDeal storage instance
     function reportSubmitPreviousDataCapProofExpired(
         StorageDealType.StorageDeal storage self
     ) external {
@@ -44,6 +66,10 @@ library StorageDealLIB {
         }
     }
 
+    /// @notice Submit proof of previous data cap for storage deals
+    /// @param self The StorageDeal storage instance
+    /// @param _proofs Array of CarProof structures containing the proofs of previous data cap
+    /// @param _carsStorageContractAddress The address of the CarsStorage contract
     function submitPreviousDataCapProof(
         StorageDealType.StorageDeal storage self,
         StorageDealType.CarProof[] memory _proofs,
@@ -57,6 +83,10 @@ library StorageDealLIB {
         verifyDataCapChunkProof(self, _proofs, _carsStorageContractAddress);
     }
 
+    /// @notice Verify the submitted data cap chunk proof
+    /// @param self The StorageDeal storage instance
+    /// @param _proofs Array of CarProof structures containing the proofs to be verified
+    /// @param _carsStorageContractAddress The address of the CarsStorage contract
     function verifyDataCapChunkProof(
         StorageDealType.StorageDeal storage self,
         StorageDealType.CarProof[] memory _proofs,
@@ -110,6 +140,9 @@ library StorageDealLIB {
         }
     }
 
+    /// @notice Post an event and update the matching's state
+    /// @param self The StorageDeal storage instance
+    /// @param _event The event to be posted
     function postEvent(
         StorageDealType.StorageDeal storage self,
         StorageDealType.Event _event
@@ -209,12 +242,19 @@ library StorageDealLIB {
         }
     }
 
+    /// @notice Get the current state of the StorageDeal instance.
+    /// @param self The StorageDeal storage instance
+    /// @return The current state of the StorageDeal.
     function getState(
         StorageDealType.StorageDeal storage self
     ) public view returns (StorageDealType.State) {
         return self.state;
     }
 
+    /// @notice Perform actions after successful verification of CarProofs.
+    /// @param self The StorageDeal storage instance
+    /// @param _proofs Array of CarProof structures containing the proofs that were verified
+    /// @param _carsStorageContractAddress The address of the CarsStorage contract
     function postCarVerifiedAction(
         StorageDealType.StorageDeal storage self,
         StorageDealType.CarProof[] memory _proofs,
@@ -231,12 +271,18 @@ library StorageDealLIB {
         }
     }
 
+    /// @notice Check if the previous data cap chunk is the initial chunk.
+    /// @param self The StorageDeal storage instance
+    /// @return True if the previous data cap chunk is the initial chunk, otherwise false.
     function isPreviousDataCapChunkIsInitailChunk(
         StorageDealType.StorageDeal storage self
     ) internal view returns (bool) {
         return self.storedCarsCount == 0;
     }
 
+    /// @notice Check if the previous data cap is the last chunk.
+    /// @param self The StorageDeal storage instance
+    /// @return True if the previous data cap is the last chunk, otherwise false.
     function isPreviousDataCapIsLastChunk(
         StorageDealType.StorageDeal storage self
     ) internal view returns (bool) {

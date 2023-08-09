@@ -32,33 +32,33 @@ contract FilPlus is IFilPlus, Ownable2Step {
     using FilPlusLIB for FilPlusType.Rules;
 
     /// @notice Event emitted when the minimum region count required for FilPlus is set.
-    event MinRegionCountSet(uint256 newMinRegionCount);
+    event MinRegionCountSet(uint256 _newMinRegionCount);
 
     /// @notice Event emitted when the default maximum replicas allowed per country in FilPlus is set.
     event DefaultMaxReplicasPerCountrySet(
-        uint256 newDefaultMaxReplicasPerCountry
+        uint256 _newDefaultMaxReplicasPerCountry
     );
 
     /// @notice Event emitted when the maximum replicas limit for a specific city code in FilPlus is set.
     event MaxReplicasInCountrySet(
-        bytes2 indexed cityCode,
-        uint256 newMaxReplicasInCountry
+        bytes2 indexed _cityCode,
+        uint256 _newMaxReplicasInCountry
     );
 
     /// @notice Event emitted when the maximum replicas allowed per city in FilPlus is set.
-    event MaxReplicasPerCitySet(uint256 newMaxReplicasPerCity);
+    event MaxReplicasPerCitySet(uint256 _newMaxReplicasPerCity);
 
     /// @notice Event emitted when the minimum storage provider count required for FilPlus is set.
-    event MinSPCountSet(uint256 newMinSPCount);
+    event MinSPCountSet(uint256 _newMinSPCount);
 
     /// @notice Event emitted when the maximum replicas allowed per storage provider in FilPlus is set.
-    event MaxReplicasPerSPSet(uint256 newMaxReplicasPerSP);
+    event MaxReplicasPerSPSet(uint256 _newMaxReplicasPerSP);
 
     /// @notice Event emitted when the minimum total replicas required for FilPlus is set.
-    event MinTotalReplicasSet(uint256 newMinTotalReplicas);
+    event MinTotalReplicasSet(uint256 _newMinTotalReplicas);
 
     /// @notice Event emitted when the maximum total replicas allowed for FilPlus is set.
-    event MaxTotalReplicasSet(uint256 newMaxTotalReplicas);
+    event MaxTotalReplicasSet(uint256 _newMaxTotalReplicas);
 
     /// @notice Set the minimum region count required for FilPlus.
     /// @param _minRegionCount The new minimum region count.

@@ -19,11 +19,14 @@ pragma solidity ^0.8.21;
 
 import "../../../types/StorageDealType.sol";
 
-/// @notice Explain to an end user what this does
-/// @dev Explain to a developer any extra details
+/// @title DatacapChunkProofVerifier Library
+/// @notice This library provides functions to verify data cap chunk proofs for storage deals.
+/// @dev This library is intended to be used in conjunction with storage deal contracts.
 library DatacapChunkProofVerifier {
-    /// @notice Explain to an end user what this does
-    /// @dev Explain to a developer any extra details
+    /// @notice Verify a data cap chunk proof for a given storage deal and car proof.
+    /// @param _storageDeal The storage deal to which the data cap proof is associated.
+    /// @param _proof The car proof containing the data cap chunk proof.
+    /// @return A boolean indicating whether the verification was successful.
     function verify(
         StorageDealType.StorageDeal memory _storageDeal,
         StorageDealType.CarProof memory _proof

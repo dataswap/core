@@ -34,16 +34,16 @@ abstract contract CarsStorageBase is Ownable2Step, ICarsStorage {
     using CarLIB for CarReplicaType.Car;
 
     /// @notice Emitted when multiple cars are added to the storage.
-    event CarsAdded(bytes32[] cids);
+    event CarsAdded(bytes32[] _cids);
 
     /// @notice Emitted when a replica is added to a car.
-    event ReplicaAdded(bytes32 indexed cid, uint256 matchingId);
+    event ReplicaAdded(bytes32 indexed _cid, uint256 _matchingId);
 
     /// @notice Emitted when the Filecoin deal ID is set for a replica's storage.
     event ReplicaFilecoinDealIdSet(
-        bytes32 indexed cid,
-        uint256 matchingId,
-        uint256 filecoinDealId
+        bytes32 indexed _cid,
+        uint256 _matchingId,
+        uint256 _filecoinDealId
     );
 
     /// @dev Modifier to check if a car exists based on its CID.
