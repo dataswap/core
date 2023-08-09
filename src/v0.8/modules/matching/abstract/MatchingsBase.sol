@@ -53,6 +53,34 @@ abstract contract MatchingsBase is Ownable2Step {
         datasetsContract = _datasetsContract;
     }
 
+    /// @notice Event emitted when a matching is published.
+    /// @param matchingId The ID of the published matching.
+    event MatchingPublished(uint256 indexed matchingId);
+
+    /// @notice Event emitted when a matching is paused.
+    /// @param matchingId The ID of the paused matching.
+    event MatchingPaused(uint256 indexed matchingId);
+
+    /// @notice Event emitted when the pause of a matching is reported as expired.
+    /// @param matchingId The ID of the matching for which the pause expired.
+    event PauseExpiredReported(uint256 indexed matchingId);
+
+    /// @notice Event emitted when a matching is resumed.
+    /// @param matchingId The ID of the resumed matching.
+    event MatchingResumed(uint256 indexed matchingId);
+
+    /// @notice Event emitted when a matching is canceled.
+    /// @param matchingId The ID of the canceled matching.
+    event MatchingCanceled(uint256 indexed matchingId);
+
+    /// @notice Event emitted when a bid is placed in a matching.
+    /// @param matchingId The ID of the matching in which the bid was placed.
+    event BidPlaced(uint256 indexed matchingId);
+
+    /// @notice Event emitted when a matching is closed.
+    /// @param matchingId The ID of the closed matching.
+    event MatchingClosed(uint256 indexed matchingId);
+
     /// @notice Modifier: Check if the provided matching ID is valid.
     /// @dev This modifier ensures that the provided matching ID is within a valid range.
     /// @param _matchingId The matching ID to be checked.
@@ -140,6 +168,7 @@ abstract contract MatchingsBase is Ownable2Step {
         newMatching.createdBlockNumber = block.number;
 
         newMatching.publish();
+        emit MatchingPublished(matchingsCount);
     }
 
     /// @notice Pause a matching.
@@ -150,6 +179,7 @@ abstract contract MatchingsBase is Ownable2Step {
     ) external validMatchingId(_matchingId) onlyInitiator(_matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching.pause();
+        emit MatchingPaused(_matchingId);
     }
 
     /// @notice Report the expiration of a pause for a matching.
@@ -160,6 +190,7 @@ abstract contract MatchingsBase is Ownable2Step {
     ) external validMatchingId(_matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching.reportPauseExpired();
+        emit PauseExpiredReported(_matchingId);
     }
 
     /// @notice Resume a paused matching.
@@ -170,6 +201,7 @@ abstract contract MatchingsBase is Ownable2Step {
     ) external validMatchingId(_matchingId) onlyInitiator(_matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching.resume();
+        emit MatchingResumed(_matchingId);
     }
 
     /// @notice Cancel a matching.
@@ -180,6 +212,7 @@ abstract contract MatchingsBase is Ownable2Step {
     ) external validMatchingId(_matchingId) onlyInitiator(_matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching.cancel();
+        emit MatchingCanceled(_matchingId);
     }
 
     /// @notice Place a bid in a matching.
@@ -192,6 +225,7 @@ abstract contract MatchingsBase is Ownable2Step {
     ) external validMatchingId(_matchingId) onlyDPorSP {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching.bidding(_bid);
+        emit BidPlaced(_matchingId);
     }
 
     /// @notice Close a matching and determine the winner.
@@ -205,6 +239,7 @@ abstract contract MatchingsBase is Ownable2Step {
     ) external validMatchingId(_matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching.close(_rule, carsStorageContract, _matchingId);
+        emit MatchingClosed(_matchingId);
     }
 
     /// @dev TODO: cid check, etc
