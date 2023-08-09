@@ -2,6 +2,7 @@
 
 pragma solidity ^0.8.21;
 
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "../../../types/MatchingType.sol";
 import "../../../types/RolesType.sol";
 import "../../../types/DatasetType.sol";
@@ -9,7 +10,7 @@ import "../../../core/accessControl/interface/IRoles.sol";
 import "../../dataset/abstract/DatasetsBase.sol";
 import "../library/MatchingLIB.sol";
 
-abstract contract MatchingsBase {
+abstract contract MatchingsBase is Ownable2Step {
     uint256 public matchingsCount;
     mapping(uint256 => MatchingType.Matching) public matchings;
     address public immutable rolesContract;

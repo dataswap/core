@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
 import "@openzeppelin/contracts/governance/Governor.sol";
@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBr
 import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "../../accessControl/interface/IRoles.sol";
 import "../../../types/RolesType.sol";
 
@@ -14,7 +15,8 @@ abstract contract DataswapDAOBase is
     GovernorCompatibilityBravo,
     GovernorVotes,
     GovernorVotesQuorumFraction,
-    GovernorTimelockControl
+    GovernorTimelockControl,
+    Ownable2Step
 {
     address public immutable rolesContract;
 

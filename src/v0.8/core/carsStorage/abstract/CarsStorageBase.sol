@@ -2,11 +2,12 @@
 
 pragma solidity ^0.8.21;
 
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "../../..//types/CarReplicaType.sol";
 import "../library/CarReplicaLIB.sol";
 import "../library/CarLIB.sol";
 
-abstract contract CarsStorageBase {
+abstract contract CarsStorageBase is Ownable2Step {
     uint256 public carsCount;
     //car cid => Car
     mapping(bytes32 => CarReplicaType.Car) public cars;

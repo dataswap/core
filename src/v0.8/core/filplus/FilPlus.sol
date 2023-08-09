@@ -2,11 +2,12 @@
 
 pragma solidity ^0.8.21;
 
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "../../types/FilPlusType.sol";
 import "./library/FilPlusLIB.sol";
 import "./interface/IFilPlus.sol";
 
-contract FilPlus is IFilPlus {
+contract FilPlus is IFilPlus, Ownable2Step {
     FilPlusType.Rules rules;
 
     using FilPlusLIB for FilPlusType.Rules;

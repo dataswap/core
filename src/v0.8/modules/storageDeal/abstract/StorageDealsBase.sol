@@ -6,8 +6,9 @@ import "../../../types/StorageDealType.sol";
 import "../../../types/RolesType.sol";
 import "../../../core/accessControl/interface/IRoles.sol";
 import "../library/StorageDealLIB.sol";
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-abstract contract StorageDealsBase {
+abstract contract StorageDealsBase is Ownable2Step {
     uint256 public storageDealsCount;
     mapping(uint256 => StorageDealType.StorageDeal) public storageDeals;
     address public immutable rolesContract;

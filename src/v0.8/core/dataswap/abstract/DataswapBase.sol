@@ -1,11 +1,12 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-abstract contract DataswapBase is ERC20, ERC20Permit, ERC20Votes {
+abstract contract DataswapBase is ERC20, ERC20Permit, ERC20Votes, Ownable2Step {
     constructor() ERC20("DataSwap", "DSWAP") ERC20Permit("DSWAP") {}
 
     // The functions below are overrides required by Solidity.
