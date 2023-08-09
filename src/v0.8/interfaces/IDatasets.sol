@@ -19,21 +19,18 @@ abstract contract IDatasets is Ownable2Step {
     mapping(uint256 => DatasetType.Dataset) public datasets;
     address public immutable rolesContract;
     address payable public immutable governanceContract;
-    address public immutable carsStorageContractAddress;
-    address public immutable verifyContract;
+    address public immutable carsStorageContract;
 
     using DatasetLIB for DatasetType.Dataset;
 
     constructor(
         address payable _governanceContract,
         address _rolesContract,
-        address _verifyContract,
-        address _carsStorageContractAddress
+        address _carsStorageContract
     ) {
         governanceContract = _governanceContract;
         rolesContract = _rolesContract;
-        verifyContract = _verifyContract;
-        carsStorageContractAddress = _carsStorageContractAddress;
+        carsStorageContract = _carsStorageContract;
     }
 
     /// @notice Explain to an end user what this does
@@ -118,7 +115,6 @@ abstract contract IDatasets is Ownable2Step {
         return
             dataset.submitVerification(
                 _verification,
-                verifyContract,
                 governanceContract,
                 datasetId,
                 address(this)
@@ -179,7 +175,7 @@ abstract contract IDatasets is Ownable2Step {
 
     function postApprovedAction(uint256 _datasetId) internal {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        ICarsStorage cars = ICarsStorage(carsStorageContractAddress);
+        ICarsStorage cars = ICarsStorage(carsStorageContract);
         require(!cars.hasCars(dataset.proof.leafHashes), "cars cids invalid");
         cars.addCars(dataset.proof.leafHashes);
         cars.addCars(dataset.proof.mappingFilesLeafHashes);

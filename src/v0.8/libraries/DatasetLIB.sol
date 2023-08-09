@@ -2,9 +2,9 @@
 pragma solidity ^0.8.21;
 
 import "./types/DatasetType.sol";
-import "../interfaces/IDatasetVerify.sol";
 import "../interfaces/IDataswapDAO.sol";
 import "../libraries/utils/StringUtils.sol";
+import "./verifiers/DatasetVerifier.sol";
 
 /// @notice Explain to an end user what this does
 /// @dev Explain to a developer any extra details
@@ -39,19 +39,16 @@ library DatasetLIB {
     /// @param self parameter just like in doxygen (must be followed by parameter name)
     /// @param _verification parameter just like in doxygen (must be followed by parameter name)
     /// @param _verification parameter just like in doxygen (must be followed by parameter name)
-    /// @param _verifyContract parameter just like in doxygen (must be followed by parameter name)
     function submitVerification(
         DatasetType.Dataset storage self,
         DatasetType.Verification calldata _verification,
-        address _verifyContract,
         address payable _governanceContract,
         uint256 _datasetId,
         address _callbackTarget
     ) external returns (DatasetType.VerifyResult) {
         //TODO: require check
         self.verifications.push(_verification);
-        IDatasetVerify verifyContract = IDatasetVerify(_verifyContract);
-        DatasetType.VerifyResult result = verifyContract.verify(self);
+        DatasetType.VerifyResult result = DatasetVerifier.verify(self);
 
         if (result == DatasetType.VerifyResult.Approved) {
             approveDataset(self);
