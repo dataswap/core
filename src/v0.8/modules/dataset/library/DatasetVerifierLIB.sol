@@ -22,7 +22,7 @@ import "../../../types/DatasetType.sol";
 /// @title Dataset Verifier Library
 /// @notice This library provides functions for verifying datasets.
 /// @dev This library is used to verify the integrity of datasets.
-library DatasetVerifier {
+library DatasetVerifierLIB {
     /// @notice Verify a dataset's integrity.
     /// @dev This function is used to verify the integrity of a dataset's proofs and metadata.
     /// @param _dataset The dataset to be verified.

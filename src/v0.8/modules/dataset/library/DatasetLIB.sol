@@ -18,9 +18,9 @@
 pragma solidity ^0.8.21;
 
 import "../../../types/DatasetType.sol";
-import "../../../core/dataswapDAO/abstract/DataswapDAOBase.sol";
+import "../../../core/dataswapDAO/DataswapDAO.sol";
 import "../../../shared/utils/StringUtils.sol";
-import "../verifier/DatasetVerifier.sol";
+import "./DatasetVerifierLIB.sol";
 
 /// @title Dataset Library
 /// @notice This library provides functions to manage datasets and their metadata, proofs, and verifications.
@@ -68,7 +68,7 @@ library DatasetLIB {
     ) external returns (DatasetType.VerifyResult) {
         //TODO: require check
         self.verifications.push(_verification);
-        DatasetType.VerifyResult result = DatasetVerifier.verify(self);
+        DatasetType.VerifyResult result = DatasetVerifierLIB.verify(self);
 
         if (result == DatasetType.VerifyResult.Approved) {
             approveDataset(self);
@@ -77,7 +77,7 @@ library DatasetLIB {
         } else if (result == DatasetType.VerifyResult.RequestDispute) {
             requestAudit(
                 self,
-                DataswapDAOBase(_governanceContract),
+                DataswapDAO(_governanceContract),
                 "Dataset Verification Audit:",
                 _datasetId,
                 _callbackTarget
@@ -207,7 +207,7 @@ library DatasetLIB {
     /// @return The ID of the created governance proposal.
     function requestAudit(
         DatasetType.Dataset storage /*self*/,
-        DataswapDAOBase _dataswapDao,
+        DataswapDAO _dataswapDao,
         string memory _description,
         uint256 _datasetId,
         address _target

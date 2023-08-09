@@ -20,25 +20,6 @@ pragma solidity ^0.8.21;
 /// @title ICarsStorageBase
 /// @notice Interface for the CarsStorageBase contract, which allows adding cars and managing their associated replicas.
 interface ICarStore {
-    /// @notice Add multiple cars to the storage.
-    /// @param _cids Array of car CIDs to be added.
-    function addCars(bytes32[] memory _cids, uint256 _datasetId) external;
-
-    /// @notice Add a replica to a car.
-    /// @param _cid Car CID to which the replica will be added.
-    /// @param _matchingId Matching ID for the new replica.
-    function addReplica(bytes32 _cid, uint256 _matchingId) external;
-
-    /// @notice Set the Filecoin deal ID for a replica's storage.
-    /// @param _cid Car CID associated with the replica.
-    /// @param _matchingId Matching ID of the replica.
-    /// @param _filecoinDealId New Filecoin deal ID to set for the replica's storage.
-    function setReplicaFilecoinDealId(
-        bytes32 _cid,
-        uint256 _matchingId,
-        uint256 _filecoinDealId
-    ) external;
-
     /// @notice Get the count of replicas associated with a car.
     /// @param _cid Car CID for which to retrieve the replica count.
     /// @return The count of replicas associated with the car.
@@ -62,22 +43,6 @@ interface ICarStore {
         bytes32 _cid,
         uint256 _matchingId
     ) external view returns (bool);
-
-    /// @notice Report that storage of a replica has failed.
-    /// @param _cid Car CID associated with the replica.
-    /// @param _matchingId Matching ID of the replica.
-    function reportReplicaStorageFailed(
-        bytes32 _cid,
-        uint256 _matchingId
-    ) external;
-
-    /// @notice Report that storage deal for a replica has expired.
-    /// @param _cid Car CID associated with the replica.
-    /// @param _matchingId Matching ID of the replica.
-    function reportReplicaStorageDealExpired(
-        bytes32 _cid,
-        uint256 _matchingId
-    ) external;
 
     /// @notice Report that storage of a replica has been slashed.
     /// @param _cid Car CID associated with the replica.

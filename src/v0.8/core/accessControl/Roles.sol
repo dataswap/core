@@ -20,7 +20,7 @@ pragma solidity ^0.8.21;
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
-import "./interface/IRoles.sol";
+import "./IRoles.sol";
 
 /// @title Role Contract
 /// @notice This contract defines the role-based access control for various roles within the system.

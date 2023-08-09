@@ -20,7 +20,6 @@ pragma solidity ^0.8.21;
 
 import "../../../types/StorageDealType.sol";
 import "../../../types/CarReplicaType.sol";
-import "../../../core/carStore/interface/ICarStore.sol";
 
 /// @title StorageDeal Library
 /// @notice A library containing functions related to storage deals and their processing.
@@ -69,28 +68,24 @@ library StorageDealLIB {
     /// @notice Submit proof of previous data cap for storage deals
     /// @param self The StorageDeal storage instance
     /// @param _proofs Array of CarProof structures containing the proofs of previous data cap
-    /// @param _carsStorageContractAddress The address of the CarsStorage contract
     function submitPreviousDataCapProof(
         StorageDealType.StorageDeal storage self,
-        StorageDealType.CarProof[] memory _proofs,
-        address _carsStorageContractAddress
+        StorageDealType.CarProof[] memory _proofs
     ) external {
         require(
             self.state == StorageDealType.State.DataCapChunkAllocated,
             "Invalid state for submitting previous data cap proof"
         );
         postEvent(self, StorageDealType.Event.SubmitPreviousDataCapProof);
-        verifyDataCapChunkProof(self, _proofs, _carsStorageContractAddress);
+        verifyDataCapChunkProof(self, _proofs);
     }
 
     /// @notice Verify the submitted data cap chunk proof
     /// @param self The StorageDeal storage instance
     /// @param _proofs Array of CarProof structures containing the proofs to be verified
-    /// @param _carsStorageContractAddress The address of the CarsStorage contract
     function verifyDataCapChunkProof(
         StorageDealType.StorageDeal storage self,
-        StorageDealType.CarProof[] memory _proofs,
-        address _carsStorageContractAddress
+        StorageDealType.CarProof[] memory _proofs
     ) internal {
         require(
             self.state ==
@@ -101,7 +96,7 @@ library StorageDealLIB {
         //TODO:require verify condition
         if (true) {
             self.storedCarsCount += _proofs.length;
-            postCarVerifiedAction(self, _proofs, _carsStorageContractAddress);
+            // postCarVerifiedAction(self, _proofs, _carsStorageContractAddress);
             if (isPreviousDataCapIsLastChunk(self)) {
                 postEvent(
                     self,
@@ -251,25 +246,26 @@ library StorageDealLIB {
         return self.state;
     }
 
+    /// TODO: place into contract
     /// @notice Perform actions after successful verification of CarProofs.
     /// @param self The StorageDeal storage instance
     /// @param _proofs Array of CarProof structures containing the proofs that were verified
     /// @param _carsStorageContractAddress The address of the CarsStorage contract
-    function postCarVerifiedAction(
-        StorageDealType.StorageDeal storage self,
-        StorageDealType.CarProof[] memory _proofs,
-        address _carsStorageContractAddress
-    ) internal {
-        ICarStore cars = ICarStore(_carsStorageContractAddress);
-        //TODO: require: cars of proofs should included in matching and in carsStorage
-        for (uint256 i = 0; i < _proofs.length; i++) {
-            cars.setReplicaFilecoinDealId(
-                _proofs[i].car,
-                self.matchingId,
-                _proofs[i].filcoinDealId
-            );
-        }
-    }
+    // function postCarVerifiedAction(
+    //     StorageDealType.StorageDeal storage self,
+    //     StorageDealType.CarProof[] memory _proofs,
+    //     address _carsStorageContractAddress
+    // ) internal {
+    //     ICarStore cars = ICarStore(_carsStorageContractAddress);
+    //     //TODO: require: cars of proofs should included in matching and in carsStorage
+    //     for (uint256 i = 0; i < _proofs.length; i++) {
+    //         cars.setReplicaFilecoinDealId(
+    //             _proofs[i].car,
+    //             self.matchingId,
+    //             _proofs[i].filcoinDealId
+    //         );
+    //     }
+    // }
 
     /// @notice Check if the previous data cap chunk is the initial chunk.
     /// @param self The StorageDeal storage instance

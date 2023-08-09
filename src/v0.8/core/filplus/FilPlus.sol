@@ -21,7 +21,7 @@ pragma solidity ^0.8.21;
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "../../types/FilPlusType.sol";
 import "./library/FilPlusLIB.sol";
-import "./interface/IFilPlus.sol";
+import "./IFilPlus.sol";
 
 /// @title FilPlus
 /// @notice This contract implements the IFilPlus interface and allows configuring parameters for the FilPlus system.

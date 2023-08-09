@@ -17,10 +17,46 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import "./abstract/DataswapBase.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
+import "@openzeppelin/contracts/access/Ownable2Step.sol";
 
-/// @title Dataswap Contract
-/// @notice This contract deploys the DataSwap token (DSWAP) by inheriting from DataswapBase.
-contract Dataswap is DataswapBase {
-    constructor() DataswapBase() {}
+/// @title DataswapBase Contract
+/// @notice This contract serves as the base for the DataSwap token (DSWAP).
+/// @dev This contract inherits from ERC20, ERC20Permit, ERC20Votes, and Ownable2Step contracts.
+abstract contract Dataswap is ERC20, ERC20Permit, ERC20Votes, Ownable2Step {
+    constructor() ERC20("DataSwap", "DSWAP") ERC20Permit("DSWAP") {}
+
+    /// @dev Overrides the _afterTokenTransfer function from ERC20Votes and ERC20.
+    /// @param _from The address transferring tokens.
+    /// @param _to The address receiving tokens.
+    /// @param _amount The amount of tokens being transferred.
+    function _afterTokenTransfer(
+        address _from,
+        address _to,
+        uint256 _amount
+    ) internal override(ERC20, ERC20Votes) {
+        super._afterTokenTransfer(_from, _to, _amount);
+    }
+
+    /// @dev Overrides the _mint function from ERC20Votes and ERC20.
+    /// @param _to The address receiving the minted tokens.
+    /// @param _amount The amount of tokens being minted.
+    function _mint(
+        address _to,
+        uint256 _amount
+    ) internal override(ERC20, ERC20Votes) {
+        super._mint(_to, _amount);
+    }
+
+    /// @dev Overrides the _burn function from ERC20Votes and ERC20.
+    /// @param _account The address from which tokens are burned.
+    /// @param _amount The amount of tokens being burned.
+    function _burn(
+        address _account,
+        uint256 _amount
+    ) internal override(ERC20, ERC20Votes) {
+        super._burn(_account, _amount);
+    }
 }

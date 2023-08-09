@@ -19,7 +19,6 @@
 pragma solidity ^0.8.21;
 
 import "../../../types/MatchingType.sol";
-import "../../../core/carStore/interface/ICarStore.sol";
 
 /// @title Matching Library
 /// @notice This library provides functions for managing matchings and their states.
@@ -107,13 +106,9 @@ library MatchingLIB {
     /// @notice Close a matching and choose a winner.
     /// @dev This function is used to close a matching and choose a winner based on the specified rule.
     /// @param _rule The rule for choosing the winner (highest or lowest bid).
-    /// @param _carsStorageContract The address of the cars storage contract.
-    /// @param _matchingId The ID of the matching.
     function close(
         MatchingType.Matching storage self,
-        MatchingType.WinnerBidRule _rule,
-        address _carsStorageContract,
-        uint256 _matchingId
+        MatchingType.WinnerBidRule _rule
     ) external {
         require(
             self.state == MatchingType.State.InProgress,
@@ -127,19 +122,15 @@ library MatchingLIB {
             "Matching: Bidding period not expired"
         );
         postEvent(self, MatchingType.Event.Close);
-        chooseWinner(self, _rule, _carsStorageContract, _matchingId);
+        chooseWinner(self, _rule);
     }
 
     /// @notice Choose a winner for a closed matching.
     /// @dev This internal function is used to choose a winner for a closed matching based on the specified rule.
     /// @param _rule The rule for choosing the winner (highest or lowest bid).
-    /// @param _carsStorageContract The address of the cars storage contract.
-    /// @param _matchingId The ID of the matching.
     function chooseWinner(
         MatchingType.Matching storage self,
-        MatchingType.WinnerBidRule _rule,
-        address _carsStorageContract,
-        uint256 _matchingId
+        MatchingType.WinnerBidRule _rule
     ) internal {
         require(
             self.state == MatchingType.State.Closed,
@@ -177,7 +168,7 @@ library MatchingLIB {
         if (winner == address(0)) {
             postEvent(self, MatchingType.Event.NoWinner);
         } else {
-            postCompletionAction(self, _carsStorageContract, _matchingId);
+            // postCompletionAction(self, _carsStorageContract, _matchingId);
             self.winner = winner;
             postEvent(self, MatchingType.Event.HasWinner);
         }
@@ -262,17 +253,18 @@ library MatchingLIB {
         return self.state;
     }
 
+    /// TODO: place into matching  contract
     /// @notice Perform post-completion action.
     /// @dev This internal function is used to perform actions after a matching is completed.
-    function postCompletionAction(
-        MatchingType.Matching storage self,
-        address _carsStorageContract,
-        uint256 _matchingId
-    ) internal {
-        ICarStore cars = ICarStore(_carsStorageContract);
-        require(cars.hasCars(self.target.cars), "cars cids invalid");
-        for (uint256 i = 0; i < self.target.cars.length; i++) {
-            cars.addReplica(self.target.cars[i], _matchingId);
-        }
-    }
+    // function postCompletionAction(
+    //     MatchingType.Matching storage self,
+    //     address _carsStorageContract,
+    //     uint256 _matchingId
+    // ) internal {
+    //     ICarStore cars = ICarStore(_carsStorageContract);
+    //     require(cars.hasCars(self.target.cars), "cars cids invalid");
+    //     for (uint256 i = 0; i < self.target.cars.length; i++) {
+    //         cars.addReplica(self.target.cars[i], _matchingId);
+    //     }
+    // }
 }
