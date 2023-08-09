@@ -1,3 +1,19 @@
+/*******************************************************************************
+ *   (c) 2023 DataSwap
+ *
+ *  Licensed under the GNU General Public License, Version 3.0 or later (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ********************************************************************************/
+
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 pragma solidity ^0.8.21;
@@ -5,7 +21,12 @@ pragma solidity ^0.8.21;
 import "../../../types/MatchingType.sol";
 import "../../../core/carsStorage/abstract/CarsStorageBase.sol";
 
+/// @title Matching Library
+/// @notice This library provides functions for managing matchings and their states.
+/// @dev This library is used to manage the lifecycle and states of matchings.
 library MatchingLIB {
+    /// @notice Publish a matching.
+    /// @dev This function is used to publish a matching and initiate the matching process.
     function publish(MatchingType.Matching storage self) external {
         require(
             self.state == MatchingType.State.None,
@@ -21,6 +42,8 @@ library MatchingLIB {
         }
     }
 
+    /// @notice Pause a matching.
+    /// @dev This function is used to pause a matching that is in progress.
     function pause(MatchingType.Matching storage self) external {
         require(
             self.state == MatchingType.State.InProgress,
@@ -29,6 +52,8 @@ library MatchingLIB {
         postEvent(self, MatchingType.Event.Pause);
     }
 
+    /// @notice Report that a pause has expired.
+    /// @dev This function is used to report that a pause has expired for a paused matching.
     function reportPauseExpired(MatchingType.Matching storage self) external {
         require(
             self.state == MatchingType.State.Paused,
@@ -37,6 +62,8 @@ library MatchingLIB {
         postEvent(self, MatchingType.Event.PauseExpired);
     }
 
+    /// @notice Resume a paused matching.
+    /// @dev This function is used to resume a paused matching.
     function resume(MatchingType.Matching storage self) external {
         require(
             self.state == MatchingType.State.Paused,
@@ -45,6 +72,8 @@ library MatchingLIB {
         postEvent(self, MatchingType.Event.Resume);
     }
 
+    /// @notice Cancel a matching.
+    /// @dev This function is used to cancel a matching that is published, in progress, or paused.
     function cancel(MatchingType.Matching storage self) external {
         require(
             self.state == MatchingType.State.Published ||
@@ -55,6 +84,9 @@ library MatchingLIB {
         postEvent(self, MatchingType.Event.Cancel);
     }
 
+    /// @notice Submit a bid for a matching.
+    /// @dev This function is used to submit a bid for a matching in progress.
+    /// @param _bid The bid information to be submitted.
     function bidding(
         MatchingType.Matching storage self,
         MatchingType.Bid memory _bid
@@ -72,6 +104,11 @@ library MatchingLIB {
         self.bids.push(_bid);
     }
 
+    /// @notice Close a matching and choose a winner.
+    /// @dev This function is used to close a matching and choose a winner based on the specified rule.
+    /// @param _rule The rule for choosing the winner (highest or lowest bid).
+    /// @param _carsStorageContract The address of the cars storage contract.
+    /// @param _matchingId The ID of the matching.
     function close(
         MatchingType.Matching storage self,
         MatchingType.WinnerBidRule _rule,
@@ -93,6 +130,11 @@ library MatchingLIB {
         chooseWinner(self, _rule, _carsStorageContract, _matchingId);
     }
 
+    /// @notice Choose a winner for a closed matching.
+    /// @dev This internal function is used to choose a winner for a closed matching based on the specified rule.
+    /// @param _rule The rule for choosing the winner (highest or lowest bid).
+    /// @param _carsStorageContract The address of the cars storage contract.
+    /// @param _matchingId The ID of the matching.
     function chooseWinner(
         MatchingType.Matching storage self,
         MatchingType.WinnerBidRule _rule,
@@ -141,6 +183,9 @@ library MatchingLIB {
         }
     }
 
+    /// @notice Post an event to update the matching's state.
+    /// @dev This internal function is used to update the matching's state based on the event.
+    /// @param _event The event that triggers the state update.
     function postEvent(
         MatchingType.Matching storage self,
         MatchingType.Event _event
@@ -201,18 +246,24 @@ library MatchingLIB {
         }
     }
 
+    /// @notice Perform Fil+ check.
+    /// @dev This internal function is used to perform a Fil+ check.
     function filPlusCheck(
         MatchingType.Matching storage /*self*/
     ) internal pure returns (bool) {
         return true;
     }
 
+    /// @notice Get the current state of a matching.
+    /// @dev This internal function is used to retrieve the current state of a matching.
     function getState(
         MatchingType.Matching storage self
     ) internal view returns (MatchingType.State) {
         return self.state;
     }
 
+    /// @notice Perform post-completion action.
+    /// @dev This internal function is used to perform actions after a matching is completed.
     function postCompletionAction(
         MatchingType.Matching storage self,
         address _carsStorageContract,

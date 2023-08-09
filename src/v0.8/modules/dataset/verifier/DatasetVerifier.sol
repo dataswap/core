@@ -17,15 +17,17 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import "../../../types/StorageDealType.sol";
+import "../../../types/DatasetType.sol";
 
-/// @notice Explain to an end user what this does
-/// @dev Explain to a developer any extra details
-library DatacapChunkProofVerifier {
-    /// @notice Explain to an end user what this does
-    /// @dev Explain to a developer any extra details
+/// @title Dataset Verifier Library
+/// @notice This library provides functions for verifying datasets.
+/// @dev This library is used to verify the integrity of datasets.
+library DatasetVerifier {
+    /// @notice Verify a dataset's integrity.
+    /// @dev This function is used to verify the integrity of a dataset's proofs and metadata.
+    /// @param _dataset The dataset to be verified.
+    /// @return The verification result, indicating the validity of the dataset.
     function verify(
-        StorageDealType.StorageDeal memory _storageDeal,
-        StorageDealType.CarProof memory _proof
-    ) external returns (bool) {}
+        DatasetType.Dataset memory _dataset
+    ) external returns (DatasetType.VerifyResult) {}
 }

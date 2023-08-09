@@ -1,10 +1,32 @@
+/*******************************************************************************
+ *   (c) 2023 DataSwap
+ *
+ *  Licensed under the GNU General Public License, Version 3.0 or later (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ********************************************************************************/
+
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 pragma solidity ^0.8.21;
 
 import "../../../types/FilPlusType.sol";
 
+/// @title FilPlusLIB
+/// @notice This library provides functions to set various parameters of the FilPlus system.
+/// @dev This library is used to configure parameters such as maximum replica counts, region counts, and more.
 library FilPlusLIB {
+    /// @notice Set the minimum region count required for FilPlus.
+    /// @param self The reference to the FilPlusType.Rules storage.
+    /// @param _minRegionCount The new minimum region count.
     function setMinRegionCount(
         FilPlusType.Rules storage self,
         uint256 _minRegionCount
@@ -12,6 +34,9 @@ library FilPlusLIB {
         self.minRegionCount = _minRegionCount;
     }
 
+    /// @notice Set the default maximum replicas allowed per country in FilPlus.
+    /// @param self The reference to the FilPlusType.Rules storage.
+    /// @param _defaultMaxReplicasPerCountry The new default maximum replicas per country.
     function setDefaultMaxReplicasPerCountry(
         FilPlusType.Rules storage self,
         uint256 _defaultMaxReplicasPerCountry
@@ -19,7 +44,11 @@ library FilPlusLIB {
         self.defaultMaxReplicasPerCountry = _defaultMaxReplicasPerCountry;
     }
 
-    function addMaxReplicasInCountry(
+    /// @notice Add a maximum replicas limit for a specific city code in FilPlus.
+    /// @param self The reference to the FilPlusType.Rules storage.
+    /// @param cityCode The city code for which to set the maximum replicas.
+    /// @param _maxReplicasInCountry The new maximum replicas per city code.
+    function setMaxReplicasInCountry(
         FilPlusType.Rules storage self,
         bytes2 cityCode,
         uint256 _maxReplicasInCountry
@@ -27,6 +56,9 @@ library FilPlusLIB {
         self.maxReplicasInCountry[cityCode] = _maxReplicasInCountry;
     }
 
+    /// @notice Set the maximum replicas allowed per city in FilPlus.
+    /// @param self The reference to the FilPlusType.Rules storage.
+    /// @param _maxReplicasPerCity The new maximum replicas per city.
     function setMaxReplicasPerCity(
         FilPlusType.Rules storage self,
         uint256 _maxReplicasPerCity
@@ -34,6 +66,9 @@ library FilPlusLIB {
         self.maxReplicasPerCity = _maxReplicasPerCity;
     }
 
+    /// @notice Set the minimum storage provider count required for FilPlus.
+    /// @param self The reference to the FilPlusType.Rules storage.
+    /// @param _minSPCount The new minimum storage provider count.
     function setMinSPCount(
         FilPlusType.Rules storage self,
         uint256 _minSPCount
@@ -41,6 +76,9 @@ library FilPlusLIB {
         self.minSPCount = _minSPCount;
     }
 
+    /// @notice Set the maximum replicas allowed per storage provider in FilPlus.
+    /// @param self The reference to the FilPlusType.Rules storage.
+    /// @param _maxReplicasPerSP The new maximum replicas per storage provider.
     function setMaxReplicasPerSP(
         FilPlusType.Rules storage self,
         uint256 _maxReplicasPerSP
@@ -48,6 +86,9 @@ library FilPlusLIB {
         self.maxReplicasPerSP = _maxReplicasPerSP;
     }
 
+    /// @notice Set the minimum total replicas required for FilPlus.
+    /// @param self The reference to the FilPlusType.Rules storage.
+    /// @param _minTotalReplicas The new minimum total replicas.
     function setMinTotalReplicas(
         FilPlusType.Rules storage self,
         uint256 _minTotalReplicas
@@ -55,6 +96,9 @@ library FilPlusLIB {
         self.minTotalReplicas = _minTotalReplicas;
     }
 
+    /// @notice Set the maximum total replicas allowed for FilPlus.
+    /// @param self The reference to the FilPlusType.Rules storage.
+    /// @param _maxTotalReplicas The new maximum total replicas.
     function setMaxTotalReplicas(
         FilPlusType.Rules storage self,
         uint256 _maxTotalReplicas
