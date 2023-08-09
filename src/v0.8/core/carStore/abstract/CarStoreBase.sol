@@ -21,12 +21,12 @@ import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "../../..//types/CarReplicaType.sol";
 import "../library/CarReplicaLIB.sol";
 import "../library/CarLIB.sol";
-import "../interface/ICarsStorage.sol";
+import "../interface/ICarStore.sol";
 
 /// @title CarsStorageBase
 /// @notice This contract allows adding cars and managing their associated replicas.
 /// @dev This contract provides functionality for managing car data and associated replicas.
-abstract contract CarsStorageBase is Ownable2Step, ICarsStorage {
+abstract contract CarStoreBase is Ownable2Step, ICarStore {
     uint256 public carsCount;
     ///Car CID=> Car
     mapping(bytes32 => CarReplicaType.Car) public cars;
@@ -61,9 +61,10 @@ abstract contract CarsStorageBase is Ownable2Step, ICarsStorage {
     /// @notice Add multiple cars to the storage.
     /// @dev This function allows the addition of multiple cars at once.
     /// @param _cids Array of car CIDs to be added.
-    function addCars(bytes32[] memory _cids) external {
+    /// @param _datasetId dataset index of approved dataset
+    function addCars(bytes32[] memory _cids, uint256 _datasetId) external {
         for (uint256 i; i < _cids.length; i++) {
-            addCar(_cids[i]);
+            addCar(_cids[i], _datasetId);
         }
 
         emit CarsAdded(_cids);
@@ -71,9 +72,15 @@ abstract contract CarsStorageBase is Ownable2Step, ICarsStorage {
 
     /// @dev Internal function to add a car based on its CID.
     /// @param _cid Car CID to be added.
-    function addCar(bytes32 _cid) internal onlyCarNotExists(_cid) {
+    /// @param _datasetId dataset index of approved dataset
+    /// TODO: diffent dataset has the same car?
+    function addCar(
+        bytes32 _cid,
+        uint256 _datasetId
+    ) internal onlyCarNotExists(_cid) {
         carsCount++;
-        cars[_cid].cid = _cid;
+        CarReplicaType.Car storage car = cars[_cid];
+        car.setDatasetId(_datasetId);
     }
 
     /// @notice Add a replica to a car.
@@ -84,7 +91,7 @@ abstract contract CarsStorageBase is Ownable2Step, ICarsStorage {
         bytes32 _cid,
         uint256 _matchingId
     ) external onlyCarExists(_cid) {
-        require(_matchingId != 0, "Invalid matching id for addReplica");
+        require(_matchingId != 0, "Invalid matching id");
         CarReplicaType.Car storage car = cars[_cid];
         car.addRepica(_matchingId);
 
@@ -106,7 +113,7 @@ abstract contract CarsStorageBase is Ownable2Step, ICarsStorage {
             _matchingId != 0 && _filecoinDealId != 0,
             "Invalid matching id or filecoin deal id for setReplicaFilecoinDealId"
         );
-        car.setFilecoinDealId(_matchingId, _filecoinDealId);
+        car.setReplicaFilecoinDealId(_matchingId, _filecoinDealId);
 
         emit ReplicaFilecoinDealIdSet(_cid, _matchingId, _filecoinDealId);
     }
@@ -127,7 +134,8 @@ abstract contract CarsStorageBase is Ownable2Step, ICarsStorage {
     /// @param _cid Car CID to check.
     /// @return True if the car exists, false otherwise.
     function hasCar(bytes32 _cid) public view returns (bool) {
-        return cars[_cid].cid == _cid;
+        CarReplicaType.Car storage cid = cars[_cid];
+        return cid.datasetId != 0;
     }
 
     /// @notice Check if multiple cars exist based on their CIDs.
@@ -149,8 +157,8 @@ abstract contract CarsStorageBase is Ownable2Step, ICarsStorage {
     function hasReplica(
         bytes32 _cid,
         uint256 _matchingId
-    ) public view onlyCarExists(_cid) returns (bool, uint256) {
-        require(_matchingId != 0, "Invalid matching id for addReplica");
+    ) public view onlyCarExists(_cid) returns (bool) {
+        require(_matchingId != 0, "Invalid matching id");
         CarReplicaType.Car storage car = cars[_cid];
         return car.hasReplica(_matchingId);
     }
@@ -167,11 +175,7 @@ abstract contract CarsStorageBase is Ownable2Step, ICarsStorage {
             _matchingId != 0,
             "Invalid matching id for reportReplicaStorageFailed"
         );
-        postRepicaEventByMatchingId(
-            _cid,
-            _matchingId,
-            CarReplicaType.Event.StorageFailed
-        );
+        emitRepicaEvent(_cid, _matchingId, CarReplicaType.Event.StorageFailed);
     }
 
     /// @notice Report that storage deal for a replica has expired.
@@ -186,7 +190,7 @@ abstract contract CarsStorageBase is Ownable2Step, ICarsStorage {
             _matchingId != 0,
             "Invalid matching id for reportReplicaStorageDealExpired"
         );
-        postRepicaEventByMatchingId(
+        emitRepicaEvent(
             _cid,
             _matchingId,
             CarReplicaType.Event.StorageDealExpired
@@ -205,35 +209,14 @@ abstract contract CarsStorageBase is Ownable2Step, ICarsStorage {
             _matchingId != 0,
             "Invalid matching id for reportReplicaStorageSlashed"
         );
-        postRepicaEventByMatchingId(
-            _cid,
-            _matchingId,
-            CarReplicaType.Event.StorageSlashed
-        );
-    }
-
-    /// @dev Internal function to post an event for a replica based on its index.
-    /// @param _cid Car CID associated with the replica.
-    /// @param _replicaIndex Index of the replica.
-    /// @param _event Event to be posted.
-    function postRepicaEventReplicaIndex(
-        bytes32 _cid,
-        uint256 _replicaIndex,
-        CarReplicaType.Event _event
-    ) internal onlyCarExists(_cid) {
-        CarReplicaType.Car storage car = cars[_cid];
-        require(
-            _replicaIndex < car.replicasCount,
-            "Invalid replica id for updateRepicaStateByIndex"
-        );
-        car.postRepicaEventReplicaIndex(_replicaIndex, _event);
+        emitRepicaEvent(_cid, _matchingId, CarReplicaType.Event.StorageSlashed);
     }
 
     /// @dev Internal function to post an event for a replica based on its matching ID.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
     /// @param _event Event to be posted.
-    function postRepicaEventByMatchingId(
+    function emitRepicaEvent(
         bytes32 _cid,
         uint256 _matchingId,
         CarReplicaType.Event _event
@@ -243,6 +226,6 @@ abstract contract CarsStorageBase is Ownable2Step, ICarsStorage {
             "Invalid matching id for updateRepicaStateByMatchingId"
         );
         CarReplicaType.Car storage car = cars[_cid];
-        car.postRepicaEventByMatchingId(_matchingId, _event);
+        car.emitRepicaEvent(_matchingId, _event);
     }
 }

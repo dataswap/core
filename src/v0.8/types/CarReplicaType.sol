@@ -23,7 +23,7 @@ pragma solidity ^0.8.21;
 library CarReplicaType {
     /// @notice Enum representing the possible states of a car replica.
     enum State {
-        Approved, // Replica has been approved
+        None, //justify if Replica exsits
         Matched, // Replica has been matched for storage
         Stored // Replica has been successfully stored
     }
@@ -39,15 +39,14 @@ library CarReplicaType {
 
     /// @notice Struct representing a car replica.
     struct Replica {
-        uint256 matchingId; // ID of the matching associated with the replica
         uint256 filecoinDealId; // ID of the Filecoin deal associated with the replica's storage
         State state; // Current state of the replica
     }
 
     /// @notice Struct representing a car and its associated replicas.
     struct Car {
-        bytes32 cid; // Content ID (CID) of the car
+        uint256 datasetId; // Index of approved dataset
         uint256 replicasCount; // Number of replicas associated with the car
-        mapping(uint256 => Replica) replicas; // Mapping to store replica details
+        mapping(uint256 => Replica) replicas; // Mapping from matchingId => Replica details
     }
 }

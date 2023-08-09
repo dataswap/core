@@ -19,7 +19,7 @@
 pragma solidity ^0.8.21;
 
 import "../../../types/MatchingType.sol";
-import "../../../core/carsStorage/abstract/CarsStorageBase.sol";
+import "../../../core/carStore/interface/ICarStore.sol";
 
 /// @title Matching Library
 /// @notice This library provides functions for managing matchings and their states.
@@ -269,7 +269,7 @@ library MatchingLIB {
         address _carsStorageContract,
         uint256 _matchingId
     ) internal {
-        CarsStorageBase cars = CarsStorageBase(_carsStorageContract);
+        ICarStore cars = ICarStore(_carsStorageContract);
         require(cars.hasCars(self.target.cars), "cars cids invalid");
         for (uint256 i = 0; i < self.target.cars.length; i++) {
             cars.addReplica(self.target.cars[i], _matchingId);

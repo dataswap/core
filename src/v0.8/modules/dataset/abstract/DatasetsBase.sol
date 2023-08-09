@@ -25,7 +25,7 @@ import "../library/DatasetLIB.sol";
 import "../../../shared/Common.sol";
 import "../../../shared/utils/StringUtils.sol";
 import "../../../core/accessControl/interface/IRoles.sol";
-import "../../../core/carsStorage/abstract/CarsStorageBase.sol";
+import "../../../core/carStore/interface/ICarStore.sol";
 
 /// @title Datasets Base Contract
 /// @notice This contract serves as the base for managing datasets, metadata, proofs, and verifications.
@@ -239,9 +239,9 @@ abstract contract DatasetsBase is Ownable2Step {
     /// @param _datasetId The ID of the approved dataset.
     function postApprovedAction(uint256 _datasetId) internal {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        CarsStorageBase cars = CarsStorageBase(carsStorageContract);
+        ICarStore cars = ICarStore(carsStorageContract);
         require(!cars.hasCars(dataset.proof.leafHashes), "cars cids invalid");
-        cars.addCars(dataset.proof.leafHashes);
-        cars.addCars(dataset.proof.mappingFilesLeafHashes);
+        cars.addCars(dataset.proof.leafHashes, _datasetId);
+        cars.addCars(dataset.proof.mappingFilesLeafHashes, _datasetId);
     }
 }

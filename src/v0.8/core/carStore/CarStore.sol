@@ -17,12 +17,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import "./abstract/CarsStorageBase.sol";
+import "./abstract/CarStoreBase.sol";
 
 /// @title CarsStorage
 /// @notice This contract extends the CarsStorageBase contract to provide a concrete implementation of car and replica management.
 /// @dev This contract inherits the functionality of CarsStorageBase and can be used to manage car data and associated replicas.
-contract CarsStorage is CarsStorageBase {
+contract CarStore is CarStoreBase {
     /// @notice Constructor function to create an instance of the CarsStorage contract.
-    constructor() CarsStorageBase() {}
+    constructor() CarStoreBase() {}
 }

@@ -20,7 +20,7 @@ pragma solidity ^0.8.21;
 
 import "../../../types/StorageDealType.sol";
 import "../../../types/CarReplicaType.sol";
-import "../../../core/carsStorage/abstract/CarsStorageBase.sol";
+import "../../../core/carStore/interface/ICarStore.sol";
 
 /// @title StorageDeal Library
 /// @notice A library containing functions related to storage deals and their processing.
@@ -260,7 +260,7 @@ library StorageDealLIB {
         StorageDealType.CarProof[] memory _proofs,
         address _carsStorageContractAddress
     ) internal {
-        CarsStorageBase cars = CarsStorageBase(_carsStorageContractAddress);
+        ICarStore cars = ICarStore(_carsStorageContractAddress);
         //TODO: require: cars of proofs should included in matching and in carsStorage
         for (uint256 i = 0; i < _proofs.length; i++) {
             cars.setReplicaFilecoinDealId(

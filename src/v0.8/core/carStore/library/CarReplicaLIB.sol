@@ -23,19 +23,6 @@ import "../../../types/CarReplicaType.sol";
 /// @dev This library provides functions to manage the state and events of car replicas.
 /// @notice Library for managing the lifecycle and events of car replicas.
 library CarReplicaLIB {
-    /// @notice Set the matching ID for a car replica.
-    /// @dev Requires a non-zero new matching ID and that it's different from the existing one.
-    ///      This should be called by an external matching contract after a successful matching process.
-    /// @param self The reference to the replica storage.
-    /// @param _matchingId The new matching ID to set.
-    function setMatchingId(
-        CarReplicaType.Replica storage self,
-        uint256 _matchingId
-    ) internal {
-        require(_matchingId != 0 && self.matchingId != _matchingId);
-        self.matchingId = _matchingId;
-    }
-
     /// @notice Set the Filecoin deal ID for a car replica.
     /// @dev Requires a non-zero new Filecoin deal ID and that it's different from the existing one.
     ///      This should be called by an external  storage deal contract after a successful storage deal process.
@@ -49,12 +36,12 @@ library CarReplicaLIB {
         self.filecoinDealId = _filecoinDealId;
     }
 
-    /// @notice Post an event for a car replica, triggering state transitions.
+    /// @notice Emit an event for a car replica, triggering state transitions.
     /// @dev The state transition is based on the event and current state.
     ///      Invalid transitions do not change the state.
     /// @param self The reference to the replica storage.
     /// @param _event The event to post.
-    function postEvent(
+    function emitEvent(
         CarReplicaType.Replica storage self,
         CarReplicaType.Event _event
     ) internal {
@@ -63,7 +50,7 @@ library CarReplicaLIB {
 
         // Apply the state transition based on the event
         if (_event == CarReplicaType.Event.MatchingCompleted) {
-            if (currentState == CarReplicaType.State.Approved) {
+            if (currentState == CarReplicaType.State.None) {
                 newState = CarReplicaType.State.Matched;
             }
         } else if (_event == CarReplicaType.Event.StorageCompleted) {
@@ -72,21 +59,21 @@ library CarReplicaLIB {
             }
         } else if (_event == CarReplicaType.Event.StorageFailed) {
             if (currentState == CarReplicaType.State.Matched) {
-                newState = CarReplicaType.State.Approved;
+                newState = CarReplicaType.State.None;
             }
         } else if (_event == CarReplicaType.Event.StorageDealExpired) {
             if (currentState == CarReplicaType.State.Stored) {
-                newState = CarReplicaType.State.Approved;
+                newState = CarReplicaType.State.None;
             }
         } else if (_event == CarReplicaType.Event.StorageSlashed) {
             if (currentState == CarReplicaType.State.Stored) {
-                newState = CarReplicaType.State.Approved;
+                newState = CarReplicaType.State.None;
             }
         }
 
         /// @notice Update the state if newState is not Approved (i.e., a valid transition)
         /// @dev The state variable self.state will be updated with the new state if newState is not Approved.
-        if (newState != CarReplicaType.State.Approved) {
+        if (newState != CarReplicaType.State.None) {
             self.state = newState;
         }
     }

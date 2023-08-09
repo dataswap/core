@@ -19,10 +19,10 @@ pragma solidity ^0.8.21;
 
 /// @title ICarsStorageBase
 /// @notice Interface for the CarsStorageBase contract, which allows adding cars and managing their associated replicas.
-interface ICarsStorage {
+interface ICarStore {
     /// @notice Add multiple cars to the storage.
     /// @param _cids Array of car CIDs to be added.
-    function addCars(bytes32[] memory _cids) external;
+    function addCars(bytes32[] memory _cids, uint256 _datasetId) external;
 
     /// @notice Add a replica to a car.
     /// @param _cid Car CID to which the replica will be added.
@@ -61,7 +61,7 @@ interface ICarsStorage {
     function hasReplica(
         bytes32 _cid,
         uint256 _matchingId
-    ) external view returns (bool, uint256);
+    ) external view returns (bool);
 
     /// @notice Report that storage of a replica has failed.
     /// @param _cid Car CID associated with the replica.
