@@ -21,6 +21,14 @@ pragma solidity ^0.8.21;
 /// @notice This library defines data structures and enums related to car replicas and their states.
 /// @dev This library provides enums for different states and events related to car replicas.
 library CarReplicaType {
+    /// @notice Enum representing the possible states of a Filecoin storage deal.
+    enum FilecoinDealState {
+        VerificationSuccessed, // The filecoin deal's verification was successful.
+        VerificationFailed, // The filecoin deal's verification failed.
+        Slashed, // The filecoin deal has been slashed.
+        Expired // The filecoin deal has expired.
+    }
+
     /// @notice Enum representing the possible states of a car replica.
     enum State {
         None, //justify if Replica exsits

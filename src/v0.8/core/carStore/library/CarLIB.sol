@@ -31,19 +31,30 @@ library CarLIB {
     ///      This should be called by an external dataset contract after a dataset be approved.
     /// @param self The reference to the car storage.
     /// @param _matchingId The matching ID for the new replica.
-    function addRepica(
+    function _addRepica(
         CarReplicaType.Car storage self,
         uint256 _matchingId
     ) internal {
         require(_matchingId != 0, "Invalid matching id");
-        require(!hasReplica(self, _matchingId), "Replica already exists");
-
+        require(!_hasReplica(self, _matchingId), "Replica already exists");
         self.replicasCount++;
-        emitRepicaEvent(
-            self,
-            _matchingId,
-            CarReplicaType.Event.MatchingCompleted
-        );
+        CarReplicaType.Replica storage replica = self.replicas[_matchingId];
+        replica._emitEvent(CarReplicaType.Event.MatchingCompleted);
+    }
+
+    /// @notice Post an event for a car's replica based on the matching ID, triggering state transitions.
+    /// @dev The state transition is based on the event and the current state of the replica.
+    /// @param self The reference to the car storage.
+    /// @param _matchingId The matching ID of the replica.
+    /// @param _event The event to post.
+    function _emitRepicaEvent(
+        CarReplicaType.Car storage self,
+        uint256 _matchingId,
+        CarReplicaType.Event _event
+    ) internal {
+        require(_hasReplica(self, _matchingId), "Replica is not exists");
+        CarReplicaType.Replica storage replica = self.replicas[_matchingId];
+        replica._emitEvent(_event);
     }
 
     /// @notice Set the dataset ID for a car
@@ -51,7 +62,7 @@ library CarLIB {
     ///      This should be called by an external matching contract after a successful matching process.
     /// @param self The reference to the car storage.
     /// @param _datasetId The new dataset ID for car to set.
-    function setDatasetId(
+    function _setDatasetId(
         CarReplicaType.Car storage self,
         uint256 _datasetId
     ) internal {
@@ -68,52 +79,77 @@ library CarLIB {
     /// @param self The reference to the car storage.
     /// @param _matchingId The matching ID of the replica.
     /// @param _filecoinDealId The new Filecoin deal ID to set.
-    function setReplicaFilecoinDealId(
+    function _setReplicaFilecoinDealId(
         CarReplicaType.Car storage self,
         uint256 _matchingId,
         uint256 _filecoinDealId
     ) internal {
         require(_matchingId != 0, "Invalid matching id");
         require(_filecoinDealId == 0, "Invalid filecoin deal id");
-        require(hasReplica(self, _matchingId), "Replica is not exists");
+        require(_hasReplica(self, _matchingId), "Replica is not exists");
         CarReplicaType.Replica storage replica = self.replicas[_matchingId];
-        require(
-            _filecoinDealId != replica.filecoinDealId,
-            "Set the same filecoin deal id"
-        );
-        replica.setFilecoinDealId(_filecoinDealId);
+        replica._setFilecoinDealId(_filecoinDealId);
 
         // Set a replica filecoin deal id indicates that the storage has been completed.
-        emitRepicaEvent(
+        _emitRepicaEvent(
             self,
             _matchingId,
             CarReplicaType.Event.StorageCompleted
         );
     }
 
-    /// @notice Post an event for a car's replica based on the matching ID, triggering state transitions.
-    /// @dev The state transition is based on the event and the current state of the replica.
+    /// @notice Get the dataset ID associated with a car.
+    /// @dev Retrieves the dataset ID associated with the car.
     /// @param self The reference to the car storage.
-    /// @param _matchingId The matching ID of the replica.
-    /// @param _event The event to post.
-    function emitRepicaEvent(
-        CarReplicaType.Car storage self,
-        uint256 _matchingId,
-        CarReplicaType.Event _event
-    ) internal {
-        require(hasReplica(self, _matchingId), "Replica is not exists");
-        CarReplicaType.Replica storage replica = self.replicas[_matchingId];
-        replica.emitEvent(_event);
+    /// @return The dataset ID of the car.
+    function _getDatasetId(
+        CarReplicaType.Car storage self
+    ) internal view returns (uint256) {
+        return self.datasetId;
     }
 
     /// @notice Get the count of replicas associated with a car.
     /// @dev Retrieves the count of replicas associated with the car.
     /// @param self The reference to the car storage.
     /// @return The count of replicas.
-    function getRepicasCount(
+    function _getRepicasCount(
         CarReplicaType.Car storage self
     ) internal view returns (uint256) {
         return self.replicasCount;
+    }
+
+    /// @notice Get the Filecoin deal ID associated with a specific replica of a car.
+    /// @dev Retrieves the Filecoin deal ID associated with the given matching ID of a replica.
+    /// @param self The reference to the car storage.
+    /// @param _matchingId The matching ID of the replica.
+    /// @return The Filecoin deal ID of the replica.
+    function _getReplicaFilecoinDealId(
+        CarReplicaType.Car storage self,
+        uint256 _matchingId
+    ) internal view returns (uint256) {
+        require(_matchingId != 0, "Invalid matching id");
+        require(_hasReplica(self, _matchingId), "Replica is not exists");
+        require(
+            _getReplicaState(self, _matchingId) == CarReplicaType.State.Stored,
+            "Replica is not stored"
+        );
+        CarReplicaType.Replica storage replica = self.replicas[_matchingId];
+        return replica.filecoinDealId;
+    }
+
+    /// @notice Get the state of a replica associated with a car.
+    /// @dev Retrieves the state of a replica based on the provided matching ID.
+    /// @param self The reference to the car storage.
+    /// @param _matchingId The matching ID of the replica.
+    /// @return The state of the replica.
+    function _getReplicaState(
+        CarReplicaType.Car storage self,
+        uint256 _matchingId
+    ) internal view returns (CarReplicaType.State) {
+        require(_matchingId != 0, "Invalid matching id");
+        require(_hasReplica(self, _matchingId), "Replica is not exists");
+        CarReplicaType.Replica storage replica = self.replicas[_matchingId];
+        return replica.state;
     }
 
     /// @notice Check if a replica with a specific matching ID exists for a car.
@@ -121,7 +157,7 @@ library CarLIB {
     /// @param self The reference to the car storage.
     /// @param _matchingId The matching ID to check.
     /// @return exists Whether the replica exists or not.
-    function hasReplica(
+    function _hasReplica(
         CarReplicaType.Car storage self,
         uint256 _matchingId
     ) internal view returns (bool) {

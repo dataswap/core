@@ -28,7 +28,7 @@ library CarReplicaLIB {
     ///      This should be called by an external  storage deal contract after a successful storage deal process.
     /// @param self The reference to the replica storage.
     /// @param _filecoinDealId The new Filecoin deal ID to set.
-    function setFilecoinDealId(
+    function _setFilecoinDealId(
         CarReplicaType.Replica storage self,
         uint256 _filecoinDealId
     ) internal {
@@ -41,7 +41,7 @@ library CarReplicaLIB {
     ///      Invalid transitions do not change the state.
     /// @param self The reference to the replica storage.
     /// @param _event The event to post.
-    function emitEvent(
+    function _emitEvent(
         CarReplicaType.Replica storage self,
         CarReplicaType.Event _event
     ) internal {

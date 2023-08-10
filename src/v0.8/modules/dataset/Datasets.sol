@@ -239,7 +239,7 @@ abstract contract Datasets is Ownable2Step, CarStore {
     /// @param _datasetId The ID of the approved dataset.
     function postApprovedAction(uint256 _datasetId) internal {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        addCars(dataset.proof.leafHashes, _datasetId);
-        addCars(dataset.proof.mappingFilesLeafHashes, _datasetId);
+        _addCars(dataset.proof.leafHashes, _datasetId);
+        _addCars(dataset.proof.mappingFilesLeafHashes, _datasetId);
     }
 }
