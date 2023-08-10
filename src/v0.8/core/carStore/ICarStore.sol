@@ -25,7 +25,7 @@ interface ICarStore {
     /// @dev This function allows reporting that the storage of a replica has been slashed.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    function reportReplicaStorageSlashed(
+    function reportCarReplicaStorageSlashed(
         bytes32 _cid,
         uint256 _matchingId
     ) external;
@@ -39,7 +39,7 @@ interface ICarStore {
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
     /// @return The dataset ID, state, and Filecoin deal ID of the replica.
-    function getReplica(
+    function getCarReplica(
         bytes32 _cid,
         uint256 _matchingId
     ) external view returns (CarReplicaType.State, uint256);
@@ -47,13 +47,13 @@ interface ICarStore {
     /// @notice Get the count of replicas associated with a car.
     /// @param _cid Car CID for which to retrieve the replica count.
     /// @return The count of replicas associated with the car.
-    function getRepicasCount(bytes32 _cid) external view returns (uint256);
+    function getCarRepicasCount(bytes32 _cid) external view returns (uint256);
 
     /// @notice Get the Filecoin deal ID associated with a specific replica of a car.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
     /// @return The Filecoin deal ID of the replica.
-    function getReplicaFilecoinDealId(
+    function getCarReplicaFilecoinDealId(
         bytes32 _cid,
         uint256 _matchingId
     ) external view returns (uint256);
@@ -62,7 +62,7 @@ interface ICarStore {
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
     /// @return The state of the Filecoin storage deal for the replica.
-    function getReplicaFilecoinDealState(
+    function getCarReplicaFilecoinDealState(
         bytes32 _cid,
         uint256 _matchingId
     ) external view returns (CarReplicaType.FilecoinDealState);
@@ -71,7 +71,7 @@ interface ICarStore {
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
     /// @return The state of the replica.
-    function getReplicaState(
+    function getCarReplicaState(
         bytes32 _cid,
         uint256 _matchingId
     ) external view returns (CarReplicaType.State);
@@ -81,17 +81,17 @@ interface ICarStore {
     /// @return True if the car exists, false otherwise.
     function hasCar(bytes32 _cid) external view returns (bool);
 
-    /// @notice Check if multiple cars exist based on their CIDs.
-    /// @param _cids Array of car CIDs to check.
-    /// @return True if all specified cars exist, false if any one does not exist.
-    function hasCars(bytes32[] memory _cids) external view returns (bool);
-
     /// @notice Check if a replica exists within a car based on its matching ID.
     /// @param _cid Car CID to check.
     /// @param _matchingId Matching ID of the replica to check.
     /// @return True if the replica exists, false otherwise.
-    function hasReplica(
+    function hasCarReplica(
         bytes32 _cid,
         uint256 _matchingId
     ) external view returns (bool);
+
+    /// @notice Check if multiple cars exist based on their CIDs.
+    /// @param _cids Array of car CIDs to check.
+    /// @return True if all specified cars exist, false if any one does not exist.
+    function hasCars(bytes32[] memory _cids) external view returns (bool);
 }
