@@ -27,11 +27,12 @@ import "./library/DatasetProofLIB.sol";
 import "./library/DatasetStateMachineLIB.sol";
 import "./library/DatasetVerificationLIB.sol";
 import "./library/DatasetAuditLIB.sol";
+import "./IDatasets.sol";
 
 /// @title Datasets Base Contract
 /// @notice This contract serves as the base for managing datasets, metadata, proofs, and verifications.
 /// @dev This contract is intended to be inherited by specific dataset-related contracts.
-abstract contract Datasets is Role, ModifierCommon {
+abstract contract Datasets is Role, ModifierCommon, IDatasets {
     uint256 private datasetsCount; // Total count of datasets
     mapping(uint256 => DatasetType.Dataset) private datasets; // Mapping of dataset ID to dataset details
     address payable private immutable governanceAddress; //The address of the governance contract.

@@ -20,7 +20,7 @@ pragma solidity ^0.8.21;
 
 import "../../types/DatasetType.sol";
 
-interface Datasets {
+interface IDatasets {
     ///@notice Approve a dataset.
     ///@dev This function changes the state of the dataset to DatasetApproved and emits the DatasetApproved event.
     function approveDataset(uint256 _datasetId) external;
