@@ -17,18 +17,21 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import "../../../types/StorageDealType.sol";
+import "../../types/FilecoinDealType.sol";
 
-/// @title DatacapChunkProofVerifier Library
-/// @notice This library provides functions to verify data cap chunk proofs for storage deals.
-/// @dev This library is intended to be used in conjunction with storage deal contracts.
-library DatacapChunkProofVerifier {
-    /// @notice Verify a data cap chunk proof for a given storage deal and car proof.
-    /// @param _storageDeal The storage deal to which the data cap proof is associated.
-    /// @param _proof The car proof containing the data cap chunk proof.
-    /// @return A boolean indicating whether the verification was successful.
-    function verify(
-        StorageDealType.StorageDeal memory _storageDeal,
-        StorageDealType.CarProof memory _proof
-    ) external returns (bool) {}
+library FilecoinDealUtils {
+    /// @notice Internal function to get the state of a Filecoin storage deal for a replica.
+    /// @dev This function get the state of a Filecoin storage deal associated with a replica.
+    /// .    TODO
+    /// @return The state of the Filecoin storage deal for the replica.
+    function getFilecoinStorageDealState(
+        bytes32 _cid,
+        uint256 _filecoinDealId
+    ) public pure returns (FilecoinStorageDealState) {
+        //pls ignore this --start
+        _cid = "";
+        _filecoinDealId = 0;
+        //pls ignore this --end
+        return FilecoinStorageDealState.Successed;
+    }
 }

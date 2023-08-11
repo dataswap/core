@@ -21,8 +21,10 @@ pragma solidity ^0.8.21;
 import "./core/carStore/CarStore.sol";
 import "./modules/dataset/Datasets.sol";
 import "./modules/matching/Matchings.sol";
+import "./modules/storageDeal/StorageDeals.sol";
+import "./types/CarReplicaType.sol";
 
-contract Dataswap is CarStore, Matchings {
+contract Dataswap is CarStore, StorageDeals {
     constructor(
         address payable _governanceContractAddress
     ) Datasets(_governanceContractAddress) {}
@@ -47,6 +49,7 @@ contract Dataswap is CarStore, Matchings {
 
     /// @notice Internal function to get the state of a Filecoin storage deal for a replica.
     /// @dev This function get the state of a Filecoin storage deal associated with a replica.
+    /// TODO
     /// @return The state of the Filecoin storage deal for the replica.
     function getCarReplicaFilecoinDealState(
         bytes32 /*_cid*/,
@@ -60,6 +63,7 @@ contract Dataswap is CarStore, Matchings {
     {}
 
     /// @notice Check if a matching meets the requirements of Fil+.
+    /// TODO
     function isMatchingTargetMeetsFilPlusRequirements(
         uint256 /*_datasetId*/,
         bytes32[] memory /*_cars*/,
@@ -68,5 +72,23 @@ contract Dataswap is CarStore, Matchings {
         uint256 /*_associatedMappingFilesMatchingID*/
     ) public view virtual override returns (bool) {
         return true;
+    }
+
+    function _storageDealsSetCarReplicaFilecoinDealId(
+        uint256 _matchingId,
+        bytes32 _cid,
+        uint256 _filecoinDealId
+    ) internal virtual override {
+        _setCarReplicaFilecoinDealId(_cid, _matchingId, _filecoinDealId);
+    }
+
+    function _isStorageDealsFilecoinDealSetted(
+        uint256 _matchingId,
+        bytes32 _cid,
+        uint256 /*_filecoinDealId*/
+    ) internal virtual override returns (bool) {
+        return
+            CarReplicaType.State.Stored ==
+            getCarReplicaState(_cid, _matchingId);
     }
 }

@@ -18,11 +18,33 @@
 
 pragma solidity ^0.8.21;
 
-/// @title StorageDealType Library
-/// @notice This library defines enums and structs related to storage deals and their states.
-library StorageDealType {
-    /// @notice Struct representing a storage deal.
-    struct StorageDeal {
-        bytes32[] doneCars;
-    }
+import "../../types/StorageDealType.sol";
+import "../matching/Matchings.sol";
+import "../../shared/filecoin/FilecoinDealUtils.sol";
+import "../../types/FilecoinDealType.sol";
+
+interface StorageDeals {
+    function submitCarReplicaFilecoinDealId(
+        uint256 _matchingId,
+        bytes32 _cid,
+        uint256 _filecoinDealId
+    ) external;
+
+    function submitCarsReplicaFilecoinDealId(
+        uint256 _matchingId,
+        bytes32[] memory _cids,
+        uint256[] memory _filecoinDealIds
+    ) external;
+
+    function getStorageDealDoneCarsCids(
+        uint256 _matchingId
+    ) external view returns (bytes32[] memory);
+
+    function getStorageDealDoneCarsCount(
+        uint256 _matchingId
+    ) external view returns (uint256);
+
+    function isStorageDealDone(
+        uint256 _matchingId
+    ) external view returns (bool);
 }

@@ -15,14 +15,12 @@
  ********************************************************************************/
 
 // SPDX-License-Identifier: GPL-3.0-or-later
-
 pragma solidity ^0.8.21;
 
-/// @title StorageDealType Library
-/// @notice This library defines enums and structs related to storage deals and their states.
-library StorageDealType {
-    /// @notice Struct representing a storage deal.
-    struct StorageDeal {
-        bytes32[] doneCars;
-    }
+/// @notice Enum representing the possible states of a Filecoin storage deal.
+enum FilecoinStorageDealState {
+    Successed, // The filecoin deal's verification was successful.
+    Failed, // The filecoin deal's verification failed.
+    Slashed, // The filecoin deal has been slashed.
+    Expired // The filecoin deal has expired.
 }

@@ -60,6 +60,15 @@ abstract contract Matchings is Ownable2Step, Datasets {
     );
 
     /// @notice  Modifier to restrict access to the matching initiator
+    modifier onlyMatchingContainsCid(uint256 _matchingId, bytes32 _cid) {
+        require(
+            isMatchingContainsCid(_matchingId, _cid),
+            "You are not the initiator of this matching"
+        );
+        _;
+    }
+
+    /// @notice  Modifier to restrict access to the matching initiator
     modifier onlyMatchingInitiator(uint256 _matchingId) {
         require(
             matchings[_matchingId].initiator == msg.sender,
