@@ -17,6 +17,7 @@
 
 pragma solidity ^0.8.21;
 
+import "../../shared/utils/contract/ModifierCommon.sol";
 import "../../types/CarReplicaType.sol";
 import "./library/CarReplicaLIB.sol";
 import "./library/CarLIB.sol";
@@ -25,7 +26,7 @@ import "./ICarStore.sol";
 /// @title CarsStorageBase
 /// @notice This contract allows adding cars and managing their associated replicas.
 /// @dev This contract provides functionality for managing car data and associated replicas.
-abstract contract CarStore is ICarStore {
+abstract contract CarStore is ICarStore, ModifierCommon {
     uint256 private carsCount;
     ///Car CID=> Car
     mapping(bytes32 => CarReplicaType.Car) private cars;
@@ -72,12 +73,6 @@ abstract contract CarStore is ICarStore {
     /// @dev Modifier to ensure that a car with the given CID does not exist.
     modifier carNotExist(bytes32 _cid) {
         require(!hasCar(_cid), "Car already exists");
-        _;
-    }
-
-    /// @dev Modifier to check if an ID is not zero.
-    modifier noZeroId(uint256 _id) {
-        require(_id != 0, "Invalid ID");
         _;
     }
 
@@ -150,7 +145,7 @@ abstract contract CarStore is ICarStore {
     )
         private
         carExist(_cid)
-        noZeroId(_matchingId)
+        notZeroId(_matchingId)
         carReplicaExist(_cid, _matchingId)
     {
         CarReplicaType.Car storage car = cars[_cid];
@@ -165,7 +160,7 @@ abstract contract CarStore is ICarStore {
     function _addCar(
         bytes32 _cid,
         uint256 _datasetId
-    ) internal carNotExist(_cid) noZeroId(_datasetId) {
+    ) internal carNotExist(_cid) notZeroId(_datasetId) {
         carsCount++;
         CarReplicaType.Car storage car = cars[_cid];
         car._setDatasetId(_datasetId);
@@ -178,7 +173,7 @@ abstract contract CarStore is ICarStore {
     function _addCars(
         bytes32[] memory _cids,
         uint256 _datasetId
-    ) internal noZeroId(_datasetId) {
+    ) internal notZeroId(_datasetId) {
         for (uint256 i; i < _cids.length; i++) {
             _addCar(_cids[i], _datasetId);
         }
@@ -196,7 +191,7 @@ abstract contract CarStore is ICarStore {
     )
         internal
         carExist(_cid)
-        noZeroId(_matchingId)
+        notZeroId(_matchingId)
         carReplicaNotExist(_cid, _matchingId)
     {
         CarReplicaType.Car storage car = cars[_cid];
@@ -215,7 +210,7 @@ abstract contract CarStore is ICarStore {
     )
         internal
         carExist(_cid)
-        noZeroId(_matchingId)
+        notZeroId(_matchingId)
         carReplicaExist(_cid, _matchingId)
         onlyCarReplicaFilecoinDealState(
             _cid,
@@ -241,7 +236,7 @@ abstract contract CarStore is ICarStore {
     )
         internal
         carExist(_cid)
-        noZeroId(_matchingId)
+        notZeroId(_matchingId)
         carReplicaExist(_cid, _matchingId)
         onlyCarReplicaFilecoinDealState(
             _cid,
@@ -269,8 +264,8 @@ abstract contract CarStore is ICarStore {
     )
         internal
         carExist(_cid)
-        noZeroId(_matchingId)
-        noZeroId(_filecoinDealId)
+        notZeroId(_matchingId)
+        notZeroId(_filecoinDealId)
         carReplicaExist(_cid, _matchingId)
         onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Matched)
         carReplicaFilecoinDealIdNotExist(_cid, _matchingId)
@@ -291,7 +286,7 @@ abstract contract CarStore is ICarStore {
     )
         external
         carExist(_cid)
-        noZeroId(_matchingId)
+        notZeroId(_matchingId)
         carReplicaExist(_cid, _matchingId)
         onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Stored)
         onlyCarReplicaFilecoinDealState(
@@ -329,7 +324,7 @@ abstract contract CarStore is ICarStore {
         public
         view
         carExist(_cid)
-        noZeroId(_matchingId)
+        notZeroId(_matchingId)
         carReplicaExist(_cid, _matchingId)
         returns (CarReplicaType.State, uint256)
     {
@@ -362,7 +357,7 @@ abstract contract CarStore is ICarStore {
         public
         view
         carExist(_cid)
-        noZeroId(_matchingId)
+        notZeroId(_matchingId)
         carReplicaExist(_cid, _matchingId)
         onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Stored)
         returns (uint256)
@@ -392,7 +387,7 @@ abstract contract CarStore is ICarStore {
         public
         view
         carExist(_cid)
-        noZeroId(_matchingId)
+        notZeroId(_matchingId)
         carReplicaExist(_cid, _matchingId)
         returns (CarReplicaType.State)
     {

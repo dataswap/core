@@ -15,7 +15,8 @@
  ********************************************************************************/
 
 // SPDX-License-Identifier: GPL-3.0-or-later
-
 pragma solidity ^0.8.21;
 
-library MetadataLIB {}
+import "@openzeppelin/contracts/governance/IGovernor.sol";
+
+interface IDatasetDAO {}

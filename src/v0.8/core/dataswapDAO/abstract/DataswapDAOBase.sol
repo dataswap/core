@@ -21,47 +21,32 @@ import "@openzeppelin/contracts/governance/Governor.sol";
 import "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
 import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
-import "@openzeppelin/contracts/access/Ownable2Step.sol";
-import "../accessControl/IRoles.sol";
-import "../../types/RolesType.sol";
+
+// import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
 
 /// @title DataswapDAOBase Contract
 /// @notice This contract serves as the base for the DataSwap DAO governance mechanism.
 /// @dev This contract inherits from various Governor-related contracts and Ownable2Step.
-abstract contract DataswapDAO is
+abstract contract DataswapDAOBase is
     Governor,
     GovernorCompatibilityBravo,
     GovernorVotes,
-    GovernorVotesQuorumFraction,
-    GovernorTimelockControl,
-    Ownable2Step
+    GovernorVotesQuorumFraction
+    // GovernorTimelockControl
 {
-    address public immutable rolesContract;
-
-    /// @notice Modifier that restricts access to functions based on a specific role.
-    /// @param _role The role required to access the function.
-    modifier onlyRole(bytes32 _role) {
-        IRoles role = IRoles(rolesContract);
-        require(role.hasRole(_role, msg.sender), "No permission!");
-        _;
-    }
-
     /// @notice Constructor function to initialize the DataswapDAOBase contract.
     /// @param _token The token used for voting.
-    /// @param _rolesContract Address of the Roles contract for role-based access control.
-    /// @param _timelock The timelock contract.
+    //  @param _timelock The timelock contract.
     constructor(
-        IVotes _token,
-        address _rolesContract,
-        TimelockController _timelock
+        IVotes _token
     )
+        // TimelockController _timelock
         Governor("DataswapDAO")
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(4)
-        GovernorTimelockControl(_timelock)
+    // GovernorTimelockControl(_timelock)
     {
-        rolesContract = _rolesContract;
+
     }
 
     /// @notice Returns the delay between the proposal's creation and the ability to vote on it.
@@ -103,32 +88,17 @@ abstract contract DataswapDAO is
         return 0;
     }
 
-    /// @notice Casts a vote on a proposal.
-    /// @dev This function is an override of the Governor contract and is only accessible to users with the DATASET_AUDITOR role.
-    /// @param _proposalId The ID of the proposal to vote on.
-    /// @param _support Indicates whether to support (1) or reject (2) the proposal.
-    /// @return balance The voter's balance after the vote.
-    function castVote(
-        uint256 _proposalId,
-        uint8 _support
-    )
-        public
-        virtual
-        override(IGovernor, Governor)
-        onlyRole(RolesType.DATASET_AUDITOR)
-        returns (uint256 balance)
-    {
-        return super.castVote(_proposalId, _support);
-    }
-
     // The functions below are overrides required by Solidity.
     function state(
         uint256 proposalId
     )
         public
         view
-        override(Governor, IGovernor, GovernorTimelockControl)
-        returns (ProposalState)
+        override(Governor, IGovernor)
+        returns (
+            // override(Governor, IGovernor, GovernorTimelockControl)
+            ProposalState
+        )
     {
         return super.state(proposalId);
     }
@@ -138,11 +108,7 @@ abstract contract DataswapDAO is
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    )
-        public
-        override(Governor, GovernorCompatibilityBravo, IGovernor)
-        returns (uint256)
-    {
+    ) public override(Governor, GovernorCompatibilityBravo) returns (uint256) {
         return super.propose(targets, values, calldatas, description);
     }
 
@@ -151,11 +117,7 @@ abstract contract DataswapDAO is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    )
-        public
-        override(Governor, GovernorCompatibilityBravo, IGovernor)
-        returns (uint256)
-    {
+    ) public override(Governor, GovernorCompatibilityBravo) returns (uint256) {
         return super.cancel(targets, values, calldatas, descriptionHash);
     }
 
@@ -165,7 +127,13 @@ abstract contract DataswapDAO is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal override(Governor, GovernorTimelockControl) {
+    )
+        internal
+        override(
+            // ) internal override(Governor, GovernorTimelockControl) {
+            Governor
+        )
+    {
         super._execute(proposalId, targets, values, calldatas, descriptionHash);
     }
 
@@ -174,14 +142,24 @@ abstract contract DataswapDAO is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) internal override(Governor, GovernorTimelockControl) returns (uint256) {
+    )
+        internal
+        override(
+            // ) internal override(Governor, GovernorTimelockControl) returns (uint256) {
+            Governor
+        )
+        returns (uint256)
+    {
         return super._cancel(targets, values, calldatas, descriptionHash);
     }
 
     function _executor()
         internal
         view
-        override(Governor, GovernorTimelockControl)
+        override(
+            // override(Governor, GovernorTimelockControl)
+            Governor
+        )
         returns (address)
     {
         return super._executor();
@@ -192,8 +170,11 @@ abstract contract DataswapDAO is
     )
         public
         view
-        override(Governor, IERC165, GovernorTimelockControl)
-        returns (bool)
+        override(Governor, IERC165)
+        returns (
+            //override(Governor, IERC165, GovernorTimelockControl)
+            bool
+        )
     {
         return super.supportsInterface(interfaceId);
     }

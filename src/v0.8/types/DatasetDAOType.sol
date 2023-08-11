@@ -17,17 +17,17 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import "../../../types/DatasetType.sol";
+/// @notice Enum: Proposal Types
+enum ProposalType {
+    MetadataAudit, // Proposal for Metadata Audit
+    MetadataDispute, // Proposal for Metadata Dispute
+    DatasetAudit, // Proposal for Dataset Audit
+    DatasetDispute, // Proposal for Dataset Dispute
+    DatasetMappingFilesDisput // Proposal for Dataset MappingFiles Disputee
+}
 
-/// @title Dataset Verifier Library
-/// @notice This library provides functions for verifying datasets.
-/// @dev This library is used to verify the integrity of datasets.
-library DatasetVerifierLIB {
-    /// @notice Verify a dataset's integrity.
-    /// @dev This function is used to verify the integrity of a dataset's proofs and metadata.
-    /// @param _dataset The dataset to be verified.
-    /// @return The verification result, indicating the validity of the dataset.
-    function verify(
-        DatasetType.Dataset memory _dataset
-    ) external returns (DatasetType.VerifyResult) {}
+/// @notice Struct: Proposal
+struct Proposal {
+    uint256 datasetId; // ID of the dataset
+    ProposalType proposalType; // Type of the proposal
 }

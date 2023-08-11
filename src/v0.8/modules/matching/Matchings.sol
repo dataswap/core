@@ -138,12 +138,13 @@ abstract contract Matchings is Ownable2Step {
         uint256 _biddingThreshold,
         string memory _additionalInfo
     ) external onlyDPorSP {
-        Datasets datasets = Datasets(datasetsContract);
-        require(
-            DatasetType.State.DatasetApproved ==
-                datasets.getState(_target.datasetID),
-            "dataset isn't approved"
-        );
+        //TODO
+        // Datasets datasets = Datasets(datasetsContract);
+        // require(
+        //     DatasetType.State.DatasetApproved ==
+        //         datasets.getState(_target.datasetID),
+        //     "dataset isn't approved"
+        // );
         if (_target.dataType == MatchingType.DataType.Dataset) {
             MatchingType.Matching storage metaDatasetMatching = matchings[
                 _target.associatedMappingFilesMatchingID

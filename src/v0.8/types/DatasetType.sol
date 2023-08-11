@@ -28,12 +28,12 @@ library DatasetType {
         string name; // Name of the dataset.
         string description; // Description of the dataset.
         string source; // Source of the dataset.
-        string accessInfo; // Access information for the dataset.
+        string accessMethod; // Method of accessing the dataset (e.g., URL, API).
         address submitter; // Address of the dataset's submitter.
         uint256 createdBlockNumber; // Block number at which the dataset was created.
-        uint256 size; // Size of the dataset.
+        uint256 sizeInBytes; // Size of the dataset in bytes.
         bool isPublic; // Boolean indicating if the dataset is public.
-        uint64 version; // Version of the dataset.
+        uint64 version; // Version number of the dataset.
     }
 
     /// @notice Enum representing the possible states of a dataset.
@@ -43,8 +43,7 @@ library DatasetType {
         MetadataApproved, // Metadata has been approved.
         MetadataRejected, // Metadata submission has been rejected.
         DatasetProofSubmitted, // Proof of dataset submitted.
-        DatasetApproved, // Dataset has been approved.
-        DatasetApprovalInDispute // Dataset approval is in dispute.
+        DatasetApproved // Dataset has been approved.
     }
 
     /// @notice Enum representing the events related to dataset management.
@@ -54,56 +53,46 @@ library DatasetType {
         MetadataRejected, // Metadata rejection event.
         SubmitDatasetProof, // Dataset proof submission event.
         DatasetApproved, // Dataset approval event.
-        DatasetRejected, // Dataset rejection event.
-        DatasetRequireDispute // Dataset requires dispute resolution.
+        DatasetRejected // Dataset rejection event.
     }
 
-    /// @notice Struct representing proofs associated with a dataset.
-    struct Proof {
-        bytes32 rootHash; // Root hash of the dataset's Merkle tree.
-        bytes32[] leafHashes; // Array of leaf hashes representing cars in the dataset.
-        string leafAccessInfo; // Access information for leaf hashes.
-        string metadataAccessInfo; // Access information for dataset metadata.
-        bytes32 mappingFilesRootHash; // Root hash of mapping files' Merkle tree.
-        bytes32[] mappingFilesLeafHashes; // Array of leaf hashes representing mapping files.
+    /// @notice Struct representing a Merkle proof for data.
+    struct MerkleProof {
+        bytes32 rootHash; // Root hash of the data's Merkle tree.
+        bytes32[] leafHashes; // Array of leaf hashes representing items in the data.
+    }
+
+    /// @notice Struct representing proofs associated with a dataset submitted by participants.
+    struct DatasetProof {
+        MerkleProof sourceDatasetProof; // Merkle proof for the source dataset.
+        MerkleProof sourceToCarMappingFilesProof; // Merkle proof for mapping files from source to car.
+        string sourceToCarMappingFilesAccessMethod; // Method of accessing data (e.g., URL, API).
+    }
+
+    /// @notice Struct representing proofs associated with a dataset challenge submitted by reviewers.
+    struct DatasetChallengeProof {
+        MerkleProof[] sourceDatasetChallengeProofs; // Merkle proofs for the challenged source dataset.
+        MerkleProof[] sourceToCarMappingFilesChallengeProofs; // Merkle proofs for challenged mapping files from source to car.
     }
 
     /// @notice Struct representing verification details of a dataset.
     struct Verification {
-        uint64 randomSeed; // Random seed used for verification.
-        address auditor; // Address of the auditor.
-        DisputeByAuditor requireDipute; // Dispute raised by the auditor, if any.
-        bytes32[] merkleProof; // Merkle proof provided by the auditor.
-    }
-
-    /// @notice Enum representing the verification results of a dataset.
-    enum VerifyResult {
-        NotFinalized, // Verification process not finalized.
-        Approved, // Dataset verification approved.
-        Rejected, // Dataset verification rejected.
-        RequestDispute // Request dispute resolution for the verification.
-    }
-
-    /// @notice Enum representing dispute types raised by an auditor.
-    enum DisputeByAuditor {
-        None, // No dispute raised by the auditor.
-        IncorrectMetadata, // Dispute regarding incorrect metadata.
-        MetadataInaccessibility, // Dispute regarding metadata inaccessibility.
-        Others // Other types of disputes raised by the auditor.
-    }
-
-    /// @notice Enum representing dispute types raised by a dataset submitter.
-    enum DisputeBySubmitter {
-        None, // No dispute raised by the dataset submitter.
-        IncorrectVerificationInfo, // Dispute regarding incorrect verification information.
-        Others // Other types of disputes raised by the dataset submitter.
+        uint64 randomSeed; // Random seed used for verification. This seed determines which nodes need to be challenged.
+        DatasetChallengeProof proof; // Merkle proof provided by the auditor to support their challenge.
     }
 
     /// @notice Struct representing a dataset including its metadata, state, proof, and verifications.
     struct Dataset {
         Metadata metadata; // Metadata of the dataset.
         State state; // Current state of the dataset.
-        Proof proof; // Proof associated with the dataset.
-        Verification[] verifications; // Array of verifications conducted on the dataset.
+        DatasetProof proof; // Proof associated with the dataset.
+        uint256 VerificationsCount;
+        mapping(address => Verification) Verifications; // Address of the auditor who submits challenges.
+    }
+
+    /// @notice Struct: Datasets
+    struct Datasets {
+        uint256 datasetCount; // Total count of datasets
+        mapping(uint256 => DatasetType.Dataset) datasets; // Mapping of dataset ID to dataset details
     }
 }

@@ -18,44 +18,69 @@
 
 pragma solidity ^0.8.21;
 
-import "@openzeppelin/contracts/access/Ownable2Step.sol";
+import "../../core/accessControl/Roles.sol";
+import "../../shared/utils/contract/ModifierCommon.sol";
 import "../../types/DatasetType.sol";
-import "../..//types/RolesType.sol";
-import "./library/DatasetLIB.sol";
-import "../../shared/Common.sol";
-import "../../shared/utils/StringUtils.sol";
-import "../../core/accessControl/IRoles.sol";
-import "../../core/carStore/CarStore.sol";
+import "../../types/RolesType.sol";
+import "./library/DatasetMetadataLIB.sol";
+import "./library/DatasetProofLIB.sol";
+import "./library/DatasetStateMachineLIB.sol";
+import "./library/DatasetVerificationLIB.sol";
+import "./library/DatasetAuditLIB.sol";
 
 /// @title Datasets Base Contract
 /// @notice This contract serves as the base for managing datasets, metadata, proofs, and verifications.
 /// @dev This contract is intended to be inherited by specific dataset-related contracts.
-abstract contract Datasets is Ownable2Step, CarStore {
-    uint256 public datasetCount;
-    mapping(uint256 => DatasetType.Dataset) public datasets;
-    address public immutable rolesContract;
-    address payable public immutable governanceContract;
-    address public immutable carsStorageContract;
+abstract contract Datasets is Role, ModifierCommon {
+    uint256 private datasetsCount; // Total count of datasets
+    mapping(uint256 => DatasetType.Dataset) private datasets; // Mapping of dataset ID to dataset details
+    address payable private immutable governanceAddress; //The address of the governance contract.
 
-    using DatasetLIB for DatasetType.Dataset;
+    using DatasetMetadataLIB for DatasetType.Dataset;
+    using DatasetProofLIB for DatasetType.Dataset;
+    using DatasetStateMachineLIB for DatasetType.Dataset;
+    using DatasetVerificationLIB for DatasetType.Dataset;
+    using DatasetAuditLIB for DatasetType.Dataset;
 
     /// @notice Contract constructor.
     /// @dev Initializes the contract with the provided addresses for governance, roles, and cars storage contracts.
-    /// @param _governanceContract The address of the governance contract.
-    /// @param _rolesContract The address of the roles contract.
-    /// @param _carsStorageContract The address of the cars storage contract.:w
-    constructor(
-        address payable _governanceContract,
-        address _rolesContract,
-        address _carsStorageContract
-    ) {
-        governanceContract = _governanceContract;
-        rolesContract = _rolesContract;
-        carsStorageContract = _carsStorageContract;
+    /// @param _governanceAddress The address of the governance contract.
+    constructor(address payable _governanceAddress) {
+        governanceAddress = _governanceAddress;
+    }
+
+    /// @dev Modifier to ensure that a dataset with the given dataset id exists.
+    modifier datasetExist(uint256 _datasetId) {
+        require(hasDataset(_datasetId), "Car is not exists");
+        _;
+    }
+
+    /// @dev Modifier to ensure that a dataset with the given dataset id is not exists.
+    modifier datasetNotExist(uint256 _datasetId) {
+        require(!hasDataset(_datasetId), "Car is not exists");
+        _;
+    }
+
+    /// @dev Modifier to ensure that a dataset metadata  with the given accessMethod exists.
+    modifier datasetMetadataExsits(string memory _accessMethod) {
+        require(hasDatasetMetadata(_accessMethod), "dataset is not exists");
+        _;
+    }
+
+    /// @dev Modifier to ensure that a dataset metadata with the given accessMethod not exists.
+    modifier datasetMetadataNotExsits(string memory _accessMethod) {
+        require(!hasDatasetMetadata(_accessMethod), "dataset is not exists");
+        _;
+    }
+
+    modifier onlyDatasetState(uint256 _datasetId, DatasetType.State _state) {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        require(_state == dataset.state, "dataset is not exists");
+        _;
     }
 
     /// @notice Event emitted when metadata is submitted for a new dataset.
-    event MetadataSubmitted(
+    event DatasetMetadataSubmitted(
         uint256 indexed _datasetId,
         address indexed _provider,
         string metadata
@@ -74,10 +99,10 @@ abstract contract Datasets is Ownable2Step, CarStore {
     );
 
     /// @notice Event emitted when metadata is approved for a dataset.
-    event MetadataApproved(uint256 indexed _datasetId);
+    event DatasetMetadataApproved(uint256 indexed _datasetId);
 
     /// @notice Event emitted when metadata is rejected for a dataset.
-    event MetadataRejected(uint256 indexed _datasetId);
+    event DatasetMetadataRejected(uint256 indexed _datasetId);
 
     /// @notice Event emitted when a dataset is approved.
     event DatasetApproved(uint256 indexed _datasetId);
@@ -85,161 +110,301 @@ abstract contract Datasets is Ownable2Step, CarStore {
     /// @notice Event emitted when a dataset is rejected.
     event DatasetRejected(uint256 indexed _datasetId);
 
-    /// @notice Modifier: Only Governance Contract
-    modifier onlyGovernance() {
-        require(
-            msg.sender == governanceContract,
-            "Only governance contract can call this function"
-        );
-        _;
-    }
+    ///@dev Need add cids to carStore
+    function _beforeApproveDataset(uint256 _datasetId) internal virtual;
 
-    /// @notice Modifier: Only Specific Role
-    /// @param _role The role required for access.
-    modifier onlyRole(bytes32 _role) {
-        IRoles role = IRoles(rolesContract);
-        require(role.hasRole(_role, msg.sender), "No permission!");
-        _;
-    }
-
-    /// @notice Submit metadata for a new dataset.
-    /// @dev This function allows submitting metadata for a new dataset and increments the datasetCount.
-    /// @param _metadata The metadata to be submitted.
-    function submitMetadata(DatasetType.Metadata calldata _metadata) public {
-        //TODO:check if metadata exsits
-        Common.requireValidDataset(_metadata);
-
-        // Increment the datasetCount
-        datasetCount++;
-
-        // Create a new DatasetType.Dataset instance for the new dataset
-        DatasetType.Dataset storage newDataset = datasets[datasetCount];
-
-        // Use the Dataset library method to submit metadata
-        newDataset.submitMetadata(_metadata);
-        emit MetadataSubmitted(datasetCount, msg.sender, _metadata.accessInfo);
-    }
-
-    /// @notice Submit a proof for a dataset.
-    /// @dev This function allows submitting a proof for a dataset.
-    /// @param _datasetId The ID of the dataset to which the proof will be submitted.
-    /// @param _proof The proof to be submitted.
-    function submitProof(
-        uint256 _datasetId,
-        DatasetType.Proof calldata _proof
-    ) public onlyRole(RolesType.DATASET_PROVIDER) {
-        // Ensure the provided datasetId is within the valid range
-        require(
-            _datasetId > 0 && _datasetId <= datasetCount,
-            "Invalid dataset ID"
-        );
-
-        // Get the Dataset instance for the provided datasetId
+    ///@notice Get dataset metadata
+    function _getDataset(
+        uint256 _datasetId
+    ) internal view returns (DatasetType.Dataset storage) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-
-        // Use the Dataset library method to submit the proof
-        dataset.submitProof(_proof);
-        emit DatasetProofSubmitted(_datasetId, msg.sender);
+        return dataset;
     }
 
-    /// @notice Submit a verification for a dataset.
-    /// @dev This function allows submitting a verification for a dataset.
-    /// @param _datasetId The ID of the dataset to which the verification will be submitted.
-    /// @param _verification The verification to be submitted.
-    /// @return The result of the verification submission.
-    function submitVerification(
+    ///@notice Approve a dataset.
+    ///@dev This function changes the state of the dataset to DatasetApproved and emits the DatasetApproved event.
+    function approveDataset(
+        uint256 _datasetId
+    )
+        external
+        notZeroId(_datasetId)
+        datasetExist(_datasetId)
+        onlyDatasetState(_datasetId, DatasetType.State.DatasetProofSubmitted)
+        onlyAddress(governanceAddress)
+    {
+        _beforeApproveDataset(_datasetId);
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        dataset.approveDataset();
+    }
+
+    ///@notice Approve the metadata of a dataset.
+    ///@dev This function changes the state of the dataset to MetadataApproved and emits the MetadataApproved event.
+    function approveDatasetMetadata(
+        uint256 _datasetId
+    )
+        external
+        notZeroId(_datasetId)
+        datasetExist(_datasetId)
+        onlyDatasetState(_datasetId, DatasetType.State.MetadataSubmitted)
+        onlyAddress(governanceAddress)
+    {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        dataset.approveDatasetMetadata();
+
+        emit DatasetMetadataApproved(_datasetId);
+    }
+
+    ///@notice Reject the metadata of a dataset.
+    ///@dev This function changes the state of the dataset to MetadataRejected and emits the MetadataRejected event.
+    function rejectDatasetMetadata(
+        uint256 _datasetId
+    )
+        external
+        notZeroId(_datasetId)
+        datasetExist(_datasetId)
+        onlyDatasetState(_datasetId, DatasetType.State.MetadataSubmitted)
+        onlyAddress(governanceAddress)
+    {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        dataset.rejectDatasetMetadata();
+    }
+
+    ///@notice Reject a dataset.
+    ///@dev This function changes the state of the dataset to DatasetRejected and emits the DatasetRejected event.
+    function rejectDataset(
+        uint256 _datasetId
+    )
+        external
+        notZeroId(_datasetId)
+        datasetExist(_datasetId)
+        onlyDatasetState(_datasetId, DatasetType.State.DatasetProofSubmitted)
+        onlyAddress(governanceAddress)
+    {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        dataset.rejectDataset();
+    }
+
+    ///@notice Submit metadata for a dataset
+    ///        Note:anyone can submit dataset metadata
+    function submitDatasetMetadata(
+        string memory _title,
+        string memory _industry,
+        string memory _name,
+        string memory _description,
+        string memory _source,
+        string memory _accessMethod,
+        uint256 _sizeInBytes,
+        bool _isPublic,
+        uint64 _version
+    ) external datasetMetadataNotExsits(_accessMethod) {
+        //Note: params check in lib
+        datasetsCount++;
+        DatasetType.Dataset storage dataset = datasets[datasetsCount];
+        dataset.submitDatasetMetadata(
+            _title,
+            _industry,
+            _name,
+            _description,
+            _source,
+            _accessMethod,
+            _sizeInBytes,
+            _isPublic,
+            _version
+        );
+    }
+
+    ///@notice Submit proof for a dataset
+    /// TODO:Proof and verification functionality is provided here as a sample code structure.
+    /// The actual functionality is pending completion.
+    function submitDatasetProof(
         uint256 _datasetId,
-        DatasetType.Verification calldata _verification
+        bytes32 _sourceDatasetRootHash,
+        bytes32[] calldata _sourceDatasetLeafHashes,
+        bytes32 _sourceToCarMappingFilesRootHashes,
+        bytes32[] calldata _sourceToCarMappingFilesLeafHashes,
+        string calldata _sourceToCarMappingFilesAccessMethod
+    ) external notZeroId(_datasetId) onlyRole(RolesType.DATASET_PROVIDER) {
+        //Note: params check in lib
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        dataset.submitDatasetProof(
+            _sourceDatasetRootHash,
+            _sourceDatasetLeafHashes,
+            _sourceToCarMappingFilesRootHashes,
+            _sourceToCarMappingFilesLeafHashes,
+            _sourceToCarMappingFilesAccessMethod
+        );
+    }
+
+    ///@notice Submit proof for a dataset
+    /// TODO:Proof and verification functionality is provided here as a sample code structure.
+    /// The actual functionality is pending completion.
+    function submitDatasetVerification(
+        uint256 _datasetId,
+        uint64 _randomSeed,
+        bytes32[] calldata _sourceDatasetProofRootHashes,
+        bytes32[][] calldata _sourceDatasetProofLeafHashes,
+        bytes32[] calldata _sourceToCarMappingFilesProofRootHashes,
+        bytes32[][] calldata _sourceToCarMappingFilesProofLeafHashes
+    ) external onlyRole(RolesType.DATASET_AUDITOR) {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        dataset._submitDatasetVerification(
+            _randomSeed,
+            _sourceDatasetProofRootHashes,
+            _sourceDatasetProofLeafHashes,
+            _sourceToCarMappingFilesProofRootHashes,
+            _sourceToCarMappingFilesProofLeafHashes
+        );
+    }
+
+    ///@notice Get dataset metadata
+    function getDatasetMetadata(
+        uint256 _datasetId
     )
         public
-        onlyRole(RolesType.DATASET_AUDITOR)
-        returns (DatasetType.VerifyResult)
+        view
+        notZeroId(_datasetId)
+        returns (
+            string memory title,
+            string memory industry,
+            string memory name,
+            string memory description,
+            string memory source,
+            string memory accessMethod,
+            address submitter,
+            uint256 createdBlockNumber,
+            uint256 sizeInBytes,
+            bool isPublic,
+            uint64 version
+        )
     {
-        // Ensure the provided datasetId is within the valid range
-        require(
-            _datasetId > 0 && _datasetId <= datasetCount,
-            "Invalid dataset ID"
-        );
-
-        // Get the Dataset instance for the provided datasetId
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-
-        emit DatasetVerificationSubmitted(_datasetId, msg.sender);
-        // Use the Dataset library method to submit the verification and return the result
-        return
-            dataset.submitVerification(
-                _verification,
-                governanceContract,
-                _datasetId,
-                address(this)
-            );
+        return dataset.getDatasetMetadata();
     }
 
-    /// @notice Approve the metadata of a dataset.
-    /// @dev This function allows approving the metadata of a dataset.
-    /// @param _datasetId The ID of the dataset to approve the metadata for.
-    function approveMetadata(uint256 _datasetId) public onlyGovernance {
-        // Get the Dataset instance for the provided datasetId
+    ///@notice Get dataset source CIDs
+    function getDatasetSourceCids(
+        uint256 _datasetId
+    )
+        public
+        view
+        notZeroId(_datasetId)
+        datasetExist(_datasetId)
+        returns (bytes32[] memory)
+    {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-
-        // Use the Dataset library method to approve metadata
-        dataset.approveMetadata();
-        emit MetadataApproved(_datasetId);
+        return dataset.getDatasetSourceCids();
     }
 
-    /// @notice Reject the metadata of a dataset.
-    /// @dev This function allows rejecting the metadata of a dataset.
-    /// @param _datasetId The ID of the dataset to reject the metadata for.
-    function rejectMetadata(uint256 _datasetId) public onlyGovernance {
-        // Get the Dataset instance for the provided datasetId
+    // Get dataset source proof
+    function getDatasetSourceProof(
+        uint256 _datasetId
+    )
+        public
+        view
+        notZeroId(_datasetId)
+        datasetExist(_datasetId)
+        returns (bytes32, bytes32[] memory)
+    {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-
-        // Use the Dataset library method to reject metadata
-        dataset.rejectMetadata();
-        emit MetadataRejected(_datasetId);
+        return dataset.getDatasetSourceProof();
     }
 
-    /// @notice Approve a dataset.
-    /// @dev This function allows approving a dataset.
-    /// @param _datasetId The ID of the dataset to approve.
-    function approveDataset(uint256 _datasetId) public onlyGovernance {
-        // Get the Dataset instance for the provided datasetId
+    ///@notice Get dataset source-to-CAR mapping files CIDs
+    function getDatasetSourceToCarMappingFilesCids(
+        uint256 _datasetId
+    )
+        public
+        view
+        notZeroId(_datasetId)
+        datasetExist(_datasetId)
+        returns (bytes32[] memory)
+    {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-
-        // Use the Dataset library method to approve the dataset
-        dataset.approveDataset();
-        postApprovedAction(_datasetId);
+        return dataset.getDatasetSourceToCarMappingFilesCids();
     }
 
-    /// @notice Reject a dataset.
-    /// @dev This function allows rejecting a dataset.
-    /// @param _datasetId The ID of the dataset to reject.
-    function rejectDataset(uint256 _datasetId) public onlyGovernance {
-        // Get the Dataset instance for the provided datasetId
+    ///@notice Get dataset source-to-CAR mapping files proof
+    function getDatasetSourceToCarMappingFilesProof(
+        uint256 _datasetId
+    )
+        public
+        view
+        notZeroId(_datasetId)
+        datasetExist(_datasetId)
+        returns (bytes32, bytes32[] memory)
+    {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-
-        // Use the Dataset library method to reject the dataset
-        dataset.rejectDataset();
-
-        emit DatasetRejected(_datasetId);
+        return dataset.getDatasetSourceToCarMappingFilesProof();
     }
 
-    /// @notice Get the state of a dataset.
-    /// @param datasetId The ID of the dataset to retrieve the state for.
-    /// @return The current state of the dataset
-    function getState(
-        uint256 datasetId
-    ) public view returns (DatasetType.State) {
-        DatasetType.Dataset storage dataset = datasets[datasetId];
-        return dataset.getState();
+    ///@notice Get dataset state
+    function getDatasetState(
+        uint256 _datasetId
+    )
+        public
+        view
+        notZeroId(_datasetId)
+        datasetExist(_datasetId)
+        returns (DatasetType.State)
+    {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        return dataset.getDatasetState();
     }
 
-    /// @notice Perform actions after dataset approval.
-    /// @dev This internal function is used to perform additional actions after a dataset is approved.
-    /// @param _datasetId The ID of the approved dataset.
-    function postApprovedAction(uint256 _datasetId) internal {
+    ///@notice Get dataset verification
+    function getDatasetVerification(
+        uint256 _datasetId,
+        address _auditor
+    )
+        public
+        view
+        notZeroId(_datasetId)
+        datasetExist(_datasetId)
+        returns (
+            uint64 randomSeed,
+            bytes32[] memory sourceDatasetProofRootHashes,
+            bytes32[][] memory sourceDatasetProofLeafHashes,
+            bytes32[] memory sourceToCarMappingFilesProofRootHashes,
+            bytes32[][] memory sourceToCarMappingFilesProofLeafHashes
+        )
+    {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        _addCars(dataset.proof.leafHashes, _datasetId);
-        _addCars(dataset.proof.mappingFilesLeafHashes, _datasetId);
+        return dataset.getDatasetVerification(_auditor);
+    }
+
+    ///@notice Get count of dataset verifications
+    function getDatasetVerificationsCount(
+        uint256 _datasetId
+    )
+        public
+        view
+        notZeroId(_datasetId)
+        datasetExist(_datasetId)
+        returns (uint256)
+    {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        return dataset.getDatasetVerificationsCount();
+    }
+
+    ///@notice Check if a dataset has metadata
+    function hasDataset(
+        uint256 _datasetId
+    ) public view notZeroId(_datasetId) returns (bool) {
+        for (uint256 i = 1; i < datasetsCount; i++) {
+            if (DatasetType.State.None != getDatasetState(_datasetId))
+                return true;
+        }
+        return false;
+    }
+
+    ///@notice Check if a dataset has metadata
+    function hasDatasetMetadata(
+        string memory _accessMethod
+    ) public view returns (bool) {
+        for (uint256 i = 1; i < datasetsCount; i++) {
+            DatasetType.Dataset storage dataset = datasets[i];
+            if (dataset.hasDatasetMetadata(_accessMethod)) return true;
+        }
+        return false;
     }
 }
