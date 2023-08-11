@@ -89,10 +89,4 @@ library DatasetType {
         uint256 VerificationsCount;
         mapping(address => Verification) Verifications; // Address of the auditor who submits challenges.
     }
-
-    /// @notice Struct: Datasets
-    struct Datasets {
-        uint256 datasetCount; // Total count of datasets
-        mapping(uint256 => DatasetType.Dataset) datasets; // Mapping of dataset ID to dataset details
-    }
 }

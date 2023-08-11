@@ -83,8 +83,7 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
     /// @notice Event emitted when metadata is submitted for a new dataset.
     event DatasetMetadataSubmitted(
         uint256 indexed _datasetId,
-        address indexed _provider,
-        string metadata
+        address indexed _provider
     );
 
     /// @notice Event emitted when a proof is submitted for a dataset.
@@ -136,6 +135,8 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
         _beforeApproveDataset(_datasetId);
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset.approveDataset();
+
+        emit DatasetApproved(_datasetId);
     }
 
     ///@notice Approve the metadata of a dataset.
@@ -168,6 +169,8 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset.rejectDatasetMetadata();
+
+        emit DatasetMetadataRejected(_datasetId);
     }
 
     ///@notice Reject a dataset.
@@ -183,6 +186,8 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset.rejectDataset();
+
+        emit DatasetRejected(_datasetId);
     }
 
     ///@notice Submit metadata for a dataset
@@ -212,6 +217,8 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
             _isPublic,
             _version
         );
+
+        emit DatasetMetadataSubmitted(datasetsCount, msg.sender);
     }
 
     ///@notice Submit proof for a dataset
@@ -234,6 +241,8 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
             _sourceToCarMappingFilesLeafHashes,
             _sourceToCarMappingFilesAccessMethod
         );
+
+        emit DatasetProofSubmitted(_datasetId, msg.sender);
     }
 
     ///@notice Submit proof for a dataset
@@ -255,6 +264,8 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
             _sourceToCarMappingFilesProofRootHashes,
             _sourceToCarMappingFilesProofLeafHashes
         );
+
+        emit DatasetVerificationSubmitted(_datasetId, msg.sender);
     }
 
     ///@notice Get dataset metadata
