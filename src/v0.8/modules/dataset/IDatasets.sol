@@ -115,6 +115,9 @@ interface IDatasets {
         uint256 _datasetId
     ) external view returns (bytes32, bytes32[] memory);
 
+    ///@notice Get dataset size
+    function getDatasetSize(uint256 _datasetId) external view returns (uint256);
+
     ///@notice Get dataset state
     function getDatasetState(
         uint256 _datasetId
@@ -141,10 +144,19 @@ interface IDatasets {
     ) external view returns (uint256);
 
     ///@notice Check if a dataset has metadata
-    function hasDataset(uint256 _datasetId) external view returns (bool);
-
-    ///@notice Check if a dataset has metadata
     function hasDatasetMetadata(
         string memory _accessMethod
+    ) external view returns (bool);
+
+    ///@notice Check if a dataset has a cid
+    function isDatasetContainsCid(
+        uint256 _datasetId,
+        bytes32 _cid
+    ) external returns (bool);
+
+    ///@notice Check if a dataset has cids
+    function isDatasetContainsCids(
+        uint256 _datasetId,
+        bytes32[] memory _cids
     ) external view returns (bool);
 }

@@ -50,7 +50,7 @@ library MatchingType {
     }
 
     /// @notice Enum representing the rules for determining the winner bid.
-    enum WinnerBidRule {
+    enum BidSelectionRule {
         HighestBid, // Winner is determined by the highest bid
         LowestBid // Winner is determined by the lowest bid
     }
@@ -63,7 +63,7 @@ library MatchingType {
 
     /// @notice Struct representing the target of a matching.
     struct Target {
-        uint256 datasetID; // ID of the dataset associated with the matching
+        uint256 datasetId; // ID of the dataset associated with the matching
         bytes32[] cars; // Array of car IDs associated with the matching
         uint256 size; // Size of the matching target
         DataType dataType; // Type of data associated with the matching
@@ -79,6 +79,7 @@ library MatchingType {
     /// @notice Struct representing a dataset matching.
     struct Matching {
         Target target; // Matching target details
+        BidSelectionRule bidSelectionRule;
         uint256 biddingDelayBlockCount; // Number of blocks to delay bidding
         uint256 biddingPeriodBlockCount; // Number of blocks for bidding period
         uint256 storagePeriodBlockCount; // Number of blocks for storage period

@@ -18,243 +18,357 @@
 
 pragma solidity ^0.8.21;
 
-import "@openzeppelin/contracts/access/Ownable2Step.sol";
-import "../../types/MatchingType.sol";
 import "../../types/RolesType.sol";
 import "../../types/DatasetType.sol";
-import "../../core/accessControl/IRoles.sol";
 import "../dataset/Datasets.sol";
+import "../../types/MatchingType.sol";
 import "./library/MatchingLIB.sol";
+import "./library/MatchingStateMachineLIB.sol";
+import "./library/MatchingBidsLIB.sol";
 
 /// @title Matchings Base Contract
 /// @notice This contract serves as the base for managing matchings, their states, and associated actions.
 /// @dev This contract is intended to be inherited by specific matching-related contracts.
-abstract contract Matchings is Ownable2Step {
-    uint256 public matchingsCount;
-    mapping(uint256 => MatchingType.Matching) public matchings;
-    address public immutable rolesContract;
-    address public immutable carsStorageContract;
-    address public immutable datasetsContract;
+abstract contract Matchings is Ownable2Step, Datasets {
+    /// @notice  Declare private variables
+    uint256 private matchingsCount;
+    mapping(uint256 => MatchingType.Matching) private matchings;
 
+    /// @notice  Use libraries for different matching functionalities
     using MatchingLIB for MatchingType.Matching;
+    using MatchingStateMachineLIB for MatchingType.Matching;
+    using MatchingBidsLIB for MatchingType.Matching;
 
-    // @notice Contract constructor.
-    /// @dev Initializes the contract with the provided addresses for roles, cars storage, and datasets contracts.
-    /// @param _rolesContract The address of the roles contract.
-    /// @param _carsStorageContract The address of the cars storage contract.
-    /// @param _datasetsContract The address of the datasets contract.
-    constructor(
-        address _rolesContract,
-        address _carsStorageContract,
-        address _datasetsContract
-    ) {
-        rolesContract = _rolesContract;
-        carsStorageContract = _carsStorageContract;
-        datasetsContract = _datasetsContract;
-    }
-
-    /// @notice Event emitted when a matching is published.
-    /// @param _matchingId The ID of the published matching.
-    event MatchingPublished(uint256 indexed _matchingId);
-
-    /// @notice Event emitted when a matching is paused.
-    /// @param _matchingId The ID of the paused matching.
+    /// @notice  Declare events for external monitoring
+    event MatchingPublished(
+        uint256 indexed matchingId,
+        address indexed initiator
+    );
     event MatchingPaused(uint256 indexed _matchingId);
-
-    /// @notice Event emitted when the pause of a matching is reported as expired.
-    /// @param _matchingId The ID of the matching for which the pause expired.
-    event PauseExpiredReported(uint256 indexed _matchingId);
-
-    /// @notice Event emitted when a matching is resumed.
-    /// @param _matchingId The ID of the resumed matching.
+    event MatchingPauseExpired(uint256 indexed _matchingId);
     event MatchingResumed(uint256 indexed _matchingId);
+    event MatchingCancelled(uint256 indexed _matchingId);
+    event MatchingHasWinner(
+        uint256 indexed _matchingId,
+        address indexed _winner
+    );
+    event MatchingNoWinner(uint256 indexed _matchingId);
+    event MatchingBidPlaced(
+        uint256 indexed _matchingId,
+        address _bidder,
+        uint256 _amount
+    );
 
-    /// @notice Event emitted when a matching is canceled.
-    /// @param _matchingId The ID of the canceled matching.
-    event MatchingCanceled(uint256 indexed _matchingId);
-
-    /// @notice Event emitted when a bid is placed in a matching.
-    /// @param _matchingId The ID of the matching in which the bid was placed.
-    event BidPlaced(uint256 indexed _matchingId);
-
-    /// @notice Event emitted when a matching is closed.
-    /// @param _matchingId The ID of the closed matching.
-    event MatchingClosed(uint256 indexed _matchingId);
-
-    /// @notice Modifier: Check if the provided matching ID is valid.
-    /// @dev This modifier ensures that the provided matching ID is within a valid range.
-    /// @param _matchingId The matching ID to be checked.
-    modifier validMatchingId(uint256 _matchingId) {
+    /// @notice  Modifier to restrict access to the matching initiator
+    modifier onlyMatchingInitiator(uint256 _matchingId) {
         require(
-            _matchingId > 0 && _matchingId <= matchingsCount,
-            "Invalid matching ID"
+            matchings[_matchingId].initiator == msg.sender,
+            "You are not the initiator of this matching"
         );
         _;
     }
 
-    /// @notice Modifier: Check if the sender is the initiator of the matching.
-    /// @dev This modifier ensures that the sender is the initiator of the specified matching.
-    /// @param _matchingId The matching ID for which the initiator is checked.
-    modifier onlyInitiator(uint256 _matchingId) {
+    /// @notice  Modifier to restrict access based on matching state
+    modifier onlyMatchingState(uint256 _matchingId, MatchingType.State _state) {
+        require(
+            matchings[_matchingId].state == _state,
+            "Matching is not in the expected state"
+        );
+        _;
+    }
+
+    ///@dev update cars info  to carStore before complete
+    function _beforeCompleteMatching(uint256 _matchingId) internal virtual;
+
+    /// @notice  Function for bidding on a matching
+    function matchingBidding(
+        uint256 _matchingId,
+        uint256 _amount
+    ) external onlyRole(RolesType.STORAGE_PROVIDER) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        require(matching.initiator == msg.sender, "No permission!");
-        _;
+        matching._matchingBidding(_amount);
+
+        emit MatchingBidPlaced(_matchingId, msg.sender, _amount);
     }
 
-    /// @notice Modifier: Check if the sender has a specific role.
-    /// @dev This modifier ensures that the sender has a specific role as defined by the provided role parameter.
-    /// @param _role The role required for access.
-    modifier onlyRole(bytes32 _role) {
-        IRoles role = IRoles(rolesContract);
-        require(role.hasRole(_role, msg.sender), "No permission!");
-        _;
-    }
-
-    /// @notice Modifier: Check if the sender is a dataset provider or storage provider.
-    /// @dev This modifier ensures that the sender is either a dataset provider or a storage provider.
-    modifier onlyDPorSP() {
-        IRoles role = IRoles(rolesContract);
-        require(
-            role.hasRole(RolesType.DATASET_PROVIDER, msg.sender) ||
-                role.hasRole(RolesType.STORAGE_PROVIDER, msg.sender),
-            "No permission!"
-        );
-        _;
-    }
-
-    /// @notice Publish a matching.
-    /// @dev This function is used to publish a matching and initiate the matching process.
-    /// @param _target The target information for the matching.
-    /// @param _biddingDelayBlockCount The delay in blocks before bidding starts.
-    /// @param _biddingPeriodBlockCount The duration in blocks for the bidding period.
-    /// @param _storagePeriodBlockCount The duration in blocks for the storage period.
-    /// @param _biddingThreshold The minimum bid required to participate in the matching.
-    /// @param _additionalInfo Additional information about the matching.
-    function publish(
-        MatchingType.Target memory _target,
+    /// @notice  Function for publishing a new matching
+    /// TODO:pls see MatchingLIB _publishMatching
+    function publishMatching(
+        uint256 _datasetId,
+        bytes32[] memory _cars,
+        uint256 _size,
+        MatchingType.DataType _dataType,
+        uint256 _associatedMappingFilesMatchingID,
+        MatchingType.BidSelectionRule _bidSelectionRule,
         uint256 _biddingDelayBlockCount,
         uint256 _biddingPeriodBlockCount,
         uint256 _storagePeriodBlockCount,
         uint256 _biddingThreshold,
         string memory _additionalInfo
-    ) external onlyDPorSP {
-        //TODO
-        // Datasets datasets = Datasets(datasetsContract);
-        // require(
-        //     DatasetType.State.DatasetApproved ==
-        //         datasets.getState(_target.datasetID),
-        //     "dataset isn't approved"
-        // );
-        if (_target.dataType == MatchingType.DataType.Dataset) {
-            MatchingType.Matching storage metaDatasetMatching = matchings[
-                _target.associatedMappingFilesMatchingID
-            ];
-            require(
-                MatchingType.State.Completed == metaDatasetMatching.getState(),
-                "associated mapping files matching isn't completed"
-            );
-            //TODO: require storage completed
-        }
-
+    ) external onlyRole(RolesType.DATASET_PROVIDER) {
+        require(
+            isMatchingTargetMeetsFilPlusRequirements(
+                _datasetId,
+                _cars,
+                _size,
+                _dataType,
+                _associatedMappingFilesMatchingID
+            ),
+            "target not meets filplus requirements"
+        );
         matchingsCount++;
-        MatchingType.Matching storage newMatching = matchings[matchingsCount];
+        MatchingType.Matching storage matching = matchings[matchingsCount];
+        matching.target = MatchingType.Target({
+            datasetId: _datasetId,
+            cars: _cars,
+            size: _size,
+            dataType: _dataType,
+            associatedMappingFilesMatchingID: _associatedMappingFilesMatchingID
+        });
+        matching.bidSelectionRule = _bidSelectionRule;
+        matching.biddingDelayBlockCount = _biddingDelayBlockCount;
+        matching.biddingPeriodBlockCount = _biddingPeriodBlockCount;
+        matching.storagePeriodBlockCount = _storagePeriodBlockCount;
+        matching.biddingThreshold = _biddingThreshold;
+        matching.additionalInfo = _additionalInfo;
+        matching.initiator = msg.sender;
+        matching.createdBlockNumber = block.number;
 
-        newMatching.target = _target;
-        newMatching.biddingDelayBlockCount = _biddingDelayBlockCount;
-        newMatching.biddingPeriodBlockCount = _biddingPeriodBlockCount;
-        newMatching.storagePeriodBlockCount = _storagePeriodBlockCount;
-        newMatching.biddingThreshold = _biddingThreshold;
-        newMatching.additionalInfo = _additionalInfo;
-        newMatching.initiator = msg.sender;
-        newMatching.createdBlockNumber = block.number;
-
-        newMatching.publish();
-        emit MatchingPublished(matchingsCount);
+        matching._publishMatching();
+        emit MatchingPublished(matchingsCount, msg.sender);
     }
 
-    /// @notice Pause a matching.
-    /// @dev This function is used by the initiator to pause a matching.
-    /// @param _matchingId The ID of the matching to be paused.
-    function pause(
+    /// @notice  Function for pausing a matching
+    function pauseMatching(
         uint256 _matchingId
-    ) external validMatchingId(_matchingId) onlyInitiator(_matchingId) {
+    )
+        external
+        onlyMatchingInitiator(_matchingId)
+        onlyMatchingState(_matchingId, MatchingType.State.InProgress)
+    {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        matching.pause();
+        matching._pauseMatching();
         emit MatchingPaused(_matchingId);
     }
 
-    /// @notice Report the expiration of a pause for a matching.
-    /// @dev This function is used to report that the pause period of a matching has expired.
-    /// @param _matchingId The ID of the matching.
-    function reportPauseExpired(
-        uint256 _matchingId
-    ) external validMatchingId(_matchingId) {
+    /// @notice Function for reporting that a matching pause has expired
+    function reportMatchingPauseExpired(uint256 _matchingId) external {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        matching.reportPauseExpired();
-        emit PauseExpiredReported(_matchingId);
+        matching._reportMatchingPauseExpired();
+        emit MatchingPauseExpired(_matchingId);
     }
 
-    /// @notice Resume a paused matching.
-    /// @dev This function is used by the initiator to resume a paused matching.
-    /// @param _matchingId The ID of the matching to be resumed.
-    function resume(
+    /// @notice  Function for resuming a paused matching
+    function resumeMatching(
         uint256 _matchingId
-    ) external validMatchingId(_matchingId) onlyInitiator(_matchingId) {
+    )
+        external
+        onlyMatchingInitiator(_matchingId)
+        onlyMatchingState(_matchingId, MatchingType.State.Paused)
+    {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        matching.resume();
+        matching._resumeMatching();
         emit MatchingResumed(_matchingId);
     }
 
-    /// @notice Cancel a matching.
-    /// @dev This function is used by the initiator to cancel a matching.
-    /// @param _matchingId The ID of the matching to be canceled.
-    function cancel(
+    /// @notice  Function for canceling a matching
+    function cancelMatching(
         uint256 _matchingId
-    ) external validMatchingId(_matchingId) onlyInitiator(_matchingId) {
+    ) external onlyMatchingInitiator(_matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        matching.cancel();
-        emit MatchingCanceled(_matchingId);
+        matching._cancelMatching();
+        emit MatchingCancelled(_matchingId);
     }
 
-    /// @notice Place a bid in a matching.
-    /// @dev This function is used by a dataset provider or storage provider to place a bid in a matching.
-    /// @param _matchingId The ID of the matching to place a bid in.
-    /// @param _bid The bid information to be placed.
-    function bidding(
+    /// @notice  Function for closing a matching and choosing a winner
+    function closeMatching(
+        uint256 _matchingId
+    ) external onlyMatchingState(_matchingId, MatchingType.State.InProgress) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        matching._closeMatching();
+        address winner = matching._chooseMatchingWinner();
+        if (winner != address(0)) {
+            _beforeCompleteMatching(_matchingId);
+            matching._emitMatchingEvent(MatchingType.Event.HasWinner);
+            emit MatchingHasWinner(_matchingId, winner);
+        } else {
+            matching._emitMatchingEvent(MatchingType.Event.NoWinner);
+            emit MatchingNoWinner(_matchingId);
+        }
+    }
+
+    /// @notice  Function for getting bids in a matching
+    function getMatchingBids(
+        uint256 _matchingId
+    ) public view returns (address[] memory, uint256[] memory) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        return matching._getMatchingBids();
+    }
+
+    /// @notice  Function for getting bid amount of a bidder in a matching
+    function getMatchingBidAmount(
         uint256 _matchingId,
-        MatchingType.Bid memory _bid
-    ) external validMatchingId(_matchingId) onlyDPorSP {
+        address _bidder
+    ) public view returns (uint256) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        matching.bidding(_bid);
-        emit BidPlaced(_matchingId);
+        return matching._getMatchingBidAmount(_bidder);
     }
 
-    /// @notice Close a matching and determine the winner.
-    /// @dev This function is used to close a matching, determine the winner based on the specified rule,
-    /// and perform necessary actions.
-    /// @param _matchingId The ID of the matching to be closed.
-    /// @param _rule The rule to determine the winner (highest or lowest bid).
-    function close(
+    /// @notice  Function for getting the count of bids in a matching
+    function getMatchingBidsCount(
+        uint256 _matchingId
+    ) public view returns (uint256) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        return matching._getMatchingBidsCount();
+    }
+
+    /// @notice  Function for getting the count of bids in a matching
+    function getMatchingCids(
+        uint256 _matchingId
+    ) public view returns (bytes32[] memory) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        return matching.target.cars;
+    }
+
+    /// @notice  Function for getting the state of a matching
+    function getMatchingState(
+        uint256 _matchingId
+    ) public view returns (MatchingType.State) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        return matching._getMatchingState();
+    }
+
+    /// @notice Get the target information of a matching.
+    /// @param _matchingId The ID of the matching.
+    /// @return datasetID The ID of the associated dataset.
+    /// @return cars An array of CIDs representing the cars in the matching.
+    /// @return size The size of the matching.
+    /// @return dataType The data type of the matching.
+    /// @return associatedMappingFilesMatchingID The ID of the associated mapping files matching.
+    function getMatchingTarget(
+        uint256 _matchingId
+    )
+        public
+        view
+        returns (
+            uint256 datasetID,
+            bytes32[] memory cars,
+            uint256 size,
+            MatchingType.DataType dataType,
+            uint256 associatedMappingFilesMatchingID
+        )
+    {
+        // Access the matching with the specified ID and retrieve the target information
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        return (
+            matching.target.datasetId,
+            matching.target.cars,
+            matching.target.size,
+            matching.target.dataType,
+            matching.target.associatedMappingFilesMatchingID
+        );
+    }
+
+    /// @notice  Function for checking if a bidder has a bid in a matching
+    function hasMatchingBid(
         uint256 _matchingId,
-        MatchingType.WinnerBidRule _rule
-    ) external validMatchingId(_matchingId) {
+        address _bidder
+    ) public view returns (bool) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        matching.close(_rule);
-        emit MatchingClosed(_matchingId);
+        return matching._hasMatchingBid(_bidder);
     }
 
-    /// @dev TODO: cid check, etc
-    function filPlusCheck(
-        uint256 _matchingId
-    ) internal pure virtual returns (bool);
-
-    /// @notice Get the state of a matching.
-    /// @param _matchingId The ID of the matching to retrieve the state for.
-    /// @return The current state of the matching.
-    function getState(
-        uint256 _matchingId
-    ) public view validMatchingId(_matchingId) returns (MatchingType.State) {
-        MatchingType.Matching storage matching = matchings[_matchingId];
-        return matching.getState();
+    /// @notice Check if a matching with the given matching ID contains a specific CID.
+    /// @param _matchingId The ID of the matching to check.
+    /// @param _cid The CID (Content Identifier) to check for.
+    /// @return True if the matching contains the specified CID, otherwise false.
+    function isMatchingContainsCid(
+        uint256 _matchingId,
+        bytes32 _cid
+    ) public view returns (bool) {
+        bytes32[] memory cids = getMatchingCids(_matchingId);
+        for (uint256 i = 0; i < cids.length; i++) {
+            if (_cid == cids[i]) return true;
+        }
+        return false;
     }
+
+    /// @notice Check if a matching with the given matching ID contains multiple CIDs.
+    /// @param _matchingId The ID of the matching to check.
+    /// @param _cids An array of CIDs (Content Identifiers) to check for.
+    /// @return True if the matching contains all the specified CIDs, otherwise false.
+    function isMatchingContainsCids(
+        uint256 _matchingId,
+        bytes32[] memory _cids
+    ) public view returns (bool) {
+        for (uint256 i = 0; i < _cids.length; i++) {
+            if (isMatchingContainsCid(_matchingId, _cids[i])) return true;
+        }
+        return false;
+    }
+
+    /// @notice check is matching targe valid
+    function isMatchingTargetValid(
+        uint256 _datasetId,
+        bytes32[] memory _cars,
+        uint256 _size,
+        MatchingType.DataType _dataType,
+        uint256 _associatedMappingFilesMatchingID
+    ) public view returns (bool) {
+        require(
+            getDatasetState(_datasetId) == DatasetType.State.DatasetApproved,
+            "datasetId is not approved!"
+        );
+        require(isDatasetContainsCids(_datasetId, _cars), "Invalid cids!");
+        require(_size > 0, "Invalid size!");
+        if (_dataType == MatchingType.DataType.Dataset) {
+            (
+                uint256 datasetId,
+                ,
+                ,
+                MatchingType.DataType dataType,
+
+            ) = getMatchingTarget(_associatedMappingFilesMatchingID);
+
+            require(
+                datasetId == _datasetId && dataType == _dataType,
+                "Need has a associated MappingFiles matching id"
+            );
+            require(
+                isMatchingTargetMeetsFilPlusRequirements(
+                    _datasetId,
+                    _cars,
+                    _size,
+                    _dataType,
+                    _associatedMappingFilesMatchingID
+                ),
+                "Not meets filplus requirements"
+            );
+        }
+        return true;
+    }
+
+    /// @notice Check if a matching meets the requirements of Fil+.
+    function isMatchingTargetMeetsFilPlusRequirements(
+        uint256 _matchingId
+    ) public view returns (bool) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        return
+            isMatchingTargetMeetsFilPlusRequirements(
+                matching.target.datasetId,
+                matching.target.cars,
+                matching.target.size,
+                matching.target.dataType,
+                matching.target.associatedMappingFilesMatchingID
+            );
+    }
+
+    /// @notice Check if a matching meets the requirements of Fil+.
+    function isMatchingTargetMeetsFilPlusRequirements(
+        uint256 _datasetId,
+        bytes32[] memory _cars,
+        uint256 _size,
+        MatchingType.DataType _dataType,
+        uint256 _associatedMappingFilesMatchingID
+    ) public view virtual returns (bool);
 }

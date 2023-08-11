@@ -50,18 +50,6 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
         governanceAddress = _governanceAddress;
     }
 
-    /// @dev Modifier to ensure that a dataset with the given dataset id exists.
-    modifier datasetExist(uint256 _datasetId) {
-        require(hasDataset(_datasetId), "Car is not exists");
-        _;
-    }
-
-    /// @dev Modifier to ensure that a dataset with the given dataset id is not exists.
-    modifier datasetNotExist(uint256 _datasetId) {
-        require(!hasDataset(_datasetId), "Car is not exists");
-        _;
-    }
-
     /// @dev Modifier to ensure that a dataset metadata  with the given accessMethod exists.
     modifier datasetMetadataExsits(string memory _accessMethod) {
         require(hasDatasetMetadata(_accessMethod), "dataset is not exists");
@@ -128,7 +116,6 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
     )
         external
         notZeroId(_datasetId)
-        datasetExist(_datasetId)
         onlyDatasetState(_datasetId, DatasetType.State.DatasetProofSubmitted)
         onlyAddress(governanceAddress)
     {
@@ -146,7 +133,6 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
     )
         external
         notZeroId(_datasetId)
-        datasetExist(_datasetId)
         onlyDatasetState(_datasetId, DatasetType.State.MetadataSubmitted)
         onlyAddress(governanceAddress)
     {
@@ -163,7 +149,6 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
     )
         external
         notZeroId(_datasetId)
-        datasetExist(_datasetId)
         onlyDatasetState(_datasetId, DatasetType.State.MetadataSubmitted)
         onlyAddress(governanceAddress)
     {
@@ -180,7 +165,6 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
     )
         external
         notZeroId(_datasetId)
-        datasetExist(_datasetId)
         onlyDatasetState(_datasetId, DatasetType.State.DatasetProofSubmitted)
         onlyAddress(governanceAddress)
     {
@@ -296,13 +280,7 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
     ///@notice Get dataset source CIDs
     function getDatasetSourceCids(
         uint256 _datasetId
-    )
-        public
-        view
-        notZeroId(_datasetId)
-        datasetExist(_datasetId)
-        returns (bytes32[] memory)
-    {
+    ) public view notZeroId(_datasetId) returns (bytes32[] memory) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetSourceCids();
     }
@@ -310,13 +288,7 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
     // Get dataset source proof
     function getDatasetSourceProof(
         uint256 _datasetId
-    )
-        public
-        view
-        notZeroId(_datasetId)
-        datasetExist(_datasetId)
-        returns (bytes32, bytes32[] memory)
-    {
+    ) public view notZeroId(_datasetId) returns (bytes32, bytes32[] memory) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetSourceProof();
     }
@@ -324,13 +296,7 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
     ///@notice Get dataset source-to-CAR mapping files CIDs
     function getDatasetSourceToCarMappingFilesCids(
         uint256 _datasetId
-    )
-        public
-        view
-        notZeroId(_datasetId)
-        datasetExist(_datasetId)
-        returns (bytes32[] memory)
-    {
+    ) public view notZeroId(_datasetId) returns (bytes32[] memory) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetSourceToCarMappingFilesCids();
     }
@@ -338,27 +304,25 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
     ///@notice Get dataset source-to-CAR mapping files proof
     function getDatasetSourceToCarMappingFilesProof(
         uint256 _datasetId
-    )
-        public
-        view
-        notZeroId(_datasetId)
-        datasetExist(_datasetId)
-        returns (bytes32, bytes32[] memory)
-    {
+    ) public view notZeroId(_datasetId) returns (bytes32, bytes32[] memory) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetSourceToCarMappingFilesProof();
+    }
+
+    ///@notice Get dataset size
+    function getDatasetSize(
+        uint256 _datasetId
+    ) public view notZeroId(_datasetId) returns (uint256) {
+        (, , , , , , , , uint256 sizeInBytes, , ) = getDatasetMetadata(
+            _datasetId
+        );
+        return sizeInBytes;
     }
 
     ///@notice Get dataset state
     function getDatasetState(
         uint256 _datasetId
-    )
-        public
-        view
-        notZeroId(_datasetId)
-        datasetExist(_datasetId)
-        returns (DatasetType.State)
-    {
+    ) public view notZeroId(_datasetId) returns (DatasetType.State) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetState();
     }
@@ -371,7 +335,6 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
         public
         view
         notZeroId(_datasetId)
-        datasetExist(_datasetId)
         returns (
             uint64 randomSeed,
             bytes32[] memory sourceDatasetProofRootHashes,
@@ -387,26 +350,9 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
     ///@notice Get count of dataset verifications
     function getDatasetVerificationsCount(
         uint256 _datasetId
-    )
-        public
-        view
-        notZeroId(_datasetId)
-        datasetExist(_datasetId)
-        returns (uint256)
-    {
+    ) public view notZeroId(_datasetId) returns (uint256) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetVerificationsCount();
-    }
-
-    ///@notice Check if a dataset has metadata
-    function hasDataset(
-        uint256 _datasetId
-    ) public view notZeroId(_datasetId) returns (bool) {
-        for (uint256 i = 1; i < datasetsCount; i++) {
-            if (DatasetType.State.None != getDatasetState(_datasetId))
-                return true;
-        }
-        return false;
     }
 
     ///@notice Check if a dataset has metadata
@@ -418,5 +364,30 @@ abstract contract Datasets is Role, ModifierCommon, IDatasets {
             if (dataset.hasDatasetMetadata(_accessMethod)) return true;
         }
         return false;
+    }
+
+    ///@notice Check if a dataset has a cid
+    function isDatasetContainsCid(
+        uint256 _datasetId,
+        bytes32 _cid
+    ) public view notZeroId(_datasetId) returns (bool) {
+        bytes32[] memory cids = getDatasetSourceToCarMappingFilesCids(
+            _datasetId
+        );
+        for (uint256 i = 0; i < cids.length; i++) {
+            if (cids[i] == _cid) return true;
+        }
+        return false;
+    }
+
+    ///@notice Check if a dataset has cids
+    function isDatasetContainsCids(
+        uint256 _datasetId,
+        bytes32[] memory _cids
+    ) public view notZeroId(_datasetId) returns (bool) {
+        for (uint256 i = 0; i < _cids.length; i++) {
+            if (!isDatasetContainsCid(_datasetId, _cids[i])) return false;
+        }
+        return true;
     }
 }

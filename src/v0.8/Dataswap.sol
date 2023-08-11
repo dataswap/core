@@ -20,8 +20,9 @@ pragma solidity ^0.8.21;
 
 import "./core/carStore/CarStore.sol";
 import "./modules/dataset/Datasets.sol";
+import "./modules/matching/Matchings.sol";
 
-contract Dataswap is CarStore, Datasets {
+contract Dataswap is CarStore, Matchings {
     constructor(
         address payable _governanceContractAddress
     ) Datasets(_governanceContractAddress) {}
@@ -32,6 +33,16 @@ contract Dataswap is CarStore, Datasets {
     ) internal virtual override {
         _addCars(getDatasetSourceCids(_datasetId), _datasetId);
         _addCars(getDatasetSourceToCarMappingFilesCids(_datasetId), _datasetId);
+    }
+
+    ///@dev add cars replica info  to carStore before complete
+    function _beforeCompleteMatching(
+        uint256 _matchingId
+    ) internal virtual override {
+        bytes32[] memory cars = getMatchingCids(_matchingId);
+        for (uint256 i; i < cars.length; i++) {
+            _addCarReplica(cars[i], _matchingId);
+        }
     }
 
     /// @notice Internal function to get the state of a Filecoin storage deal for a replica.
@@ -47,4 +58,15 @@ contract Dataswap is CarStore, Datasets {
         override(CarStore)
         returns (CarReplicaType.FilecoinDealState)
     {}
+
+    /// @notice Check if a matching meets the requirements of Fil+.
+    function isMatchingTargetMeetsFilPlusRequirements(
+        uint256 /*_datasetId*/,
+        bytes32[] memory /*_cars*/,
+        uint256 /*_size*/,
+        MatchingType.DataType /*_dataType*/,
+        uint256 /*_associatedMappingFilesMatchingID*/
+    ) public view virtual override returns (bool) {
+        return true;
+    }
 }
