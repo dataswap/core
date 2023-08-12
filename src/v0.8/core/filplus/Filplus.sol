@@ -22,7 +22,7 @@ import "../../shared/utils/contract/ModifierCommon.sol";
 
 /// @title Filplus
 /// @author waynewyang
-contract Filplus is ModifierCommon {
+abstract contract Filplus is ModifierCommon {
     address payable internal immutable governanceAddress; //The address of the governance contract.
 
     ///@notice car rules
