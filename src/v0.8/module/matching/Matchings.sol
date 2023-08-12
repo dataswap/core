@@ -28,13 +28,14 @@ import "./library/MatchingBidsLIB.sol";
 import "./IMatchings.sol";
 
 /// @title Matchings Base Contract
+/// @author waynewyang
 /// @notice This contract serves as the base for managing matchings, their states, and associated actions.
 /// @dev This contract is intended to be inherited by specific matching-related contracts.
 ///      TODO: Missing fund proccess,need add later
 ///            1 bidder(when bidding) and initiator(when publish) should transfer FIL to payable function
 ///            2 proccess the fund after matched
 ///            3 proccess the fund after matchedsotre,step by step
-abstract contract Matchings is Ownable2Step, Datasets, IMatchings {
+abstract contract Matchings is Datasets, IMatchings {
     /// @notice  Declare private variables
     uint256 private matchingsCount;
     mapping(uint256 => MatchingType.Matching) private matchings;

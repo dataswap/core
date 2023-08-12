@@ -17,6 +17,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+/// @title CidUtils
+/// @author waynewyang
 library CidUtils {
     /// @notice Convert a bytes32 hash to a CID.
     /// @dev This function converts a bytes32 hash to a CID using the specified encoding.

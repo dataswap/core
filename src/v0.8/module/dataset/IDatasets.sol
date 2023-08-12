@@ -20,6 +20,8 @@ pragma solidity ^0.8.21;
 
 import "../../types/DatasetType.sol";
 
+/// @title IDatasets
+/// @author waynewyang
 interface IDatasets {
     ///@notice Approve a dataset.
     ///@dev This function changes the state of the dataset to DatasetApproved and emits the DatasetApproved event.

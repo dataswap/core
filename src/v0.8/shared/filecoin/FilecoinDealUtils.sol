@@ -19,6 +19,8 @@ pragma solidity ^0.8.21;
 
 import "../../types/FilecoinDealType.sol";
 
+/// @title FilecoinDealUtils
+/// @author waynewyang
 library FilecoinDealUtils {
     /// @notice Internal function to get the state of a Filecoin storage deal for a replica.
     /// @dev This function get the state of a Filecoin storage deal associated with a replica.

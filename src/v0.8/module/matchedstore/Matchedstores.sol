@@ -21,6 +21,7 @@ import "../../types/FilecoinDealType.sol";
 import "./IMatchedstores.sol";
 
 /// @title Matchedstores
+/// @author waynewyang
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
 abstract contract Matchedstores is Matchings, IMatchedstores {
     mapping(uint256 => MatchedstoreType.Matchedstore) private matchedstores; //matchingId=>Matchedstore

@@ -18,6 +18,7 @@
 pragma solidity ^0.8.21;
 
 /// @title CommonType Library
+/// @author waynewyang
 /// @notice This library defines common data structures used for geolocation and storage provider information.
 /// @dev This library provides structs to represent geolocation and storage provider details.
 library CommonType {

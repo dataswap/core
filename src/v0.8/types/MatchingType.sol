@@ -21,6 +21,7 @@ pragma solidity ^0.8.21;
 import "./DatasetType.sol";
 
 /// @title MatchingType Library
+/// @author waynewyang
 /// @notice This library defines data structures and enums related to dataset matching and their states.
 library MatchingType {
     /// @notice Enum representing the possible states of a dataset matching.

@@ -19,6 +19,7 @@
 pragma solidity ^0.8.21;
 
 import "../../core/access/Roles.sol";
+import "../../core/filplus/Filplus.sol";
 import "../../shared/utils/contract/ModifierCommon.sol";
 import "../../types/DatasetType.sol";
 import "../../types/RolesType.sol";
@@ -30,25 +31,18 @@ import "./library/DatasetAuditLIB.sol";
 import "./IDatasets.sol";
 
 /// @title Datasets Base Contract
+/// @author waynewyang
 /// @notice This contract serves as the base for managing datasets, metadata, proofs, and verifications.
 /// @dev This contract is intended to be inherited by specific dataset-related contracts.
-abstract contract Datasets is Role, ModifierCommon, IDatasets {
+abstract contract Datasets is Role, Filplus, IDatasets {
     uint256 private datasetsCount; // Total count of datasets
     mapping(uint256 => DatasetType.Dataset) private datasets; // Mapping of dataset ID to dataset details
-    address payable private immutable governanceAddress; //The address of the governance contract.
 
     using DatasetMetadataLIB for DatasetType.Dataset;
     using DatasetProofLIB for DatasetType.Dataset;
     using DatasetStateMachineLIB for DatasetType.Dataset;
     using DatasetVerificationLIB for DatasetType.Dataset;
     using DatasetAuditLIB for DatasetType.Dataset;
-
-    /// @notice Contract constructor.
-    /// @dev Initializes the contract with the provided addresses for governance, roles, and cars storage contracts.
-    /// @param _governanceAddress The address of the governance contract.
-    constructor(address payable _governanceAddress) {
-        governanceAddress = _governanceAddress;
-    }
 
     /// @dev Modifier to ensure that a dataset metadata  with the given accessMethod exists.
     modifier datasetMetadataExsits(string memory _accessMethod) {

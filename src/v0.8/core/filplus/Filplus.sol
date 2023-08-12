@@ -18,127 +18,173 @@
 
 pragma solidity ^0.8.21;
 
-import "@openzeppelin/contracts/access/Ownable2Step.sol";
-import "../../types/FilplusType.sol";
-import "./library/FilPlusLIB.sol";
+import "../../shared/utils/contract/ModifierCommon.sol";
 
-// import "./IFilplus.sol";
+/// @title Filplus
+/// @author waynewyang
+contract Filplus is ModifierCommon {
+    address payable internal immutable governanceAddress; //The address of the governance contract.
 
-/// @title FilPlus
-/// @notice This contract implements the IFilPlus interface and allows configuring parameters for the FilPlus system.
-/// @dev This contract provides functions to set various parameters such as region counts, maximum replica limits, and more.
-contract Filplus is Ownable2Step {
-    FilplusType.DatasetRules rules;
+    ///@notice car rules
+    uint256 public carRuleMaxCarReplicas; // Represents the maximum number of car replicas in the entire network
+    event SetCarRuleMaxCarReplicas(uint256 newValue);
 
-    using FilPlusLIB for FilplusType.DatasetRules;
+    ///@notice dataset region rules
+    uint256 public datasetRuleMinRegionsPerDataset; // Minimum required number of regions (e.g., 3).
+    event SetDatasetRuleMinRegionsPerDataset(uint256 newValue);
 
-    /// @notice Event emitted when the minimum region count required for FilPlus is set.
-    event MinRegionCountSet(uint256 _newMinRegionCount);
+    uint256 public datasetRuleDefaultMaxReplicasPerCountry; // Default maximum replicas allowed per country.
+    event SetDatasetRuleDefaultMaxReplicasPerCountry(uint256 newValue);
 
-    /// @notice Event emitted when the default maximum replicas allowed per country in FilPlus is set.
-    event DefaultMaxReplicasPerCountrySet(
-        uint256 _newDefaultMaxReplicasPerCountry
+    mapping(bytes32 => uint256) private datasetRuleMaxReplicasInCountries; // Maximum replicas allowed per country.
+    event SetDatasetRuleMaxReplicasInCountry(
+        bytes32 countryCode,
+        uint256 newValue
     );
 
-    /// @notice Event emitted when the maximum replicas limit for a specific city code in FilPlus is set.
-    event MaxReplicasInCountrySet(
-        bytes2 indexed _cityCode,
-        uint256 _newMaxReplicasInCountry
-    );
+    uint256 public datasetRuleMaxReplicasPerCity; // Maximum replicas allowed per city (e.g., 1).
+    event SetDatasetRuleMaxReplicasPerCity(uint256 newValue);
 
-    /// @notice Event emitted when the maximum replicas allowed per city in FilPlus is set.
-    event MaxReplicasPerCitySet(uint256 _newMaxReplicasPerCity);
+    ///@notice dataset sp rules
+    uint256 public datasetRuleMinSPsPerDataset; // Minimum required number of storage providers (e.g., 5).
+    event SetDatasetRuleMinSPsPerDataset(uint256 newValue);
 
-    /// @notice Event emitted when the minimum storage provider count required for FilPlus is set.
-    event MinSPCountSet(uint256 _newMinSPCount);
+    uint256 public datasetRuleMaxReplicasPerSP; // Maximum replicas allowed per storage provider (e.g., 1).
+    event SetDatasetRuleMaxReplicasPerSP(uint256 newValue);
 
-    /// @notice Event emitted when the maximum replicas allowed per storage provider in FilPlus is set.
-    event MaxReplicasPerSPSet(uint256 _newMaxReplicasPerSP);
+    uint256 public datasetRuleMinTotalReplicasPerDataset; // Minimum required total replicas (e.g., 5).
+    event SetDatasetRuleMinTotalReplicasPerDataset(uint256 newValue);
 
-    /// @notice Event emitted when the minimum total replicas required for FilPlus is set.
-    event MinTotalReplicasSet(uint256 _newMinTotalReplicas);
+    uint256 public datasetRuleMaxTotalReplicasPerDataset; // Maximum allowed total replicas (e.g., 10).
+    event SetDatasetRuleMaxTotalReplicasPerDataset(uint256 newValue);
 
-    /// @notice Event emitted when the maximum total replicas allowed for FilPlus is set.
-    event MaxTotalReplicasSet(uint256 _newMaxTotalReplicas);
+    ///@notice datacap rules
+    uint256 public datacapRulesMaxAllocatedSizePerTime; // Maximum allocate datacap size per time.
+    event SetDatacapRulesMaxAllocatedSizePerTime(uint256 newValue);
 
-    /// @notice Set the minimum region count required for FilPlus.
-    /// @param _minRegionCount The new minimum region count.
-    function setMinRegionCount(uint256 _minRegionCount) external {
-        rules.setMinRegionCount(_minRegionCount);
-        emit MinRegionCountSet(_minRegionCount);
+    uint256 public datacapRulesMaxRemainingPercentageForNext; // Minimum completion percentage for the next allocation.
+    event SetDatacapRulesMaxRemainingPercentageForNext(uint256 newValue);
+
+    ///@notice matching rules
+    uint256 public matchingRulesDataswapCommissionPercentage; // Percentage of commission.
+    event SetMatchingRulesDataswapCommissionPercentage(uint256 newValue);
+
+    MatchingRuleCommissionType public matchingRulesCommissionType; // Type of commission for matching.
+    event SetMatchingRulesCommissionType(MatchingRuleCommissionType newType);
+
+    enum MatchingRuleCommissionType {
+        BuyerPays,
+        SellerPays,
+        SplitPayment
     }
 
-    /// @notice Set the default maximum replicas allowed per country in FilPlus.
-    /// @param _defaultMaxReplicasPerCountry The new default maximum replicas per country.
-    function setDefaultMaxReplicasPerCountry(
-        uint256 _defaultMaxReplicasPerCountry
-    ) external {
-        rules.setDefaultMaxReplicasPerCountry(_defaultMaxReplicasPerCountry);
-        emit DefaultMaxReplicasPerCountrySet(_defaultMaxReplicasPerCountry);
+    constructor(address payable _governanceAddress) {
+        governanceAddress = _governanceAddress;
+
+        //TODO: add default value for every
     }
 
-    /// @notice Add a maximum replicas limit for a specific city code in FilPlus.
-    /// @param cityCode The city code for which to set the maximum replicas.
-    /// @param _maxReplicasInCountry The new maximum replicas per city code.
-    function setMaxReplicasInCountry(
-        bytes2 cityCode,
-        uint256 _maxReplicasInCountry
-    ) external {
-        rules.setMaxReplicasInCountry(cityCode, _maxReplicasInCountry);
-        emit MaxReplicasInCountrySet(cityCode, _maxReplicasInCountry);
+    // Public getter function to access datasetRuleMaxReplicasInCountries
+    function getDatasetRuleMaxReplicasInCountry(
+        bytes32 countryCode
+    ) public view returns (uint256) {
+        if (datasetRuleMaxReplicasInCountries[countryCode] == 0) {
+            return datasetRuleDefaultMaxReplicasPerCountry;
+        } else {
+            return datasetRuleMaxReplicasInCountries[countryCode];
+        }
     }
 
-    /// @notice Set the maximum replicas allowed per city in FilPlus.
-    /// @param _maxReplicasPerCity The new maximum replicas per city.
-    function setMaxReplicasPerCity(uint256 _maxReplicasPerCity) external {
-        rules.setMaxReplicasPerCity(_maxReplicasPerCity);
-        emit MaxReplicasPerCitySet(_maxReplicasPerCity);
+    // Set functions for public variables
+    function setCarRuleMaxCarReplicas(
+        uint256 newValue
+    ) external onlyAddress(governanceAddress) {
+        carRuleMaxCarReplicas = newValue;
+        emit SetCarRuleMaxCarReplicas(newValue);
     }
 
-    /// @notice Set the minimum storage provider count required for FilPlus.
-    /// @param _minSPCount The new minimum storage provider count.
-    function setMinSPCount(uint256 _minSPCount) external {
-        rules.setMinSPCount(_minSPCount);
-        emit MinSPCountSet(_minSPCount);
+    function setDatasetRuleMinRegionsPerDataset(
+        uint256 newValue
+    ) external onlyAddress(governanceAddress) {
+        datasetRuleMinRegionsPerDataset = newValue;
+        emit SetDatasetRuleMinRegionsPerDataset(newValue);
     }
 
-    /// @notice Set the maximum replicas allowed per storage provider in FilPlus.
-    /// @param _maxReplicasPerSP The new maximum replicas per storage provider.
-    function setMaxReplicasPerSP(uint256 _maxReplicasPerSP) external {
-        rules.setMaxReplicasPerSP(_maxReplicasPerSP);
-        emit MaxReplicasPerSPSet(_maxReplicasPerSP);
+    function setDatasetRuleDefaultMaxReplicasPerCountry(
+        uint256 newValue
+    ) external onlyAddress(governanceAddress) {
+        datasetRuleDefaultMaxReplicasPerCountry = newValue;
+        emit SetDatasetRuleDefaultMaxReplicasPerCountry(newValue);
     }
 
-    /// @notice Set the minimum total replicas required for FilPlus.
-    /// @param _minTotalReplicas The new minimum total replicas.
-    function setMinTotalReplicas(uint256 _minTotalReplicas) external {
-        rules.setMinTotalReplicas(_minTotalReplicas);
-        emit MinTotalReplicasSet(_minTotalReplicas);
+    function setDatasetRuleMaxReplicasInCountry(
+        bytes32 countryCode,
+        uint256 newValue
+    ) external onlyAddress(governanceAddress) {
+        datasetRuleMaxReplicasInCountries[countryCode] = newValue;
+        emit SetDatasetRuleMaxReplicasInCountry(countryCode, newValue);
     }
 
-    /// @notice Set the maximum total replicas allowed for FilPlus.
-    /// @param _maxTotalReplicas The new maximum total replicas.
-    function setMaxTotalReplicas(uint256 _maxTotalReplicas) external {
-        rules.setMaxTotalReplicas(_maxTotalReplicas);
-        emit MaxTotalReplicasSet(_maxTotalReplicas);
+    function setDatasetRuleMaxReplicasPerCity(
+        uint256 newValue
+    ) external onlyAddress(governanceAddress) {
+        datasetRuleMaxReplicasPerCity = newValue;
+        emit SetDatasetRuleMaxReplicasPerCity(newValue);
     }
 
-    function getFilplusMaxDatacapAllocatedPerTime()
-        public
-        pure
-        returns (uint256)
-    {
-        //TODO
-        return 0;
+    function setDatasetRuleMinSPsPerDataset(
+        uint256 newValue
+    ) external onlyAddress(governanceAddress) {
+        datasetRuleMinSPsPerDataset = newValue;
+        emit SetDatasetRuleMinSPsPerDataset(newValue);
     }
 
-    //if less the threshold ,can allocation
-    function getFilplusDatacapAllocationThreshold()
-        public
-        pure
-        returns (uint256)
-    {
-        //TODO
-        return 0;
+    function setDatasetRuleMaxReplicasPerSP(
+        uint256 newValue
+    ) external onlyAddress(governanceAddress) {
+        datasetRuleMaxReplicasPerSP = newValue;
+        emit SetDatasetRuleMaxReplicasPerSP(newValue);
+    }
+
+    function setDatasetRuleMinTotalReplicasPerDataset(
+        uint256 newValue
+    ) external onlyAddress(governanceAddress) {
+        datasetRuleMinTotalReplicasPerDataset = newValue;
+        emit SetDatasetRuleMinTotalReplicasPerDataset(newValue);
+    }
+
+    function setDatasetRuleMaxTotalReplicasPerDataset(
+        uint256 newValue
+    ) external onlyAddress(governanceAddress) {
+        datasetRuleMaxTotalReplicasPerDataset = newValue;
+        emit SetDatasetRuleMaxTotalReplicasPerDataset(newValue);
+    }
+
+    function setDatacapRulesMaxAllocatedSizePerTime(
+        uint256 newValue
+    ) external onlyAddress(governanceAddress) {
+        datacapRulesMaxAllocatedSizePerTime = newValue;
+        emit SetDatacapRulesMaxAllocatedSizePerTime(newValue);
+    }
+
+    function setDatacapRulesMaxRemainingPercentageForNext(
+        uint256 newValue
+    ) external onlyAddress(governanceAddress) {
+        datacapRulesMaxRemainingPercentageForNext = newValue;
+        emit SetDatacapRulesMaxRemainingPercentageForNext(newValue);
+    }
+
+    function setMatchingRulesDataswapCommissionPercentage(
+        uint256 newValue
+    ) external onlyAddress(governanceAddress) {
+        matchingRulesDataswapCommissionPercentage = newValue;
+        emit SetMatchingRulesDataswapCommissionPercentage(newValue);
+    }
+
+    function setMatchingRulesCommissionType(
+        MatchingRuleCommissionType newType
+    ) external onlyAddress(governanceAddress) {
+        matchingRulesCommissionType = newType;
+        emit SetMatchingRulesCommissionType(newType);
     }
 }

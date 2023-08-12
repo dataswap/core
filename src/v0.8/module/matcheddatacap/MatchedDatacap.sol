@@ -16,11 +16,11 @@ pragma solidity ^0.8.21;
 
 import "./IMatchedDatacap.sol";
 import "../matchedstore/Matchedstores.sol";
-import "../../core/filplus/Filplus.sol";
 
 /// @title MatchedDatacap
+/// @author waynewyang
 /// @dev Manages the allocation of datacap for matched data storage after successful matching with Filecoin storage deals.
-abstract contract MatchedDatacap is IMatchedDatacap, Matchedstores, Filplus {
+abstract contract MatchedDatacap is IMatchedDatacap, Matchedstores {
     //(matchingID => allocated datacap size)
     mapping(uint256 => uint256) datacapAllocates;
 
@@ -40,8 +40,7 @@ abstract contract MatchedDatacap is IMatchedDatacap, Matchedstores, Filplus {
             "Not met allocate condition"
         );
         uint256 remainingSize = getMatchedDatacapTotalRemaining(_matchingId);
-        uint256 maxAllocatedPerTime = getFilplusMaxDatacapAllocatedPerTime();
-        if (remainingSize <= maxAllocatedPerTime) {
+        if (remainingSize <= datacapRulesMaxAllocatedSizePerTime) {
             datacapAllocates[_matchingId] =
                 datacapAllocates[_matchingId] +
                 remainingSize;
@@ -49,8 +48,11 @@ abstract contract MatchedDatacap is IMatchedDatacap, Matchedstores, Filplus {
         } else {
             datacapAllocates[_matchingId] =
                 datacapAllocates[_matchingId] +
-                maxAllocatedPerTime;
-            _allocateMatchedDatacap(_matchingId, maxAllocatedPerTime);
+                datacapRulesMaxAllocatedSizePerTime;
+            _allocateMatchedDatacap(
+                _matchingId,
+                datacapRulesMaxAllocatedSizePerTime
+            );
         }
     }
 
@@ -96,7 +98,6 @@ abstract contract MatchedDatacap is IMatchedDatacap, Matchedstores, Filplus {
         uint256 totalDatacapNeeded = getMatchingDataSize(_matchingId);
         uint256 allocatedDatacap = datacapAllocates[_matchingId];
         uint256 reallyStored = getMatchedsotreTotalSize(_matchingId);
-        uint256 allocationThreshold = getFilplusDatacapAllocationThreshold();
         require(
             totalDatacapNeeded >= allocatedDatacap,
             "Allocated datacap exceeds total needed datacap"
@@ -106,7 +107,9 @@ abstract contract MatchedDatacap is IMatchedDatacap, Matchedstores, Filplus {
             "Really stored exceeds allocated datacap"
         );
         require(
-            allocatedDatacap - reallyStored <= allocationThreshold,
+            allocatedDatacap - reallyStored <=
+                (datacapRulesMaxRemainingPercentageForNext / 100) *
+                    datacapRulesMaxAllocatedSizePerTime,
             "Remaining datacap is greater than allocationThreshold"
         );
         return true;

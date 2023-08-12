@@ -21,6 +21,7 @@ pragma solidity ^0.8.21;
 import "../../types/MatchedstoreType.sol";
 
 /// @title Interface for Matchedstores contract
+/// @author waynewyang
 interface IMatchedstores {
     /// @dev Submits a Filecoin deal Id for a matchedstore after successful matching.
     /// @param _matchingId The ID of the matching.

@@ -17,6 +17,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+/// @title ModifierCommon
+/// @author waynewyang
 contract ModifierCommon {
     /// @dev Modifier to check if an ID is not zero.
     modifier notZeroId(uint256 _id) {

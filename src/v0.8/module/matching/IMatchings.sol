@@ -21,6 +21,8 @@ pragma solidity ^0.8.21;
 import "../../types/DatasetType.sol";
 import "../../types/MatchingType.sol";
 
+/// @title IMatchings
+/// @author waynewyang
 interface IMatchings {
     /// @notice  Function for bidding on a matching
     function matchingBidding(uint256 _matchingId, uint256 _amount) external;

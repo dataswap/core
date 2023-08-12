@@ -23,6 +23,7 @@ import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import "./IRoles.sol";
 
 /// @title Role Contract
+/// @author waynewyang
 /// @notice This contract defines the role-based access control for various roles within the system.
 contract Role is Ownable2Step, AccessControlEnumerable, IRoles {
     /// @notice Constructor function to initialize the contract and grant the default admin role to the deployer.

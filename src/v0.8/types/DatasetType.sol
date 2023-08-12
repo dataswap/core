@@ -19,6 +19,7 @@
 pragma solidity ^0.8.21;
 
 /// @title DatasetType Library
+/// @author waynewyang
 /// @notice This library defines data structures for managing datasets, their metadata, states, and events.
 library DatasetType {
     /// @notice Struct representing metadata associated with a dataset.

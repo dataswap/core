@@ -19,6 +19,7 @@ pragma solidity ^0.8.21;
 import "../../types/CarReplicaType.sol";
 
 /// @title ICarStore
+/// @author waynewyang
 /// @notice This interface defines the functions for managing car data and associated replicas.
 interface ICarstore {
     /// @notice Report that storage of a replica has been slashed.

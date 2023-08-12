@@ -17,6 +17,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+/// @title MerkleUtils
 library MerkleUtils {
     /// @notice Validate a Merkle proof.
     /// @dev This function checks if a given Merkle proof is valid.

@@ -20,6 +20,7 @@ pragma solidity ^0.8.21;
 import "@openzeppelin/contracts/access/IAccessControlEnumerable.sol";
 
 /// @title IRoles Interface
+/// @author waynewyang
 /// @notice This interface defines the role-based access control for various roles within the system.
 interface IRoles is IAccessControlEnumerable {
 

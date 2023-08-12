@@ -19,15 +19,19 @@
 pragma solidity ^0.8.21;
 
 import "../core/carstore/Carstore.sol";
+import "../core/filplus/Filplus.sol";
 import "../module/dataset/Datasets.sol";
 import "../module/matching/Matchings.sol";
 import "../module/matchedstore/Matchedstores.sol";
+import "../module/matcheddatacap/Matcheddatacap.sol";
 import "../types/CarReplicaType.sol";
 
-contract Dataswap is Carstore, Matchedstores {
+/// @title Dataswap
+/// @author waynewyang
+contract Dataswap is Filplus, Carstore, MatchedDatacap {
     constructor(
         address payable _governanceContractAddress
-    ) Datasets(_governanceContractAddress) {}
+    ) Filplus(_governanceContractAddress) {}
 
     ///@dev add cars to carStore before approve
     function _beforeApproveDataset(

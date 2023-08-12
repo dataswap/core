@@ -24,6 +24,7 @@ import "./library/CarLIB.sol";
 import "./ICarstore.sol";
 
 /// @title CarsStorageBase
+/// @author waynewyang
 /// @notice This contract allows adding cars and managing their associated replicas.
 /// @dev This contract provides functionality for managing car data and associated replicas.
 abstract contract Carstore is ICarstore, ModifierCommon {

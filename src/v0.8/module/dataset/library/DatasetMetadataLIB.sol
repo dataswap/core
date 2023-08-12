@@ -21,6 +21,7 @@ import "../../../types/DatasetType.sol";
 import "./DatasetStateMachineLIB.sol";
 
 /// @title DatasetMetadataLIB Library,,include add,get,verify.
+/// @author waynewyang
 /// @notice This library provides functions for managing metadata of datasets.
 library DatasetMetadataLIB {
     using DatasetStateMachineLIB for DatasetType.Dataset;

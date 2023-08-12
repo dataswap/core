@@ -26,6 +26,7 @@ import "../abstract/DataswapDAOPerPersonVoting.sol";
 import "../interface/IDatasetDAO.sol";
 
 /// @title DataswapDAOPerPersonVoting Contract
+/// @author waynewyang
 /// @notice This contract serves as the base for the DataSwap DAO governance mechanism with per-person voting.
 /// @dev This contract inherits from DataswapDAOBase and provides the foundation for individual voting.
 abstract contract DatasetDAO is DataswapDAOPerPersonVoting, IDatasetDAO {
