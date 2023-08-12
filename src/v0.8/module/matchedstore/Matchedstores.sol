@@ -133,6 +133,17 @@ abstract contract Matchedstores is Matchings, IMatchedstores {
         return matchedstore.doneCars.length;
     }
 
+    /// @dev Gets the stored size in the matchedstore.
+    function getMatchedsotreTotalSize(
+        uint256 _matchingId
+    ) public view returns (uint256) {
+        MatchedstoreType.Matchedstore storage matchedstore = matchedstores[
+            _matchingId
+        ];
+        // TODO: need be do
+        return matchedstore.doneCars.length * 32 * 1024 * 1024 * 1024;
+    }
+
     /// @dev Checks if all cars are done in the matchedstore.
     function isMatchedsotreAllDone(
         uint256 _matchingId

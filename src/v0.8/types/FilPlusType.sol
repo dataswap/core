@@ -32,4 +32,8 @@ library FilPlusType {
         uint256 minTotalReplicas; // Minimum required total replicas (e.g., 5).
         uint256 maxTotalReplicas; // Maximum allowed total replicas (e.g., 10).
     }
+
+    struct DatacapRules {
+        uint256 maxAllocatedPerTime; // Maximum allocate datacap size per time.
+    }
 }

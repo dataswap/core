@@ -21,12 +21,12 @@ pragma solidity ^0.8.21;
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "../../types/FilPlusType.sol";
 import "./library/FilPlusLIB.sol";
-import "./IFilPlus.sol";
+import "./IFilplus.sol";
 
 /// @title FilPlus
 /// @notice This contract implements the IFilPlus interface and allows configuring parameters for the FilPlus system.
 /// @dev This contract provides functions to set various parameters such as region counts, maximum replica limits, and more.
-contract FilPlus is IFilPlus, Ownable2Step {
+contract Filplus is IFilplus, Ownable2Step {
     FilPlusType.Rules rules;
 
     using FilPlusLIB for FilPlusType.Rules;
@@ -122,5 +122,24 @@ contract FilPlus is IFilPlus, Ownable2Step {
     function setMaxTotalReplicas(uint256 _maxTotalReplicas) external override {
         rules.setMaxTotalReplicas(_maxTotalReplicas);
         emit MaxTotalReplicasSet(_maxTotalReplicas);
+    }
+
+    function getFilplusMaxDatacapAllocatedPerTime()
+        public
+        pure
+        returns (uint256)
+    {
+        //TODO
+        return 0;
+    }
+
+    //if less the threshold ,can allocation
+    function getFilplusDatacapAllocationThreshold()
+        public
+        pure
+        returns (uint256)
+    {
+        //TODO
+        return 0;
     }
 }

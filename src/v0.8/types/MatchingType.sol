@@ -51,8 +51,8 @@ library MatchingType {
 
     /// @notice Enum representing the rules for determining the winner bid.
     enum BidSelectionRule {
-        HighestBid, // Winner is determined by the highest bid
-        LowestBid // Winner is determined by the lowest bid
+        HighestBid, //Note:it is Auction, Winner is determined by the highest bid
+        LowestBid // Note: it is Tender, Winner is determined by the lowest bid
     }
 
     /// @notice Enum representing the type of data associated with a matching.
@@ -65,7 +65,7 @@ library MatchingType {
     struct Target {
         uint256 datasetId; // ID of the dataset associated with the matching
         bytes32[] cars; // Array of car IDs associated with the matching
-        uint256 size; // Size of the matching target
+        uint256 size; // Size of the matching target，Note:total datacap size that this matching need allocate
         DataType dataType; // Type of data associated with the matching
         uint256 associatedMappingFilesMatchingID; // ID of the matching associated with mapping files
     }

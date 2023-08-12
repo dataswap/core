@@ -30,6 +30,7 @@ library CarReplicaType {
     }
 
     /// @notice Enum representing the possible states of a car replica.
+    /// @dev TODO: conside delete State and Event
     enum State {
         None, //justify if Replica exsits
         Matched, // Replica has been matched for storage
@@ -48,7 +49,7 @@ library CarReplicaType {
     /// @notice Struct representing a car replica.
     struct Replica {
         uint256 filecoinDealId; // ID of the Filecoin deal associated with the replica's storage
-        State state; // Current state of the replica
+        State state; // Current state of the replica TODO:replcace with filecoin deal state
     }
 
     /// @notice Struct representing a car and its associated replicas.

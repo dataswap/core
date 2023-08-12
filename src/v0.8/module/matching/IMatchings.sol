@@ -75,6 +75,10 @@ interface IMatchings {
         uint256 _matchingId
     ) external view returns (bytes32[] memory);
 
+    function getMatchingDataSize(
+        uint256 _matchingId
+    ) external view returns (uint256);
+
     /// @notice  Function for getting the state of a matching
     function getMatchingState(
         uint256 _matchingId

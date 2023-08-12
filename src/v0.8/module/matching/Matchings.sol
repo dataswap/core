@@ -240,6 +240,14 @@ abstract contract Matchings is Ownable2Step, Datasets, IMatchings {
         return matching.target.cars;
     }
 
+    /// @notice  Function for getting the total data size of bids in a matching
+    function getMatchingDataSize(
+        uint256 _matchingId
+    ) public view returns (uint256) {
+        (, , uint256 datasize, , ) = getMatchingTarget(_matchingId);
+        return datasize;
+    }
+
     /// @notice  Function for getting the state of a matching
     function getMatchingState(
         uint256 _matchingId

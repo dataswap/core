@@ -22,7 +22,7 @@ import "../../types/FilPlusType.sol";
 /// @title IFilPlus
 /// @notice This interface defines the functions for configuring parameters of the FilPlus system.
 /// @dev This interface provides functions to set various parameters for the FilPlus system, such as maximum replica counts, region counts, and more.
-interface IFilPlus {
+interface IFilplus {
     /// @notice Set the minimum region count required for FilPlus.
     /// @param _minRegionCount The new minimum region count.
     function setMinRegionCount(uint256 _minRegionCount) external;

@@ -56,6 +56,10 @@ interface IMatchedstores {
         uint256 _matchingId
     ) external view returns (uint256);
 
+    function getMatchedsotreTotalSize(
+        uint256 _matchingId
+    ) external view returns (uint256);
+
     /// @dev Checks if all cars are done in the matchedstore.
     /// @param _matchingId The ID of the matching.
     /// @return True if all cars are done in the matchedstore, otherwise false.
