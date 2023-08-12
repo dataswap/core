@@ -22,7 +22,7 @@ import "../matchedstore/Matchedstores.sol";
 /// @dev Manages the allocation of datacap for matched data storage after successful matching with Filecoin storage deals.
 abstract contract MatchedDatacap is IMatchedDatacap, Matchedstores {
     //(matchingID => allocated datacap size)
-    mapping(uint256 => uint256) datacapAllocates;
+    mapping(uint256 => uint256) private datacapAllocates;
 
     /// @dev Internal function to allocate matched datacap.
     function _allocateMatchedDatacap(
