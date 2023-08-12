@@ -18,22 +18,42 @@
 
 pragma solidity ^0.8.21;
 
-/// @title FilPlusType Library
+/// @title FilplusType Library
 /// @notice This library defines data structures for managing Fil+ rules and configurations.
-library FilPlusType {
-    /// @notice Struct representing the rules and configurations for Fil+.
-    struct Rules {
-        uint256 minRegionCount; // Minimum required number of regions (e.g., 3).
+library FilplusType {
+    // Struct definition for CarRules
+    struct CarRules {
+        uint256 maxCarReplicaCount; // Represents the maximum number of car replicas in the entire network
+    }
+
+    /// @notice Struct representing the dataset rules and configurations for Fil+.
+    struct DatasetRules {
+        uint256 minRegionCountPerDataset; // Minimum required number of regions (e.g., 3).
         uint256 defaultMaxReplicasPerCountry; // Default maximum replicas allowed per country.
         mapping(bytes2 => uint256) maxReplicasInCountry; // Maximum replicas allowed per country.
         uint256 maxReplicasPerCity; // Maximum replicas allowed per city (e.g., 1).
-        uint256 minSPCount; // Minimum required number of storage providers (e.g., 5).
+        uint256 minSPCountPerDataset; // Minimum required number of storage providers (e.g., 5).
         uint256 maxReplicasPerSP; // Maximum replicas allowed per storage provider (e.g., 1).
-        uint256 minTotalReplicas; // Minimum required total replicas (e.g., 5).
-        uint256 maxTotalReplicas; // Maximum allowed total replicas (e.g., 10).
+        uint256 minTotalReplicasPerDataset; // Minimum required total replicas (e.g., 5).
+        uint256 maxTotalReplicasPerDataset; // Maximum allowed total replicas (e.g., 10).
     }
 
     struct DatacapRules {
-        uint256 maxAllocatedPerTime; // Maximum allocate datacap size per time.
+        uint256 maxAllocatedSizePerTime; // Maximum allocate datacap size per time.
+        uint256 minAllocationCompletionForNext; // Minimum completion percentage for the next allocation.
+    }
+
+    struct MatchingRules {
+        uint256 dataswapCommissionPercentage; // Percentage of commission for DataSwap.
+        CommissionType commissionType; // Type of commission for matching.
+    }
+
+    enum CommissionType {
+        // Buyer pays the full commission.
+        BuyerPays,
+        // Seller pays the full commission.
+        SellerPays,
+        // Both buyer and seller split the commission equally.
+        SplitPayment
     }
 }

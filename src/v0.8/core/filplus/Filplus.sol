@@ -19,17 +19,18 @@
 pragma solidity ^0.8.21;
 
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
-import "../../types/FilPlusType.sol";
+import "../../types/FilplusType.sol";
 import "./library/FilPlusLIB.sol";
-import "./IFilplus.sol";
+
+// import "./IFilplus.sol";
 
 /// @title FilPlus
 /// @notice This contract implements the IFilPlus interface and allows configuring parameters for the FilPlus system.
 /// @dev This contract provides functions to set various parameters such as region counts, maximum replica limits, and more.
-contract Filplus is IFilplus, Ownable2Step {
-    FilPlusType.Rules rules;
+contract Filplus is Ownable2Step {
+    FilplusType.DatasetRules rules;
 
-    using FilPlusLIB for FilPlusType.Rules;
+    using FilPlusLIB for FilplusType.DatasetRules;
 
     /// @notice Event emitted when the minimum region count required for FilPlus is set.
     event MinRegionCountSet(uint256 _newMinRegionCount);
@@ -62,7 +63,7 @@ contract Filplus is IFilplus, Ownable2Step {
 
     /// @notice Set the minimum region count required for FilPlus.
     /// @param _minRegionCount The new minimum region count.
-    function setMinRegionCount(uint256 _minRegionCount) external override {
+    function setMinRegionCount(uint256 _minRegionCount) external {
         rules.setMinRegionCount(_minRegionCount);
         emit MinRegionCountSet(_minRegionCount);
     }
@@ -71,7 +72,7 @@ contract Filplus is IFilplus, Ownable2Step {
     /// @param _defaultMaxReplicasPerCountry The new default maximum replicas per country.
     function setDefaultMaxReplicasPerCountry(
         uint256 _defaultMaxReplicasPerCountry
-    ) external override {
+    ) external {
         rules.setDefaultMaxReplicasPerCountry(_defaultMaxReplicasPerCountry);
         emit DefaultMaxReplicasPerCountrySet(_defaultMaxReplicasPerCountry);
     }
@@ -82,44 +83,42 @@ contract Filplus is IFilplus, Ownable2Step {
     function setMaxReplicasInCountry(
         bytes2 cityCode,
         uint256 _maxReplicasInCountry
-    ) external override {
+    ) external {
         rules.setMaxReplicasInCountry(cityCode, _maxReplicasInCountry);
         emit MaxReplicasInCountrySet(cityCode, _maxReplicasInCountry);
     }
 
     /// @notice Set the maximum replicas allowed per city in FilPlus.
     /// @param _maxReplicasPerCity The new maximum replicas per city.
-    function setMaxReplicasPerCity(
-        uint256 _maxReplicasPerCity
-    ) external override {
+    function setMaxReplicasPerCity(uint256 _maxReplicasPerCity) external {
         rules.setMaxReplicasPerCity(_maxReplicasPerCity);
         emit MaxReplicasPerCitySet(_maxReplicasPerCity);
     }
 
     /// @notice Set the minimum storage provider count required for FilPlus.
     /// @param _minSPCount The new minimum storage provider count.
-    function setMinSPCount(uint256 _minSPCount) external override {
+    function setMinSPCount(uint256 _minSPCount) external {
         rules.setMinSPCount(_minSPCount);
         emit MinSPCountSet(_minSPCount);
     }
 
     /// @notice Set the maximum replicas allowed per storage provider in FilPlus.
     /// @param _maxReplicasPerSP The new maximum replicas per storage provider.
-    function setMaxReplicasPerSP(uint256 _maxReplicasPerSP) external override {
+    function setMaxReplicasPerSP(uint256 _maxReplicasPerSP) external {
         rules.setMaxReplicasPerSP(_maxReplicasPerSP);
         emit MaxReplicasPerSPSet(_maxReplicasPerSP);
     }
 
     /// @notice Set the minimum total replicas required for FilPlus.
     /// @param _minTotalReplicas The new minimum total replicas.
-    function setMinTotalReplicas(uint256 _minTotalReplicas) external override {
+    function setMinTotalReplicas(uint256 _minTotalReplicas) external {
         rules.setMinTotalReplicas(_minTotalReplicas);
         emit MinTotalReplicasSet(_minTotalReplicas);
     }
 
     /// @notice Set the maximum total replicas allowed for FilPlus.
     /// @param _maxTotalReplicas The new maximum total replicas.
-    function setMaxTotalReplicas(uint256 _maxTotalReplicas) external override {
+    function setMaxTotalReplicas(uint256 _maxTotalReplicas) external {
         rules.setMaxTotalReplicas(_maxTotalReplicas);
         emit MaxTotalReplicasSet(_maxTotalReplicas);
     }
