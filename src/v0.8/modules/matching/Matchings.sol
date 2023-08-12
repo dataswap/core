@@ -25,11 +25,12 @@ import "../../types/MatchingType.sol";
 import "./library/MatchingLIB.sol";
 import "./library/MatchingStateMachineLIB.sol";
 import "./library/MatchingBidsLIB.sol";
+import "./IMatchings.sol";
 
 /// @title Matchings Base Contract
 /// @notice This contract serves as the base for managing matchings, their states, and associated actions.
 /// @dev This contract is intended to be inherited by specific matching-related contracts.
-abstract contract Matchings is Ownable2Step, Datasets {
+abstract contract Matchings is Ownable2Step, Datasets, IMatchings {
     /// @notice  Declare private variables
     uint256 private matchingsCount;
     mapping(uint256 => MatchingType.Matching) private matchings;

@@ -20,7 +20,7 @@ import "../../types/CarReplicaType.sol";
 
 /// @title ICarStore
 /// @notice This interface defines the functions for managing car data and associated replicas.
-interface ICarStore {
+interface ICarstore {
     /// @notice Report that storage of a replica has been slashed.
     /// @dev This function allows reporting that the storage of a replica has been slashed.
     /// @param _cid Car CID associated with the replica.

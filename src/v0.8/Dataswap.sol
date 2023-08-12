@@ -18,13 +18,13 @@
 
 pragma solidity ^0.8.21;
 
-import "./core/carStore/CarStore.sol";
+import "./core/carstore/Carstore.sol";
 import "./modules/dataset/Datasets.sol";
 import "./modules/matching/Matchings.sol";
-import "./modules/storageDeal/StorageDeals.sol";
+import "./modules/matchedstore/Matchedstores.sol";
 import "./types/CarReplicaType.sol";
 
-contract Dataswap is CarStore, StorageDeals {
+contract Dataswap is Carstore, Matchedstores {
     constructor(
         address payable _governanceContractAddress
     ) Datasets(_governanceContractAddress) {}
@@ -58,7 +58,7 @@ contract Dataswap is CarStore, StorageDeals {
         public
         view
         virtual
-        override(CarStore)
+        override(Carstore)
         returns (CarReplicaType.FilecoinDealState)
     {}
 
@@ -74,7 +74,7 @@ contract Dataswap is CarStore, StorageDeals {
         return true;
     }
 
-    function _storageDealsSetCarReplicaFilecoinDealId(
+    function _setMatchedstoreFilecoinDealId(
         uint256 _matchingId,
         bytes32 _cid,
         uint256 _filecoinDealId
@@ -82,7 +82,7 @@ contract Dataswap is CarStore, StorageDeals {
         _setCarReplicaFilecoinDealId(_cid, _matchingId, _filecoinDealId);
     }
 
-    function _isStorageDealsFilecoinDealSetted(
+    function _isMatchedstoreFilecoinDealIdSetted(
         uint256 _matchingId,
         bytes32 _cid,
         uint256 /*_filecoinDealId*/

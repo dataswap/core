@@ -18,7 +18,7 @@
 
 pragma solidity ^0.8.21;
 
-import "../../core/accessControl/Roles.sol";
+import "../../core/access/Roles.sol";
 import "../../shared/utils/contract/ModifierCommon.sol";
 import "../../types/DatasetType.sol";
 import "../../types/RolesType.sol";

@@ -21,12 +21,12 @@ import "../../shared/utils/contract/ModifierCommon.sol";
 import "../../types/CarReplicaType.sol";
 import "./library/CarReplicaLIB.sol";
 import "./library/CarLIB.sol";
-import "./ICarStore.sol";
+import "./ICarstore.sol";
 
 /// @title CarsStorageBase
 /// @notice This contract allows adding cars and managing their associated replicas.
 /// @dev This contract provides functionality for managing car data and associated replicas.
-abstract contract CarStore is ICarStore, ModifierCommon {
+abstract contract Carstore is ICarstore, ModifierCommon {
     uint256 private carsCount;
     ///Car CID=> Car
     mapping(bytes32 => CarReplicaType.Car) private cars;
