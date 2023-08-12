@@ -18,11 +18,11 @@
 
 pragma solidity ^0.8.21;
 
-import "./core/carstore/Carstore.sol";
-import "./modules/dataset/Datasets.sol";
-import "./modules/matching/Matchings.sol";
-import "./modules/matchedstore/Matchedstores.sol";
-import "./types/CarReplicaType.sol";
+import "../core/carstore/Carstore.sol";
+import "../module/dataset/Datasets.sol";
+import "../module/matching/Matchings.sol";
+import "../module/matchedstore/Matchedstores.sol";
+import "../types/CarReplicaType.sol";
 
 contract Dataswap is Carstore, Matchedstores {
     constructor(
