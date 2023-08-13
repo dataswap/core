@@ -1,31 +1,33 @@
-## note
+# Dataswap  contract software architecture
 
+### I. software layer architecture
+![](../../doc/img/contractSWStructure.png)
+
+### II. Basic source code structure.
 ```
+├── interfaces
+│   ├── core
+│   │   ├── ICore1.sol
+│   ├── module
+│   │   ├── IModule1.sol
+│   └── service
 ├── core
 │   ├── core1
-│   │   ├── abstract //Aggregate Classes
+│   │   ├── abstract 
 │   │   │   └── Core1Base.so 
-│   │   ├── access
-│   │   ├── event
-│   │   ├── interface //External Interfaces
-│   │   │   └── ICore1.sol
-│   │   ├── library //Entity Classes
+│   │   ├── library 
 │   │   │   └── Core1LIB.sol
-│   │   └── Core1.sol //Service Classes
+│   │   └── Core1.sol 
 │   └── ...
-├── mocks
 ├── modules
 │   ├── module1
-│   │   ├── abstract //Aggregate Classes
+│   │   ├── abstract 
 │   │   │   └── Module1Base.sol
-│   │   ├── access
-│   │   ├── event
-│   │   ├── interface //External Interfaces
-│   │   │   └── IModule1.sol
-│   │   ├── library //Entity Classes
+│   │   ├── library 
 │   │   │   └── Module1LIB.sol
-│   │   └── Module1.sol //Service Classes
+│   │   └── Module1.sol 
 │   └── ...
+├── mocks
 ├── shared
 └── types
 ```
