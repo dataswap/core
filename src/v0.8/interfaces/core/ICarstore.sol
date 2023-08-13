@@ -19,16 +19,60 @@ pragma solidity ^0.8.21;
 import "../../types/CarReplicaType.sol";
 
 /// @title ICarStore
-/// @author waynewyang
 /// @notice This interface defines the functions for managing car data and associated replicas.
 interface ICarstore {
+    /// @dev Internal function to add a car based on its CID.
+    ///      tips: diffent dataset has the same car is dones't matter,maybe need limit replicas count for a car.
+    ///      filplus requires dataset replicas,but not limit for car replicas
+    /// @param _cid Car CID to be added.
+    /// @param _datasetId dataset index of approved dataset
+    function addCar(bytes32 _cid, uint256 _datasetId) external;
+
+    /// @notice Add multiple cars to the storage.
+    /// @dev This function allows the addition of multiple cars at once.
+    /// @param _cids Array of car CIDs to be added.
+    /// @param _datasetId dataset index of approved dataset
+    function addCars(bytes32[] memory _cids, uint256 _datasetId) external;
+
+    /// @notice Add a replica to a car.
+    /// @dev This function allows adding a replica to an existing car.
+    /// @param _cid Car CID to which the replica will be added.
+    /// @param _matchingId Matching ID for the new replica.
+    function addCarReplica(bytes32 _cid, uint256 _matchingId) external;
+
+    /// @notice Report that storage deal for a replica has expired.
+    /// @dev This function allows reporting that the storage deal for a replica has expired.
+    /// @param _cid Car CID associated with the replica.
+    /// @param _matchingId Matching ID of the replica.
+    function reportCarReplicaExpired(
+        bytes32 _cid,
+        uint256 _matchingId
+    ) external;
+
+    /// @notice Report that storage of a replica has failed.
+    /// @dev This function allows reporting that the storage of a replica has failed.
+    /// @param _cid Car CID associated with the replica.
+    /// @param _matchingId Matching ID of the replica.
+    function reportCarReplicaFailed(bytes32 _cid, uint256 _matchingId) external;
+
     /// @notice Report that storage of a replica has been slashed.
     /// @dev This function allows reporting that the storage of a replica has been slashed.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    function reportCarReplicaStorageSlashed(
+    function reportCarReplicaSlashed(
         bytes32 _cid,
         uint256 _matchingId
+    ) external;
+
+    /// @notice Set the Filecoin deal ID for a replica's storage.
+    /// @dev This function allows setting the Filecoin deal ID for a specific replica's storage.
+    /// @param _cid Car CID associated with the replica.
+    /// @param _matchingId Matching ID of the replica.
+    /// @param _filecoinDealId New Filecoin deal ID to set for the replica's storage.
+    function setCarReplicaFilecoinDealId(
+        bytes32 _cid,
+        uint256 _matchingId,
+        uint256 _filecoinDealId
     ) external;
 
     /// @notice Get the dataset ID associated with a car.
@@ -59,15 +103,6 @@ interface ICarstore {
         uint256 _matchingId
     ) external view returns (uint256);
 
-    /// @notice Get the state of a Filecoin storage deal for a replica.
-    /// @param _cid Car CID associated with the replica.
-    /// @param _matchingId Matching ID of the replica.
-    /// @return The state of the Filecoin storage deal for the replica.
-    function getCarReplicaFilecoinDealState(
-        bytes32 _cid,
-        uint256 _matchingId
-    ) external view returns (CarReplicaType.FilecoinDealState);
-
     /// @notice Get the state of a replica associated with a car.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
@@ -95,4 +130,7 @@ interface ICarstore {
     /// @param _cids Array of car CIDs to check.
     /// @return True if all specified cars exist, false if any one does not exist.
     function hasCars(bytes32[] memory _cids) external view returns (bool);
+
+    // Default getter functions for public variables
+    function carsCount() external view returns (uint256);
 }

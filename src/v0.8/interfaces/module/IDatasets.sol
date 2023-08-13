@@ -21,7 +21,6 @@ pragma solidity ^0.8.21;
 import "../../types/DatasetType.sol";
 
 /// @title IDatasets
-/// @author waynewyang
 interface IDatasets {
     ///@notice Approve a dataset.
     ///@dev This function changes the state of the dataset to DatasetApproved and emits the DatasetApproved event.
@@ -97,8 +96,8 @@ interface IDatasets {
             uint64 version
         );
 
-    ///@notice Get dataset source CIDs
-    function getDatasetSourceCids(
+    ///@notice Get dataset source cars
+    function getDatasetSourceCars(
         uint256 _datasetId
     ) external view returns (bytes32[] memory);
 
@@ -107,8 +106,8 @@ interface IDatasets {
         uint256 _datasetId
     ) external view returns (bytes32, bytes32[] memory);
 
-    ///@notice Get dataset source-to-CAR mapping files CIDs
-    function getDatasetSourceToCarMappingFilesCids(
+    ///@notice Get dataset source-to-CAR mapping files cars
+    function getDatasetSourceToCarMappingFilesCars(
         uint256 _datasetId
     ) external view returns (bytes32[] memory);
 
@@ -151,13 +150,13 @@ interface IDatasets {
     ) external view returns (bool);
 
     ///@notice Check if a dataset has a cid
-    function isDatasetContainsCid(
+    function isDatasetContainsCar(
         uint256 _datasetId,
         bytes32 _cid
     ) external returns (bool);
 
     ///@notice Check if a dataset has cids
-    function isDatasetContainsCids(
+    function isDatasetContainsCars(
         uint256 _datasetId,
         bytes32[] memory _cids
     ) external view returns (bool);

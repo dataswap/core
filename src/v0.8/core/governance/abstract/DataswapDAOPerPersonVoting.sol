@@ -25,7 +25,6 @@ import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.so
 import "./DataswapDAOBase.sol";
 
 /// @title DataswapDAOPerPersonVoting Contract
-/// @author waynewyang
 /// @notice This contract serves as the base for the DataSwap DAO governance mechanism with per-person voting.
 /// @dev This contract inherits from DataswapDAOBase and provides the foundation for individual voting.
 abstract contract DataswapDAOPerPersonVoting is DataswapDAOBase {

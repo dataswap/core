@@ -21,7 +21,6 @@ import "../../../types/DatasetType.sol";
 import "../../../shared/merkle/MerkleUtils.sol";
 
 /// @title DatasetVerificationLIB Library,include add,get,verify.
-/// @author waynewyang
 /// @notice This library provides functions for managing verification associated with datasets.
 /// @dev Note:Need to check carefully,Need rewrite verification logic.
 library DatasetVerificationLIB {

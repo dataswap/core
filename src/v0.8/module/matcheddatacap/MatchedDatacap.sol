@@ -14,15 +14,46 @@
 
 pragma solidity ^0.8.21;
 
-import "./IMatchedDatacap.sol";
-import "../matchedstore/Matchedstores.sol";
+import "../../shared/modifiers/CommonModifiers.sol";
+import "../../shared/modifiers/RolesModifiers.sol";
+import "../../interfaces/core/IRoles.sol";
+import "../../interfaces/core/IFilplus.sol";
+import "../../interfaces/core/ICarstore.sol";
+import "../../interfaces/module/IDatasets.sol";
+import "../../interfaces/module/IMatchings.sol";
+import "../../interfaces/module/IMatchedStores.sol";
+import "../../interfaces/module/IMatchedDatacap.sol";
 
 /// @title MatchedDatacap
-/// @author waynewyang
 /// @dev Manages the allocation of datacap for matched data storage after successful matching with Filecoin storage deals.
-abstract contract MatchedDatacap is IMatchedDatacap, Matchedstores {
+contract MatchedDatacap is IMatchedDatacap, CommonModifiers, RolesModifiers {
     //(matchingID => allocated datacap size)
     mapping(uint256 => uint256) private datacapAllocates;
+    address private governanceAddress;
+    IRoles private roles;
+    IFilplus private filplus;
+    ICarstore private carstore;
+    IDatasets private datasets;
+    IMatchings private matchings;
+    IMatchedStores private matchedstores;
+
+    constructor(
+        address _governanceAddress,
+        IRoles _roles,
+        IFilplus _filplus,
+        ICarstore _carstore,
+        IDatasets _datasets,
+        IMatchings _matchings,
+        IMatchedStores _matchedstores
+    ) RolesModifiers(_roles) {
+        governanceAddress = _governanceAddress;
+        roles = _roles;
+        filplus = _filplus;
+        carstore = _carstore;
+        datasets = _datasets;
+        matchings = _matchings;
+        matchedstores = _matchedstores;
+    }
 
     /// @dev Internal function to allocate matched datacap.
     function _allocateMatchedDatacap(
@@ -40,7 +71,7 @@ abstract contract MatchedDatacap is IMatchedDatacap, Matchedstores {
             "Not met allocate condition"
         );
         uint256 remainingSize = getMatchedDatacapTotalRemaining(_matchingId);
-        if (remainingSize <= datacapRulesMaxAllocatedSizePerTime) {
+        if (remainingSize <= filplus.datacapRulesMaxAllocatedSizePerTime()) {
             datacapAllocates[_matchingId] =
                 datacapAllocates[_matchingId] +
                 remainingSize;
@@ -48,10 +79,10 @@ abstract contract MatchedDatacap is IMatchedDatacap, Matchedstores {
         } else {
             datacapAllocates[_matchingId] =
                 datacapAllocates[_matchingId] +
-                datacapRulesMaxAllocatedSizePerTime;
+                filplus.datacapRulesMaxAllocatedSizePerTime();
             _allocateMatchedDatacap(
                 _matchingId,
-                datacapRulesMaxAllocatedSizePerTime
+                filplus.datacapRulesMaxAllocatedSizePerTime()
             );
         }
     }
@@ -71,7 +102,7 @@ abstract contract MatchedDatacap is IMatchedDatacap, Matchedstores {
     function getMatchedDatacapTotalNeedAllocated(
         uint256 _matchingId
     ) public view returns (uint256) {
-        return getMatchingDataSize(_matchingId);
+        return matchings.getMatchingDataSize(_matchingId);
     }
 
     /// @dev Gets the remaining datacap size needed to be allocated for a matching process.
@@ -81,7 +112,7 @@ abstract contract MatchedDatacap is IMatchedDatacap, Matchedstores {
         uint256 _matchingId
     ) public view returns (uint256) {
         uint256 allocatedDatacap = datacapAllocates[_matchingId];
-        uint256 totalDatacapNeeded = getMatchingDataSize(_matchingId);
+        uint256 totalDatacapNeeded = matchings.getMatchingDataSize(_matchingId);
         require(
             totalDatacapNeeded >= allocatedDatacap,
             "Allocated datacap exceeds total needed datacap"
@@ -95,9 +126,11 @@ abstract contract MatchedDatacap is IMatchedDatacap, Matchedstores {
     function isMatchedDatacapNextAllocationAllowed(
         uint256 _matchingId
     ) public view returns (bool) {
-        uint256 totalDatacapNeeded = getMatchingDataSize(_matchingId);
+        uint256 totalDatacapNeeded = matchings.getMatchingDataSize(_matchingId);
         uint256 allocatedDatacap = datacapAllocates[_matchingId];
-        uint256 reallyStored = getMatchedsotreTotalSize(_matchingId);
+        uint256 reallyStored = matchedstores.getMatchedStoreTotalSize(
+            _matchingId
+        );
         require(
             totalDatacapNeeded >= allocatedDatacap,
             "Allocated datacap exceeds total needed datacap"
@@ -108,8 +141,8 @@ abstract contract MatchedDatacap is IMatchedDatacap, Matchedstores {
         );
         require(
             allocatedDatacap - reallyStored <=
-                (datacapRulesMaxRemainingPercentageForNext / 100) *
-                    datacapRulesMaxAllocatedSizePerTime,
+                (filplus.datacapRulesMaxRemainingPercentageForNext() / 100) *
+                    filplus.datacapRulesMaxAllocatedSizePerTime(),
             "Remaining datacap is greater than allocationThreshold"
         );
         return true;

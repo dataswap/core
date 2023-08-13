@@ -18,31 +18,49 @@
 
 pragma solidity ^0.8.21;
 
-import "../../core/access/Roles.sol";
-import "../../core/filplus/Filplus.sol";
-import "../../shared/utils/contract/ModifierCommon.sol";
 import "../../types/DatasetType.sol";
 import "../../types/RolesType.sol";
+import "../../shared/modifiers/CommonModifiers.sol";
+import "../../shared/modifiers/RolesModifiers.sol";
+import "../../interfaces/core/IRoles.sol";
+import "../../interfaces/core/IFilplus.sol";
+import "../../interfaces/core/ICarstore.sol";
+import "../../interfaces/module/IDatasets.sol";
 import "./library/DatasetMetadataLIB.sol";
 import "./library/DatasetProofLIB.sol";
 import "./library/DatasetStateMachineLIB.sol";
 import "./library/DatasetVerificationLIB.sol";
 import "./library/DatasetAuditLIB.sol";
-import "./IDatasets.sol";
 
 /// @title Datasets Base Contract
-/// @author waynewyang
 /// @notice This contract serves as the base for managing datasets, metadata, proofs, and verifications.
 /// @dev This contract is intended to be inherited by specific dataset-related contracts.
-abstract contract Datasets is Role, Filplus, IDatasets {
-    uint256 public datasetsCount; // Total count of datasets
-    mapping(uint256 => DatasetType.Dataset) private datasets; // Mapping of dataset ID to dataset details
-
+contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
     using DatasetMetadataLIB for DatasetType.Dataset;
     using DatasetProofLIB for DatasetType.Dataset;
     using DatasetStateMachineLIB for DatasetType.Dataset;
     using DatasetVerificationLIB for DatasetType.Dataset;
     using DatasetAuditLIB for DatasetType.Dataset;
+
+    uint256 public datasetsCount; // Total count of datasets
+    mapping(uint256 => DatasetType.Dataset) private datasets; // Mapping of dataset ID to dataset details
+
+    address private governanceAddress;
+    IRoles private roles;
+    IFilplus private filplus;
+    ICarstore private carstore;
+
+    constructor(
+        address _governanceAddress,
+        IRoles _roles,
+        IFilplus _filplus,
+        ICarstore _carstore
+    ) RolesModifiers(_roles) {
+        governanceAddress = _governanceAddress;
+        roles = _roles;
+        filplus = _filplus;
+        carstore = _carstore;
+    }
 
     /// @dev Modifier to ensure that a dataset metadata  with the given accessMethod exists.
     modifier datasetMetadataExsits(string memory _accessMethod) {
@@ -93,7 +111,13 @@ abstract contract Datasets is Role, Filplus, IDatasets {
     event DatasetRejected(uint256 indexed _datasetId);
 
     ///@dev Need add cids to carStore
-    function _beforeApproveDataset(uint256 _datasetId) internal virtual;
+    function _beforeApproveDataset(uint256 _datasetId) internal {
+        carstore.addCars(getDatasetSourceCars(_datasetId), _datasetId);
+        carstore.addCars(
+            getDatasetSourceToCarMappingFilesCars(_datasetId),
+            _datasetId
+        );
+    }
 
     ///@notice Get dataset metadata
     function _getDataset(
@@ -272,7 +296,7 @@ abstract contract Datasets is Role, Filplus, IDatasets {
     }
 
     ///@notice Get dataset source CIDs
-    function getDatasetSourceCids(
+    function getDatasetSourceCars(
         uint256 _datasetId
     ) public view notZeroId(_datasetId) returns (bytes32[] memory) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
@@ -288,7 +312,7 @@ abstract contract Datasets is Role, Filplus, IDatasets {
     }
 
     ///@notice Get dataset source-to-CAR mapping files CIDs
-    function getDatasetSourceToCarMappingFilesCids(
+    function getDatasetSourceToCarMappingFilesCars(
         uint256 _datasetId
     ) public view notZeroId(_datasetId) returns (bytes32[] memory) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
@@ -361,11 +385,11 @@ abstract contract Datasets is Role, Filplus, IDatasets {
     }
 
     ///@notice Check if a dataset has a cid
-    function isDatasetContainsCid(
+    function isDatasetContainsCar(
         uint256 _datasetId,
         bytes32 _cid
     ) public view notZeroId(_datasetId) returns (bool) {
-        bytes32[] memory cids = getDatasetSourceToCarMappingFilesCids(
+        bytes32[] memory cids = getDatasetSourceToCarMappingFilesCars(
             _datasetId
         );
         for (uint256 i = 0; i < cids.length; i++) {
@@ -375,12 +399,12 @@ abstract contract Datasets is Role, Filplus, IDatasets {
     }
 
     ///@notice Check if a dataset has cids
-    function isDatasetContainsCids(
+    function isDatasetContainsCars(
         uint256 _datasetId,
         bytes32[] memory _cids
     ) public view notZeroId(_datasetId) returns (bool) {
         for (uint256 i = 0; i < _cids.length; i++) {
-            if (!isDatasetContainsCid(_datasetId, _cids[i])) return false;
+            if (!isDatasetContainsCar(_datasetId, _cids[i])) return false;
         }
         return true;
     }

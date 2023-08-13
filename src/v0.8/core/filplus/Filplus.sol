@@ -17,14 +17,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 pragma solidity ^0.8.21;
-
-import "../../shared/utils/contract/ModifierCommon.sol";
-import "./IFilplus.sol";
+import "../../interfaces/core/IRoles.sol";
+import "../../shared/modifiers/CommonModifiers.sol";
+import "../../interfaces/core/IFilplus.sol";
 
 /// @title Filplus
-/// @author waynewyang
-abstract contract Filplus is ModifierCommon {
-    address payable public immutable governanceAddress; //The address of the governance contract.
+contract Filplus is IFilplus, CommonModifiers {
+    address public immutable governanceAddress; //The address of the governance contract.
 
     ///@notice car rules
     uint256 public carRuleMaxCarReplicas; // Represents the maximum number of car replicas in the entire network
@@ -70,7 +69,7 @@ abstract contract Filplus is ModifierCommon {
     uint256 public matchingRulesDataswapCommissionPercentage; // Percentage of commission.
     event SetMatchingRulesDataswapCommissionPercentage(uint256 _newValue);
 
-    MatchingRuleCommissionType public matchingRulesCommissionType; // Type of commission for matching.
+    MatchingRuleCommissionType private matchingRulesCommissionType; // Type of commission for matching.
     event SetMatchingRulesCommissionType(MatchingRuleCommissionType _newType);
 
     enum MatchingRuleCommissionType {
@@ -83,6 +82,10 @@ abstract contract Filplus is ModifierCommon {
         governanceAddress = _governanceAddress;
 
         //TODO: add default value for every
+    }
+
+    function getMatchingRulesCommissionType() external view returns (uint8) {
+        return uint8(matchingRulesCommissionType);
     }
 
     // Public getter function to access datasetRuleMaxReplicasInCountries

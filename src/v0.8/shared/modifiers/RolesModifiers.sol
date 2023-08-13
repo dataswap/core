@@ -17,30 +17,18 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-/// @title ModifierCommon
-/// @author waynewyang
-contract ModifierCommon {
-    /// @dev Modifier to check if an ID is not zero.
-    modifier notZeroId(uint256 _id) {
-        require(_id != 0, "Invalid ID");
-        _;
+import "../../interfaces/core/IRoles.sol";
+
+/// @title RolesModifier
+contract RolesModifiers {
+    IRoles private roles;
+
+    constructor(IRoles _roles) {
+        roles = _roles;
     }
 
-    /// @dev Modifier to check the sender's address
-    modifier onlyAddress(address allowedAddress) {
-        require(
-            msg.sender == allowedAddress,
-            "Only allowed address can call this function"
-        );
-        _;
-    }
-
-    /// @dev Modifier to check the sender's address
-    modifier notZeroAddress(address allowedAddress) {
-        require(
-            msg.sender != address(0),
-            "Only allowed address can call this function"
-        );
+    modifier onlyRole(bytes32 _role) {
+        roles.checkRole(_role);
         _;
     }
 }

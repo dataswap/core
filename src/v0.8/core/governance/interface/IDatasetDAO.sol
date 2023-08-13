@@ -20,7 +20,6 @@ pragma solidity ^0.8.21;
 import "@openzeppelin/contracts/governance/IGovernor.sol";
 
 /// @title IDatasetDAO
-/// @author waynewyang
 interface IDatasetDAO {
 
 }

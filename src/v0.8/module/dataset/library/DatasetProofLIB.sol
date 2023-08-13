@@ -23,7 +23,6 @@ import "../../../shared/cid/CidUtils.sol";
 import "../../../shared/merkle/MerkleUtils.sol";
 
 /// @title DatasetProofLIB Library,include add,get,verify.
-/// @author waynewyang
 /// @notice This library provides functions for managing proofs associated with datasets.
 library DatasetProofLIB {
     using DatasetStateMachineLIB for DatasetType.Dataset;

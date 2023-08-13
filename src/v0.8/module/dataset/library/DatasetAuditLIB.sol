@@ -21,7 +21,6 @@ import "../../../types/DatasetType.sol";
 import "./DatasetStateMachineLIB.sol";
 
 /// @title Dataset Library
-/// @author waynewyang
 /// @notice This library provides functions to manage datasets and their metadata, proofs, and verifications.
 /// @dev This library is intended to be used in conjunction with the Dataset contract.
 ///       Note: only called by governance contract

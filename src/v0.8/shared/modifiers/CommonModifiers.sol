@@ -17,11 +17,29 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import "@openzeppelin/contracts/access/IAccessControlEnumerable.sol";
+/// @title ModifierCommon
+contract CommonModifiers {
+    /// @dev Modifier to check if an ID is not zero.
+    modifier notZeroId(uint256 _id) {
+        require(_id != 0, "Invalid ID");
+        _;
+    }
 
-/// @title IRoles Interface
-/// @author waynewyang
-/// @notice This interface defines the role-based access control for various roles within the system.
-interface IRoles is IAccessControlEnumerable {
+    /// @dev Modifier to check the sender's address
+    modifier onlyAddress(address allowedAddress) {
+        require(
+            msg.sender == allowedAddress,
+            "Only allowed address can call this function"
+        );
+        _;
+    }
 
+    /// @dev Modifier to check the sender's address
+    modifier notZeroAddress(address allowedAddress) {
+        require(
+            msg.sender != address(0),
+            "Only allowed address can call this function"
+        );
+        _;
+    }
 }

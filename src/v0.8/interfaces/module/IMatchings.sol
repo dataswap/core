@@ -22,10 +22,9 @@ import "../../types/DatasetType.sol";
 import "../../types/MatchingType.sol";
 
 /// @title IMatchings
-/// @author waynewyang
 interface IMatchings {
     /// @notice  Function for bidding on a matching
-    function matchingBidding(uint256 _matchingId, uint256 _amount) external;
+    function bidding(uint256 _matchingId, uint256 _amount) external;
 
     function publishMatching(
         uint256 _datasetId,
@@ -73,7 +72,7 @@ interface IMatchings {
     ) external view returns (uint256);
 
     /// @notice  Function for getting the count of bids in a matching
-    function getMatchingCids(
+    function getMatchingCars(
         uint256 _matchingId
     ) external view returns (bytes32[] memory);
 
@@ -116,7 +115,7 @@ interface IMatchings {
     /// @param _matchingId The ID of the matching to check.
     /// @param _cid The CID (Content Identifier) to check for.
     /// @return True if the matching contains the specified CID, otherwise false.
-    function isMatchingContainsCid(
+    function isMatchingContainsCar(
         uint256 _matchingId,
         bytes32 _cid
     ) external view returns (bool);
@@ -125,7 +124,7 @@ interface IMatchings {
     /// @param _matchingId The ID of the matching to check.
     /// @param _cids An array of CIDs (Content Identifiers) to check for.
     /// @return True if the matching contains all the specified CIDs, otherwise false.
-    function isMatchingContainsCids(
+    function isMatchingContainsCars(
         uint256 _matchingId,
         bytes32[] memory _cids
     ) external view returns (bool);

@@ -21,13 +21,12 @@ pragma solidity ^0.8.21;
 import "../../types/MatchedstoreType.sol";
 
 /// @title Interface for Matchedstores contract
-/// @author waynewyang
-interface IMatchedstores {
+interface IMatchedStores {
     /// @dev Submits a Filecoin deal Id for a matchedstore after successful matching.
     /// @param _matchingId The ID of the matching.
     /// @param _cid The content identifier of the matched data.
     /// @param _filecoinDealId The ID of the successful Filecoin storage deal.
-    function submitMatchedstoreFilecoinDealId(
+    function submitMatchedStoreFilecoinDealId(
         uint256 _matchingId,
         bytes32 _cid,
         uint256 _filecoinDealId
@@ -37,7 +36,7 @@ interface IMatchedstores {
     /// @param _matchingId The ID of the matching.
     /// @param _cids An array of content identifiers of the matched data.
     /// @param _filecoinDealIds An array of IDs of successful Filecoin storage deals.
-    function submitMatchedstoreFilecoinDealIds(
+    function submitMatchedStoreFilecoinDealIds(
         uint256 _matchingId,
         bytes32[] memory _cids,
         uint256[] memory _filecoinDealIds
@@ -46,25 +45,25 @@ interface IMatchedstores {
     /// @dev Gets the list of done cars in the matchedstore.
     /// @param _matchingId The ID of the matching.
     /// @return An array of content identifiers of the done cars.
-    function getMatchedstoreCars(
+    function getMatchedStoreCars(
         uint256 _matchingId
     ) external view returns (bytes32[] memory);
 
     /// @dev Gets the count of done cars in the matchedstore.
     /// @param _matchingId The ID of the matching.
     /// @return The count of done cars in the matchedstore.
-    function getMatchedsotreCarsCount(
+    function getMatchedStoreCarsCount(
         uint256 _matchingId
     ) external view returns (uint256);
 
-    function getMatchedsotreTotalSize(
+    function getMatchedStoreTotalSize(
         uint256 _matchingId
     ) external view returns (uint256);
 
     /// @dev Checks if all cars are done in the matchedstore.
     /// @param _matchingId The ID of the matching.
     /// @return True if all cars are done in the matchedstore, otherwise false.
-    function isMatchedsotreAllDone(
+    function isMatchedStoreAllDone(
         uint256 _matchingId
     ) external view returns (bool);
 }

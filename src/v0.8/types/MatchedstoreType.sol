@@ -18,8 +18,6 @@
 
 pragma solidity ^0.8.21;
 
-/// @title StorageDealType Library
-/// @author waynewyang
 /// @notice This library defines enums and structs related to storage deals and their states.
 library MatchedstoreType {
     /// @notice Struct representing a storage deal.

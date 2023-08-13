@@ -20,30 +20,54 @@ pragma solidity ^0.8.21;
 
 import "../../types/RolesType.sol";
 import "../../types/DatasetType.sol";
-import "../dataset/Datasets.sol";
 import "../../types/MatchingType.sol";
+import "../../shared/modifiers/CommonModifiers.sol";
+import "../../shared/modifiers/RolesModifiers.sol";
+import "../../interfaces/core/IRoles.sol";
+import "../../interfaces/core/IFilplus.sol";
+import "../../interfaces/core/ICarstore.sol";
+import "../../interfaces/module/IDatasets.sol";
+import "../../interfaces/module/IMatchings.sol";
 import "./library/MatchingLIB.sol";
 import "./library/MatchingStateMachineLIB.sol";
 import "./library/MatchingBidsLIB.sol";
-import "./IMatchings.sol";
 
 /// @title Matchings Base Contract
-/// @author waynewyang
 /// @notice This contract serves as the base for managing matchings, their states, and associated actions.
 /// @dev This contract is intended to be inherited by specific matching-related contracts.
 ///      TODO: Missing fund proccess,need add later
 ///            1 bidder(when bidding) and initiator(when publish) should transfer FIL to payable function
 ///            2 proccess the fund after matched
 ///            3 proccess the fund after matchedsotre,step by step
-abstract contract Matchings is Datasets, IMatchings {
-    /// @notice  Declare private variables
-    uint256 public matchingsCount;
-    mapping(uint256 => MatchingType.Matching) private matchings;
-
+contract Matchings is IMatchings, CommonModifiers, RolesModifiers {
     /// @notice  Use libraries for different matching functionalities
     using MatchingLIB for MatchingType.Matching;
     using MatchingStateMachineLIB for MatchingType.Matching;
     using MatchingBidsLIB for MatchingType.Matching;
+
+    /// @notice  Declare private variables
+    uint256 public matchingsCount;
+    mapping(uint256 => MatchingType.Matching) private matchings;
+
+    address private governanceAddress;
+    IRoles private roles;
+    IFilplus private filplus;
+    ICarstore private carstore;
+    IDatasets private datasets;
+
+    constructor(
+        address _governanceAddress,
+        IRoles _roles,
+        IFilplus _filplus,
+        ICarstore _carstore,
+        IDatasets _datasets
+    ) RolesModifiers(_roles) {
+        governanceAddress = _governanceAddress;
+        roles = _roles;
+        filplus = _filplus;
+        carstore = _carstore;
+        datasets = _datasets;
+    }
 
     /// @notice  Declare events for external monitoring
     event MatchingPublished(
@@ -68,7 +92,7 @@ abstract contract Matchings is Datasets, IMatchings {
     /// @notice  Modifier to restrict access to the matching initiator
     modifier onlyMatchingContainsCid(uint256 _matchingId, bytes32 _cid) {
         require(
-            isMatchingContainsCid(_matchingId, _cid),
+            isMatchingContainsCar(_matchingId, _cid),
             "You are not the initiator of this matching"
         );
         _;
@@ -93,10 +117,15 @@ abstract contract Matchings is Datasets, IMatchings {
     }
 
     ///@dev update cars info  to carStore before complete
-    function _beforeCompleteMatching(uint256 _matchingId) internal virtual;
+    function _beforeCompleteMatching(uint256 _matchingId) internal {
+        bytes32[] memory cars = getMatchingCars(_matchingId);
+        for (uint256 i; i < cars.length; i++) {
+            carstore.addCarReplica(cars[i], _matchingId);
+        }
+    }
 
     /// @notice  Function for bidding on a matching
-    function matchingBidding(
+    function bidding(
         uint256 _matchingId,
         uint256 _amount
     ) external onlyRole(RolesType.STORAGE_PROVIDER) {
@@ -238,7 +267,7 @@ abstract contract Matchings is Datasets, IMatchings {
     }
 
     /// @notice  Function for getting the count of bids in a matching
-    function getMatchingCids(
+    function getMatchingCars(
         uint256 _matchingId
     ) public view returns (bytes32[] memory) {
         MatchingType.Matching storage matching = matchings[_matchingId];
@@ -305,11 +334,11 @@ abstract contract Matchings is Datasets, IMatchings {
     /// @param _matchingId The ID of the matching to check.
     /// @param _cid The CID (Content Identifier) to check for.
     /// @return True if the matching contains the specified CID, otherwise false.
-    function isMatchingContainsCid(
+    function isMatchingContainsCar(
         uint256 _matchingId,
         bytes32 _cid
     ) public view returns (bool) {
-        bytes32[] memory cids = getMatchingCids(_matchingId);
+        bytes32[] memory cids = getMatchingCars(_matchingId);
         for (uint256 i = 0; i < cids.length; i++) {
             if (_cid == cids[i]) return true;
         }
@@ -320,12 +349,12 @@ abstract contract Matchings is Datasets, IMatchings {
     /// @param _matchingId The ID of the matching to check.
     /// @param _cids An array of CIDs (Content Identifiers) to check for.
     /// @return True if the matching contains all the specified CIDs, otherwise false.
-    function isMatchingContainsCids(
+    function isMatchingContainsCars(
         uint256 _matchingId,
         bytes32[] memory _cids
     ) public view returns (bool) {
         for (uint256 i = 0; i < _cids.length; i++) {
-            if (isMatchingContainsCid(_matchingId, _cids[i])) return true;
+            if (isMatchingContainsCar(_matchingId, _cids[i])) return true;
         }
         return false;
     }
@@ -339,10 +368,14 @@ abstract contract Matchings is Datasets, IMatchings {
         uint256 _associatedMappingFilesMatchingID
     ) public view returns (bool) {
         require(
-            getDatasetState(_datasetId) == DatasetType.State.DatasetApproved,
+            datasets.getDatasetState(_datasetId) ==
+                DatasetType.State.DatasetApproved,
             "datasetId is not approved!"
         );
-        require(isDatasetContainsCids(_datasetId, _cars), "Invalid cids!");
+        require(
+            datasets.isDatasetContainsCars(_datasetId, _cars),
+            "Invalid cids!"
+        );
         require(_size > 0, "Invalid size!");
         if (_dataType == MatchingType.DataType.Dataset) {
             (
@@ -388,10 +421,13 @@ abstract contract Matchings is Datasets, IMatchings {
 
     /// @notice Check if a matching meets the requirements of Fil+.
     function isMatchingTargetMeetsFilPlusRequirements(
-        uint256 _datasetId,
-        bytes32[] memory _cars,
-        uint256 _size,
-        MatchingType.DataType _dataType,
-        uint256 _associatedMappingFilesMatchingID
-    ) public view virtual returns (bool);
+        uint256 /*_datasetId*/,
+        bytes32[] memory /*_cars*/,
+        uint256 /*_size*/,
+        MatchingType.DataType /*_dataType*/,
+        uint256 /*_associatedMappingFilesMatchingID*/
+    ) public pure returns (bool) {
+        //TODO
+        return true;
+    }
 }

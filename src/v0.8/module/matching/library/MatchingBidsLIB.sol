@@ -22,7 +22,6 @@ import "../../../types/MatchingType.sol";
 import "./MatchingStateMachineLIB.sol";
 
 /// @title Matching Bids Library
-/// @author waynewyang
 /// @notice This library provides functions for managing bids in matchings.
 library MatchingBidsLIB {
     using MatchingStateMachineLIB for MatchingType.Matching;

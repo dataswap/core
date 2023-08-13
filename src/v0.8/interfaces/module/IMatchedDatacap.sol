@@ -15,7 +15,6 @@
 pragma solidity ^0.8.21;
 
 /// @title IMatchedDatacap
-/// @author waynewyang
 /// @dev Interface for managing the allocation of datacap for matched data storage.
 interface IMatchedDatacap {
     /// @dev Requests the allocation of matched datacap for a matching process.

@@ -23,7 +23,6 @@ import "./MatchingStateMachineLIB.sol";
 import "./MatchingBidsLIB.sol";
 
 /// @title Matching Library
-/// @author waynewyang
 /// @notice This library provides functions for managing matchings and their states.
 /// @dev This library is used to manage the lifecycle and states of matchings.
 library MatchingLIB {

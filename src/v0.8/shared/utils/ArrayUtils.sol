@@ -18,7 +18,6 @@
 pragma solidity ^0.8.21;
 
 /// @title ArrayUtil Library
-/// @author waynewyang
 /// @notice This library provides utility functions for working with arrays.
 library ArrayUtil {
     /// @notice Append an array of bytes32 elements to an existing storage bytes32 array.

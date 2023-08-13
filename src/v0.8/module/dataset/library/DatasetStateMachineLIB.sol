@@ -21,7 +21,6 @@ import "../../../types/DatasetType.sol";
 import "./DatasetStateMachineLIB.sol";
 
 /// @title DatasetStateMachineLIB Library,include add,get,verify.
-/// @author waynewyang
 /// @notice This library defines the state machine for managing the states of datasets.
 library DatasetStateMachineLIB {
     /// @notice Post an event for a dataset.

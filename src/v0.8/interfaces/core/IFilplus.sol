@@ -19,7 +19,6 @@
 pragma solidity ^0.8.21;
 
 /// @title IFilplus
-/// @author waynewyang
 interface IFilplus {
     // Public getter function to access datasetRuleMaxReplicasInCountries
     function getDatasetRuleMaxReplicasInCountry(
@@ -67,7 +66,7 @@ interface IFilplus {
     function setMatchingRulesCommissionType(uint8 _newType) external;
 
     // Default getter functions for public variables
-    function governanceAddress() external view returns (uint256);
+    function governanceAddress() external view returns (address);
 
     function carRuleMaxCarReplicas() external view returns (uint256);
 
@@ -109,5 +108,5 @@ interface IFilplus {
         view
         returns (uint256);
 
-    function matchingRulesCommissionType() external view returns (uint8);
+    function getMatchingRulesCommissionType() external view returns (uint8);
 }

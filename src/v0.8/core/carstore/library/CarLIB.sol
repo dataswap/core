@@ -21,7 +21,6 @@ import "../../../types/CarReplicaType.sol";
 import "./CarReplicaLIB.sol";
 
 /// @title CarLIB
-/// @author waynewyang
 /// @dev This library provides functions for managing the lifecycle and events of car and their replicas.
 /// @notice Library for managing the state, events, and operations related to car and their replicas.
 library CarLIB {

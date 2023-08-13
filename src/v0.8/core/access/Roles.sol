@@ -18,16 +18,67 @@
 
 pragma solidity ^0.8.21;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/access/Ownable2Step.sol";
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
-import "./IRoles.sol";
+import "../../interfaces/core/IRoles.sol";
 
 /// @title Role Contract
-/// @author waynewyang
 /// @notice This contract defines the role-based access control for various roles within the system.
-contract Role is Ownable2Step, AccessControlEnumerable, IRoles {
+contract Roles is IRoles, Ownable, Ownable2Step, AccessControlEnumerable {
     /// @notice Constructor function to initialize the contract and grant the default admin role to the deployer.
     constructor() {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
+
+    ///@dev The new owner accepts the ownership transfer.
+    function acceptOwnership() public override(IRoles, Ownable2Step) {
+        return super.acceptOwnership();
+    }
+
+    function checkRole(bytes32 _role) public view {
+        return super._checkRole(_role);
+    }
+
+    ///@dev Returns the address of the current owner.
+    function owner() public view override(IRoles, Ownable) returns (address) {
+        return super.owner();
+    }
+
+    ///@dev Returns the address of the pending owner.
+    function pendingOwner()
+        public
+        view
+        override(IRoles, Ownable2Step)
+        returns (address)
+    {
+        return super.pendingOwner();
+    }
+
+    /**
+     * @dev Leaves the contract without owner. It will not be possible to call
+     * `onlyOwner` functions. Can only be called by the current owner.
+     *
+     * NOTE: Renouncing ownership will leave the contract without an owner,
+     * thereby disabling any functionality that is only available to the owner.
+     */
+    function renounceOwnership() public override(IRoles, Ownable) {
+        super.renounceOwnership();
+    }
+
+    /**
+     * @dev Starts the ownership transfer of the contract to a new account. Replaces the pending transfer if there is one.
+     * Can only be called by the current owner.
+     */
+    function transferOwnership(
+        address _newOwner
+    ) public override(IRoles, Ownable, Ownable2Step) {
+        super.transferOwnership(_newOwner);
+    }
+
+    function _transferOwnership(
+        address newOwner
+    ) internal override(Ownable, Ownable2Step) {
+        super._transferOwnership(newOwner);
     }
 }

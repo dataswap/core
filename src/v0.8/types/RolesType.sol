@@ -19,7 +19,6 @@
 pragma solidity ^0.8.21;
 
 /// @title RolesType Library
-/// @author waynewyang
 /// @notice This library defines constants for different roles within the system.
 library RolesType {
     /// @notice Bytes32 constant representing the role of a storage provider.

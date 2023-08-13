@@ -18,7 +18,6 @@
 pragma solidity ^0.8.21;
 
 /// @title StringUtils Library
-/// @author waynewyang
 /// @notice This library provides utility functions for working with strings.
 library StringUtils {
     /// @notice Concatenate two strings and return the result.

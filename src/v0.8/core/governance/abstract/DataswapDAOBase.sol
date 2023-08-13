@@ -25,7 +25,6 @@ import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFractio
 // import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
 
 /// @title DataswapDAOBase Contract
-/// @author waynewyang
 /// @notice This contract serves as the base for the DataSwap DAO governance mechanism.
 /// @dev This contract inherits from various Governor-related contracts and Ownable2Step.
 abstract contract DataswapDAOBase is

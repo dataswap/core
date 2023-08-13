@@ -17,22 +17,23 @@
 
 pragma solidity ^0.8.21;
 
-import "../../shared/utils/contract/ModifierCommon.sol";
+import "../../shared/modifiers/CommonModifiers.sol";
 import "../../types/CarReplicaType.sol";
 import "./library/CarReplicaLIB.sol";
 import "./library/CarLIB.sol";
-import "./ICarstore.sol";
+import "../../interfaces/core/ICarstore.sol";
+import "../../shared/filecoin/FilecoinDealUtils.sol";
+import "../../types/FilecoinDealType.sol";
 
 /// @title CarsStorageBase
-/// @author waynewyang
 /// @notice This contract allows adding cars and managing their associated replicas.
 /// @dev This contract provides functionality for managing car data and associated replicas.
-abstract contract Carstore is ICarstore, ModifierCommon {
-    uint256 private carsCount;
+contract Carstore is ICarstore, CommonModifiers {
+    using CarLIB for CarReplicaType.Car;
+
+    uint256 public carsCount;
     ///Car CID=> Car
     mapping(bytes32 => CarReplicaType.Car) private cars;
-
-    using CarLIB for CarReplicaType.Car;
 
     /// @notice Emitted when multiple cars are added to the storage.
     event CarsAdded(bytes32[] _cids);
@@ -81,7 +82,7 @@ abstract contract Carstore is ICarstore, ModifierCommon {
     modifier onlyCarReplicaFilecoinDealState(
         bytes32 _cid,
         uint256 _matchingId,
-        CarReplicaType.FilecoinDealState _filecoinDealState
+        FilecoinStorageDealState _filecoinDealState
     ) {
         require(hasCar(_cid), "Car is not exists");
         require(hasCarReplica(_cid, _matchingId), "replica is not exists");
@@ -91,8 +92,12 @@ abstract contract Carstore is ICarstore, ModifierCommon {
             "Invalid replica state"
         );
         require(
-            _filecoinDealState ==
-                getCarReplicaFilecoinDealState(_cid, _matchingId),
+            FilecoinStorageDealState.Successed ==
+                FilecoinDealUtils.getFilecoinStorageDealState(
+                    _cid,
+                    // TODO:_filecoinDealId, instead with _matchingId first
+                    _matchingId
+                ),
             "Invalid replica filecoin deal state"
         );
         _;
@@ -158,10 +163,10 @@ abstract contract Carstore is ICarstore, ModifierCommon {
     ///      filplus requires dataset replicas,but not limit for car replicas
     /// @param _cid Car CID to be added.
     /// @param _datasetId dataset index of approved dataset
-    function _addCar(
+    function addCar(
         bytes32 _cid,
         uint256 _datasetId
-    ) internal carNotExist(_cid) notZeroId(_datasetId) {
+    ) public carNotExist(_cid) notZeroId(_datasetId) {
         carsCount++;
         CarReplicaType.Car storage car = cars[_cid];
         car._setDatasetId(_datasetId);
@@ -171,12 +176,12 @@ abstract contract Carstore is ICarstore, ModifierCommon {
     /// @dev This function allows the addition of multiple cars at once.
     /// @param _cids Array of car CIDs to be added.
     /// @param _datasetId dataset index of approved dataset
-    function _addCars(
+    function addCars(
         bytes32[] memory _cids,
         uint256 _datasetId
-    ) internal notZeroId(_datasetId) {
+    ) external notZeroId(_datasetId) {
         for (uint256 i; i < _cids.length; i++) {
-            _addCar(_cids[i], _datasetId);
+            addCar(_cids[i], _datasetId);
         }
 
         emit CarsAdded(_cids);
@@ -186,11 +191,11 @@ abstract contract Carstore is ICarstore, ModifierCommon {
     /// @dev This function allows adding a replica to an existing car.
     /// @param _cid Car CID to which the replica will be added.
     /// @param _matchingId Matching ID for the new replica.
-    function _addCarReplica(
+    function addCarReplica(
         bytes32 _cid,
         uint256 _matchingId
     )
-        internal
+        external
         carExist(_cid)
         notZeroId(_matchingId)
         carReplicaNotExist(_cid, _matchingId)
@@ -205,18 +210,18 @@ abstract contract Carstore is ICarstore, ModifierCommon {
     /// @dev This function allows reporting that the storage deal for a replica has expired.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    function _reportCarReplicaStorageDealExpired(
+    function reportCarReplicaExpired(
         bytes32 _cid,
         uint256 _matchingId
     )
-        internal
+        external
         carExist(_cid)
         notZeroId(_matchingId)
         carReplicaExist(_cid, _matchingId)
         onlyCarReplicaFilecoinDealState(
             _cid,
             _matchingId,
-            CarReplicaType.FilecoinDealState.Expired
+            FilecoinStorageDealState.Expired
         )
     {
         __emitRepicaEvent(
@@ -231,18 +236,18 @@ abstract contract Carstore is ICarstore, ModifierCommon {
     /// @dev This function allows reporting that the storage of a replica has failed.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    function _reportCarReplicaStorageDealFailed(
+    function reportCarReplicaFailed(
         bytes32 _cid,
         uint256 _matchingId
     )
-        internal
+        external
         carExist(_cid)
         notZeroId(_matchingId)
         carReplicaExist(_cid, _matchingId)
         onlyCarReplicaFilecoinDealState(
             _cid,
             _matchingId,
-            CarReplicaType.FilecoinDealState.VerificationFailed
+            FilecoinStorageDealState.Failed
         )
     {
         __emitRepicaEvent(
@@ -253,35 +258,11 @@ abstract contract Carstore is ICarstore, ModifierCommon {
         emit CarReplicaFailed(_cid, _matchingId);
     }
 
-    /// @notice Set the Filecoin deal ID for a replica's storage.
-    /// @dev This function allows setting the Filecoin deal ID for a specific replica's storage.
-    /// @param _cid Car CID associated with the replica.
-    /// @param _matchingId Matching ID of the replica.
-    /// @param _filecoinDealId New Filecoin deal ID to set for the replica's storage.
-    function _setCarReplicaFilecoinDealId(
-        bytes32 _cid,
-        uint256 _matchingId,
-        uint256 _filecoinDealId
-    )
-        internal
-        carExist(_cid)
-        notZeroId(_matchingId)
-        notZeroId(_filecoinDealId)
-        carReplicaExist(_cid, _matchingId)
-        onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Matched)
-        carReplicaFilecoinDealIdNotExist(_cid, _matchingId)
-    {
-        CarReplicaType.Car storage car = cars[_cid];
-        car._setReplicaFilecoinDealId(_matchingId, _filecoinDealId);
-
-        emit CarReplicaFilecoinDealIdSet(_cid, _matchingId, _filecoinDealId);
-    }
-
     /// @notice Report that storage of a replica has been slashed.
     /// @dev This function allows reporting that the storage of a replica has been slashed.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    function reportCarReplicaStorageSlashed(
+    function reportCarReplicaSlashed(
         bytes32 _cid,
         uint256 _matchingId
     )
@@ -293,7 +274,7 @@ abstract contract Carstore is ICarstore, ModifierCommon {
         onlyCarReplicaFilecoinDealState(
             _cid,
             _matchingId,
-            CarReplicaType.FilecoinDealState.Slashed
+            FilecoinStorageDealState.Slashed
         )
     {
         __emitRepicaEvent(
@@ -302,6 +283,30 @@ abstract contract Carstore is ICarstore, ModifierCommon {
             CarReplicaType.Event.StorageSlashed
         );
         emit CarReplicaSlashed(_cid, _matchingId);
+    }
+
+    /// @notice Set the Filecoin deal ID for a replica's storage.
+    /// @dev This function allows setting the Filecoin deal ID for a specific replica's storage.
+    /// @param _cid Car CID associated with the replica.
+    /// @param _matchingId Matching ID of the replica.
+    /// @param _filecoinDealId New Filecoin deal ID to set for the replica's storage.
+    function setCarReplicaFilecoinDealId(
+        bytes32 _cid,
+        uint256 _matchingId,
+        uint256 _filecoinDealId
+    )
+        external
+        carExist(_cid)
+        notZeroId(_matchingId)
+        notZeroId(_filecoinDealId)
+        carReplicaExist(_cid, _matchingId)
+        onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Matched)
+        carReplicaFilecoinDealIdNotExist(_cid, _matchingId)
+    {
+        CarReplicaType.Car storage car = cars[_cid];
+        car._setReplicaFilecoinDealId(_matchingId, _filecoinDealId);
+
+        emit CarReplicaFilecoinDealIdSet(_cid, _matchingId, _filecoinDealId);
     }
 
     /// @notice Get the dataset ID associated with a car.
@@ -366,16 +371,6 @@ abstract contract Carstore is ICarstore, ModifierCommon {
         CarReplicaType.Car storage car = cars[_cid];
         return car._getReplicaFilecoinDealId(_matchingId);
     }
-
-    /// @notice Internal function to get the state of a Filecoin storage deal for a replica.
-    /// @dev This function get the state of a Filecoin storage deal associated with a replica.
-    /// @param _cid Car CID associated with the replica.
-    /// @param _matchingId Matching ID of the replica.
-    /// @return The state of the Filecoin storage deal for the replica.
-    function getCarReplicaFilecoinDealState(
-        bytes32 _cid,
-        uint256 _matchingId
-    ) public view virtual returns (CarReplicaType.FilecoinDealState);
 
     /// @notice Get the state of a replica associated with a car.
     /// @param _cid Car CID associated with the replica.

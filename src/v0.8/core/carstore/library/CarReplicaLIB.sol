@@ -20,7 +20,6 @@ pragma solidity ^0.8.21;
 import "../../../types/CarReplicaType.sol";
 
 /// @title CarReplicaLIB
-/// @author waynewyang
 /// @dev This library provides functions to manage the state and events of car replicas.
 /// @notice Library for managing the lifecycle and events of car replicas.
 library CarReplicaLIB {
