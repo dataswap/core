@@ -37,7 +37,7 @@ import "./IMatchings.sol";
 ///            3 proccess the fund after matchedsotre,step by step
 abstract contract Matchings is Datasets, IMatchings {
     /// @notice  Declare private variables
-    uint256 private matchingsCount;
+    uint256 public matchingsCount;
     mapping(uint256 => MatchingType.Matching) private matchings;
 
     /// @notice  Use libraries for different matching functionalities

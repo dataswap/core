@@ -152,4 +152,7 @@ interface IMatchings {
         MatchingType.DataType _dataType,
         uint256 _associatedMappingFilesMatchingID
     ) external view returns (bool);
+
+    // Default getter functions for public variables
+    function matchingsCount() external view returns (uint256);
 }

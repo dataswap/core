@@ -35,7 +35,7 @@ import "./IDatasets.sol";
 /// @notice This contract serves as the base for managing datasets, metadata, proofs, and verifications.
 /// @dev This contract is intended to be inherited by specific dataset-related contracts.
 abstract contract Datasets is Role, Filplus, IDatasets {
-    uint256 private datasetsCount; // Total count of datasets
+    uint256 public datasetsCount; // Total count of datasets
     mapping(uint256 => DatasetType.Dataset) private datasets; // Mapping of dataset ID to dataset details
 
     using DatasetMetadataLIB for DatasetType.Dataset;

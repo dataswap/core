@@ -161,4 +161,7 @@ interface IDatasets {
         uint256 _datasetId,
         bytes32[] memory _cids
     ) external view returns (bool);
+
+    // Default getter functions for public variables
+    function datasetsCount() external view returns (uint256);
 }
