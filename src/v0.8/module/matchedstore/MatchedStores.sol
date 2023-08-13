@@ -162,7 +162,7 @@ contract MatchedStores is IMatchedStores, CommonModifiers, RolesModifiers {
     }
 
     /// @dev Gets the list of done cars in the matchedstore.
-    function getMatchedStoreCars(
+    function getMatchedStoredCars(
         uint256 _matchingId
     ) public view returns (bytes32[] memory) {
         MatchedstoreType.Matchedstore storage matchedstore = matchedstores[
@@ -172,7 +172,7 @@ contract MatchedStores is IMatchedStores, CommonModifiers, RolesModifiers {
     }
 
     /// @dev Gets the count of done cars in the matchedstore.
-    function getMatchedStoreCarsCount(
+    function getMatchedStoredCarsCount(
         uint256 _matchingId
     ) public view returns (uint256) {
         MatchedstoreType.Matchedstore storage matchedstore = matchedstores[
@@ -182,7 +182,7 @@ contract MatchedStores is IMatchedStores, CommonModifiers, RolesModifiers {
     }
 
     /// @dev Gets the stored size in the matchedstore.
-    function getMatchedStoreTotalSize(
+    function getMatchedStoredTotalSize(
         uint256 _matchingId
     ) public view returns (uint256) {
         MatchedstoreType.Matchedstore storage matchedstore = matchedstores[

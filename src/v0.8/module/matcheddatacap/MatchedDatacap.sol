@@ -67,7 +67,7 @@ contract MatchedDatacap is IMatchedDatacap, CommonModifiers, RolesModifiers {
     /// @param _matchingId The ID of the matching process.
     function requestAllocateMatchedDatacap(uint256 _matchingId) external {
         require(
-            isMatchedDatacapNextAllocationAllowed(_matchingId),
+            isMatchedDatacapNextAllocationValid(_matchingId),
             "Not met allocate condition"
         );
         uint256 remainingSize = getMatchedDatacapTotalRemaining(_matchingId);
@@ -123,12 +123,12 @@ contract MatchedDatacap is IMatchedDatacap, CommonModifiers, RolesModifiers {
     /// @dev Checks if the next datacap allocation is allowed for a matching process.
     /// @param _matchingId The ID of the matching process.
     /// @return True if next allocation is allowed, otherwise false.
-    function isMatchedDatacapNextAllocationAllowed(
+    function isMatchedDatacapNextAllocationValid(
         uint256 _matchingId
     ) public view returns (bool) {
         uint256 totalDatacapNeeded = matchings.getMatchingDataSize(_matchingId);
         uint256 allocatedDatacap = datacapAllocates[_matchingId];
-        uint256 reallyStored = matchedstores.getMatchedStoreTotalSize(
+        uint256 reallyStored = matchedstores.getMatchedStoredTotalSize(
             _matchingId
         );
         require(

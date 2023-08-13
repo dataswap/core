@@ -53,6 +53,7 @@ interface ICarstore {
     /// @dev This function allows reporting that the storage of a replica has failed.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
+    /// TODO: need delete
     function reportCarReplicaFailed(bytes32 _cid, uint256 _matchingId) external;
 
     /// @notice Report that storage of a replica has been slashed.
@@ -78,6 +79,7 @@ interface ICarstore {
     /// @notice Get the dataset ID associated with a car.
     /// @param _cid Car CID to check.
     /// @return The dataset ID of the car.
+    /// TODO: a car belongs multi datasets
     function getCarDatasetId(bytes32 _cid) external view returns (uint256);
 
     /// @notice Get the replica details associated with a car.

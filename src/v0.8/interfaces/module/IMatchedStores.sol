@@ -45,18 +45,18 @@ interface IMatchedStores {
     /// @dev Gets the list of done cars in the matchedstore.
     /// @param _matchingId The ID of the matching.
     /// @return An array of content identifiers of the done cars.
-    function getMatchedStoreCars(
+    function getMatchedStoredCars(
         uint256 _matchingId
     ) external view returns (bytes32[] memory);
 
     /// @dev Gets the count of done cars in the matchedstore.
     /// @param _matchingId The ID of the matching.
     /// @return The count of done cars in the matchedstore.
-    function getMatchedStoreCarsCount(
+    function getMatchedStoredCarsCount(
         uint256 _matchingId
     ) external view returns (uint256);
 
-    function getMatchedStoreTotalSize(
+    function getMatchedStoredTotalSize(
         uint256 _matchingId
     ) external view returns (uint256);
 

@@ -45,7 +45,7 @@ interface IMatchedDatacap {
     /// @dev Checks if the next datacap allocation is allowed for a matching process.
     /// @param _matchingId The ID of the matching process.
     /// @return True if next allocation is allowed, otherwise false.
-    function isMatchedDatacapNextAllocationAllowed(
+    function isMatchedDatacapNextAllocationValid(
         uint256 _matchingId
     ) external view returns (bool);
 }
