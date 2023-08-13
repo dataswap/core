@@ -19,58 +19,59 @@
 pragma solidity ^0.8.21;
 
 import "../../shared/utils/contract/ModifierCommon.sol";
+import "./IFilplus.sol";
 
 /// @title Filplus
 /// @author waynewyang
 abstract contract Filplus is ModifierCommon {
-    address payable internal immutable governanceAddress; //The address of the governance contract.
+    address payable public immutable governanceAddress; //The address of the governance contract.
 
     ///@notice car rules
     uint256 public carRuleMaxCarReplicas; // Represents the maximum number of car replicas in the entire network
-    event SetCarRuleMaxCarReplicas(uint256 newValue);
+    event SetCarRuleMaxCarReplicas(uint256 _newValue);
 
     ///@notice dataset region rules
     uint256 public datasetRuleMinRegionsPerDataset; // Minimum required number of regions (e.g., 3).
-    event SetDatasetRuleMinRegionsPerDataset(uint256 newValue);
+    event SetDatasetRuleMinRegionsPerDataset(uint256 _newValue);
 
     uint256 public datasetRuleDefaultMaxReplicasPerCountry; // Default maximum replicas allowed per country.
-    event SetDatasetRuleDefaultMaxReplicasPerCountry(uint256 newValue);
+    event SetDatasetRuleDefaultMaxReplicasPerCountry(uint256 _newValue);
 
     mapping(bytes32 => uint256) private datasetRuleMaxReplicasInCountries; // Maximum replicas allowed per country.
     event SetDatasetRuleMaxReplicasInCountry(
-        bytes32 countryCode,
-        uint256 newValue
+        bytes32 _countryCode,
+        uint256 _newValue
     );
 
     uint256 public datasetRuleMaxReplicasPerCity; // Maximum replicas allowed per city (e.g., 1).
-    event SetDatasetRuleMaxReplicasPerCity(uint256 newValue);
+    event SetDatasetRuleMaxReplicasPerCity(uint256 _newValue);
 
     ///@notice dataset sp rules
     uint256 public datasetRuleMinSPsPerDataset; // Minimum required number of storage providers (e.g., 5).
-    event SetDatasetRuleMinSPsPerDataset(uint256 newValue);
+    event SetDatasetRuleMinSPsPerDataset(uint256 _newValue);
 
     uint256 public datasetRuleMaxReplicasPerSP; // Maximum replicas allowed per storage provider (e.g., 1).
-    event SetDatasetRuleMaxReplicasPerSP(uint256 newValue);
+    event SetDatasetRuleMaxReplicasPerSP(uint256 _newValue);
 
     uint256 public datasetRuleMinTotalReplicasPerDataset; // Minimum required total replicas (e.g., 5).
-    event SetDatasetRuleMinTotalReplicasPerDataset(uint256 newValue);
+    event SetDatasetRuleMinTotalReplicasPerDataset(uint256 _newValue);
 
     uint256 public datasetRuleMaxTotalReplicasPerDataset; // Maximum allowed total replicas (e.g., 10).
-    event SetDatasetRuleMaxTotalReplicasPerDataset(uint256 newValue);
+    event SetDatasetRuleMaxTotalReplicasPerDataset(uint256 _newValue);
 
     ///@notice datacap rules
     uint256 public datacapRulesMaxAllocatedSizePerTime; // Maximum allocate datacap size per time.
-    event SetDatacapRulesMaxAllocatedSizePerTime(uint256 newValue);
+    event SetDatacapRulesMaxAllocatedSizePerTime(uint256 _newValue);
 
     uint256 public datacapRulesMaxRemainingPercentageForNext; // Minimum completion percentage for the next allocation.
-    event SetDatacapRulesMaxRemainingPercentageForNext(uint256 newValue);
+    event SetDatacapRulesMaxRemainingPercentageForNext(uint256 _newValue);
 
     ///@notice matching rules
     uint256 public matchingRulesDataswapCommissionPercentage; // Percentage of commission.
-    event SetMatchingRulesDataswapCommissionPercentage(uint256 newValue);
+    event SetMatchingRulesDataswapCommissionPercentage(uint256 _newValue);
 
     MatchingRuleCommissionType public matchingRulesCommissionType; // Type of commission for matching.
-    event SetMatchingRulesCommissionType(MatchingRuleCommissionType newType);
+    event SetMatchingRulesCommissionType(MatchingRuleCommissionType _newType);
 
     enum MatchingRuleCommissionType {
         BuyerPays,
@@ -86,105 +87,105 @@ abstract contract Filplus is ModifierCommon {
 
     // Public getter function to access datasetRuleMaxReplicasInCountries
     function getDatasetRuleMaxReplicasInCountry(
-        bytes32 countryCode
+        bytes32 _countryCode
     ) public view returns (uint256) {
-        if (datasetRuleMaxReplicasInCountries[countryCode] == 0) {
+        if (datasetRuleMaxReplicasInCountries[_countryCode] == 0) {
             return datasetRuleDefaultMaxReplicasPerCountry;
         } else {
-            return datasetRuleMaxReplicasInCountries[countryCode];
+            return datasetRuleMaxReplicasInCountries[_countryCode];
         }
     }
 
     // Set functions for public variables
     function setCarRuleMaxCarReplicas(
-        uint256 newValue
+        uint256 _newValue
     ) external onlyAddress(governanceAddress) {
-        carRuleMaxCarReplicas = newValue;
-        emit SetCarRuleMaxCarReplicas(newValue);
+        carRuleMaxCarReplicas = _newValue;
+        emit SetCarRuleMaxCarReplicas(_newValue);
     }
 
     function setDatasetRuleMinRegionsPerDataset(
-        uint256 newValue
+        uint256 _newValue
     ) external onlyAddress(governanceAddress) {
-        datasetRuleMinRegionsPerDataset = newValue;
-        emit SetDatasetRuleMinRegionsPerDataset(newValue);
+        datasetRuleMinRegionsPerDataset = _newValue;
+        emit SetDatasetRuleMinRegionsPerDataset(_newValue);
     }
 
     function setDatasetRuleDefaultMaxReplicasPerCountry(
-        uint256 newValue
+        uint256 _newValue
     ) external onlyAddress(governanceAddress) {
-        datasetRuleDefaultMaxReplicasPerCountry = newValue;
-        emit SetDatasetRuleDefaultMaxReplicasPerCountry(newValue);
+        datasetRuleDefaultMaxReplicasPerCountry = _newValue;
+        emit SetDatasetRuleDefaultMaxReplicasPerCountry(_newValue);
     }
 
     function setDatasetRuleMaxReplicasInCountry(
-        bytes32 countryCode,
-        uint256 newValue
+        bytes32 _countryCode,
+        uint256 _newValue
     ) external onlyAddress(governanceAddress) {
-        datasetRuleMaxReplicasInCountries[countryCode] = newValue;
-        emit SetDatasetRuleMaxReplicasInCountry(countryCode, newValue);
+        datasetRuleMaxReplicasInCountries[_countryCode] = _newValue;
+        emit SetDatasetRuleMaxReplicasInCountry(_countryCode, _newValue);
     }
 
     function setDatasetRuleMaxReplicasPerCity(
-        uint256 newValue
+        uint256 _newValue
     ) external onlyAddress(governanceAddress) {
-        datasetRuleMaxReplicasPerCity = newValue;
-        emit SetDatasetRuleMaxReplicasPerCity(newValue);
+        datasetRuleMaxReplicasPerCity = _newValue;
+        emit SetDatasetRuleMaxReplicasPerCity(_newValue);
     }
 
     function setDatasetRuleMinSPsPerDataset(
-        uint256 newValue
+        uint256 _newValue
     ) external onlyAddress(governanceAddress) {
-        datasetRuleMinSPsPerDataset = newValue;
-        emit SetDatasetRuleMinSPsPerDataset(newValue);
+        datasetRuleMinSPsPerDataset = _newValue;
+        emit SetDatasetRuleMinSPsPerDataset(_newValue);
     }
 
     function setDatasetRuleMaxReplicasPerSP(
-        uint256 newValue
+        uint256 _newValue
     ) external onlyAddress(governanceAddress) {
-        datasetRuleMaxReplicasPerSP = newValue;
-        emit SetDatasetRuleMaxReplicasPerSP(newValue);
+        datasetRuleMaxReplicasPerSP = _newValue;
+        emit SetDatasetRuleMaxReplicasPerSP(_newValue);
     }
 
     function setDatasetRuleMinTotalReplicasPerDataset(
-        uint256 newValue
+        uint256 _newValue
     ) external onlyAddress(governanceAddress) {
-        datasetRuleMinTotalReplicasPerDataset = newValue;
-        emit SetDatasetRuleMinTotalReplicasPerDataset(newValue);
+        datasetRuleMinTotalReplicasPerDataset = _newValue;
+        emit SetDatasetRuleMinTotalReplicasPerDataset(_newValue);
     }
 
     function setDatasetRuleMaxTotalReplicasPerDataset(
-        uint256 newValue
+        uint256 _newValue
     ) external onlyAddress(governanceAddress) {
-        datasetRuleMaxTotalReplicasPerDataset = newValue;
-        emit SetDatasetRuleMaxTotalReplicasPerDataset(newValue);
+        datasetRuleMaxTotalReplicasPerDataset = _newValue;
+        emit SetDatasetRuleMaxTotalReplicasPerDataset(_newValue);
     }
 
     function setDatacapRulesMaxAllocatedSizePerTime(
-        uint256 newValue
+        uint256 _newValue
     ) external onlyAddress(governanceAddress) {
-        datacapRulesMaxAllocatedSizePerTime = newValue;
-        emit SetDatacapRulesMaxAllocatedSizePerTime(newValue);
+        datacapRulesMaxAllocatedSizePerTime = _newValue;
+        emit SetDatacapRulesMaxAllocatedSizePerTime(_newValue);
     }
 
     function setDatacapRulesMaxRemainingPercentageForNext(
-        uint256 newValue
+        uint256 _newValue
     ) external onlyAddress(governanceAddress) {
-        datacapRulesMaxRemainingPercentageForNext = newValue;
-        emit SetDatacapRulesMaxRemainingPercentageForNext(newValue);
+        datacapRulesMaxRemainingPercentageForNext = _newValue;
+        emit SetDatacapRulesMaxRemainingPercentageForNext(_newValue);
     }
 
     function setMatchingRulesDataswapCommissionPercentage(
-        uint256 newValue
+        uint256 _newValue
     ) external onlyAddress(governanceAddress) {
-        matchingRulesDataswapCommissionPercentage = newValue;
-        emit SetMatchingRulesDataswapCommissionPercentage(newValue);
+        matchingRulesDataswapCommissionPercentage = _newValue;
+        emit SetMatchingRulesDataswapCommissionPercentage(_newValue);
     }
 
     function setMatchingRulesCommissionType(
-        MatchingRuleCommissionType newType
+        uint8 _newValue
     ) external onlyAddress(governanceAddress) {
-        matchingRulesCommissionType = newType;
-        emit SetMatchingRulesCommissionType(newType);
+        matchingRulesCommissionType = MatchingRuleCommissionType(_newValue);
+        emit SetMatchingRulesCommissionType(matchingRulesCommissionType);
     }
 }
