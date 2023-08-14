@@ -18,12 +18,16 @@
 
 pragma solidity ^0.8.21;
 
+import "../../interfaces/core/IRoles.sol";
+import "../../interfaces/core/IFilplus.sol";
 import "../../interfaces/module/IDatasets.sol";
 import "../../interfaces/module/IMatchings.sol";
 import "../../interfaces/module/IMatchedStores.sol";
 import "../../interfaces/module/IMatchedDatacap.sol";
 
 interface IDataswapStorage is
+    IRoles,
+    IFilplus,
     IDatasets,
     IMatchings,
     IMatchedStores,
