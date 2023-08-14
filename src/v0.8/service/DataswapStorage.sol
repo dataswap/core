@@ -18,6 +18,7 @@
 
 pragma solidity ^0.8.21;
 
+import "../interfaces/service/IDataswapStorage.sol";
 import "../core/access/Roles.sol";
 import "../core/filplus/Filplus.sol";
 import "../core/carstore/Carstore.sol";
@@ -27,7 +28,7 @@ import "../module/matcheddatacap/MatchedDatacap.sol";
 import "../module/matchedstore/MatchedStores.sol";
 
 /// @title Dataswap
-contract Dataswap {
+abstract contract DataswapStorage is IDataswapStorage {
     address private governanceAddress;
     Roles private roles = new Roles();
     Carstore private carstore = new Carstore();
@@ -70,4 +71,8 @@ contract Dataswap {
             matchedstores
         );
     }
+
+    /*
+    TODO: implements IDataswapStoarge
+    */
 }
