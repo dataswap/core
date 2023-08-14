@@ -114,7 +114,7 @@ library DatasetProofLIB {
     function getDatasetSourceProof(
         DatasetType.Dataset storage self
     ) public view returns (bytes32, bytes32[] memory) {
-        DatasetType.MerkleProof memory proof = self.proof.sourceDatasetProof;
+        DatasetType.MerkleTree memory proof = self.proof.sourceDatasetProof;
         return (proof.rootHash, proof.leafHashes);
     }
 
@@ -138,7 +138,7 @@ library DatasetProofLIB {
     function getDatasetSourceToCarMappingFilesProof(
         DatasetType.Dataset storage self
     ) public view returns (bytes32, bytes32[] memory) {
-        DatasetType.MerkleProof memory proof = self
+        DatasetType.MerkleTree memory proof = self
             .proof
             .sourceToCarMappingFilesProof;
         return (proof.rootHash, proof.leafHashes);

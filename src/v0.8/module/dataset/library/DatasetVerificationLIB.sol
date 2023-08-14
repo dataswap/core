@@ -107,11 +107,11 @@ library DatasetVerificationLIB {
         verification.randomSeed = _randomSeed;
 
         // Initialize storage arrays for source dataset and mapping files proofs
-        DatasetType.MerkleProof[]
+        DatasetType.MerkleTree[]
             storage sourceDatasetChallengeProofs = verification
                 .proof
                 .sourceDatasetChallengeProofs;
-        DatasetType.MerkleProof[]
+        DatasetType.MerkleTree[]
             storage sourceToCarMappingFilesChallengeProofs = verification
                 .proof
                 .sourceToCarMappingFilesChallengeProofs;
@@ -119,14 +119,14 @@ library DatasetVerificationLIB {
         // Populate sourceDatasetChallengeProofs and sourceToCarMappingFilesChallengeProofs
         for (uint256 i = 0; i < _sourceDatasetProofRootHashes.length; i++) {
             sourceDatasetChallengeProofs.push(
-                DatasetType.MerkleProof({
+                DatasetType.MerkleTree({
                     rootHash: _sourceDatasetProofRootHashes[i],
                     leafHashes: _sourceDatasetProofLeafHashes[i]
                 })
             );
 
             sourceToCarMappingFilesChallengeProofs.push(
-                DatasetType.MerkleProof({
+                DatasetType.MerkleTree({
                     rootHash: _sourceToCarMappingFilesProofRootHashes[i],
                     leafHashes: _sourceToCarMappingFilesProofLeafHashes[i]
                 })

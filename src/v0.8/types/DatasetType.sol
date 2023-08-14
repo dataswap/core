@@ -57,22 +57,22 @@ library DatasetType {
     }
 
     /// @notice Struct representing a Merkle proof for data.
-    struct MerkleProof {
+    struct MerkleTree {
         bytes32 rootHash; // Root hash of the data's Merkle tree.
         bytes32[] leafHashes; // Array of leaf hashes representing items in the data.
     }
 
     /// @notice Struct representing proofs associated with a dataset submitted by participants.
     struct DatasetProof {
-        MerkleProof sourceDatasetProof; // Merkle proof for the source dataset.
-        MerkleProof sourceToCarMappingFilesProof; // Merkle proof for mapping files from source to car.
+        MerkleTree sourceDatasetProof; // Merkle proof for the source dataset.
+        MerkleTree sourceToCarMappingFilesProof; // Merkle proof for mapping files from source to car.
         string sourceToCarMappingFilesAccessMethod; // Method of accessing data (e.g., URL, API).
     }
 
     /// @notice Struct representing proofs associated with a dataset challenge submitted by reviewers.
     struct DatasetChallengeProof {
-        MerkleProof[] sourceDatasetChallengeProofs; // Merkle proofs for the challenged source dataset.
-        MerkleProof[] sourceToCarMappingFilesChallengeProofs; // Merkle proofs for challenged mapping files from source to car.
+        MerkleTree[] sourceDatasetChallengeProofs; // Merkle proofs for the challenged source dataset.
+        MerkleTree[] sourceToCarMappingFilesChallengeProofs; // Merkle proofs for challenged mapping files from source to car.
     }
 
     /// @notice Struct representing verification details of a dataset.
