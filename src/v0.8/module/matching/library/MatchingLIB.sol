@@ -18,9 +18,9 @@
 
 pragma solidity ^0.8.21;
 
-import "../../../types/MatchingType.sol";
-import "./MatchingStateMachineLIB.sol";
-import "./MatchingBidsLIB.sol";
+import {MatchingType} from "../../../types/MatchingType.sol";
+import {MatchingStateMachineLIB} from "./MatchingStateMachineLIB.sol";
+import {MatchingBidsLIB} from "./MatchingBidsLIB.sol";
 
 /// @title Matching Library
 /// @notice This library provides functions for managing matchings and their states.

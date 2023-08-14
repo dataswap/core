@@ -17,8 +17,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import "../../../types/CarReplicaType.sol";
-import "./CarReplicaLIB.sol";
+import {CarReplicaType} from "../../../types/CarReplicaType.sol";
+import {CarReplicaLIB} from "./CarReplicaLIB.sol";
 
 /// @title CarLIB
 /// @dev This library provides functions for managing the lifecycle and events of car and their replicas.

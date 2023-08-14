@@ -17,13 +17,13 @@
 
 pragma solidity ^0.8.21;
 
-import "../../types/CarReplicaType.sol";
-import "../../types/FilecoinDealType.sol";
-import "../../shared/modifiers/CommonModifiers.sol";
-import "../../shared/filecoin/FilecoinDealUtils.sol";
-import "../../interfaces/core/ICarstore.sol";
-import "./library/CarReplicaLIB.sol";
-import "./library/CarLIB.sol";
+import {CarReplicaType} from "../../types/CarReplicaType.sol";
+import {FilecoinStorageDealState} from "../../types/FilecoinDealType.sol";
+import {CommonModifiers} from "../../shared/modifiers/CommonModifiers.sol";
+import {FilecoinDealUtils} from "../../shared/filecoin/FilecoinDealUtils.sol";
+import {ICarstore} from "../../interfaces/core/ICarstore.sol";
+import {CarReplicaLIB} from "./library/CarReplicaLIB.sol";
+import {CarLIB} from "./library/CarLIB.sol";
 
 /// @title CarsStorageBase
 /// @notice This contract allows adding cars and managing their associated replicas.

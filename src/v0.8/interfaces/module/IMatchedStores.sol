@@ -18,7 +18,7 @@
 
 pragma solidity ^0.8.21;
 
-import "../../types/MatchedstoreType.sol";
+import {MatchedstoreType} from "../../types/MatchedstoreType.sol";
 
 /// @title Interface for Matchedstores contract
 interface IMatchedStores {

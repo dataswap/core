@@ -17,7 +17,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import "@openzeppelin/contracts/access/IAccessControlEnumerable.sol";
+import {IAccessControlEnumerable} from "@openzeppelin/contracts/access/IAccessControlEnumerable.sol";
 
 /// @title IRoles Interface
 /// @notice This interface defines the role-based access control for various roles within the system.

@@ -18,7 +18,7 @@
 
 pragma solidity ^0.8.21;
 
-import "../../types/DatasetType.sol";
+import {DatasetType} from "../../types/DatasetType.sol";
 
 /// @title IDatasets
 interface IDatasets {
