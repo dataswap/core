@@ -29,13 +29,13 @@ interface IMatchings {
     function publishMatching(
         uint256 _datasetId,
         bytes32[] memory _cars,
-        uint256 _size,
+        uint64 _size,
         MatchingType.DataType _dataType,
         uint256 _associatedMappingFilesMatchingID,
         MatchingType.BidSelectionRule _bidSelectionRule,
-        uint256 _biddingDelayBlockCount,
-        uint256 _biddingPeriodBlockCount,
-        uint256 _storagePeriodBlockCount,
+        uint64 _biddingDelayBlockCount,
+        uint64 _biddingPeriodBlockCount,
+        uint64 _storagePeriodBlockCount,
         uint256 _biddingThreshold,
         string memory _additionalInfo
     ) external;
