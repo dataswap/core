@@ -140,13 +140,13 @@ contract Matchings is IMatchings, CommonModifiers, RolesModifiers {
     function publishMatching(
         uint256 _datasetId,
         bytes32[] memory _cars,
-        uint256 _size,
+        uint64 _size,
         MatchingType.DataType _dataType,
         uint256 _associatedMappingFilesMatchingID,
         MatchingType.BidSelectionRule _bidSelectionRule,
-        uint256 _biddingDelayBlockCount,
-        uint256 _biddingPeriodBlockCount,
-        uint256 _storagePeriodBlockCount,
+        uint64 _biddingDelayBlockCount,
+        uint64 _biddingPeriodBlockCount,
+        uint64 _storagePeriodBlockCount,
         uint256 _biddingThreshold,
         string memory _additionalInfo
     ) external onlyRole(RolesType.DATASET_PROVIDER) {
@@ -176,7 +176,7 @@ contract Matchings is IMatchings, CommonModifiers, RolesModifiers {
         matching.biddingThreshold = _biddingThreshold;
         matching.additionalInfo = _additionalInfo;
         matching.initiator = msg.sender;
-        matching.createdBlockNumber = block.number;
+        matching.createdBlockNumber = uint64(block.number);
 
         matching._publishMatching();
         emit MatchingPublished(matchingsCount, msg.sender);
@@ -277,8 +277,8 @@ contract Matchings is IMatchings, CommonModifiers, RolesModifiers {
     /// @notice  Function for getting the total data size of bids in a matching
     function getMatchingDataSize(
         uint256 _matchingId
-    ) public view returns (uint256) {
-        (, , uint256 datasize, , ) = getMatchingTarget(_matchingId);
+    ) public view returns (uint64) {
+        (, , uint64 datasize, , ) = getMatchingTarget(_matchingId);
         return datasize;
     }
 
@@ -305,7 +305,7 @@ contract Matchings is IMatchings, CommonModifiers, RolesModifiers {
         returns (
             uint256 datasetID,
             bytes32[] memory cars,
-            uint256 size,
+            uint64 size,
             MatchingType.DataType dataType,
             uint256 associatedMappingFilesMatchingID
         )

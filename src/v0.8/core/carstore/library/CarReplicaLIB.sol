@@ -30,7 +30,7 @@ library CarReplicaLIB {
     /// @param _filecoinDealId The new Filecoin deal ID to set.
     function _setFilecoinDealId(
         CarReplicaType.Replica storage self,
-        uint256 _filecoinDealId
+        uint64 _filecoinDealId
     ) internal {
         require(_filecoinDealId != 0 && self.filecoinDealId != _filecoinDealId);
         self.filecoinDealId = _filecoinDealId;

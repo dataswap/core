@@ -112,7 +112,7 @@ contract MatchedStores is IMatchedStores, CommonModifiers, RolesModifiers {
     function _setMatchedStoreFilecoinDealId(
         uint256 _matchingId,
         bytes32 _cid,
-        uint256 _filecoinDealId
+        uint64 _filecoinDealId
     ) internal {
         carstore.setCarReplicaFilecoinDealId(
             _cid,
@@ -125,7 +125,7 @@ contract MatchedStores is IMatchedStores, CommonModifiers, RolesModifiers {
     function submitMatchedStoreFilecoinDealId(
         uint256 _matchingId,
         bytes32 _cid,
-        uint256 _filecoinDealId
+        uint64 _filecoinDealId
     )
         public
         onlyMatchingContainsCid(_matchingId, _cid)
@@ -147,7 +147,7 @@ contract MatchedStores is IMatchedStores, CommonModifiers, RolesModifiers {
     function submitMatchedStoreFilecoinDealIds(
         uint256 _matchingId,
         bytes32[] memory _cids,
-        uint256[] memory _filecoinDealIds
+        uint64[] memory _filecoinDealIds
     ) external {
         require(
             _cids.length == _filecoinDealIds.length,

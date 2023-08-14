@@ -31,7 +31,7 @@ import {IMatchedDatacap} from "../../interfaces/module/IMatchedDatacap.sol";
 ///     rather than allocating all at once.
 contract MatchedDatacap is IMatchedDatacap, CommonModifiers, RolesModifiers {
     //(matchingID => allocated datacap size)
-    mapping(uint256 => uint256) private datacapAllocates;
+    mapping(uint256 => uint64) private datacapAllocates;
     address private governanceAddress;
     IRoles private roles;
     IFilplus private filplus;
@@ -73,7 +73,7 @@ contract MatchedDatacap is IMatchedDatacap, CommonModifiers, RolesModifiers {
             isMatchedDatacapNextAllocationValid(_matchingId),
             "Not met allocate condition"
         );
-        uint256 remainingSize = getMatchedDatacapTotalRemaining(_matchingId);
+        uint64 remainingSize = getMatchedDatacapTotalRemaining(_matchingId);
         if (remainingSize <= filplus.datacapRulesMaxAllocatedSizePerTime()) {
             datacapAllocates[_matchingId] =
                 datacapAllocates[_matchingId] +
@@ -95,7 +95,7 @@ contract MatchedDatacap is IMatchedDatacap, CommonModifiers, RolesModifiers {
     /// @return The allocated datacap size.
     function getMatchedDatacapAllocated(
         uint256 _matchingId
-    ) public view returns (uint256) {
+    ) public view returns (uint64) {
         return datacapAllocates[_matchingId];
     }
 
@@ -104,7 +104,7 @@ contract MatchedDatacap is IMatchedDatacap, CommonModifiers, RolesModifiers {
     /// @return The total datacap size needed.
     function getMatchedDatacapTotalNeedAllocated(
         uint256 _matchingId
-    ) public view returns (uint256) {
+    ) public view returns (uint64) {
         return matchings.getMatchingDataSize(_matchingId);
     }
 
@@ -113,9 +113,9 @@ contract MatchedDatacap is IMatchedDatacap, CommonModifiers, RolesModifiers {
     /// @return The remaining datacap size needed.
     function getMatchedDatacapTotalRemaining(
         uint256 _matchingId
-    ) public view returns (uint256) {
-        uint256 allocatedDatacap = datacapAllocates[_matchingId];
-        uint256 totalDatacapNeeded = matchings.getMatchingDataSize(_matchingId);
+    ) public view returns (uint64) {
+        uint64 allocatedDatacap = datacapAllocates[_matchingId];
+        uint64 totalDatacapNeeded = matchings.getMatchingDataSize(_matchingId);
         require(
             totalDatacapNeeded >= allocatedDatacap,
             "Allocated datacap exceeds total needed datacap"

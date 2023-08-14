@@ -26,21 +26,21 @@ interface IMatchedDatacap {
     /// @return The allocated datacap size.
     function getMatchedDatacapAllocated(
         uint256 _matchingId
-    ) external view returns (uint256);
+    ) external view returns (uint64);
 
     /// @dev Gets the total datacap size needed to be allocated for a matching process.
     /// @param _matchingId The ID of the matching process.
     /// @return The total datacap size needed.
     function getMatchedDatacapTotalNeedAllocated(
         uint256 _matchingId
-    ) external view returns (uint256);
+    ) external view returns (uint64);
 
     /// @dev Gets the remaining datacap size needed to be allocated for a matching process.
     /// @param _matchingId The ID of the matching process.
     /// @return The remaining datacap size needed.
     function getMatchedDatacapTotalRemaining(
         uint256 _matchingId
-    ) external view returns (uint256);
+    ) external view returns (uint64);
 
     /// @dev Checks if the next datacap allocation is allowed for a matching process.
     /// @param _matchingId The ID of the matching process.

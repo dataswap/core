@@ -29,7 +29,7 @@ interface IMatchedStores {
     function submitMatchedStoreFilecoinDealId(
         uint256 _matchingId,
         bytes32 _cid,
-        uint256 _filecoinDealId
+        uint64 _filecoinDealId
     ) external;
 
     /// @dev Submits multiple Filecoin deal Ids for a matchedstore after successful matching.
@@ -39,7 +39,7 @@ interface IMatchedStores {
     function submitMatchedStoreFilecoinDealIds(
         uint256 _matchingId,
         bytes32[] memory _cids,
-        uint256[] memory _filecoinDealIds
+        uint64[] memory _filecoinDealIds
     ) external;
 
     /// @dev Gets the list of done cars in the matchedstore.

@@ -82,7 +82,7 @@ library CarLIB {
     function _setReplicaFilecoinDealId(
         CarReplicaType.Car storage self,
         uint256 _matchingId,
-        uint256 _filecoinDealId
+        uint64 _filecoinDealId
     ) internal {
         require(_matchingId != 0, "Invalid matching id");
         require(_filecoinDealId == 0, "Invalid filecoin deal id");
@@ -114,7 +114,7 @@ library CarLIB {
     /// @return The count of replicas.
     function _getRepicasCount(
         CarReplicaType.Car storage self
-    ) internal view returns (uint256) {
+    ) internal view returns (uint32) {
         return self.replicasCount;
     }
 
@@ -126,7 +126,7 @@ library CarLIB {
     function _getReplicaFilecoinDealId(
         CarReplicaType.Car storage self,
         uint256 _matchingId
-    ) internal view returns (uint256) {
+    ) internal view returns (uint64) {
         require(_matchingId != 0, "Invalid matching id");
         require(_hasReplica(self, _matchingId), "Replica is not exists");
         require(

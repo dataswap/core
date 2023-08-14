@@ -23,40 +23,40 @@ interface IFilplus {
     // Public getter function to access datasetRuleMaxReplicasInCountries
     function getDatasetRuleMaxReplicasInCountry(
         bytes32 _countryCode
-    ) external view returns (uint256);
+    ) external view returns (uint32);
 
     // Set functions for public variables
-    function setCarRuleMaxCarReplicas(uint256 _newValue) external;
+    function setCarRuleMaxCarReplicas(uint32 _newValue) external;
 
-    function setDatasetRuleMinRegionsPerDataset(uint256 _newValue) external;
+    function setDatasetRuleMinRegionsPerDataset(uint32 _newValue) external;
 
     function setDatasetRuleDefaultMaxReplicasPerCountry(
-        uint256 _newValue
+        uint32 _newValue
     ) external;
 
     function setDatasetRuleMaxReplicasInCountry(
         bytes32 _countryCode,
-        uint256 _newValue
+        uint32 _newValue
     ) external;
 
-    function setDatasetRuleMaxReplicasPerCity(uint256 _newValue) external;
+    function setDatasetRuleMaxReplicasPerCity(uint32 _newValue) external;
 
-    function setDatasetRuleMinSPsPerDataset(uint256 _newValue) external;
+    function setDatasetRuleMinSPsPerDataset(uint32 _newValue) external;
 
-    function setDatasetRuleMaxReplicasPerSP(uint256 _newValue) external;
+    function setDatasetRuleMaxReplicasPerSP(uint32 _newValue) external;
 
     function setDatasetRuleMinTotalReplicasPerDataset(
-        uint256 _newValue
+        uint32 _newValue
     ) external;
 
     function setDatasetRuleMaxTotalReplicasPerDataset(
-        uint256 _newValue
+        uint32 _newValue
     ) external;
 
-    function setDatacapRulesMaxAllocatedSizePerTime(uint256 _newValue) external;
+    function setDatacapRulesMaxAllocatedSizePerTime(uint64 _newValue) external;
 
     function setDatacapRulesMaxRemainingPercentageForNext(
-        uint256 _newValue
+        uint64 _newValue
     ) external;
 
     function setMatchingRulesDataswapCommissionPercentage(
@@ -68,40 +68,40 @@ interface IFilplus {
     // Default getter functions for public variables
     function governanceAddress() external view returns (address);
 
-    function carRuleMaxCarReplicas() external view returns (uint256);
+    function carRuleMaxCarReplicas() external view returns (uint32);
 
-    function datasetRuleMinRegionsPerDataset() external view returns (uint256);
+    function datasetRuleMinRegionsPerDataset() external view returns (uint32);
 
     function datasetRuleDefaultMaxReplicasPerCountry()
         external
         view
-        returns (uint256);
+        returns (uint32);
 
-    function datasetRuleMaxReplicasPerCity() external view returns (uint256);
+    function datasetRuleMaxReplicasPerCity() external view returns (uint32);
 
-    function datasetRuleMinSPsPerDataset() external view returns (uint256);
+    function datasetRuleMinSPsPerDataset() external view returns (uint32);
 
-    function datasetRuleMaxReplicasPerSP() external view returns (uint256);
+    function datasetRuleMaxReplicasPerSP() external view returns (uint32);
 
     function datasetRuleMinTotalReplicasPerDataset()
         external
         view
-        returns (uint256);
+        returns (uint32);
 
     function datasetRuleMaxTotalReplicasPerDataset()
         external
         view
-        returns (uint256);
+        returns (uint32);
 
     function datacapRulesMaxAllocatedSizePerTime()
         external
         view
-        returns (uint256);
+        returns (uint64);
 
     function datacapRulesMaxRemainingPercentageForNext()
         external
         view
-        returns (uint256);
+        returns (uint64);
 
     function matchingRulesDataswapCommissionPercentage()
         external
