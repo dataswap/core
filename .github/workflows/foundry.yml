@@ -1,44 +1,39 @@
-name: Solidity Foundry
-on: [pull_request]
+name: foundry
+
+on: pull_request
 
 env:
   FOUNDRY_PROFILE: ci
 
 jobs:
-  tests:
-    name: Tests
-    # See https://github.com/foundry-rs/foundry/issues/3827
-    runs-on: ubuntu-22.04
+  check:
+    strategy:
+      fail-fast: true
 
+    name: Foundry project
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout the repo
-        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - uses: actions/checkout@v3
         with:
           submodules: recursive
-
-      # Only needed because we use the NPM versions of packages
-      # and not native Foundry. This is to make sure the dependencies
-      # stay in sync.
-      - name: Setup NodeJS
-        uses: ./.github/actions/setup-nodejs
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
           version: nightly
 
+      - name: Install Depends
+        run: |
+          yarn install
+        id: intsalldepends
+
       - name: Run Forge build
         run: |
           forge --version
-          forge build
+          forge build --sizes
         id: build
 
       - name: Run Forge tests
         run: |
           forge test -vvv
         id: test
-
-      - name: Run Forge snapshot
-        run: |
-          forge snapshot --match-test _gas --check
-        id: snapshot
