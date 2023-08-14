@@ -1,0 +1,33 @@
+name: hardhat
+
+on: pull_request
+
+env:
+  HARDHAT_PROFILE: ci
+
+jobs:
+  check:
+    strategy:
+      fail-fast: true
+
+    name: Harthat project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install Depends
+        run: |
+          yarn install
+        id: intsalldepends
+
+      - name: Run hardhat build
+        run: |
+            yarn hardhat compile
+        id: build
+
+      - name: Run hardhat tests
+        run: |
+            yarn hardhat test
+        id: test

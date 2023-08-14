@@ -1,12 +1,12 @@
-name: test
+name: foundry_and_hardhat_test
 
 on: workflow_dispatch
 
 env:
-  FOUNDRY_PROFILE: ci
+  FOUNDRY_HARDHAT_PROFILE: ci
 
 jobs:
-  check:
+  check-foundry:
     strategy:
       fail-fast: true
 
@@ -36,4 +36,30 @@ jobs:
       - name: Run Forge tests
         run: |
           forge test -vvv
+        id: test
+
+  check-hardhat:
+    strategy:
+      fail-fast: true
+
+    name: Harthat project
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Install Depends
+        run: |
+          yarn install
+        id: intsalldepends
+
+      - name: Run hardhat build
+        run: |
+            yarn hardhat compile
+        id: build
+
+      - name: Run hardhat tests
+        run: |
+            yarn hardhat test
         id: test
