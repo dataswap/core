@@ -29,13 +29,13 @@ interface IMatchings {
     function publishMatching(
         uint256 _datasetId,
         bytes32[] memory _cars,
-        uint256 _size,
+        uint64 _size,
         MatchingType.DataType _dataType,
         uint256 _associatedMappingFilesMatchingID,
         MatchingType.BidSelectionRule _bidSelectionRule,
-        uint256 _biddingDelayBlockCount,
-        uint256 _biddingPeriodBlockCount,
-        uint256 _storagePeriodBlockCount,
+        uint64 _biddingDelayBlockCount,
+        uint64 _biddingPeriodBlockCount,
+        uint64 _storagePeriodBlockCount,
         uint256 _biddingThreshold,
         string memory _additionalInfo
     ) external;
@@ -78,7 +78,7 @@ interface IMatchings {
 
     function getMatchingDataSize(
         uint256 _matchingId
-    ) external view returns (uint256);
+    ) external view returns (uint64);
 
     /// @notice  Function for getting the state of a matching
     function getMatchingState(
@@ -100,7 +100,7 @@ interface IMatchings {
         returns (
             uint256 datasetID,
             bytes32[] memory cars,
-            uint256 size,
+            uint64 size,
             MatchingType.DataType dataType,
             uint256 associatedMappingFilesMatchingID
         );

@@ -30,8 +30,8 @@ library DatasetType {
         string source; // Source of the dataset.
         string accessMethod; // Method of accessing the dataset (e.g., URL, API).
         address submitter; // Address of the dataset's submitter.
-        uint256 createdBlockNumber; // Block number at which the dataset was created.
-        uint256 sizeInBytes; // Size of the dataset in bytes.
+        uint64 createdBlockNumber; // Block number at which the dataset was created.
+        uint64 sizeInBytes; // Size of the dataset in bytes.
         bool isPublic; // Boolean indicating if the dataset is public.
         uint64 version; // Version number of the dataset.
     }
@@ -87,7 +87,7 @@ library DatasetType {
         Metadata metadata; // Metadata of the dataset.
         State state; // Current state of the dataset.
         DatasetProof proof; // Proof associated with the dataset.
-        uint256 VerificationsCount;
-        mapping(address => Verification) Verifications; // Address of the auditor who submits challenges.
+        uint32 verificationsCount;
+        mapping(address => Verification) verifications; // Address of the auditor who submits challenges.
     }
 }

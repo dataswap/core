@@ -47,7 +47,7 @@ interface IDatasets {
         string memory _description,
         string memory _source,
         string memory _accessMethod,
-        uint256 _sizeInBytes,
+        uint64 _sizeInBytes,
         bool _isPublic,
         uint64 _version
     ) external;
@@ -90,8 +90,8 @@ interface IDatasets {
             string memory source,
             string memory accessMethod,
             address submitter,
-            uint256 createdBlockNumber,
-            uint256 sizeInBytes,
+            uint64 createdBlockNumber,
+            uint64 sizeInBytes,
             bool isPublic,
             uint64 version
         );
@@ -117,7 +117,7 @@ interface IDatasets {
     ) external view returns (bytes32, bytes32[] memory);
 
     ///@notice Get dataset size
-    function getDatasetSize(uint256 _datasetId) external view returns (uint256);
+    function getDatasetSize(uint256 _datasetId) external view returns (uint64);
 
     ///@notice Get dataset state
     function getDatasetState(
@@ -142,7 +142,7 @@ interface IDatasets {
     ///@notice Get count of dataset verifications
     function getDatasetVerificationsCount(
         uint256 _datasetId
-    ) external view returns (uint256);
+    ) external view returns (uint32);
 
     ///@notice Check if a dataset has metadata
     function hasDatasetMetadata(

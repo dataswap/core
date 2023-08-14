@@ -100,8 +100,8 @@ library DatasetVerificationLIB {
         );
 
         // Update the dataset state here
-        self.VerificationsCount++;
-        DatasetType.Verification storage verification = self.Verifications[
+        self.verificationsCount++;
+        DatasetType.Verification storage verification = self.verifications[
             msg.sender
         ];
         verification.randomSeed = _randomSeed;
@@ -164,7 +164,7 @@ library DatasetVerificationLIB {
     {
         require(_auditor != address(0), "Invalid auditor address");
 
-        DatasetType.Verification storage verification = self.Verifications[
+        DatasetType.Verification storage verification = self.verifications[
             _auditor
         ];
         randomSeed = verification.randomSeed;
@@ -220,7 +220,7 @@ library DatasetVerificationLIB {
     /// @param self The dataset for which to retrieve the verification count.
     function getDatasetVerificationsCount(
         DatasetType.Dataset storage self
-    ) public view returns (uint256) {
-        return self.VerificationsCount;
+    ) public view returns (uint32) {
+        return self.verificationsCount;
     }
 }

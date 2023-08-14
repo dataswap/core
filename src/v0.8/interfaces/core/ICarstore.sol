@@ -73,7 +73,7 @@ interface ICarstore {
     function setCarReplicaFilecoinDealId(
         bytes32 _cid,
         uint256 _matchingId,
-        uint256 _filecoinDealId
+        uint64 _filecoinDealId
     ) external;
 
     /// @notice Get the dataset ID associated with a car.
@@ -89,12 +89,12 @@ interface ICarstore {
     function getCarReplica(
         bytes32 _cid,
         uint256 _matchingId
-    ) external view returns (CarReplicaType.State, uint256);
+    ) external view returns (CarReplicaType.State, uint64);
 
     /// @notice Get the count of replicas associated with a car.
     /// @param _cid Car CID for which to retrieve the replica count.
     /// @return The count of replicas associated with the car.
-    function getCarRepicasCount(bytes32 _cid) external view returns (uint256);
+    function getCarRepicasCount(bytes32 _cid) external view returns (uint32);
 
     /// @notice Get the Filecoin deal ID associated with a specific replica of a car.
     /// @param _cid Car CID associated with the replica.
@@ -103,7 +103,7 @@ interface ICarstore {
     function getCarReplicaFilecoinDealId(
         bytes32 _cid,
         uint256 _matchingId
-    ) external view returns (uint256);
+    ) external view returns (uint64);
 
     /// @notice Get the state of a replica associated with a car.
     /// @param _cid Car CID associated with the replica.

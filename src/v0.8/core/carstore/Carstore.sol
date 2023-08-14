@@ -293,7 +293,7 @@ contract Carstore is ICarstore, CommonModifiers {
     function setCarReplicaFilecoinDealId(
         bytes32 _cid,
         uint256 _matchingId,
-        uint256 _filecoinDealId
+        uint64 _filecoinDealId
     )
         external
         carExist(_cid)
@@ -332,7 +332,7 @@ contract Carstore is ICarstore, CommonModifiers {
         carExist(_cid)
         notZeroId(_matchingId)
         carReplicaExist(_cid, _matchingId)
-        returns (CarReplicaType.State, uint256)
+        returns (CarReplicaType.State, uint64)
     {
         CarReplicaType.Car storage car = cars[_cid];
         return (
@@ -347,7 +347,7 @@ contract Carstore is ICarstore, CommonModifiers {
     /// @return The count of replicas associated with the car.
     function getCarRepicasCount(
         bytes32 _cid
-    ) public view carExist(_cid) returns (uint256) {
+    ) public view carExist(_cid) returns (uint32) {
         CarReplicaType.Car storage car = cars[_cid];
         return car._getRepicasCount();
     }
@@ -366,7 +366,7 @@ contract Carstore is ICarstore, CommonModifiers {
         notZeroId(_matchingId)
         carReplicaExist(_cid, _matchingId)
         onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Stored)
-        returns (uint256)
+        returns (uint64)
     {
         CarReplicaType.Car storage car = cars[_cid];
         return car._getReplicaFilecoinDealId(_matchingId);

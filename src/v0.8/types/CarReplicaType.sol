@@ -40,15 +40,15 @@ library CarReplicaType {
 
     /// @notice Struct representing a car replica.
     struct Replica {
-        uint256 filecoinDealId; // ID of the Filecoin deal associated with the replica's storage
+        uint64 filecoinDealId; // ID of the Filecoin deal associated with the replica's storage
         State state; // Current state of the replica TODO:replcace with filecoin deal state
     }
 
     /// @notice Struct representing a car and its associated replicas.
     struct Car {
         uint256 datasetId; // Index of approved dataset
-        uint256 size; //car size TODO add logic in carstore,dataset
-        uint256 replicasCount; // Number of replicas associated with the car
+        uint32 size; //car size TODO add logic in carstore,dataset
+        uint32 replicasCount; // Number of replicas associated with the car
         mapping(uint256 => Replica) replicas; // Mapping from matchingId => Replica details
     }
 }

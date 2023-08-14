@@ -201,7 +201,7 @@ contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
         string memory _description,
         string memory _source,
         string memory _accessMethod,
-        uint256 _sizeInBytes,
+        uint64 _sizeInBytes,
         bool _isPublic,
         uint64 _version
     ) external datasetMetadataNotExsits(_accessMethod) {
@@ -285,8 +285,8 @@ contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
             string memory source,
             string memory accessMethod,
             address submitter,
-            uint256 createdBlockNumber,
-            uint256 sizeInBytes,
+            uint64 createdBlockNumber,
+            uint64 sizeInBytes,
             bool isPublic,
             uint64 version
         )
@@ -330,8 +330,8 @@ contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
     ///@notice Get dataset size
     function getDatasetSize(
         uint256 _datasetId
-    ) public view notZeroId(_datasetId) returns (uint256) {
-        (, , , , , , , , uint256 sizeInBytes, , ) = getDatasetMetadata(
+    ) public view notZeroId(_datasetId) returns (uint64) {
+        (, , , , , , , , uint64 sizeInBytes, , ) = getDatasetMetadata(
             _datasetId
         );
         return sizeInBytes;
@@ -368,7 +368,7 @@ contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
     ///@notice Get count of dataset verifications
     function getDatasetVerificationsCount(
         uint256 _datasetId
-    ) public view notZeroId(_datasetId) returns (uint256) {
+    ) public view notZeroId(_datasetId) returns (uint32) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetVerificationsCount();
     }

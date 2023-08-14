@@ -18,7 +18,7 @@
 
 pragma solidity ^0.8.21;
 
-import "./DatasetType.sol";
+import {DatasetType} from "./DatasetType.sol";
 
 /// @title MatchingType Library
 /// @notice This library defines data structures and enums related to dataset matching and their states.
@@ -65,7 +65,7 @@ library MatchingType {
     struct Target {
         uint256 datasetId; // ID of the dataset associated with the matching
         bytes32[] cars; // Array of car IDs associated with the matching
-        uint256 size; // Size of the matching target，Note:total datacap size that this matching need allocate
+        uint64 size; // Size of the matching target，Note:total datacap size that this matching need allocate
         DataType dataType; // Type of data associated with the matching
         uint256 associatedMappingFilesMatchingID; // ID of the matching associated with mapping files
     }
@@ -80,13 +80,13 @@ library MatchingType {
     struct Matching {
         Target target; // Matching target details
         BidSelectionRule bidSelectionRule;
-        uint256 biddingDelayBlockCount; // Number of blocks to delay bidding
-        uint256 biddingPeriodBlockCount; // Number of blocks for bidding period
-        uint256 storagePeriodBlockCount; // Number of blocks for storage period
+        uint64 biddingDelayBlockCount; // Number of blocks to delay bidding
+        uint64 biddingPeriodBlockCount; // Number of blocks for bidding period
+        uint64 storagePeriodBlockCount; // Number of blocks for storage period
         uint256 biddingThreshold; // Threshold for bidding
         string additionalInfo; // Additional information about the matching
         address initiator; // Address of the initiator of the matching
-        uint256 createdBlockNumber; // Block number at which the matching was created
+        uint64 createdBlockNumber; // Block number at which the matching was created
         State state; // Current state of the matching
         Bid[] bids; // Array of bids in the matching
         address winner; // Address of the winner in the matching
