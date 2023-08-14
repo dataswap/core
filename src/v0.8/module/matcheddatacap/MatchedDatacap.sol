@@ -26,6 +26,9 @@ import "../../interfaces/module/IMatchedDatacap.sol";
 
 /// @title MatchedDatacap
 /// @dev Manages the allocation of datacap for matched data storage after successful matching with Filecoin storage deals.
+/// Note:The removal of datacap is not necessary.
+///     This design allocates datacap step by step according to chunks,
+///     rather than allocating all at once.
 contract MatchedDatacap is IMatchedDatacap, CommonModifiers, RolesModifiers {
     //(matchingID => allocated datacap size)
     mapping(uint256 => uint256) private datacapAllocates;
