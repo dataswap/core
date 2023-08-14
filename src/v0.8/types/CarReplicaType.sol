@@ -22,7 +22,7 @@ pragma solidity ^0.8.21;
 /// @dev This library provides enums for different states and events related to car replicas.
 library CarReplicaType {
     /// @notice Enum representing the possible states of a car replica.
-    /// @dev TODO: conside delete State and Event
+    /// @dev TODO: conside delete State and Event https://github.com/dataswap/core/issues/26
     enum State {
         None, //justify if Replica exsits
         Matched, // Replica has been matched for storage
@@ -41,13 +41,13 @@ library CarReplicaType {
     /// @notice Struct representing a car replica.
     struct Replica {
         uint64 filecoinDealId; // ID of the Filecoin deal associated with the replica's storage
-        State state; // Current state of the replica TODO:replcace with filecoin deal state
+        State state; // Current state of the replica TODO:replcace with filecoin deal state https://github.com/dataswap/core/issues/26
     }
 
     /// @notice Struct representing a car and its associated replicas.
     struct Car {
         uint256 datasetId; // Index of approved dataset
-        uint32 size; //car size TODO add logic in carstore,dataset
+        uint32 size; //car size TODO add logic in carstore,dataset https://github.com/dataswap/core/issues/25
         uint32 replicasCount; // Number of replicas associated with the car
         mapping(uint256 => Replica) replicas; // Mapping from matchingId => Replica details
     }

@@ -189,7 +189,7 @@ contract MatchedStores is IMatchedStores, CommonModifiers, RolesModifiers {
         MatchedstoreType.Matchedstore storage matchedstore = matchedstores[
             _matchingId
         ];
-        // TODO: need be do
+        // TODO: depends car size https://github.com/dataswap/core/issues/25
         return matchedstore.doneCars.length * 32 * 1024 * 1024 * 1024;
     }
 

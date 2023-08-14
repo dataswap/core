@@ -224,7 +224,8 @@ contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
     }
 
     ///@notice Submit proof for a dataset
-    /// TODO:Proof and verification functionality is provided here as a sample code structure.
+    /// TODO:https://github.com/dataswap/core/issues/24
+    /// Proof and verification functionality is provided here as a sample code structure.
     /// The actual functionality is pending completion.
     function submitDatasetProof(
         uint256 _datasetId,
@@ -248,7 +249,8 @@ contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
     }
 
     ///@notice Submit proof for a dataset
-    /// TODO:Proof and verification functionality is provided here as a sample code structure.
+    /// TODO: https://github.com/dataswap/core/issues/24
+    /// Proof and verification functionality is provided here as a sample code structure.
     /// The actual functionality is pending completion.
     function submitDatasetVerification(
         uint256 _datasetId,

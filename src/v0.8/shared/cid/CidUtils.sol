@@ -21,7 +21,7 @@ pragma solidity ^0.8.21;
 library CidUtils {
     /// @notice Convert a bytes32 hash to a CID.
     /// @dev This function converts a bytes32 hash to a CID using the specified encoding.
-    ///      TODO
+    ///      TODO:https://github.com/dataswap/core/issues/32
     /// @return The CID corresponding to the input hash.
     function hashToCID(bytes32 /*hash*/) internal pure returns (bytes32) {
         // Convert bytes32 hash to bytes

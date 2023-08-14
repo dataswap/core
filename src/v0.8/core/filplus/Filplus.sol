@@ -81,7 +81,7 @@ contract Filplus is IFilplus, CommonModifiers {
     constructor(address payable _governanceAddress) {
         governanceAddress = _governanceAddress;
 
-        //TODO: add default value for every
+        //TODO: add default value for every https://github.com/dataswap/core/issues/28
     }
 
     function getMatchingRulesCommissionType() external view returns (uint8) {

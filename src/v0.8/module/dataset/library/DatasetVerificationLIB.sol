@@ -89,7 +89,7 @@ library DatasetVerificationLIB {
         bytes32[] calldata _sourceToCarMappingFilesProofRootHashes,
         bytes32[][] calldata _sourceToCarMappingFilesProofLeafHashes
     ) internal returns (bool) {
-        // TODO: Verify that _randomSeed corresponds to the DatasetRootHash of the challenged dataset's leaf node
+        // TODO: Verify that _randomSeed corresponds to the DatasetRootHash of the challenged dataset's leaf node https://github.com/dataswap/core/issues/24
         require(_randomSeed > 0, "Invalid random seed");
 
         _requireValidVerification(

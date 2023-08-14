@@ -95,7 +95,7 @@ contract Carstore is ICarstore, CommonModifiers {
             FilecoinStorageDealState.Successed ==
                 FilecoinDealUtils.getFilecoinStorageDealState(
                     _cid,
-                    // TODO:_filecoinDealId, instead with _matchingId first
+                    // TODO:_filecoinDealId, instead with _matchingId first https://github.com/dataswap/core/issues/27
                     _matchingId
                 ),
             "Invalid replica filecoin deal state"

@@ -25,7 +25,8 @@ library MerkleUtils {
         bytes32 /*_rootHash*/,
         bytes32[] calldata /*_leafHashes*/
     ) internal pure returns (bool) {
-        // TODO: Implement the validation logic for the Merkle proof here.
+        // TODO: https://github.com/dataswap/core/issues/31
+        // Implement the validation logic for the Merkle proof here.
         // You can use libraries like OpenZeppelin's MerkleProof to validate the proof.
         // If the validation fails, you can use a require statement to revert with an error message.
         return true;

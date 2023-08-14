@@ -37,7 +37,7 @@ library MatchingLIB {
             "Matching: Invalid state for publishing"
         );
         self._emitMatchingEvent(MatchingType.Event.Publish);
-        //TODO:consider that if need audit,so keep the FilPlusCheckSuccessed here.
+        //NOTE:consider that if need audit,so keep the FilPlusCheckSuccessed here.
         self._emitMatchingEvent(MatchingType.Event.FilPlusCheckSuccessed);
     }
 

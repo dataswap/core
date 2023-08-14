@@ -82,7 +82,7 @@ library DatasetType {
     }
 
     /// @notice Struct representing a dataset including its metadata, state, proof, and verifications.
-    /// @dev TODO: the size of each car?
+    /// @dev TODO: https://github.com/dataswap/core/issues/25
     struct Dataset {
         Metadata metadata; // Metadata of the dataset.
         State state; // Current state of the dataset.

@@ -53,8 +53,6 @@ interface IDatasets {
     ) external;
 
     ///@notice Submit proof for a dataset
-    /// TODO:Proof and verification functionality is provided here as a sample code structure.
-    /// The actual functionality is pending completion.
     function submitDatasetProof(
         uint256 _datasetId,
         bytes32 _sourceDatasetRootHash,
@@ -65,8 +63,6 @@ interface IDatasets {
     ) external;
 
     ///@notice Submit proof for a dataset
-    /// TODO:Proof and verification functionality is provided here as a sample code structure.
-    /// The actual functionality is pending completion.
     function submitDatasetVerification(
         uint256 _datasetId,
         uint64 _randomSeed,

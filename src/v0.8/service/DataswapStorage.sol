@@ -28,6 +28,7 @@ import {MatchedDatacap} from "../module/matcheddatacap/MatchedDatacap.sol";
 import {MatchedStores} from "../module/matchedstore/MatchedStores.sol";
 
 /// @title Dataswap
+/// TODO:https://github.com/dataswap/core/issues/33
 abstract contract DataswapStorage is IDataswapStorage {
     address private governanceAddress;
     Roles private roles = new Roles();
@@ -71,8 +72,4 @@ abstract contract DataswapStorage is IDataswapStorage {
             matchedstores
         );
     }
-
-    /*
-    TODO: implements IDataswapStoarge
-    */
 }

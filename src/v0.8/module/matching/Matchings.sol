@@ -35,7 +35,7 @@ import {MatchingBidsLIB} from "./library/MatchingBidsLIB.sol";
 /// @title Matchings Base Contract
 /// @notice This contract serves as the base for managing matchings, their states, and associated actions.
 /// @dev This contract is intended to be inherited by specific matching-related contracts.
-///      TODO: Missing fund proccess,need add later
+///      TODO: Missing fund proccess,need add later https://github.com/dataswap/core/issues/20
 ///            1 bidder(when bidding) and initiator(when publish) should transfer FIL to payable function
 ///            2 proccess the fund after matched
 ///            3 proccess the fund after matchedsotre,step by step
@@ -136,7 +136,6 @@ contract Matchings is IMatchings, CommonModifiers, RolesModifiers {
     }
 
     /// @notice  Function for publishing a new matching
-    /// TODO:pls see MatchingLIB _publishMatching
     function publishMatching(
         uint256 _datasetId,
         bytes32[] memory _cars,
@@ -427,7 +426,7 @@ contract Matchings is IMatchings, CommonModifiers, RolesModifiers {
         MatchingType.DataType /*_dataType*/,
         uint256 /*_associatedMappingFilesMatchingID*/
     ) public pure returns (bool) {
-        //TODO
+        //TODO https://github.com/dataswap/core/issues/29
         return true;
     }
 }

@@ -63,7 +63,7 @@ contract MatchedDatacap is IMatchedDatacap, CommonModifiers, RolesModifiers {
         uint256 /*_matchingId*/,
         uint256 /*_size*/
     ) internal {
-        //TODO: Need to implement the actual datacap allocation logic
+        //TODO: logic https://github.com/dataswap/core/issues/30
     }
 
     /// @dev Requests the allocation of matched datacap for a matching process.
