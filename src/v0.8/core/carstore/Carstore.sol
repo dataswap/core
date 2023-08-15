@@ -49,11 +49,13 @@ contract Carstore is CarstoreBase {
     /// @param _datasetId dataset index of approved dataset
     function addCar(
         bytes32 _cid,
-        uint256 _datasetId
-    ) public onlyCarNotExist(_cid) notZeroId(_datasetId) {
+        uint256 _datasetId,
+        uint32 _size
+    ) public onlyCarNotExist(_cid) onlyNotZero(_datasetId) onlyNotZero(_size) {
         carsCount++;
         CarReplicaType.Car storage car = cars[_cid];
         car._setDatasetId(_datasetId);
+        car.size = _size;
     }
 
     /// @notice Add multiple cars to the storage.
@@ -62,10 +64,11 @@ contract Carstore is CarstoreBase {
     /// @param _datasetId dataset index of approved dataset
     function addCars(
         bytes32[] memory _cids,
-        uint256 _datasetId
-    ) external notZeroId(_datasetId) {
+        uint256 _datasetId,
+        uint32[] memory _sizes
+    ) external onlyNotZero(_datasetId) {
         for (uint256 i; i < _cids.length; i++) {
-            addCar(_cids[i], _datasetId);
+            addCar(_cids[i], _datasetId, _sizes[i]);
         }
 
         emit CarstoreEvents.CarsAdded(_cids);
@@ -81,7 +84,7 @@ contract Carstore is CarstoreBase {
     )
         external
         onlyCarExist(_cid)
-        notZeroId(_matchingId)
+        onlyNotZero(_matchingId)
         onlyCarReplicaNotExist(_cid, _matchingId)
     {
         CarReplicaType.Car storage car = cars[_cid];
@@ -100,7 +103,7 @@ contract Carstore is CarstoreBase {
     )
         external
         onlyCarExist(_cid)
-        notZeroId(_matchingId)
+        onlyNotZero(_matchingId)
         onlyCarReplicaExist(_cid, _matchingId)
         onlyCarReplicaFilecoinDealState(
             _cid,
@@ -126,7 +129,7 @@ contract Carstore is CarstoreBase {
     )
         external
         onlyCarExist(_cid)
-        notZeroId(_matchingId)
+        onlyNotZero(_matchingId)
         onlyCarReplicaExist(_cid, _matchingId)
         onlyCarReplicaFilecoinDealState(
             _cid,
@@ -148,7 +151,7 @@ contract Carstore is CarstoreBase {
     )
         external
         onlyCarExist(_cid)
-        notZeroId(_matchingId)
+        onlyNotZero(_matchingId)
         onlyCarReplicaExist(_cid, _matchingId)
         onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Stored)
         onlyCarReplicaFilecoinDealState(
@@ -177,8 +180,8 @@ contract Carstore is CarstoreBase {
     )
         external
         onlyCarExist(_cid)
-        notZeroId(_matchingId)
-        notZeroId(_filecoinDealId)
+        onlyNotZero(_matchingId)
+        onlyNotZero(_filecoinDealId)
         onlyCarReplicaExist(_cid, _matchingId)
         onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Matched)
         onlyUnsetCarReplicaFilecoinDealId(_cid, _matchingId)
@@ -214,7 +217,7 @@ contract Carstore is CarstoreBase {
         public
         view
         onlyCarExist(_cid)
-        notZeroId(_matchingId)
+        onlyNotZero(_matchingId)
         onlyCarReplicaExist(_cid, _matchingId)
         returns (CarReplicaType.State, uint64)
     {
@@ -247,7 +250,7 @@ contract Carstore is CarstoreBase {
         public
         view
         onlyCarExist(_cid)
-        notZeroId(_matchingId)
+        onlyNotZero(_matchingId)
         onlyCarReplicaExist(_cid, _matchingId)
         onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Stored)
         returns (uint64)
@@ -267,7 +270,7 @@ contract Carstore is CarstoreBase {
         public
         view
         onlyCarExist(_cid)
-        notZeroId(_matchingId)
+        onlyNotZero(_matchingId)
         onlyCarReplicaExist(_cid, _matchingId)
         returns (CarReplicaType.State)
     {

@@ -17,29 +17,27 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-/// @title ModifierCommon
-contract CommonModifiers {
-    /// @dev Modifier to check if an ID is not zero.
-    modifier onlyNotZero(uint256 _value) {
-        require(_value != 0, "Invalid ID");
-        _;
+import {DatasetType} from "../../../types/DatasetType.sol";
+import {CidUtils} from "../../../shared/utils/cid/CidUtils.sol";
+
+library DatasetChallengeProofLIB {
+    function setChallengeProof(
+        DatasetType.DatasetChallengeProof storage self,
+        bytes32[] memory _siblings,
+        uint32 _path
+    ) internal {
+        for (uint256 i = 0; i < _siblings.length; i++) {
+            self.siblings[i] = _siblings[i];
+        }
+        self.path = _path;
     }
 
-    /// @dev Modifier to check the sender's address
-    modifier onlyAddress(address allowedAddress) {
-        require(
-            msg.sender == allowedAddress,
-            "Only allowed address can call this function"
-        );
-        _;
-    }
-
-    /// @dev Modifier to check the sender's address
-    modifier notZeroAddress(address allowedAddress) {
-        require(
-            msg.sender != address(0),
-            "Only allowed address can call this function"
-        );
-        _;
+    function getChallengeProof(
+        DatasetType.DatasetChallengeProof storage self
+    ) internal view returns (bytes32[] memory _siblings, uint32 _path) {
+        for (uint256 i = 0; i < self.siblings.length; i++) {
+            _siblings[i] = self.siblings[i];
+            _path = self.path;
+        }
     }
 }

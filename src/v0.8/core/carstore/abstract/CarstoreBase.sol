@@ -60,7 +60,7 @@ abstract contract CarstoreBase is ICarstore, CarstoreModifiers {
     )
         internal
         onlyCarExist(_cid)
-        notZeroId(_matchingId)
+        onlyNotZero(_matchingId)
         onlyCarReplicaExist(_cid, _matchingId)
     {
         CarReplicaType.Car storage car = cars[_cid];

@@ -26,13 +26,19 @@ interface ICarstore {
     ///      filplus requires dataset replicas,but not limit for car replicas
     /// @param _cid Car CID to be added.
     /// @param _datasetId dataset index of approved dataset
-    function addCar(bytes32 _cid, uint256 _datasetId) external;
+    /// @param _size car size
+    function addCar(bytes32 _cid, uint256 _datasetId, uint32 _size) external;
 
     /// @notice Add multiple cars to the storage.
     /// @dev This function allows the addition of multiple cars at once.
     /// @param _cids Array of car CIDs to be added.
     /// @param _datasetId dataset index of approved dataset
-    function addCars(bytes32[] memory _cids, uint256 _datasetId) external;
+    /// @param _sizes car size array
+    function addCars(
+        bytes32[] memory _cids,
+        uint256 _datasetId,
+        uint32[] memory _sizes
+    ) external;
 
     /// @notice Add a replica to a car.
     /// @dev This function allows adding a replica to an existing car.

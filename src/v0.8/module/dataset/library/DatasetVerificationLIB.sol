@@ -19,128 +19,46 @@ pragma solidity ^0.8.21;
 
 import {DatasetType} from "../../../types/DatasetType.sol";
 import {MerkleUtils} from "../../../shared/utils/merkle/MerkleUtils.sol";
+import {DatasetChallengeProofLIB} from "./DatasetChallengeProofLIB.sol";
 
 /// @title DatasetVerificationLIB Library,include add,get,verify.
 /// @notice This library provides functions for managing verification associated with datasets.
 /// @dev Note:Need to check carefully,Need rewrite verification logic.
 library DatasetVerificationLIB {
+    using DatasetChallengeProofLIB for DatasetType.DatasetChallengeProof;
+
     /// @notice Validates the submitted verification proofs.
     /// @dev This function checks the validity of the submitted Merkle proofs for both the source dataset and mapping files.
-    /// @param _sourceDatasetProofRootHashes The array of root hashes of the Merkle proofs for the source dataset.
-    /// @param _sourceDatasetProofLeafHashes The array of arrays of leaf hashes of the Merkle proofs for the source dataset.
-    /// @param _sourceToCarMappingFilesProofRootHashes The array of root hashes of the Merkle proofs for mapping files from source to car.
-    /// @param _sourceToCarMappingFilesProofLeafHashes The array of arrays of leaf hashes of the Merkle proofs for mapping files from source to car.
     function _requireValidVerification(
-        bytes32[] calldata _sourceDatasetProofRootHashes,
-        bytes32[][] calldata _sourceDatasetProofLeafHashes,
-        bytes32[] calldata _sourceToCarMappingFilesProofRootHashes,
-        bytes32[][] calldata _sourceToCarMappingFilesProofLeafHashes
+        uint64 _randomSeed,
+        bytes32[][] memory _siblings,
+        uint32[] memory _paths
     ) private pure {
-        require(
-            _sourceDatasetProofRootHashes.length ==
-                _sourceDatasetProofLeafHashes.length,
-            "Invalid number of source dataset proofs"
-        );
-
-        require(
-            _sourceToCarMappingFilesProofRootHashes.length ==
-                _sourceToCarMappingFilesProofLeafHashes.length,
-            "Invalid number of source to car mapping files proofs"
-        );
-
-        for (uint256 i = 0; i < _sourceDatasetProofRootHashes.length; i++) {
-            require(
-                MerkleUtils.isValidMerkleProof(
-                    _sourceDatasetProofRootHashes[i],
-                    _sourceDatasetProofLeafHashes[i]
-                ),
-                "Invalid source dataset proof"
-            );
-        }
-
-        for (
-            uint256 i = 0;
-            i < _sourceToCarMappingFilesProofRootHashes.length;
-            i++
-        ) {
-            require(
-                MerkleUtils.isValidMerkleProof(
-                    _sourceToCarMappingFilesProofRootHashes[i],
-                    _sourceToCarMappingFilesProofLeafHashes[i]
-                ),
-                "Invalid source to car mapping files proof"
-            );
-        }
+        //TODO
     }
 
     /// @notice Submit a verification for a dataset.
     /// @dev This function allows submitting a verification for a dataset and triggers appropriate actions based on verification results.
     /// @param self The dataset to which the verification will be submitted.
-    /// @param _randomSeed Random seed used for verification.
-    /// @param _sourceDatasetProofRootHashes Array of root hashes for source dataset proofs.
-    /// @param _sourceDatasetProofLeafHashes Array of arrays of leaf hashes for source dataset proofs.
-    /// @param _sourceToCarMappingFilesProofRootHashes Array of root hashes for source-to-car mapping files proofs.
-    /// @param _sourceToCarMappingFilesProofLeafHashes Array of arrays of leaf hashes for source-to-car mapping files proofs.
     function _submitDatasetVerification(
         DatasetType.Dataset storage self,
         uint64 _randomSeed,
-        bytes32[] calldata _sourceDatasetProofRootHashes,
-        bytes32[][] calldata _sourceDatasetProofLeafHashes,
-        bytes32[] calldata _sourceToCarMappingFilesProofRootHashes,
-        bytes32[][] calldata _sourceToCarMappingFilesProofLeafHashes
+        bytes32[][] memory _siblings,
+        uint32[] memory _paths
     ) internal returns (bool) {
-        // TODO: Verify that _randomSeed corresponds to the DatasetRootHash of the challenged dataset's leaf node https://github.com/dataswap/core/issues/24
         require(_randomSeed > 0, "Invalid random seed");
-
-        _requireValidVerification(
-            _sourceDatasetProofRootHashes,
-            _sourceDatasetProofLeafHashes,
-            _sourceToCarMappingFilesProofRootHashes,
-            _sourceToCarMappingFilesProofLeafHashes
-        );
+        _requireValidVerification(_randomSeed, _siblings, _paths);
 
         // Update the dataset state here
         self.verificationsCount++;
         DatasetType.Verification storage verification = self.verifications[
             msg.sender
         ];
-        verification.randomSeed = _randomSeed;
-
-        // Initialize storage arrays for source dataset and mapping files proofs
-        DatasetType.MerkleTree[]
-            storage sourceDatasetChallengeProofs = verification
-                .proof
-                .sourceDatasetChallengeProofs;
-        DatasetType.MerkleTree[]
-            storage sourceToCarMappingFilesChallengeProofs = verification
-                .proof
-                .sourceToCarMappingFilesChallengeProofs;
-
-        // Populate sourceDatasetChallengeProofs and sourceToCarMappingFilesChallengeProofs
-        for (uint256 i = 0; i < _sourceDatasetProofRootHashes.length; i++) {
-            sourceDatasetChallengeProofs.push(
-                DatasetType.MerkleTree({
-                    rootHash: _sourceDatasetProofRootHashes[i],
-                    leafHashes: _sourceDatasetProofLeafHashes[i]
-                })
-            );
-
-            sourceToCarMappingFilesChallengeProofs.push(
-                DatasetType.MerkleTree({
-                    rootHash: _sourceToCarMappingFilesProofRootHashes[i],
-                    leafHashes: _sourceToCarMappingFilesProofLeafHashes[i]
-                })
-            );
+        for (uint256 i = 0; i < _paths.length; i++) {
+            DatasetType.DatasetChallengeProof
+                storage challengeProof = verification.challengeProof[i];
+            challengeProof.setChallengeProof(_siblings[i], _paths[i]);
         }
-
-        // Update verification.proof with the modified arrays
-        verification
-            .proof
-            .sourceDatasetChallengeProofs = sourceDatasetChallengeProofs;
-        verification
-            .proof
-            .sourceToCarMappingFilesChallengeProofs = sourceToCarMappingFilesChallengeProofs;
-
         return true;
     }
 
@@ -154,64 +72,18 @@ library DatasetVerificationLIB {
     )
         public
         view
-        returns (
-            uint64 randomSeed,
-            bytes32[] memory sourceDatasetProofRootHashes,
-            bytes32[][] memory sourceDatasetProofLeafHashes,
-            bytes32[] memory sourceToCarMappingFilesProofRootHashes,
-            bytes32[][] memory sourceToCarMappingFilesProofLeafHashes
-        )
+        returns (bytes32[][] memory _siblings, uint32[] memory _paths)
     {
-        require(_auditor != address(0), "Invalid auditor address");
-
         DatasetType.Verification storage verification = self.verifications[
             _auditor
         ];
-        randomSeed = verification.randomSeed;
-
-        // Handle sourceDatasetChallengeProofs
-        sourceDatasetProofRootHashes = new bytes32[](
-            verification.proof.sourceDatasetChallengeProofs.length
-        );
-        sourceDatasetProofLeafHashes = new bytes32[][](
-            verification.proof.sourceDatasetChallengeProofs.length
-        );
-        for (
-            uint256 i = 0;
-            i < verification.proof.sourceDatasetChallengeProofs.length;
-            i++
-        ) {
-            sourceDatasetProofRootHashes[i] = verification
-                .proof
-                .sourceDatasetChallengeProofs[i]
-                .rootHash;
-            sourceDatasetProofLeafHashes[i] = verification
-                .proof
-                .sourceDatasetChallengeProofs[i]
-                .leafHashes;
-        }
-
-        // Handle sourceToCarMappingFilesChallengeProofs
-        sourceToCarMappingFilesProofRootHashes = new bytes32[](
-            verification.proof.sourceToCarMappingFilesChallengeProofs.length
-        );
-        sourceToCarMappingFilesProofLeafHashes = new bytes32[][](
-            verification.proof.sourceToCarMappingFilesChallengeProofs.length
-        );
-        for (
-            uint256 i = 0;
-            i <
-            verification.proof.sourceToCarMappingFilesChallengeProofs.length;
-            i++
-        ) {
-            sourceToCarMappingFilesProofRootHashes[i] = verification
-                .proof
-                .sourceToCarMappingFilesChallengeProofs[i]
-                .rootHash;
-            sourceToCarMappingFilesProofLeafHashes[i] = verification
-                .proof
-                .sourceToCarMappingFilesChallengeProofs[i]
-                .leafHashes;
+        for (uint256 i = 0; i < verification.challengeProof.length; i++) {
+            DatasetType.DatasetChallengeProof
+                storage challengeProof = verification.challengeProof[i];
+            (bytes32[] memory _sibling, uint32 path) = challengeProof
+                .getChallengeProof();
+            _siblings[i] = _sibling;
+            _paths[i] = path;
         }
     }
 
