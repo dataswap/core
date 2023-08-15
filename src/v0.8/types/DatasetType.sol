@@ -68,16 +68,9 @@ library DatasetType {
     }
 
     /// @notice Struct representing a Merkle proof for data.
-    struct DatasetSourceProof {
+    struct DatasetProof {
         bytes32 rootHash; // Root hash of the data's Merkle tree.
         Leaf[] leafs; // Array of leaf hashes representing items in the data.
-    }
-
-    /// @notice Struct representing proofs associated with a dataset submitted by participants.
-    struct DatasetMappingFilesProof {
-        bytes32 rootHash; // Root hash of the data's Merkle tree.
-        Leaf[] leafs; // Array of leaf hashes representing items in the data.
-        string accessMethod; // Method of accessing data (e.g., URL, API).
     }
 
     /// @notice Struct representing proofs associated with a dataset challenge submitted by reviewers.
@@ -97,8 +90,9 @@ library DatasetType {
     struct Dataset {
         Metadata metadata; // Metadata of the dataset.
         State state; // Current state of the dataset.
-        DatasetSourceProof sourceProof; // Proof associated with the dataset.
-        DatasetMappingFilesProof mappingFilesProof; // Proof associated with the dataset.
+        DatasetProof sourceProof; // Proof associated with the dataset.
+        DatasetProof mappingFilesProof; // Proof associated with the dataset.
+        string mappingFilesAccessMethod; // Method of accessing data (e.g., URL, API).
         uint32 verificationsCount;
         mapping(address => Verification) verifications; // Address of the auditor who submits challenges.
     }

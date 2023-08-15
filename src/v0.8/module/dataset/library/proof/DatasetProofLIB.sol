@@ -67,7 +67,7 @@ library DatasetProofLIB {
             self.mappingFilesProof.rootHash = _rootHash;
             DatasetType.Leaf[] storage leafs = self.mappingFilesProof.leafs;
             leafs.setLeaf(_leafHashes, _leafSizes);
-            self.mappingFilesProof.accessMethod = _accessMethod;
+            self.mappingFilesAccessMethod = _accessMethod;
         }
         //TODO: require both source and mappingfiles submmit
 
