@@ -14,38 +14,42 @@
 
 pragma solidity ^0.8.21;
 
-/// @title IMatchedDatacap
+/// @title IDatacap
 /// @dev Interface for managing the allocation of datacap for matched data storage.
-interface IMatchedDatacap {
+interface IDatacaps {
     /// @dev Requests the allocation of matched datacap for a matching process.
     /// @param _matchingId The ID of the matching process.
-    function requestAllocateMatchedDatacap(uint256 _matchingId) external;
+    function requestAllocateDatacap(uint256 _matchingId) external;
+
+    function getAvailableDatacap(
+        uint256 _matchingId
+    ) external returns (uint256);
 
     /// @dev Gets the allocated matched datacap for a matching process.
     /// @param _matchingId The ID of the matching process.
     /// @return The allocated datacap size.
-    function getMatchedDatacapAllocated(
+    function getAllocatedDatacap(
         uint256 _matchingId
     ) external view returns (uint64);
 
     /// @dev Gets the total datacap size needed to be allocated for a matching process.
     /// @param _matchingId The ID of the matching process.
     /// @return The total datacap size needed.
-    function getMatchedDatacapTotalNeedAllocated(
+    function getTotalDatacapAllocationRequirement(
         uint256 _matchingId
     ) external view returns (uint64);
 
     /// @dev Gets the remaining datacap size needed to be allocated for a matching process.
     /// @param _matchingId The ID of the matching process.
     /// @return The remaining datacap size needed.
-    function getMatchedDatacapTotalRemaining(
+    function getRemainingUnallocatedDatacap(
         uint256 _matchingId
     ) external view returns (uint64);
 
     /// @dev Checks if the next datacap allocation is allowed for a matching process.
     /// @param _matchingId The ID of the matching process.
     /// @return True if next allocation is allowed, otherwise false.
-    function isMatchedDatacapNextAllocationValid(
+    function isNextDatacapAllocationValid(
         uint256 _matchingId
     ) external view returns (bool);
 }

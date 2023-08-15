@@ -18,15 +18,13 @@
 
 pragma solidity ^0.8.21;
 
-import {MatchedstoreType} from "../../types/MatchedstoreType.sol";
-
 /// @title Interface for Matchedstores contract
-interface IMatchedStores {
+interface IStorages {
     /// @dev Submits a Filecoin deal Id for a matchedstore after successful matching.
     /// @param _matchingId The ID of the matching.
     /// @param _cid The content identifier of the matched data.
     /// @param _filecoinDealId The ID of the successful Filecoin storage deal.
-    function submitMatchedStoreFilecoinDealId(
+    function submitStorageDealId(
         uint256 _matchingId,
         bytes32 _cid,
         uint64 _filecoinDealId
@@ -36,7 +34,7 @@ interface IMatchedStores {
     /// @param _matchingId The ID of the matching.
     /// @param _cids An array of content identifiers of the matched data.
     /// @param _filecoinDealIds An array of IDs of successful Filecoin storage deals.
-    function submitMatchedStoreFilecoinDealIds(
+    function submitStorageDealIds(
         uint256 _matchingId,
         bytes32[] memory _cids,
         uint64[] memory _filecoinDealIds
@@ -45,25 +43,23 @@ interface IMatchedStores {
     /// @dev Gets the list of done cars in the matchedstore.
     /// @param _matchingId The ID of the matching.
     /// @return An array of content identifiers of the done cars.
-    function getMatchedStoredCars(
+    function getStoredCars(
         uint256 _matchingId
     ) external view returns (bytes32[] memory);
 
     /// @dev Gets the count of done cars in the matchedstore.
     /// @param _matchingId The ID of the matching.
     /// @return The count of done cars in the matchedstore.
-    function getMatchedStoredCarsCount(
+    function getStoredCarCount(
         uint256 _matchingId
     ) external view returns (uint256);
 
-    function getMatchedStoredTotalSize(
+    function getTotalStoredCapacity(
         uint256 _matchingId
     ) external view returns (uint256);
 
     /// @dev Checks if all cars are done in the matchedstore.
     /// @param _matchingId The ID of the matching.
     /// @return True if all cars are done in the matchedstore, otherwise false.
-    function isMatchedStoreAllDone(
-        uint256 _matchingId
-    ) external view returns (bool);
+    function isAllStoredDone(uint256 _matchingId) external view returns (bool);
 }

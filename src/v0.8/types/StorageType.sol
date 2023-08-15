@@ -19,9 +19,9 @@
 pragma solidity ^0.8.21;
 
 /// @notice This library defines enums and structs related to storage deals and their states.
-library MatchedstoreType {
+library StorageType {
     /// @notice Struct representing a storage deal.
-    struct Matchedstore {
+    struct Storage {
         bytes32[] doneCars;
     }
 }

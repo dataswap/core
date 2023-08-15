@@ -24,8 +24,8 @@ import {Filplus} from "../core/filplus/Filplus.sol";
 import {Carstore} from "../core/carstore/Carstore.sol";
 import {Datasets} from "../module/dataset/Datasets.sol";
 import {Matchings} from "../module/matching/Matchings.sol";
-import {MatchedDatacap} from "../module/matcheddatacap/MatchedDatacap.sol";
-import {MatchedStores} from "../module/matchedstore/MatchedStores.sol";
+import {Datacaps} from "../module/datacap/Datacaps.sol";
+import {Storages} from "../module/storage/Storages.sol";
 
 /// @title Dataswap
 /// TODO:https://github.com/dataswap/core/issues/33
@@ -36,8 +36,8 @@ abstract contract DataswapStorage is IDataswapStorage {
     Filplus private filplus;
     Datasets private datasets;
     Matchings private matchings;
-    MatchedStores private matchedstores;
-    MatchedDatacap private matcheddatacap;
+    Storages private storages;
+    Datacaps private datacaps;
 
     constructor(address payable _governanceContractAddress) {
         filplus = new Filplus(_governanceContractAddress);
@@ -54,7 +54,7 @@ abstract contract DataswapStorage is IDataswapStorage {
             carstore,
             datasets
         );
-        matchedstores = new MatchedStores(
+        storages = new Storages(
             _governanceContractAddress,
             roles,
             filplus,
@@ -62,14 +62,14 @@ abstract contract DataswapStorage is IDataswapStorage {
             datasets,
             matchings
         );
-        matcheddatacap = new MatchedDatacap(
+        datacaps = new Datacaps(
             _governanceContractAddress,
             roles,
             filplus,
             carstore,
             datasets,
             matchings,
-            matchedstores
+            storages
         );
     }
 }
