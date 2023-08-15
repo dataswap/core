@@ -75,14 +75,6 @@ contract Datasets is IDatasets, DatasetsModifiers {
         );
     }
 
-    ///@notice Get dataset metadata
-    function _getDataset(
-        uint256 _datasetId
-    ) internal view returns (DatasetType.Dataset storage) {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset;
-    }
-
     ///@notice Approve a dataset.
     ///@dev This function changes the state of the dataset to DatasetApproved and emits the DatasetApproved event.
     function approveDataset(

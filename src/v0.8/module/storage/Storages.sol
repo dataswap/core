@@ -66,19 +66,6 @@ contract Storages is IStorages, StoragesModifiers {
         matchings = _matchings;
     }
 
-    /// @dev Internal function to set a Filecoin deal Id for the matchedstore.
-    function _setStorageDealId(
-        uint256 _matchingId,
-        bytes32 _cid,
-        uint64 _filecoinDealId
-    ) internal {
-        carstore.setCarReplicaFilecoinDealId(
-            _cid,
-            _matchingId,
-            _filecoinDealId
-        );
-    }
-
     /// @dev Submits a Filecoin deal Id for a matchedstore after successful matching.
     function submitStorageDealId(
         uint256 _matchingId,
@@ -93,7 +80,13 @@ contract Storages is IStorages, StoragesModifiers {
     {
         StorageType.Storage storage storage_ = storages[_matchingId];
         storage_.doneCars.push(_cid);
-        _setStorageDealId(_matchingId, _cid, _filecoinDealId);
+
+        /// Note:set deal id in carstore berfore submitDealid
+        carstore.setCarReplicaFilecoinDealId(
+            _cid,
+            _matchingId,
+            _filecoinDealId
+        );
 
         emit StoragesEvents.StorageDealIdSubmitted(
             _matchingId,
