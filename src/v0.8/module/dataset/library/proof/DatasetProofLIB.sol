@@ -17,11 +17,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {DatasetType} from "../../../types/DatasetType.sol";
-import {DatasetStateMachineLIB} from "./DatasetStateMachineLIB.sol";
+import {DatasetType} from "../../../../types/DatasetType.sol";
+import {DatasetStateMachineLIB} from "../DatasetStateMachineLIB.sol";
 import {DatasetLeafLIB} from "./DatasetLeafLIB.sol";
-import {CidUtils} from "../../../shared/utils/cid/CidUtils.sol";
-import {MerkleUtils} from "../../../shared/utils/merkle/MerkleUtils.sol";
+import {CidUtils} from "../../../../shared/utils/cid/CidUtils.sol";
+import {MerkleUtils} from "../../../../shared/utils/merkle/MerkleUtils.sol";
 
 /// @title DatasetProofLIB Library,include add,get,verify.
 /// @notice This library provides functions for managing proofs associated with datasets.
@@ -48,25 +48,25 @@ library DatasetProofLIB {
     /// @dev This function allows submitting a proof for a dataset and emits the SubmitDatasetProof event.
     /// @param self The dataset to which the proof will be submitted.
     /// @param _rootHash The root hash of the Merkle proof.
-    /// @param _leafHashs The array of leaf hashes of the Merkle proof for the source dataset.
+    /// @param _leafHashes The array of leaf hashes of the Merkle proof for the source dataset.
     function submitDatasetProof(
         DatasetType.Dataset storage self,
         DatasetType.DataType _dataType,
         string calldata _accessMethod,
         bytes32 _rootHash,
-        bytes32[] calldata _leafHashs,
+        bytes32[] calldata _leafHashes,
         uint32[] calldata _leafSizes
     ) external {
-        _requireValidDatasetProof(_rootHash, _leafHashs);
+        _requireValidDatasetProof(_rootHash, _leafHashes);
         if (_dataType == DatasetType.DataType.Dataset) {
             self.sourceProof.rootHash = _rootHash;
             DatasetType.Leaf[] storage leafs = self.sourceProof.leafs;
-            leafs.setLeaf(_leafHashs, _leafSizes);
+            leafs.setLeaf(_leafHashes, _leafSizes);
         }
         if (_dataType == DatasetType.DataType.MappingFiles) {
             self.mappingFilesProof.rootHash = _rootHash;
             DatasetType.Leaf[] storage leafs = self.mappingFilesProof.leafs;
-            leafs.setLeaf(_leafHashs, _leafSizes);
+            leafs.setLeaf(_leafHashes, _leafSizes);
             self.mappingFilesProof.accessMethod = _accessMethod;
         }
         //TODO: require both source and mappingfiles submmit

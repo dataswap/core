@@ -28,9 +28,9 @@ import {DatasetsEvents} from "../../shared/events/DatasetsEvents.sol";
 import {DatasetsModifiers} from "../../shared/modifiers/DatasetsModifiers.sol";
 /// library
 import {DatasetMetadataLIB} from "./library/DatasetMetadataLIB.sol";
-import {DatasetProofLIB} from "./library/DatasetProofLIB.sol";
+import {DatasetProofLIB} from "./library/proof/DatasetProofLIB.sol";
 import {DatasetStateMachineLIB} from "./library/DatasetStateMachineLIB.sol";
-import {DatasetVerificationLIB} from "./library/DatasetVerificationLIB.sol";
+import {DatasetVerificationLIB} from "./library/challenge/DatasetVerificationLIB.sol";
 import {DatasetAuditLIB} from "./library/DatasetAuditLIB.sol";
 /// type
 import {RolesType} from "../../types/RolesType.sol";
@@ -179,7 +179,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
         DatasetType.DataType _dataType,
         string calldata _accessMethod,
         bytes32 _rootHash,
-        bytes32[] calldata _leafHashs,
+        bytes32[] calldata _leafHashes,
         uint32[] calldata _leafSizes
     ) external   {
         //Note: params check in lib
@@ -188,7 +188,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
             _dataType,
             _accessMethod,
             _rootHash,
-            _leafHashs,
+            _leafHashes,
            _leafSizes
         );
 

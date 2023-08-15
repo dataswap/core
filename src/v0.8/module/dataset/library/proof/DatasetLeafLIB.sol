@@ -17,26 +17,26 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {DatasetType} from "../../../types/DatasetType.sol";
-import {CidUtils} from "../../../shared/utils/cid/CidUtils.sol";
+import {DatasetType} from "../../../../types/DatasetType.sol";
+import {CidUtils} from "../../../../shared/utils/cid/CidUtils.sol";
 
 library DatasetLeafLIB {
     function setLeaf(
         DatasetType.Leaf[] storage self,
-        bytes32[] memory _hashs,
+        bytes32[] memory _hashes,
         uint32[] memory _sizes
     ) internal {
-        for (uint256 i = 0; i < _hashs.length; i++) {
-            self[i].hash_ = _hashs[i];
+        for (uint256 i = 0; i < _hashes.length; i++) {
+            self[i].hash_ = _hashes[i];
             self[i].size = _sizes[i];
         }
     }
 
     function getLeaf(
         DatasetType.Leaf[] storage self
-    ) internal view returns (bytes32[] memory _hashs, uint32[] memory _sizes) {
+    ) internal view returns (bytes32[] memory _hashes, uint32[] memory _sizes) {
         for (uint256 i = 0; i < self.length; i++) {
-            _hashs[i] = CidUtils.hashToCID(self[i].hash_);
+            _hashes[i] = CidUtils.hashToCID(self[i].hash_);
             _sizes[i] = self[i].size;
         }
     }

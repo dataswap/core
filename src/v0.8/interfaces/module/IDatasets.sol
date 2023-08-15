@@ -58,7 +58,7 @@ interface IDatasets {
         DatasetType.DataType _dataType,
         string calldata accessMethod,
         bytes32 _rootHash,
-        bytes32[] calldata _leafHashs,
+        bytes32[] calldata _leafHashes,
         uint32[] calldata _leafSizes
     ) external;
 

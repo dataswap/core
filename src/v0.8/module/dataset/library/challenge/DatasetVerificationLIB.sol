@@ -17,8 +17,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {DatasetType} from "../../../types/DatasetType.sol";
-import {MerkleUtils} from "../../../shared/utils/merkle/MerkleUtils.sol";
+import {DatasetType} from "../../../../types/DatasetType.sol";
+import {MerkleUtils} from "../../../../shared/utils/merkle/MerkleUtils.sol";
 import {DatasetChallengeProofLIB} from "./DatasetChallengeProofLIB.sol";
 
 /// @title DatasetVerificationLIB Library,include add,get,verify.

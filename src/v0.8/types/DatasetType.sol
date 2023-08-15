@@ -61,6 +61,7 @@ library DatasetType {
         MappingFiles, // Matching is associated with mapping files
         Dataset // Matching is associated with a dataset
     }
+
     struct Leaf {
         bytes32 hash_;
         uint32 size;
