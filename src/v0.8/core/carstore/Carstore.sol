@@ -23,10 +23,10 @@ import {IFilplus} from "../../interfaces/core/IFilplus.sol";
 import {ICarstore} from "../../interfaces/core/ICarstore.sol";
 ///shared
 import {CarstoreEvents} from "../../shared/events/CarstoreEvents.sol";
-import {CarstoreModifiers} from "../../shared/modifiers/CarstoreModifiers.sol";
 ///library
-import {CarReplicaLIB} from "./library/CarReplicaLIB.sol";
 import {CarLIB} from "./library/CarLIB.sol";
+///abstract
+import {CarstoreBase} from "./abstract/CarstoreBase.sol";
 ///type
 import {CarReplicaType} from "../../types/CarReplicaType.sol";
 import {FilecoinStorageDealState} from "../../types/FilecoinDealType.sol";
@@ -34,41 +34,13 @@ import {FilecoinStorageDealState} from "../../types/FilecoinDealType.sol";
 /// @title CarsStorageBase
 /// @notice This contract allows adding cars and managing their associated replicas.
 /// @dev This contract provides functionality for managing car data and associated replicas.
-contract Carstore is ICarstore, CarstoreModifiers {
+contract Carstore is CarstoreBase {
     using CarLIB for CarReplicaType.Car;
-
-    uint256 public carsCount;
-    ///Car CID=> Car
-    mapping(bytes32 => CarReplicaType.Car) private cars;
-
-    IRoles private roles;
-    IFilplus private filplus;
 
     constructor(
         IRoles _roles,
         IFilplus _filplus
-    ) CarstoreModifiers(_roles, _filplus, this) {
-        roles = _roles;
-        filplus = _filplus;
-    }
-
-    /// @notice Post an event for a car's replica based on the matching ID, triggering state transitions.
-    /// @param _cid Car CID associated with the replica.
-    /// @param _matchingId Matching ID of the replica.
-    /// @param _event Event to be posted.
-    function __emitRepicaEvent(
-        bytes32 _cid,
-        uint256 _matchingId,
-        CarReplicaType.Event _event
-    )
-        private
-        onlyCarExist(_cid)
-        notZeroId(_matchingId)
-        onlyCarReplicaExist(_cid, _matchingId)
-    {
-        CarReplicaType.Car storage car = cars[_cid];
-        car._emitRepicaEvent(_matchingId, _event);
-    }
+    ) CarstoreBase(_roles, _filplus) {}
 
     /// @dev Internal function to add a car based on its CID.
     ///      tips: diffent dataset has the same car is dones't matter,maybe need limit replicas count for a car.
@@ -136,7 +108,7 @@ contract Carstore is ICarstore, CarstoreModifiers {
             FilecoinStorageDealState.Expired
         )
     {
-        __emitRepicaEvent(
+        _emitRepicaEvent(
             _cid,
             _matchingId,
             CarReplicaType.Event.StorageDealExpired
@@ -162,11 +134,7 @@ contract Carstore is ICarstore, CarstoreModifiers {
             FilecoinStorageDealState.Failed
         )
     {
-        __emitRepicaEvent(
-            _cid,
-            _matchingId,
-            CarReplicaType.Event.StorageFailed
-        );
+        _emitRepicaEvent(_cid, _matchingId, CarReplicaType.Event.StorageFailed);
         emit CarstoreEvents.CarReplicaFailed(_cid, _matchingId);
     }
 
@@ -189,7 +157,7 @@ contract Carstore is ICarstore, CarstoreModifiers {
             FilecoinStorageDealState.Slashed
         )
     {
-        __emitRepicaEvent(
+        _emitRepicaEvent(
             _cid,
             _matchingId,
             CarReplicaType.Event.StorageSlashed
