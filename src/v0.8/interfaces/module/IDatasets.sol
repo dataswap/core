@@ -55,21 +55,19 @@ interface IDatasets {
     ///@notice Submit proof for a dataset
     function submitDatasetProof(
         uint256 _datasetId,
-        bytes32 _sourceDatasetRootHash,
-        bytes32[] calldata _sourceDatasetLeafHashes,
-        bytes32 _sourceToCarMappingFilesRootHashes,
-        bytes32[] calldata _sourceToCarMappingFilesLeafHashes,
-        string calldata _sourceToCarMappingFilesAccessMethod
+        DatasetType.DataType _dataType,
+        string calldata accessMethod,
+        bytes32 _rootHash,
+        bytes32[] calldata _leafHashs,
+        uint32[] calldata _leafSizes
     ) external;
 
     ///@notice Submit proof for a dataset
     function submitDatasetVerification(
         uint256 _datasetId,
         uint64 _randomSeed,
-        bytes32[] calldata _sourceDatasetProofRootHashes,
-        bytes32[][] calldata _sourceDatasetProofLeafHashes,
-        bytes32[] calldata _sourceToCarMappingFilesProofRootHashes,
-        bytes32[][] calldata _sourceToCarMappingFilesProofLeafHashes
+        bytes32[][] memory _siblings,
+        uint32[] memory _paths
     ) external;
 
     ///@notice Get dataset metadata
@@ -95,22 +93,22 @@ interface IDatasets {
     ///@notice Get dataset source cars
     function getDatasetSourceCars(
         uint256 _datasetId
-    ) external view returns (bytes32[] memory);
+    ) external view returns (bytes32[] memory, uint32[] memory);
 
     // Get dataset source proof
     function getDatasetSourceProof(
         uint256 _datasetId
-    ) external view returns (bytes32, bytes32[] memory);
+    ) external view returns (bytes32, bytes32[] memory, uint32[] memory);
 
     ///@notice Get dataset source-to-CAR mapping files cars
     function getDatasetSourceToCarMappingFilesCars(
         uint256 _datasetId
-    ) external view returns (bytes32[] memory);
+    ) external view returns (bytes32[] memory, uint32[] memory);
 
     ///@notice Get dataset source-to-CAR mapping files proof
     function getDatasetSourceToCarMappingFilesProof(
         uint256 _datasetId
-    ) external view returns (bytes32, bytes32[] memory);
+    ) external view returns (bytes32, bytes32[] memory, uint32[] memory sizes);
 
     ///@notice Get dataset size
     function getDatasetCapacity(
@@ -129,13 +127,7 @@ interface IDatasets {
     )
         external
         view
-        returns (
-            uint64 randomSeed,
-            bytes32[] memory sourceDatasetProofRootHashes,
-            bytes32[][] memory sourceDatasetProofLeafHashes,
-            bytes32[] memory sourceToCarMappingFilesProofRootHashes,
-            bytes32[][] memory sourceToCarMappingFilesProofLeafHashes
-        );
+        returns (bytes32[][] memory _siblings, uint32[] memory _paths);
 
     ///@notice Get count of dataset verifications
     function getDatasetVerificationsCount(

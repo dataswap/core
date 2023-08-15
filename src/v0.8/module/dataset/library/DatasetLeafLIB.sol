@@ -17,29 +17,27 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-/// @title ModifierCommon
-contract CommonModifiers {
-    /// @dev Modifier to check if an ID is not zero.
-    modifier onlyNotZero(uint256 _value) {
-        require(_value != 0, "Invalid ID");
-        _;
+import {DatasetType} from "../../../types/DatasetType.sol";
+import {CidUtils} from "../../../shared/utils/cid/CidUtils.sol";
+
+library DatasetLeafLIB {
+    function setLeaf(
+        DatasetType.Leaf[] storage self,
+        bytes32[] memory _hashs,
+        uint32[] memory _sizes
+    ) internal {
+        for (uint256 i = 0; i < _hashs.length; i++) {
+            self[i].hash_ = _hashs[i];
+            self[i].size = _sizes[i];
+        }
     }
 
-    /// @dev Modifier to check the sender's address
-    modifier onlyAddress(address allowedAddress) {
-        require(
-            msg.sender == allowedAddress,
-            "Only allowed address can call this function"
-        );
-        _;
-    }
-
-    /// @dev Modifier to check the sender's address
-    modifier notZeroAddress(address allowedAddress) {
-        require(
-            msg.sender != address(0),
-            "Only allowed address can call this function"
-        );
-        _;
+    function getLeaf(
+        DatasetType.Leaf[] storage self
+    ) internal view returns (bytes32[] memory _hashs, uint32[] memory _sizes) {
+        for (uint256 i = 0; i < self.length; i++) {
+            _hashs[i] = CidUtils.hashToCID(self[i].hash_);
+            _sizes[i] = self[i].size;
+        }
     }
 }

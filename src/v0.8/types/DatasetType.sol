@@ -56,29 +56,39 @@ library DatasetType {
         DatasetRejected // Dataset rejection event.
     }
 
+    /// @notice Enum representing the type of data associated with a matching.
+    enum DataType {
+        MappingFiles, // Matching is associated with mapping files
+        Dataset // Matching is associated with a dataset
+    }
+    struct Leaf {
+        bytes32 hash_;
+        uint32 size;
+    }
+
     /// @notice Struct representing a Merkle proof for data.
-    struct MerkleTree {
+    struct DatasetSourceProof {
         bytes32 rootHash; // Root hash of the data's Merkle tree.
-        bytes32[] leafHashes; // Array of leaf hashes representing items in the data.
+        Leaf[] leafs; // Array of leaf hashes representing items in the data.
     }
 
     /// @notice Struct representing proofs associated with a dataset submitted by participants.
-    struct DatasetProof {
-        MerkleTree sourceDatasetProof; // Merkle proof for the source dataset.
-        MerkleTree sourceToCarMappingFilesProof; // Merkle proof for mapping files from source to car.
-        string sourceToCarMappingFilesAccessMethod; // Method of accessing data (e.g., URL, API).
+    struct DatasetMappingFilesProof {
+        bytes32 rootHash; // Root hash of the data's Merkle tree.
+        Leaf[] leafs; // Array of leaf hashes representing items in the data.
+        string accessMethod; // Method of accessing data (e.g., URL, API).
     }
 
     /// @notice Struct representing proofs associated with a dataset challenge submitted by reviewers.
     struct DatasetChallengeProof {
-        MerkleTree[] sourceDatasetChallengeProofs; // Merkle proofs for the challenged source dataset.
-        MerkleTree[] sourceToCarMappingFilesChallengeProofs; // Merkle proofs for challenged mapping files from source to car.
+        bytes32[] siblings;
+        uint32 path;
     }
 
     /// @notice Struct representing verification details of a dataset.
     struct Verification {
         uint64 randomSeed; // Random seed used for verification. This seed determines which nodes need to be challenged.
-        DatasetChallengeProof proof; // Merkle proof provided by the auditor to support their challenge.
+        DatasetChallengeProof[] challengeProof; // Merkle proof provided by the auditor to support their challenge.
     }
 
     /// @notice Struct representing a dataset including its metadata, state, proof, and verifications.
@@ -86,7 +96,8 @@ library DatasetType {
     struct Dataset {
         Metadata metadata; // Metadata of the dataset.
         State state; // Current state of the dataset.
-        DatasetProof proof; // Proof associated with the dataset.
+        DatasetSourceProof sourceProof; // Proof associated with the dataset.
+        DatasetMappingFilesProof mappingFilesProof; // Proof associated with the dataset.
         uint32 verificationsCount;
         mapping(address => Verification) verifications; // Address of the auditor who submits challenges.
     }

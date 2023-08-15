@@ -68,11 +68,10 @@ contract Datasets is IDatasets, DatasetsModifiers {
 
     ///@dev Need add cids to carStore
     function _beforeApproveDataset(uint256 _datasetId) internal {
-        carstore.addCars(getDatasetSourceCars(_datasetId), _datasetId);
-        carstore.addCars(
-            getDatasetSourceToCarMappingFilesCars(_datasetId),
-            _datasetId
-        );
+        (bytes32[] memory sourceCids ,uint32[] memory sourceSizes)= getDatasetSourceCars(_datasetId);
+        carstore.addCars(sourceCids , _datasetId,sourceSizes);
+        (bytes32[] memory mappingFilesCids ,uint32[] memory mappingFilesSizes)= getDatasetSourceToCarMappingFilesCars(_datasetId);
+        carstore.addCars(mappingFilesCids , _datasetId,mappingFilesSizes);
     }
 
     ///@notice Approve a dataset.
@@ -81,7 +80,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
         uint256 _datasetId
     )
         external
-        notZeroId(_datasetId)
+        onlyNotZero(_datasetId)
         DatasetsModifiers.onlyDatasetState(_datasetId, DatasetType.State.DatasetProofSubmitted)
         onlyAddress(governanceAddress)
     {
@@ -98,7 +97,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
         uint256 _datasetId
     )
         external
-        notZeroId(_datasetId)
+        onlyNotZero(_datasetId)
         DatasetsModifiers.onlyDatasetState(_datasetId, DatasetType.State.MetadataSubmitted)
         onlyAddress(governanceAddress)
     {
@@ -114,7 +113,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
         uint256 _datasetId
     )
         external
-        notZeroId(_datasetId)
+        onlyNotZero(_datasetId)
         DatasetsModifiers.onlyDatasetState(_datasetId, DatasetType.State.MetadataSubmitted)
         onlyAddress(governanceAddress)
     {
@@ -130,7 +129,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
         uint256 _datasetId
     )
         external
-        notZeroId(_datasetId)
+        onlyNotZero(_datasetId)
         DatasetsModifiers.onlyDatasetState(_datasetId, DatasetType.State.DatasetProofSubmitted)
         onlyAddress(governanceAddress)
     {
@@ -177,20 +176,20 @@ contract Datasets is IDatasets, DatasetsModifiers {
     /// The actual functionality is pending completion.
     function submitDatasetProof(
         uint256 _datasetId,
-        bytes32 _sourceDatasetRootHash,
-        bytes32[] calldata _sourceDatasetLeafHashes,
-        bytes32 _sourceToCarMappingFilesRootHashes,
-        bytes32[] calldata _sourceToCarMappingFilesLeafHashes,
-        string calldata _sourceToCarMappingFilesAccessMethod
-    ) external notZeroId(_datasetId) onlyRole(RolesType.DATASET_PROVIDER) {
+        DatasetType.DataType _dataType,
+        string calldata _accessMethod,
+        bytes32 _rootHash,
+        bytes32[] calldata _leafHashs,
+        uint32[] calldata _leafSizes
+    ) external   {
         //Note: params check in lib
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset.submitDatasetProof(
-            _sourceDatasetRootHash,
-            _sourceDatasetLeafHashes,
-            _sourceToCarMappingFilesRootHashes,
-            _sourceToCarMappingFilesLeafHashes,
-            _sourceToCarMappingFilesAccessMethod
+            _dataType,
+            _accessMethod,
+            _rootHash,
+            _leafHashs,
+           _leafSizes
         );
 
         emit DatasetsEvents.DatasetProofSubmitted(_datasetId, msg.sender);
@@ -203,19 +202,11 @@ contract Datasets is IDatasets, DatasetsModifiers {
     function submitDatasetVerification(
         uint256 _datasetId,
         uint64 _randomSeed,
-        bytes32[] calldata _sourceDatasetProofRootHashes,
-        bytes32[][] calldata _sourceDatasetProofLeafHashes,
-        bytes32[] calldata _sourceToCarMappingFilesProofRootHashes,
-        bytes32[][] calldata _sourceToCarMappingFilesProofLeafHashes
+        bytes32[][] memory _siblings,
+        uint32[] memory _paths
     ) external onlyRole(RolesType.DATASET_AUDITOR) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        dataset._submitDatasetVerification(
-            _randomSeed,
-            _sourceDatasetProofRootHashes,
-            _sourceDatasetProofLeafHashes,
-            _sourceToCarMappingFilesProofRootHashes,
-            _sourceToCarMappingFilesProofLeafHashes
-        );
+        dataset._submitDatasetVerification(_randomSeed,_siblings,_paths);
 
         emit DatasetsEvents.DatasetVerificationSubmitted(
             _datasetId,
@@ -229,7 +220,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     )
         public
         view
-        notZeroId(_datasetId)
+        onlyNotZero(_datasetId)
         returns (
             string memory title,
             string memory industry,
@@ -251,7 +242,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     ///@notice Get dataset source CIDs
     function getDatasetSourceCars(
         uint256 _datasetId
-    ) public view notZeroId(_datasetId) returns (bytes32[] memory) {
+    ) public view onlyNotZero(_datasetId) returns (bytes32[] memory, uint32[] memory) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetSourceCids();
     }
@@ -259,7 +250,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     // Get dataset source proof
     function getDatasetSourceProof(
         uint256 _datasetId
-    ) public view notZeroId(_datasetId) returns (bytes32, bytes32[] memory) {
+    ) public view onlyNotZero(_datasetId) returns (bytes32, bytes32[] memory, uint32[] memory) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetSourceProof();
     }
@@ -267,7 +258,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     ///@notice Get dataset source-to-CAR mapping files CIDs
     function getDatasetSourceToCarMappingFilesCars(
         uint256 _datasetId
-    ) public view notZeroId(_datasetId) returns (bytes32[] memory) {
+    ) public view onlyNotZero(_datasetId) returns (bytes32[] memory, uint32[] memory) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetSourceToCarMappingFilesCids();
     }
@@ -275,7 +266,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     ///@notice Get dataset source-to-CAR mapping files proof
     function getDatasetSourceToCarMappingFilesProof(
         uint256 _datasetId
-    ) public view notZeroId(_datasetId) returns (bytes32, bytes32[] memory) {
+    ) public view onlyNotZero(_datasetId) returns (bytes32, bytes32[] memory, uint32[] memory) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetSourceToCarMappingFilesProof();
     }
@@ -283,7 +274,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     ///@notice Get dataset size
     function getDatasetCapacity(
         uint256 _datasetId
-    ) public view notZeroId(_datasetId) returns (uint64) {
+    ) public view onlyNotZero(_datasetId) returns (uint64) {
         (, , , , , , , , uint64 sizeInBytes, , ) = getDatasetMetadata(
             _datasetId
         );
@@ -293,7 +284,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     ///@notice Get dataset state
     function getDatasetState(
         uint256 _datasetId
-    ) public view notZeroId(_datasetId) returns (DatasetType.State) {
+    ) public view onlyNotZero(_datasetId) returns (DatasetType.State) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetState();
     }
@@ -305,14 +296,8 @@ contract Datasets is IDatasets, DatasetsModifiers {
     )
         public
         view
-        notZeroId(_datasetId)
-        returns (
-            uint64 randomSeed,
-            bytes32[] memory sourceDatasetProofRootHashes,
-            bytes32[][] memory sourceDatasetProofLeafHashes,
-            bytes32[] memory sourceToCarMappingFilesProofRootHashes,
-            bytes32[][] memory sourceToCarMappingFilesProofLeafHashes
-        )
+        onlyNotZero(_datasetId)
+        returns (bytes32[][] memory _siblings, uint32[] memory _paths) 
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetVerification(_auditor);
@@ -321,7 +306,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     ///@notice Get count of dataset verifications
     function getDatasetVerificationsCount(
         uint256 _datasetId
-    ) public view notZeroId(_datasetId) returns (uint32) {
+    ) public view onlyNotZero(_datasetId) returns (uint32) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetVerificationsCount();
     }
@@ -341,8 +326,8 @@ contract Datasets is IDatasets, DatasetsModifiers {
     function isDatasetContainsCar(
         uint256 _datasetId,
         bytes32 _cid
-    ) public view notZeroId(_datasetId) returns (bool) {
-        bytes32[] memory cids = getDatasetSourceToCarMappingFilesCars(
+    ) public view onlyNotZero(_datasetId) returns (bool) {
+        (bytes32[] memory cids ,)= getDatasetSourceToCarMappingFilesCars(
             _datasetId
         );
         for (uint256 i = 0; i < cids.length; i++) {
@@ -355,7 +340,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     function isDatasetContainsCars(
         uint256 _datasetId,
         bytes32[] memory _cids
-    ) public view notZeroId(_datasetId) returns (bool) {
+    ) public view onlyNotZero(_datasetId) returns (bool) {
         for (uint256 i = 0; i < _cids.length; i++) {
             if (!isDatasetContainsCar(_datasetId, _cids[i])) return false;
         }
