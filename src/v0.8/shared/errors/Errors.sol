@@ -14,12 +14,37 @@
 
 pragma solidity ^0.8.21;
 
+import {MatchingType} from "../../types/MatchingType.sol";
+
 library Errors {
     /// @notice commmon errors
     error ParamLengthMismatch(uint256 _expectedLength, uint256 _actualLength);
 
     /// @notice car errors
-    error CarNotFound(uint256 _matchingId, bytes32 _cid);
+    error CarNotExist(bytes32 _cid);
+    error CarAlreadyExists(bytes32 _cid);
+    error ReplicaNotExist(bytes32 _cid, uint256 _matchingId);
+    error ReplicaAlreadyExists(bytes32 _cid, uint256 _matchingId);
+    error ReplicaFilecoinDealIdExists(bytes32 _cid, uint256 _matchingId);
+    error InvalidReplicaState(bytes32 _cid, uint256 _matchingId);
+    error InvalidReplicaFilecoinDealState(bytes32 _cid, uint256 _matchingId);
+
+    /// @notice Dataset errors
+    error DatasetMetadataNotExist(string accessMethod);
+    error DatasetMetadataAlreadyExist(string accessMethod);
+    error InvalidDatasetState(uint256 datasetId);
+
+    /// @notice matching errors
+    error InvalidMatchingState(
+        uint256 matchingId,
+        MatchingType.State expectedState,
+        MatchingType.State actualState
+    );
+    error NotMatchingInitiator(
+        uint256 matchingId,
+        address expectedInitiator,
+        address actualInitiator
+    );
 
     /// @notice storage errors
     error StorageDealNotSuccessful(uint256 _filecoinDealId);

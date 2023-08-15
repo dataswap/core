@@ -17,20 +17,23 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 pragma solidity ^0.8.21;
-
-import {RolesType} from "../../types/RolesType.sol";
-import {DatasetType} from "../../types/DatasetType.sol";
-import {MatchingType} from "../../types/MatchingType.sol";
-import {CommonModifiers} from "../../shared/modifiers/CommonModifiers.sol";
-import {RolesModifiers} from "../../shared/modifiers/RolesModifiers.sol";
+/// interface
 import {IRoles} from "../../interfaces/core/IRoles.sol";
 import {IFilplus} from "../../interfaces/core/IFilplus.sol";
 import {ICarstore} from "../../interfaces/core/ICarstore.sol";
 import {IDatasets} from "../../interfaces/module/IDatasets.sol";
 import {IMatchings} from "../../interfaces/module/IMatchings.sol";
+/// shared
+import {MatchingsEvents} from "../../shared/events/MatchingsEvents.sol";
+import {MatchingsModifiers} from "../../shared/modifiers/MatchingsModifiers.sol";
+/// library
 import {MatchingLIB} from "./library/MatchingLIB.sol";
 import {MatchingStateMachineLIB} from "./library/MatchingStateMachineLIB.sol";
 import {MatchingBidsLIB} from "./library/MatchingBidsLIB.sol";
+/// type
+import {RolesType} from "../../types/RolesType.sol";
+import {DatasetType} from "../../types/DatasetType.sol";
+import {MatchingType} from "../../types/MatchingType.sol";
 
 /// @title Matchings Base Contract
 /// @notice This contract serves as the base for managing matchings, their states, and associated actions.
@@ -39,7 +42,7 @@ import {MatchingBidsLIB} from "./library/MatchingBidsLIB.sol";
 ///            1 bidder(when bidding) and initiator(when publish) should transfer FIL to payable function
 ///            2 proccess the fund after matched
 ///            3 proccess the fund after matchedsotre,step by step
-contract Matchings is IMatchings, CommonModifiers, RolesModifiers {
+contract Matchings is IMatchings, MatchingsModifiers {
     /// @notice  Use libraries for different matching functionalities
     using MatchingLIB for MatchingType.Matching;
     using MatchingStateMachineLIB for MatchingType.Matching;
@@ -61,59 +64,12 @@ contract Matchings is IMatchings, CommonModifiers, RolesModifiers {
         IFilplus _filplus,
         ICarstore _carstore,
         IDatasets _datasets
-    ) RolesModifiers(_roles) {
+    ) MatchingsModifiers(_roles, _filplus, _carstore, _datasets, this) {
         governanceAddress = _governanceAddress;
         roles = _roles;
         filplus = _filplus;
         carstore = _carstore;
         datasets = _datasets;
-    }
-
-    /// @notice  Declare events for external monitoring
-    event MatchingPublished(
-        uint256 indexed matchingId,
-        address indexed initiator
-    );
-    event MatchingPaused(uint256 indexed _matchingId);
-    event MatchingPauseExpired(uint256 indexed _matchingId);
-    event MatchingResumed(uint256 indexed _matchingId);
-    event MatchingCancelled(uint256 indexed _matchingId);
-    event MatchingHasWinner(
-        uint256 indexed _matchingId,
-        address indexed _winner
-    );
-    event MatchingNoWinner(uint256 indexed _matchingId);
-    event MatchingBidPlaced(
-        uint256 indexed _matchingId,
-        address _bidder,
-        uint256 _amount
-    );
-
-    /// @notice  Modifier to restrict access to the matching initiator
-    modifier onlyMatchingContainsCid(uint256 _matchingId, bytes32 _cid) {
-        require(
-            isMatchingContainsCar(_matchingId, _cid),
-            "You are not the initiator of this matching"
-        );
-        _;
-    }
-
-    /// @notice  Modifier to restrict access to the matching initiator
-    modifier onlyMatchingInitiator(uint256 _matchingId) {
-        require(
-            matchings[_matchingId].initiator == msg.sender,
-            "You are not the initiator of this matching"
-        );
-        _;
-    }
-
-    /// @notice  Modifier to restrict access based on matching state
-    modifier onlyMatchingState(uint256 _matchingId, MatchingType.State _state) {
-        require(
-            matchings[_matchingId].state == _state,
-            "Matching is not in the expected state"
-        );
-        _;
     }
 
     ///@dev update cars info  to carStore before complete
@@ -132,7 +88,11 @@ contract Matchings is IMatchings, CommonModifiers, RolesModifiers {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching._matchingBidding(_amount);
 
-        emit MatchingBidPlaced(_matchingId, msg.sender, _amount);
+        emit MatchingsEvents.MatchingBidPlaced(
+            _matchingId,
+            msg.sender,
+            _amount
+        );
     }
 
     /// @notice  Function for publishing a new matching
@@ -178,7 +138,7 @@ contract Matchings is IMatchings, CommonModifiers, RolesModifiers {
         matching.createdBlockNumber = uint64(block.number);
 
         matching._publishMatching();
-        emit MatchingPublished(matchingsCount, msg.sender);
+        emit MatchingsEvents.MatchingPublished(matchingsCount, msg.sender);
     }
 
     /// @notice  Function for pausing a matching
@@ -191,14 +151,14 @@ contract Matchings is IMatchings, CommonModifiers, RolesModifiers {
     {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching._pauseMatching();
-        emit MatchingPaused(_matchingId);
+        emit MatchingsEvents.MatchingPaused(_matchingId);
     }
 
     /// @notice Function for reporting that a matching pause has expired
     function reportMatchingPauseExpired(uint256 _matchingId) external {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching._reportMatchingPauseExpired();
-        emit MatchingPauseExpired(_matchingId);
+        emit MatchingsEvents.MatchingPauseExpired(_matchingId);
     }
 
     /// @notice  Function for resuming a paused matching
@@ -211,7 +171,7 @@ contract Matchings is IMatchings, CommonModifiers, RolesModifiers {
     {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching._resumeMatching();
-        emit MatchingResumed(_matchingId);
+        emit MatchingsEvents.MatchingResumed(_matchingId);
     }
 
     /// @notice  Function for canceling a matching
@@ -220,7 +180,7 @@ contract Matchings is IMatchings, CommonModifiers, RolesModifiers {
     ) external onlyMatchingInitiator(_matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching._cancelMatching();
-        emit MatchingCancelled(_matchingId);
+        emit MatchingsEvents.MatchingCancelled(_matchingId);
     }
 
     /// @notice  Function for closing a matching and choosing a winner
@@ -233,10 +193,10 @@ contract Matchings is IMatchings, CommonModifiers, RolesModifiers {
         if (winner != address(0)) {
             _beforeCompleteMatching(_matchingId);
             matching._emitMatchingEvent(MatchingType.Event.HasWinner);
-            emit MatchingHasWinner(_matchingId, winner);
+            emit MatchingsEvents.MatchingHasWinner(_matchingId, winner);
         } else {
             matching._emitMatchingEvent(MatchingType.Event.NoWinner);
-            emit MatchingNoWinner(_matchingId);
+            emit MatchingsEvents.MatchingNoWinner(_matchingId);
         }
     }
 
@@ -274,11 +234,18 @@ contract Matchings is IMatchings, CommonModifiers, RolesModifiers {
     }
 
     /// @notice  Function for getting the total data size of bids in a matching
-    function getMatchingDataSize(
+    function getMatchingCapacity(
         uint256 _matchingId
     ) public view returns (uint64) {
         (, , uint64 datasize, , ) = getMatchingTarget(_matchingId);
         return datasize;
+    }
+
+    function getMatchingInitiator(
+        uint256 _matchingId
+    ) external view returns (address) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        return matching.initiator;
     }
 
     /// @notice  Function for getting the state of a matching

@@ -21,19 +21,21 @@ import {ICarstore} from "../../interfaces/core/ICarstore.sol";
 import {IDatasets} from "../../interfaces/module/IDatasets.sol";
 import {IMatchings} from "../../interfaces/module/IMatchings.sol";
 import {IStorages} from "../../interfaces/module/IStorages.sol";
+import {IDatacaps} from "../../interfaces/module/IDatacaps.sol";
 ///shared
-import {MatchingsModifiers} from "./MatchingsModifiers.sol";
+import {StoragesModifiers} from "./StoragesModifiers.sol";
 import {Errors} from "../errors/Errors.sol";
 
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
-contract StoragesModifiers is MatchingsModifiers {
+contract DatacapsModifiers is StoragesModifiers {
     IRoles private roles;
     IFilplus private filplus;
     ICarstore private carstore;
     IDatasets private datasets;
     IMatchings private matchings;
     IStorages private storages;
+    IDatacaps private datacaps;
 
     constructor(
         IRoles _roles,
@@ -41,13 +43,31 @@ contract StoragesModifiers is MatchingsModifiers {
         ICarstore _carstore,
         IDatasets _datasets,
         IMatchings _matchings,
-        IStorages _storages
-    ) MatchingsModifiers(_roles, _filplus, _carstore, _datasets, _matchings) {
+        IStorages _storages,
+        IDatacaps _datacaps
+    )
+        StoragesModifiers(
+            _roles,
+            _filplus,
+            _carstore,
+            _datasets,
+            _matchings,
+            _storages
+        )
+    {
         roles = _roles;
         filplus = _filplus;
         carstore = _carstore;
         datasets = _datasets;
         matchings = _matchings;
-        storages = _storages;
+        datacaps = _datacaps;
+    }
+
+    /// @notice  validNextDatacapAllocation
+    modifier validNextDatacapAllocation(uint256 _matchingId) {
+        if (!datacaps.isNextDatacapAllocationValid(_matchingId)) {
+            revert Errors.NextDatacapAllocationInvalid(_matchingId);
+        }
+        _;
     }
 }

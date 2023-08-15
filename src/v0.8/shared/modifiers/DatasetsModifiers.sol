@@ -19,35 +19,52 @@ import {IRoles} from "../../interfaces/core/IRoles.sol";
 import {IFilplus} from "../../interfaces/core/IFilplus.sol";
 import {ICarstore} from "../../interfaces/core/ICarstore.sol";
 import {IDatasets} from "../../interfaces/module/IDatasets.sol";
-import {IMatchings} from "../../interfaces/module/IMatchings.sol";
-import {IStorages} from "../../interfaces/module/IStorages.sol";
 ///shared
-import {MatchingsModifiers} from "./MatchingsModifiers.sol";
+import {CarstoreModifiers} from "./CarstoreModifiers.sol";
 import {Errors} from "../errors/Errors.sol";
+///types
+import {DatasetType} from "../../types/DatasetType.sol";
 
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
-contract StoragesModifiers is MatchingsModifiers {
+contract DatasetsModifiers is CarstoreModifiers {
     IRoles private roles;
     IFilplus private filplus;
     ICarstore private carstore;
     IDatasets private datasets;
-    IMatchings private matchings;
-    IStorages private storages;
 
     constructor(
         IRoles _roles,
         IFilplus _filplus,
         ICarstore _carstore,
-        IDatasets _datasets,
-        IMatchings _matchings,
-        IStorages _storages
-    ) MatchingsModifiers(_roles, _filplus, _carstore, _datasets, _matchings) {
+        IDatasets _datasets
+    ) CarstoreModifiers(_roles, _filplus, _carstore) {
         roles = _roles;
         filplus = _filplus;
         carstore = _carstore;
         datasets = _datasets;
-        matchings = _matchings;
-        storages = _storages;
+    }
+
+    /// @dev Modifier to ensure that a dataset metadata  with the given accessMethod exists.
+    modifier onlyDatasetMetadataExsits(string memory _accessMethod) {
+        if (!datasets.hasDatasetMetadata(_accessMethod)) {
+            revert Errors.DatasetMetadataNotExist(_accessMethod);
+        }
+        _;
+    }
+
+    /// @dev Modifier to ensure that a dataset metadata with the given accessMethod not exists.
+    modifier onlyDatasetMetadataNotExsits(string memory _accessMethod) {
+        if (datasets.hasDatasetMetadata(_accessMethod)) {
+            revert Errors.DatasetMetadataAlreadyExist(_accessMethod);
+        }
+        _;
+    }
+
+    modifier onlyDatasetState(uint256 _datasetId, DatasetType.State _state) {
+        if (_state != datasets.getDatasetState(_datasetId)) {
+            revert Errors.InvalidDatasetState(_datasetId);
+        }
+        _;
     }
 }

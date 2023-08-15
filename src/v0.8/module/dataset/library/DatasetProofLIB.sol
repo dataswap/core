@@ -19,8 +19,8 @@ pragma solidity ^0.8.21;
 
 import {DatasetType} from "../../../types/DatasetType.sol";
 import {DatasetStateMachineLIB} from "./DatasetStateMachineLIB.sol";
-import {CidUtils} from "../../../shared/cid/CidUtils.sol";
-import {MerkleUtils} from "../../../shared/merkle/MerkleUtils.sol";
+import {CidUtils} from "../../../shared/utils/cid/CidUtils.sol";
+import {MerkleUtils} from "../../../shared/utils/merkle/MerkleUtils.sol";
 
 /// @title DatasetProofLIB Library,include add,get,verify.
 /// @notice This library provides functions for managing proofs associated with datasets.

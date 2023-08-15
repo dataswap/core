@@ -18,7 +18,7 @@
 pragma solidity ^0.8.21;
 
 import {DatasetType} from "../../../types/DatasetType.sol";
-import {MerkleUtils} from "../../../shared/merkle/MerkleUtils.sol";
+import {MerkleUtils} from "../../../shared/utils/merkle/MerkleUtils.sol";
 
 /// @title DatasetVerificationLIB Library,include add,get,verify.
 /// @notice This library provides functions for managing verification associated with datasets.

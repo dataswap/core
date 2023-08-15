@@ -113,7 +113,9 @@ interface IDatasets {
     ) external view returns (bytes32, bytes32[] memory);
 
     ///@notice Get dataset size
-    function getDatasetSize(uint256 _datasetId) external view returns (uint64);
+    function getDatasetCapacity(
+        uint256 _datasetId
+    ) external view returns (uint64);
 
     ///@notice Get dataset state
     function getDatasetState(

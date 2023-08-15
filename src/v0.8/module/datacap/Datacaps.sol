@@ -14,9 +14,7 @@
 
 pragma solidity ^0.8.21;
 
-import {Errors} from "../../shared/errors/Errors.sol";
-import {CommonModifiers} from "../../shared/modifiers/CommonModifiers.sol";
-import {RolesModifiers} from "../../shared/modifiers/RolesModifiers.sol";
+/// interface
 import {IRoles} from "../../interfaces/core/IRoles.sol";
 import {IFilplus} from "../../interfaces/core/IFilplus.sol";
 import {ICarstore} from "../../interfaces/core/ICarstore.sol";
@@ -24,6 +22,10 @@ import {IDatasets} from "../../interfaces/module/IDatasets.sol";
 import {IMatchings} from "../../interfaces/module/IMatchings.sol";
 import {IStorages} from "../../interfaces/module/IStorages.sol";
 import {IDatacaps} from "../../interfaces/module/IDatacaps.sol";
+
+/// shared
+import {Errors} from "../../shared/errors/Errors.sol";
+import {DatacapsModifiers} from "../../shared/modifiers/DatacapsModifiers.sol";
 import {DatacapsEvents} from "../../shared/events/DatacapsEvents.sol";
 
 /// @title Datacap
@@ -31,7 +33,7 @@ import {DatacapsEvents} from "../../shared/events/DatacapsEvents.sol";
 /// Note:The removal of datacap is not necessary.
 ///     This design allocates datacap step by step according to chunks,
 ///     rather than allocating all at once.
-contract Datacaps is IDatacaps, CommonModifiers, RolesModifiers {
+contract Datacaps is IDatacaps, DatacapsModifiers {
     //(matchingID => allocated datacap size)
     mapping(uint256 => uint64) private allocatedDatacaps;
     address private governanceAddress;
@@ -50,7 +52,17 @@ contract Datacaps is IDatacaps, CommonModifiers, RolesModifiers {
         IDatasets _datasets,
         IMatchings _matchings,
         IStorages _storages
-    ) RolesModifiers(_roles) {
+    )
+        DatacapsModifiers(
+            _roles,
+            _filplus,
+            _carstore,
+            _datasets,
+            _matchings,
+            _storages,
+            this
+        )
+    {
         governanceAddress = _governanceAddress;
         roles = _roles;
         filplus = _filplus;
@@ -58,14 +70,6 @@ contract Datacaps is IDatacaps, CommonModifiers, RolesModifiers {
         datasets = _datasets;
         matchings = _matchings;
         storages = _storages;
-    }
-
-    /// @notice  validNextDatacapAllocation
-    modifier validNextDatacapAllocation(uint256 _matchingId) {
-        if (!isNextDatacapAllocationValid(_matchingId)) {
-            revert Errors.NextDatacapAllocationInvalid(_matchingId);
-        }
-        _;
     }
 
     /// @dev Internal function to allocate matched datacap.
@@ -135,7 +139,7 @@ contract Datacaps is IDatacaps, CommonModifiers, RolesModifiers {
     function getTotalDatacapAllocationRequirement(
         uint256 _matchingId
     ) public view returns (uint64) {
-        return matchings.getMatchingDataSize(_matchingId);
+        return matchings.getMatchingCapacity(_matchingId);
     }
 
     /// @dev Gets the remaining datacap size needed to be allocated for a matching process.

@@ -15,21 +15,14 @@
  ********************************************************************************/
 
 // SPDX-License-Identifier: GPL-3.0-or-later
+
 pragma solidity ^0.8.21;
 
-import {IRoles} from "../../interfaces/core/IRoles.sol";
-import {CommonModifiers} from "./CommonModifiers.sol";
-
-/// @title RolesModifier
-contract RolesModifiers is CommonModifiers {
-    IRoles private roles;
-
-    constructor(IRoles _roles) {
-        roles = _roles;
-    }
-
-    modifier onlyRole(bytes32 _role) {
-        roles.checkRole(_role);
-        _;
+/// @notice This library defines enums and structs related to storage deals and their states.
+library FilplusType {
+    enum MatchingRuleCommissionType {
+        BuyerPays,
+        SellerPays,
+        SplitPayment
     }
 }

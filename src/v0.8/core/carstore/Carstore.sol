@@ -17,127 +17,39 @@
 
 pragma solidity ^0.8.21;
 
-import {CarReplicaType} from "../../types/CarReplicaType.sol";
-import {FilecoinStorageDealState} from "../../types/FilecoinDealType.sol";
-import {CommonModifiers} from "../../shared/modifiers/CommonModifiers.sol";
-import {FilecoinDealUtils} from "../../shared/filecoin/FilecoinDealUtils.sol";
+/// interface
+import {IRoles} from "../../interfaces/core/IRoles.sol";
+import {IFilplus} from "../../interfaces/core/IFilplus.sol";
 import {ICarstore} from "../../interfaces/core/ICarstore.sol";
+///shared
+import {CarstoreEvents} from "../../shared/events/CarstoreEvents.sol";
+import {CarstoreModifiers} from "../../shared/modifiers/CarstoreModifiers.sol";
+///library
 import {CarReplicaLIB} from "./library/CarReplicaLIB.sol";
 import {CarLIB} from "./library/CarLIB.sol";
+///type
+import {CarReplicaType} from "../../types/CarReplicaType.sol";
+import {FilecoinStorageDealState} from "../../types/FilecoinDealType.sol";
 
 /// @title CarsStorageBase
 /// @notice This contract allows adding cars and managing their associated replicas.
 /// @dev This contract provides functionality for managing car data and associated replicas.
-contract Carstore is ICarstore, CommonModifiers {
+contract Carstore is ICarstore, CarstoreModifiers {
     using CarLIB for CarReplicaType.Car;
 
     uint256 public carsCount;
     ///Car CID=> Car
     mapping(bytes32 => CarReplicaType.Car) private cars;
 
-    /// @notice Emitted when multiple cars are added to the storage.
-    event CarsAdded(bytes32[] _cids);
+    IRoles private roles;
+    IFilplus private filplus;
 
-    /// @notice Emitted when a replica is added to a car.
-    event CarReplicaAdded(bytes32 indexed _cid, uint256 _matchingId);
-
-    /// @notice Report that storage deal for a replica has expired.
-    /// @dev This function allows reporting that the storage deal for a replica has expired.
-    /// @param _cid Car CID associated with the replica.
-    /// @param _matchingId Matching ID of the replica.
-    event CarReplicaExpired(bytes32 indexed _cid, uint256 _matchingId);
-
-    /// @notice Report that storage of a replica has failed.
-    /// @dev This function allows reporting that the storage of a replica has failed.
-    /// @param _cid Car CID associated with the replica.
-    /// @param _matchingId Matching ID of the replica.
-    event CarReplicaFailed(bytes32 indexed _cid, uint256 _matchingId);
-
-    /// @notice Emitted when the Filecoin deal ID is set for a replica's storage.
-    event CarReplicaFilecoinDealIdSet(
-        bytes32 indexed _cid,
-        uint256 _matchingId,
-        uint256 _filecoinDealId
-    );
-
-    /// @notice Report that storage of a replica has been slashed.
-    /// @dev This function allows reporting that the storage of a replica has been slashed.
-    /// @param _cid Car CID associated with the replica.
-    /// @param _matchingId Matching ID of the replica.
-    event CarReplicaSlashed(bytes32 indexed _cid, uint256 _matchingId);
-
-    /// @dev Modifier to ensure that a car with the given CID exists.
-    modifier carExist(bytes32 _cid) {
-        require(hasCar(_cid), "Car is not exists");
-        _;
-    }
-
-    /// @dev Modifier to ensure that a car with the given CID does not exist.
-    modifier carNotExist(bytes32 _cid) {
-        require(!hasCar(_cid), "Car already exists");
-        _;
-    }
-
-    /// @dev Modifier to ensure that a replica filecoin deal state before function do.
-    modifier onlyCarReplicaFilecoinDealState(
-        bytes32 _cid,
-        uint256 _matchingId,
-        FilecoinStorageDealState _filecoinDealState
-    ) {
-        require(hasCar(_cid), "Car is not exists");
-        require(hasCarReplica(_cid, _matchingId), "replica is not exists");
-        require(
-            CarReplicaType.State.Stored ==
-                getCarReplicaState(_cid, _matchingId),
-            "Invalid replica state"
-        );
-        require(
-            FilecoinStorageDealState.Successed ==
-                FilecoinDealUtils.getFilecoinStorageDealState(
-                    _cid,
-                    // TODO:_filecoinDealId, instead with _matchingId first https://github.com/dataswap/core/issues/27
-                    _matchingId
-                ),
-            "Invalid replica filecoin deal state"
-        );
-        _;
-    }
-
-    /// @dev Modifier to ensure that a replica state before function do.
-    modifier onlyCarReplicaState(
-        bytes32 _cid,
-        uint256 _matchingId,
-        CarReplicaType.State _state
-    ) {
-        require(
-            _state == getCarReplicaState(_cid, _matchingId),
-            "Invalid replica state"
-        );
-        _;
-    }
-
-    /// @dev Modifier to ensure that a replica of a car exists.
-    modifier carReplicaExist(bytes32 _cid, uint256 _matchingId) {
-        require(hasCarReplica(_cid, _matchingId), "replica is not exists");
-        _;
-    }
-
-    /// @dev Modifier to ensure that a replica of a car exists.
-    modifier carReplicaFilecoinDealIdNotExist(
-        bytes32 _cid,
-        uint256 _matchingId
-    ) {
-        require(
-            0 == getCarReplicaFilecoinDealId(_cid, _matchingId),
-            "replica  filecoin deal id exists"
-        );
-        _;
-    }
-
-    /// @dev Modifier to ensure that a replica of a car not exists.
-    modifier carReplicaNotExist(bytes32 _cid, uint256 _matchingId) {
-        require(!hasCarReplica(_cid, _matchingId), "replica already exists");
-        _;
+    constructor(
+        IRoles _roles,
+        IFilplus _filplus
+    ) CarstoreModifiers(_roles, _filplus, this) {
+        roles = _roles;
+        filplus = _filplus;
     }
 
     /// @notice Post an event for a car's replica based on the matching ID, triggering state transitions.
@@ -150,9 +62,9 @@ contract Carstore is ICarstore, CommonModifiers {
         CarReplicaType.Event _event
     )
         private
-        carExist(_cid)
+        onlyCarExist(_cid)
         notZeroId(_matchingId)
-        carReplicaExist(_cid, _matchingId)
+        onlyCarReplicaExist(_cid, _matchingId)
     {
         CarReplicaType.Car storage car = cars[_cid];
         car._emitRepicaEvent(_matchingId, _event);
@@ -166,7 +78,7 @@ contract Carstore is ICarstore, CommonModifiers {
     function addCar(
         bytes32 _cid,
         uint256 _datasetId
-    ) public carNotExist(_cid) notZeroId(_datasetId) {
+    ) public onlyCarNotExist(_cid) notZeroId(_datasetId) {
         carsCount++;
         CarReplicaType.Car storage car = cars[_cid];
         car._setDatasetId(_datasetId);
@@ -184,7 +96,7 @@ contract Carstore is ICarstore, CommonModifiers {
             addCar(_cids[i], _datasetId);
         }
 
-        emit CarsAdded(_cids);
+        emit CarstoreEvents.CarsAdded(_cids);
     }
 
     /// @notice Add a replica to a car.
@@ -196,14 +108,14 @@ contract Carstore is ICarstore, CommonModifiers {
         uint256 _matchingId
     )
         external
-        carExist(_cid)
+        onlyCarExist(_cid)
         notZeroId(_matchingId)
-        carReplicaNotExist(_cid, _matchingId)
+        onlyCarReplicaNotExist(_cid, _matchingId)
     {
         CarReplicaType.Car storage car = cars[_cid];
         car._addRepica(_matchingId);
 
-        emit CarReplicaAdded(_cid, _matchingId);
+        emit CarstoreEvents.CarReplicaAdded(_cid, _matchingId);
     }
 
     /// @notice Report that storage deal for a replica has expired.
@@ -215,9 +127,9 @@ contract Carstore is ICarstore, CommonModifiers {
         uint256 _matchingId
     )
         external
-        carExist(_cid)
+        onlyCarExist(_cid)
         notZeroId(_matchingId)
-        carReplicaExist(_cid, _matchingId)
+        onlyCarReplicaExist(_cid, _matchingId)
         onlyCarReplicaFilecoinDealState(
             _cid,
             _matchingId,
@@ -229,7 +141,7 @@ contract Carstore is ICarstore, CommonModifiers {
             _matchingId,
             CarReplicaType.Event.StorageDealExpired
         );
-        emit CarReplicaExpired(_cid, _matchingId);
+        emit CarstoreEvents.CarReplicaExpired(_cid, _matchingId);
     }
 
     /// @notice Report that storage of a replica has failed.
@@ -241,9 +153,9 @@ contract Carstore is ICarstore, CommonModifiers {
         uint256 _matchingId
     )
         external
-        carExist(_cid)
+        onlyCarExist(_cid)
         notZeroId(_matchingId)
-        carReplicaExist(_cid, _matchingId)
+        onlyCarReplicaExist(_cid, _matchingId)
         onlyCarReplicaFilecoinDealState(
             _cid,
             _matchingId,
@@ -255,7 +167,7 @@ contract Carstore is ICarstore, CommonModifiers {
             _matchingId,
             CarReplicaType.Event.StorageFailed
         );
-        emit CarReplicaFailed(_cid, _matchingId);
+        emit CarstoreEvents.CarReplicaFailed(_cid, _matchingId);
     }
 
     /// @notice Report that storage of a replica has been slashed.
@@ -267,9 +179,9 @@ contract Carstore is ICarstore, CommonModifiers {
         uint256 _matchingId
     )
         external
-        carExist(_cid)
+        onlyCarExist(_cid)
         notZeroId(_matchingId)
-        carReplicaExist(_cid, _matchingId)
+        onlyCarReplicaExist(_cid, _matchingId)
         onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Stored)
         onlyCarReplicaFilecoinDealState(
             _cid,
@@ -282,7 +194,7 @@ contract Carstore is ICarstore, CommonModifiers {
             _matchingId,
             CarReplicaType.Event.StorageSlashed
         );
-        emit CarReplicaSlashed(_cid, _matchingId);
+        emit CarstoreEvents.CarReplicaSlashed(_cid, _matchingId);
     }
 
     /// @notice Set the Filecoin deal ID for a replica's storage.
@@ -296,17 +208,21 @@ contract Carstore is ICarstore, CommonModifiers {
         uint64 _filecoinDealId
     )
         external
-        carExist(_cid)
+        onlyCarExist(_cid)
         notZeroId(_matchingId)
         notZeroId(_filecoinDealId)
-        carReplicaExist(_cid, _matchingId)
+        onlyCarReplicaExist(_cid, _matchingId)
         onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Matched)
-        carReplicaFilecoinDealIdNotExist(_cid, _matchingId)
+        onlyUnsetCarReplicaFilecoinDealId(_cid, _matchingId)
     {
         CarReplicaType.Car storage car = cars[_cid];
         car._setReplicaFilecoinDealId(_matchingId, _filecoinDealId);
 
-        emit CarReplicaFilecoinDealIdSet(_cid, _matchingId, _filecoinDealId);
+        emit CarstoreEvents.CarReplicaFilecoinDealIdSet(
+            _cid,
+            _matchingId,
+            _filecoinDealId
+        );
     }
 
     /// @notice Get the dataset ID associated with a car.
@@ -314,7 +230,7 @@ contract Carstore is ICarstore, CommonModifiers {
     /// @return The dataset ID of the car.
     function getCarDatasetId(
         bytes32 _cid
-    ) public view carExist(_cid) returns (uint256) {
+    ) public view onlyCarExist(_cid) returns (uint256) {
         CarReplicaType.Car storage car = cars[_cid];
         return car._getDatasetId();
     }
@@ -329,9 +245,9 @@ contract Carstore is ICarstore, CommonModifiers {
     )
         public
         view
-        carExist(_cid)
+        onlyCarExist(_cid)
         notZeroId(_matchingId)
-        carReplicaExist(_cid, _matchingId)
+        onlyCarReplicaExist(_cid, _matchingId)
         returns (CarReplicaType.State, uint64)
     {
         CarReplicaType.Car storage car = cars[_cid];
@@ -347,7 +263,7 @@ contract Carstore is ICarstore, CommonModifiers {
     /// @return The count of replicas associated with the car.
     function getCarRepicasCount(
         bytes32 _cid
-    ) public view carExist(_cid) returns (uint32) {
+    ) public view onlyCarExist(_cid) returns (uint32) {
         CarReplicaType.Car storage car = cars[_cid];
         return car._getRepicasCount();
     }
@@ -362,9 +278,9 @@ contract Carstore is ICarstore, CommonModifiers {
     )
         public
         view
-        carExist(_cid)
+        onlyCarExist(_cid)
         notZeroId(_matchingId)
-        carReplicaExist(_cid, _matchingId)
+        onlyCarReplicaExist(_cid, _matchingId)
         onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Stored)
         returns (uint64)
     {
@@ -382,9 +298,9 @@ contract Carstore is ICarstore, CommonModifiers {
     )
         public
         view
-        carExist(_cid)
+        onlyCarExist(_cid)
         notZeroId(_matchingId)
-        carReplicaExist(_cid, _matchingId)
+        onlyCarReplicaExist(_cid, _matchingId)
         returns (CarReplicaType.State)
     {
         CarReplicaType.Car storage car = cars[_cid];
@@ -408,8 +324,7 @@ contract Carstore is ICarstore, CommonModifiers {
     function hasCarReplica(
         bytes32 _cid,
         uint256 _matchingId
-    ) public view carExist(_cid) returns (bool) {
-        require(_matchingId != 0, "Invalid matching id");
+    ) public view onlyCarExist(_cid) returns (bool) {
         CarReplicaType.Car storage car = cars[_cid];
         return car._hasReplica(_matchingId);
     }

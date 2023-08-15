@@ -21,6 +21,9 @@ interface IDatacaps {
     /// @param _matchingId The ID of the matching process.
     function requestAllocateDatacap(uint256 _matchingId) external;
 
+    /// @dev Gets the allocated matched datacap for a storage.
+    /// @param _matchingId The ID of the matching process.
+    /// @return The allocated datacap size.
     function getAvailableDatacap(
         uint256 _matchingId
     ) external returns (uint256);

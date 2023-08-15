@@ -17,7 +17,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import "../../types/FilecoinDealType.sol";
+import "../../../types/FilecoinDealType.sol";
 
 /// @title FilecoinDealUtils
 library FilecoinDealUtils {

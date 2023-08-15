@@ -32,7 +32,7 @@ import {Storages} from "../module/storage/Storages.sol";
 abstract contract DataswapStorage is IDataswapStorage {
     address private governanceAddress;
     Roles private roles = new Roles();
-    Carstore private carstore = new Carstore();
+    Carstore private carstore;
     Filplus private filplus;
     Datasets private datasets;
     Matchings private matchings;
@@ -41,6 +41,7 @@ abstract contract DataswapStorage is IDataswapStorage {
 
     constructor(address payable _governanceContractAddress) {
         filplus = new Filplus(_governanceContractAddress);
+        carstore = new Carstore(roles, filplus);
         datasets = new Datasets(
             _governanceContractAddress,
             roles,

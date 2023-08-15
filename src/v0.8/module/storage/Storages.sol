@@ -14,25 +14,24 @@
 
 pragma solidity ^0.8.21;
 
-import {CarReplicaType} from "../../types/CarReplicaType.sol";
-import {FilecoinStorageDealState} from "../../types/FilecoinDealType.sol";
-import {Errors} from "../../shared/errors/Errors.sol";
-import {StoragesEvents} from "../../shared/events/StoragesEvents.sol";
-import {CommonModifiers} from "../../shared/modifiers/CommonModifiers.sol";
-import {RolesModifiers} from "../../shared/modifiers/RolesModifiers.sol";
-import {StoragesModifiers} from "../../shared/modifiers/StoragesModifiers.sol";
+/// interface
 import {IRoles} from "../../interfaces/core/IRoles.sol";
 import {IFilplus} from "../../interfaces/core/IFilplus.sol";
 import {ICarstore} from "../../interfaces/core/ICarstore.sol";
 import {IDatasets} from "../../interfaces/module/IDatasets.sol";
 import {IMatchings} from "../../interfaces/module/IMatchings.sol";
 import {IStorages} from "../../interfaces/module/IStorages.sol";
+/// shared
+import {Errors} from "../../shared/errors/Errors.sol";
+import {StoragesEvents} from "../../shared/events/StoragesEvents.sol";
+import {StoragesModifiers} from "../../shared/modifiers/StoragesModifiers.sol";
+/// type
+import {CarReplicaType} from "../../types/CarReplicaType.sol";
 import {StorageType} from "../../types/StorageType.sol";
-import {FilecoinDealUtils} from "../../shared/filecoin/FilecoinDealUtils.sol";
 
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
-contract Storages is IStorages, StoragesModifiers{
+contract Storages is IStorages, StoragesModifiers {
     mapping(uint256 => StorageType.Storage) private storages; //matchingId=>Matchedstore
 
     address private governanceAddress;
@@ -49,7 +48,16 @@ contract Storages is IStorages, StoragesModifiers{
         ICarstore _carstore,
         IDatasets _datasets,
         IMatchings _matchings
-    ) StoragesModifiers(_roles,_filplus,_carstore,_datasets,_matchings) {
+    )
+        StoragesModifiers(
+            _roles,
+            _filplus,
+            _carstore,
+            _datasets,
+            _matchings,
+            this
+        )
+    {
         governanceAddress = _governanceAddress;
         roles = _roles;
         filplus = _filplus;
@@ -78,15 +86,20 @@ contract Storages is IStorages, StoragesModifiers{
         uint64 _filecoinDealId
     )
         public
-        StoragesModifiers.onlyMatchingContainsCar(_matchingId, _cid)
-        StoragesModifiers.onlyUnsetStorageDealId(_matchingId, _cid, _filecoinDealId)
-        StoragesModifiers.onlySuccessfulStorageDeal(_cid, _filecoinDealId)
+        onlyMatchingContainsCar(_matchingId, _cid)
+        onlyUnsetCarReplicaFilecoinDealId(_cid, _matchingId)
+        onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Matched)
+    //TODO: verify filecoin deal id matched cid
     {
         StorageType.Storage storage storage_ = storages[_matchingId];
         storage_.doneCars.push(_cid);
         _setStorageDealId(_matchingId, _cid, _filecoinDealId);
 
-        emit StoragesEvents.StorageDealIdSubmitted(_matchingId, _cid, _filecoinDealId);
+        emit StoragesEvents.StorageDealIdSubmitted(
+            _matchingId,
+            _cid,
+            _filecoinDealId
+        );
     }
 
     /// @dev Submits multiple Filecoin deal Ids for a matchedstore after successful matching.
@@ -96,7 +109,10 @@ contract Storages is IStorages, StoragesModifiers{
         uint64[] memory _filecoinDealIds
     ) external {
         if (_cids.length != _filecoinDealIds.length) {
-            revert Errors.ParamLengthMismatch(_cids.length, _filecoinDealIds.length);
+            revert Errors.ParamLengthMismatch(
+                _cids.length,
+                _filecoinDealIds.length
+            );
         }
         for (uint256 i = 0; i < _cids.length; i++) {
             submitStorageDealId(_matchingId, _cids[i], _filecoinDealIds[i]);

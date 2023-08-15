@@ -18,24 +18,28 @@
 
 pragma solidity ^0.8.21;
 
-import {DatasetType} from "../../types/DatasetType.sol";
-import {RolesType} from "../../types/RolesType.sol";
-import {CommonModifiers} from "../../shared/modifiers/CommonModifiers.sol";
-import {RolesModifiers} from "../../shared/modifiers/RolesModifiers.sol";
+/// interface
 import {IRoles} from "../../interfaces/core/IRoles.sol";
 import {IFilplus} from "../../interfaces/core/IFilplus.sol";
 import {ICarstore} from "../../interfaces/core/ICarstore.sol";
 import {IDatasets} from "../../interfaces/module/IDatasets.sol";
+///shared
+import {DatasetsEvents} from "../../shared/events/DatasetsEvents.sol";
+import {DatasetsModifiers} from "../../shared/modifiers/DatasetsModifiers.sol";
+/// library
 import {DatasetMetadataLIB} from "./library/DatasetMetadataLIB.sol";
 import {DatasetProofLIB} from "./library/DatasetProofLIB.sol";
 import {DatasetStateMachineLIB} from "./library/DatasetStateMachineLIB.sol";
 import {DatasetVerificationLIB} from "./library/DatasetVerificationLIB.sol";
 import {DatasetAuditLIB} from "./library/DatasetAuditLIB.sol";
+/// type
+import {RolesType} from "../../types/RolesType.sol";
+import {DatasetType} from "../../types/DatasetType.sol";
 
 /// @title Datasets Base Contract
 /// @notice This contract serves as the base for managing datasets, metadata, proofs, and verifications.
 /// @dev This contract is intended to be inherited by specific dataset-related contracts.
-contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
+contract Datasets is IDatasets, DatasetsModifiers {
     using DatasetMetadataLIB for DatasetType.Dataset;
     using DatasetProofLIB for DatasetType.Dataset;
     using DatasetStateMachineLIB for DatasetType.Dataset;
@@ -55,60 +59,12 @@ contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
         IRoles _roles,
         IFilplus _filplus,
         ICarstore _carstore
-    ) RolesModifiers(_roles) {
+    ) DatasetsModifiers(_roles,_filplus,_carstore,this) {
         governanceAddress = _governanceAddress;
         roles = _roles;
         filplus = _filplus;
         carstore = _carstore;
     }
-
-    /// @dev Modifier to ensure that a dataset metadata  with the given accessMethod exists.
-    modifier datasetMetadataExsits(string memory _accessMethod) {
-        require(hasDatasetMetadata(_accessMethod), "dataset is not exists");
-        _;
-    }
-
-    /// @dev Modifier to ensure that a dataset metadata with the given accessMethod not exists.
-    modifier datasetMetadataNotExsits(string memory _accessMethod) {
-        require(!hasDatasetMetadata(_accessMethod), "dataset is not exists");
-        _;
-    }
-
-    modifier onlyDatasetState(uint256 _datasetId, DatasetType.State _state) {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        require(_state == dataset.state, "dataset is not exists");
-        _;
-    }
-
-    /// @notice Event emitted when metadata is submitted for a new dataset.
-    event DatasetMetadataSubmitted(
-        uint256 indexed _datasetId,
-        address indexed _provider
-    );
-
-    /// @notice Event emitted when a proof is submitted for a dataset.
-    event DatasetProofSubmitted(
-        uint256 indexed _datasetId,
-        address indexed _provider
-    );
-
-    /// @notice Event emitted when a dataset is verified.
-    event DatasetVerificationSubmitted(
-        uint256 indexed _datasetId,
-        address indexed _verifier
-    );
-
-    /// @notice Event emitted when metadata is approved for a dataset.
-    event DatasetMetadataApproved(uint256 indexed _datasetId);
-
-    /// @notice Event emitted when metadata is rejected for a dataset.
-    event DatasetMetadataRejected(uint256 indexed _datasetId);
-
-    /// @notice Event emitted when a dataset is approved.
-    event DatasetApproved(uint256 indexed _datasetId);
-
-    /// @notice Event emitted when a dataset is rejected.
-    event DatasetRejected(uint256 indexed _datasetId);
 
     ///@dev Need add cids to carStore
     function _beforeApproveDataset(uint256 _datasetId) internal {
@@ -134,14 +90,14 @@ contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
     )
         external
         notZeroId(_datasetId)
-        onlyDatasetState(_datasetId, DatasetType.State.DatasetProofSubmitted)
+        DatasetsModifiers.onlyDatasetState(_datasetId, DatasetType.State.DatasetProofSubmitted)
         onlyAddress(governanceAddress)
     {
         _beforeApproveDataset(_datasetId);
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset.approveDataset();
 
-        emit DatasetApproved(_datasetId);
+        emit DatasetsEvents.DatasetApproved(_datasetId);
     }
 
     ///@notice Approve the metadata of a dataset.
@@ -151,13 +107,13 @@ contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
     )
         external
         notZeroId(_datasetId)
-        onlyDatasetState(_datasetId, DatasetType.State.MetadataSubmitted)
+        DatasetsModifiers.onlyDatasetState(_datasetId, DatasetType.State.MetadataSubmitted)
         onlyAddress(governanceAddress)
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset.approveDatasetMetadata();
 
-        emit DatasetMetadataApproved(_datasetId);
+        emit DatasetsEvents.DatasetMetadataApproved(_datasetId);
     }
 
     ///@notice Reject the metadata of a dataset.
@@ -167,13 +123,13 @@ contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
     )
         external
         notZeroId(_datasetId)
-        onlyDatasetState(_datasetId, DatasetType.State.MetadataSubmitted)
+        DatasetsModifiers.onlyDatasetState(_datasetId, DatasetType.State.MetadataSubmitted)
         onlyAddress(governanceAddress)
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset.rejectDatasetMetadata();
 
-        emit DatasetMetadataRejected(_datasetId);
+        emit DatasetsEvents.DatasetMetadataRejected(_datasetId);
     }
 
     ///@notice Reject a dataset.
@@ -183,13 +139,13 @@ contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
     )
         external
         notZeroId(_datasetId)
-        onlyDatasetState(_datasetId, DatasetType.State.DatasetProofSubmitted)
+        DatasetsModifiers.onlyDatasetState(_datasetId, DatasetType.State.DatasetProofSubmitted)
         onlyAddress(governanceAddress)
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset.rejectDataset();
 
-        emit DatasetRejected(_datasetId);
+        emit DatasetsEvents.DatasetRejected(_datasetId);
     }
 
     ///@notice Submit metadata for a dataset
@@ -204,7 +160,7 @@ contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
         uint64 _sizeInBytes,
         bool _isPublic,
         uint64 _version
-    ) external datasetMetadataNotExsits(_accessMethod) {
+    ) external DatasetsModifiers.onlyDatasetMetadataNotExsits(_accessMethod) {
         //Note: params check in lib
         datasetsCount++;
         DatasetType.Dataset storage dataset = datasets[datasetsCount];
@@ -220,7 +176,7 @@ contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
             _version
         );
 
-        emit DatasetMetadataSubmitted(datasetsCount, msg.sender);
+        emit DatasetsEvents.DatasetMetadataSubmitted(datasetsCount, msg.sender);
     }
 
     ///@notice Submit proof for a dataset
@@ -245,7 +201,7 @@ contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
             _sourceToCarMappingFilesAccessMethod
         );
 
-        emit DatasetProofSubmitted(_datasetId, msg.sender);
+        emit DatasetsEvents.DatasetProofSubmitted(_datasetId, msg.sender);
     }
 
     ///@notice Submit proof for a dataset
@@ -269,7 +225,10 @@ contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
             _sourceToCarMappingFilesProofLeafHashes
         );
 
-        emit DatasetVerificationSubmitted(_datasetId, msg.sender);
+        emit DatasetsEvents.DatasetVerificationSubmitted(
+            _datasetId,
+            msg.sender
+        );
     }
 
     ///@notice Get dataset metadata
@@ -330,7 +289,7 @@ contract Datasets is IDatasets, CommonModifiers, RolesModifiers {
     }
 
     ///@notice Get dataset size
-    function getDatasetSize(
+    function getDatasetCapacity(
         uint256 _datasetId
     ) public view notZeroId(_datasetId) returns (uint64) {
         (, , , , , , , , uint64 sizeInBytes, , ) = getDatasetMetadata(
