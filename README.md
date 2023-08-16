@@ -8,8 +8,8 @@
 ### Build
 ##### 1 dependencies
 ```shell
+forge install
 yarn install
-
 ```
 
 2 compile

@@ -3,63 +3,64 @@ name: foundry_and_hardhat_test
 on: workflow_dispatch
 
 env:
-  FOUNDRY_HARDHAT_PROFILE: ci
+    FOUNDRY_HARDHAT_PROFILE: ci
 
 jobs:
-  check-foundry:
-    strategy:
-      fail-fast: true
+    check-foundry:
+        strategy:
+            fail-fast: true
 
-    name: Foundry project
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
+        name: Foundry project
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  submodules: recursive
 
-      - name: Install Foundry
-        uses: foundry-rs/foundry-toolchain@v1
-        with:
-          version: nightly
+            - name: Install Foundry
+              uses: foundry-rs/foundry-toolchain@v1
+              with:
+                  version: nightly
 
-      - name: Install Depends
-        run: |
-          yarn install
-        id: intsalldepends
+            - name: Install Depends
+              run: |
+                  forge install
+                  yarn install
+              id: intsalldepends
 
-      - name: Run Forge build
-        run: |
-          forge --version
-          forge build --sizes
-        id: build
+            - name: Run Forge build
+              run: |
+                  forge --version
+                  forge build --sizes
+              id: build
 
-      - name: Run Forge tests
-        run: |
-          forge test -vvv
-        id: test
+            - name: Run Forge tests
+              run: |
+                  forge test -vvv
+              id: test
 
-  check-hardhat:
-    strategy:
-      fail-fast: true
+    check-hardhat:
+        strategy:
+            fail-fast: true
 
-    name: Harthat project
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: recursive
+        name: Harthat project
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+              with:
+                  submodules: recursive
 
-      - name: Install Depends
-        run: |
-          yarn install
-        id: intsalldepends
+            - name: Install Depends
+              run: |
+                  yarn install
+              id: intsalldepends
 
-      - name: Run hardhat build
-        run: |
-            yarn hardhat compile
-        id: build
+            - name: Run hardhat build
+              run: |
+                  yarn hardhat compile
+              id: build
 
-      - name: Run hardhat tests
-        run: |
-            yarn hardhat test
-        id: test
+            - name: Run hardhat tests
+              run: |
+                  yarn hardhat test
+              id: test
