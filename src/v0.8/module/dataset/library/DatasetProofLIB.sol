@@ -35,20 +35,18 @@ library DatasetProofLIB {
     function submitDatasetProof(
         DatasetType.Dataset storage self,
         DatasetType.DataType _dataType,
-        string calldata _accessMethod,
         bytes32 _rootHash,
         bytes32[] calldata _leafHashes,
         uint32[] calldata _leafSizes,
         bool _completed
     ) external {
-        DatasetType.DatasetProof storage proofs;
+        DatasetType.DatasetProof storage proof;
         if (_dataType == DatasetType.DataType.Dataset) {
-            proofs = self.sourceProofs;
+            proof = self.sourceProof;
         } else {
-            proofs = self.mappingFilesProofs;
-            proofs.mappingFilesAccessMethod = _accessMethod;
+            proof = self.mappingFilesProof;
         }
-        proofs.submitDatasetProof(
+        proof.submitDatasetProof(
             _rootHash,
             _leafHashes,
             _leafSizes,
@@ -64,13 +62,13 @@ library DatasetProofLIB {
         DatasetType.DataType _dataType,
         uint32 _chunkId
     ) public view returns (bytes32[] memory cids, uint32[] memory sizes) {
-        DatasetType.DatasetProof storage proofs;
+        DatasetType.DatasetProof storage proof;
         if (_dataType == DatasetType.DataType.Dataset) {
-            proofs = self.sourceProofs;
+            proof = self.sourceProof;
         } else {
-            proofs = self.mappingFilesProofs;
+            proof = self.mappingFilesProof;
         }
-        return proofs.getDatasetChunkProof(_chunkId);
+        return proof.getDatasetChunkProof(_chunkId);
     }
 
     /// @notice Get the source dataset CID array from the submitted dataset proof.
@@ -82,12 +80,12 @@ library DatasetProofLIB {
         DatasetType.DataType _dataType,
         uint32 _chunkId
     ) public view returns (bytes32[] memory, uint32[] memory) {
-        DatasetType.DatasetProof storage proofs;
+        DatasetType.DatasetProof storage proof;
         if (_dataType == DatasetType.DataType.Dataset) {
-            proofs = self.sourceProofs;
+            proof = self.sourceProof;
         } else {
-            proofs = self.mappingFilesProofs;
+            proof = self.mappingFilesProof;
         }
-        return proofs.getDatasetChunkCars(_chunkId);
+        return proof.getDatasetChunkCars(_chunkId);
     }
 }

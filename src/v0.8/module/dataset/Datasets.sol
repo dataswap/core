@@ -191,9 +191,11 @@ contract Datasets is IDatasets, DatasetsModifiers {
     ) external {
         //Note: params check in lib
         DatasetType.Dataset storage dataset = datasets[_datasetId];
+        if (_dataType == DatasetType.DataType.Dataset) {
+            dataset.mappingFilesAccessMethod = _accessMethod;
+        }
         dataset.submitDatasetProof(
             _dataType,
-            _accessMethod,
             _rootHash,
             _leafHashes,
             _leafSizes,
@@ -203,19 +205,18 @@ contract Datasets is IDatasets, DatasetsModifiers {
             _updateCarstore(
                 _datasetId,
                 _dataType,
-                dataset.sourceProofs.proofCount
+                dataset.sourceProof.proofCount
             );
         } else {
             _updateCarstore(
                 _datasetId,
                 _dataType,
-                dataset.mappingFilesProofs.proofCount
+                dataset.mappingFilesProof.proofCount
             );
         }
 
         if (
-            dataset.sourceProofs.completed &&
-            dataset.mappingFilesProofs.completed
+            dataset.sourceProof.completed && dataset.mappingFilesProof.completed
         ) {
             emit DatasetsEvents.DatasetProofSubmitted(_datasetId, msg.sender);
         }

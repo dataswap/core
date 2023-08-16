@@ -69,22 +69,21 @@ library DatasetType {
 
     /// @notice Struct representing a Merkle proof for data.
     struct DatasetChunkProof {
-        Leaf[] leafs; // Array of leaf hashes representing items in the data.
-    }
-
-    /// @notice Struct representing proofs associated with a dataset challenge submitted by reviewers.
-    struct DatasetChallengeProof {
-        bytes32[] siblings;
-        uint32 path;
+        Leaf[] leaves; // Array of leaf hashes representing items in the data.
     }
 
     /// @notice Struct representing proofs associated with a dataset challenge submitted by reviewers.
     struct DatasetProof {
         bytes32 rootHash; // Root hash of the data's Merkle tree.
         uint32 proofCount;
-        string mappingFilesAccessMethod; // Method of accessing data (e.g., URL, API).
         bool completed;
         mapping(uint32 => DatasetChunkProof) proof; // Proof associated with the dataset.
+    }
+
+    /// @notice Struct representing proofs associated with a dataset challenge submitted by reviewers.
+    struct DatasetChallengeProof {
+        bytes32[] siblings;
+        uint32 path;
     }
 
     /// @notice Struct representing verification details of a dataset.
@@ -99,8 +98,9 @@ library DatasetType {
         Metadata metadata; // Metadata of the dataset.
         State state; // Current state of the dataset.
         //proof
-        DatasetProof sourceProofs; // Proof associated with the dataset.
-        DatasetProof mappingFilesProofs; // Proof associated with the dataset.
+        string mappingFilesAccessMethod; // Method of accessing data (e.g., URL, API).
+        DatasetProof sourceProof; // Proof associated with the dataset.
+        DatasetProof mappingFilesProof; // Proof associated with the dataset.
         //verifications
         uint32 verificationsCount;
         mapping(address => Verification) verifications; // Address of the auditor who submits challenges.

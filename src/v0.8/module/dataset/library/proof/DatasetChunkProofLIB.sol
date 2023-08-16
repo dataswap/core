@@ -53,8 +53,8 @@ library DatasetChunkProofLIB {
         bytes32[] calldata _leafHashes,
         uint32[] calldata _leafSizes
     ) external {
-        DatasetType.Leaf[] storage leafs = self.leafs;
-        leafs.setLeaf(_leafHashes, _leafSizes);
+        DatasetType.Leaf[] storage leaves = self.leaves;
+        leaves.setLeaf(_leafHashes, _leafSizes);
     }
 
     /// @notice Get the source dataset CID array from the submitted dataset proof.
@@ -64,8 +64,8 @@ library DatasetChunkProofLIB {
     function getDatasetSourceCids(
         DatasetType.DatasetChunkProof storage self
     ) public view returns (bytes32[] memory, uint32[] memory) {
-        DatasetType.Leaf[] storage sourceLeafs = self.leafs;
-        return sourceLeafs.getLeaf();
+        DatasetType.Leaf[] storage sourceLeaves = self.leaves;
+        return sourceLeaves.getLeaf();
     }
 
     /// @notice Get the source dataset proof from the submitted dataset proof.
@@ -74,8 +74,8 @@ library DatasetChunkProofLIB {
     function getDatasetProof(
         DatasetType.DatasetChunkProof storage self
     ) public view returns (bytes32[] memory cids, uint32[] memory sizes) {
-        DatasetType.Leaf[] storage leafs = self.leafs;
-        (cids, sizes) = leafs.getLeaf();
+        DatasetType.Leaf[] storage leaves = self.leaves;
+        (cids, sizes) = leaves.getLeaf();
     }
 
     /// @notice Get the source to car mapping files CID array from the submitted dataset proof.
