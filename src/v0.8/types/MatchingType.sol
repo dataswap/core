@@ -65,11 +65,11 @@ library MatchingType {
 
     /// @notice Struct representing the target of a matching.
     struct Target {
-        uint256 datasetId; // ID of the dataset associated with the matching
+        uint64 datasetId; // ID of the dataset associated with the matching
         bytes32[] cars; // Array of car IDs associated with the matching
         uint64 size; // Size of the matching target，Note:total datacap size that this matching need allocate
         DataType dataType; // Type of data associated with the matching
-        uint256 associatedMappingFilesMatchingID; // ID of the matching associated with mapping files
+        uint64 associatedMappingFilesMatchingID; // ID of the matching associated with mapping files
     }
 
     /// @notice Struct representing a bid in a matching.

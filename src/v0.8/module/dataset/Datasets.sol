@@ -47,8 +47,8 @@ contract Datasets is IDatasets, DatasetsModifiers {
     using DatasetVerificationLIB for DatasetType.Dataset;
     using DatasetAuditLIB for DatasetType.Dataset;
 
-    uint256 public datasetsCount; // Total count of datasets
-    mapping(uint256 => DatasetType.Dataset) private datasets; // Mapping of dataset ID to dataset details
+    uint64 public datasetsCount; // Total count of datasets
+    mapping(uint64 => DatasetType.Dataset) private datasets; // Mapping of dataset ID to dataset details
 
     address private governanceAddress;
     IRoles private roles;
@@ -69,11 +69,11 @@ contract Datasets is IDatasets, DatasetsModifiers {
 
     ///@dev Need add cids to carStore
     function _updateCarstore(
-        uint256 _datasetId,
+        uint64 _datasetId,
         DatasetType.DataType _dataType,
-        uint32 _chunkId
+        uint64 _chunkId
     ) internal {
-        (bytes32[] memory cids, uint32[] memory sizes) = getDatasetCars(
+        (bytes32[] memory cids, uint64[] memory sizes) = getDatasetCars(
             _datasetId,
             _dataType,
             _chunkId
@@ -84,7 +84,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     ///@notice Approve a dataset.
     ///@dev This function changes the state of the dataset to DatasetApproved and emits the DatasetApproved event.
     function approveDataset(
-        uint256 _datasetId
+        uint64 _datasetId
     )
         external
         onlyNotZero(_datasetId)
@@ -100,7 +100,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     ///@notice Approve the metadata of a dataset.
     ///@dev This function changes the state of the dataset to MetadataApproved and emits the MetadataApproved event.
     function approveDatasetMetadata(
-        uint256 _datasetId
+        uint64 _datasetId
     )
         external
         onlyNotZero(_datasetId)
@@ -116,7 +116,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     ///@notice Reject the metadata of a dataset.
     ///@dev This function changes the state of the dataset to MetadataRejected and emits the MetadataRejected event.
     function rejectDatasetMetadata(
-        uint256 _datasetId
+        uint64 _datasetId
     )
         external
         onlyNotZero(_datasetId)
@@ -132,7 +132,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     ///@notice Reject a dataset.
     ///@dev This function changes the state of the dataset to DatasetRejected and emits the DatasetRejected event.
     function rejectDataset(
-        uint256 _datasetId
+        uint64 _datasetId
     )
         external
         onlyNotZero(_datasetId)
@@ -181,12 +181,12 @@ contract Datasets is IDatasets, DatasetsModifiers {
     /// Proof and verification functionality is provided here as a sample code structure.
     /// The actual functionality is pending completion.
     function submitDatasetProof(
-        uint256 _datasetId,
+        uint64 _datasetId,
         DatasetType.DataType _dataType,
         string calldata _accessMethod,
         bytes32 _rootHash,
         bytes32[] calldata _leafHashes,
-        uint32[] calldata _leafSizes,
+        uint64[] calldata _leafSizes,
         bool _completed
     ) external {
         //Note: params check in lib
@@ -227,7 +227,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     /// Proof and verification functionality is provided here as a sample code structure.
     /// The actual functionality is pending completion.
     function submitDatasetVerification(
-        uint256 _datasetId,
+        uint64 _datasetId,
         uint64 _randomSeed,
         bytes32[][] memory _siblings,
         uint32[] memory _paths
@@ -242,7 +242,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
 
     ///@notice Get dataset metadata
     function getDatasetMetadata(
-        uint256 _datasetId
+        uint64 _datasetId
     )
         public
         view
@@ -267,14 +267,14 @@ contract Datasets is IDatasets, DatasetsModifiers {
 
     ///@notice Get dataset source CIDs
     function getDatasetCars(
-        uint256 _datasetId,
+        uint64 _datasetId,
         DatasetType.DataType _dataType,
-        uint32 _chunkId
+        uint64 _chunkId
     )
         public
         view
         onlyNotZero(_datasetId)
-        returns (bytes32[] memory, uint32[] memory)
+        returns (bytes32[] memory, uint64[] memory)
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetChunkCars(_dataType, _chunkId);
@@ -282,14 +282,14 @@ contract Datasets is IDatasets, DatasetsModifiers {
 
     // Get dataset source proof
     function getDatasetProof(
-        uint256 _datasetId,
+        uint64 _datasetId,
         DatasetType.DataType _dataType,
-        uint32 _chunkId
+        uint64 _chunkId
     )
         public
         view
         onlyNotZero(_datasetId)
-        returns (bytes32[] memory, uint32[] memory)
+        returns (bytes32[] memory, uint64[] memory)
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetChunkProof(_dataType, _chunkId);
@@ -297,7 +297,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
 
     ///@notice Get dataset size
     function getDatasetCapacity(
-        uint256 _datasetId
+        uint64 _datasetId
     ) public view onlyNotZero(_datasetId) returns (uint64) {
         (, , , , , , , , uint64 sizeInBytes, , ) = getDatasetMetadata(
             _datasetId
@@ -307,7 +307,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
 
     ///@notice Get dataset state
     function getDatasetState(
-        uint256 _datasetId
+        uint64 _datasetId
     ) public view onlyNotZero(_datasetId) returns (DatasetType.State) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetState();
@@ -315,7 +315,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
 
     ///@notice Get dataset verification
     function getDatasetVerification(
-        uint256 _datasetId,
+        uint64 _datasetId,
         address _auditor
     )
         public
@@ -329,8 +329,8 @@ contract Datasets is IDatasets, DatasetsModifiers {
 
     ///@notice Get count of dataset verifications
     function getDatasetVerificationsCount(
-        uint256 _datasetId
-    ) public view onlyNotZero(_datasetId) returns (uint32) {
+        uint64 _datasetId
+    ) public view onlyNotZero(_datasetId) returns (uint16) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetVerificationsCount();
     }
@@ -339,7 +339,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     function hasDatasetMetadata(
         string memory _accessMethod
     ) public view returns (bool) {
-        for (uint256 i = 1; i < datasetsCount; i++) {
+        for (uint64 i = 1; i < datasetsCount; i++) {
             DatasetType.Dataset storage dataset = datasets[i];
             if (dataset.hasDatasetMetadata(_accessMethod)) return true;
         }
@@ -348,7 +348,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
 
     ///@notice Check if a dataset has a cid
     function isDatasetContainsCar(
-        uint256 _datasetId,
+        uint64 _datasetId,
         bytes32 _cid
     ) public view onlyNotZero(_datasetId) returns (bool) {
         return _datasetId == carstore.getCarDatasetId(_cid);
@@ -356,10 +356,10 @@ contract Datasets is IDatasets, DatasetsModifiers {
 
     ///@notice Check if a dataset has cids
     function isDatasetContainsCars(
-        uint256 _datasetId,
+        uint64 _datasetId,
         bytes32[] memory _cids
     ) public view onlyNotZero(_datasetId) returns (bool) {
-        for (uint256 i = 0; i < _cids.length; i++) {
+        for (uint64 i = 0; i < _cids.length; i++) {
             if (!isDatasetContainsCar(_datasetId, _cids[i])) return false;
         }
         return true;

@@ -37,7 +37,7 @@ library DatasetProofLIB {
         DatasetType.DataType _dataType,
         bytes32 _rootHash,
         bytes32[] calldata _leafHashes,
-        uint32[] calldata _leafSizes,
+        uint64[] calldata _leafSizes,
         bool _completed
     ) external {
         DatasetType.DatasetProof storage proof;
@@ -60,8 +60,8 @@ library DatasetProofLIB {
     function getDatasetChunkProof(
         DatasetType.Dataset storage self,
         DatasetType.DataType _dataType,
-        uint32 _chunkId
-    ) public view returns (bytes32[] memory cids, uint32[] memory sizes) {
+        uint64 _chunkId
+    ) public view returns (bytes32[] memory cids, uint64[] memory sizes) {
         DatasetType.DatasetProof storage proof;
         if (_dataType == DatasetType.DataType.Dataset) {
             proof = self.sourceProof;
@@ -78,8 +78,8 @@ library DatasetProofLIB {
     function getDatasetChunkCars(
         DatasetType.Dataset storage self,
         DatasetType.DataType _dataType,
-        uint32 _chunkId
-    ) public view returns (bytes32[] memory, uint32[] memory) {
+        uint64 _chunkId
+    ) public view returns (bytes32[] memory, uint64[] memory) {
         DatasetType.DatasetProof storage proof;
         if (_dataType == DatasetType.DataType.Dataset) {
             proof = self.sourceProof;

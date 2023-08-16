@@ -50,7 +50,7 @@ contract MatchingsModifiers is DatasetsModifiers {
     }
 
     /// @notice Modifier to restrict access to the matching initiator
-    modifier onlyMatchingContainsCar(uint256 _matchingId, bytes32 _cid) {
+    modifier onlyMatchingContainsCar(uint64 _matchingId, bytes32 _cid) {
         if (!matchings.isMatchingContainsCar(_matchingId, _cid)) {
             revert Errors.ReplicaNotExist(_cid, _matchingId);
         }
@@ -58,7 +58,7 @@ contract MatchingsModifiers is DatasetsModifiers {
     }
 
     /// @notice Modifier to restrict access to the matching initiator
-    modifier onlyMatchingInitiator(uint256 _matchingId) {
+    modifier onlyMatchingInitiator(uint64 _matchingId) {
         address initiator = matchings.getMatchingInitiator(_matchingId);
         if (initiator != msg.sender) {
             revert Errors.NotMatchingInitiator(
@@ -71,7 +71,7 @@ contract MatchingsModifiers is DatasetsModifiers {
     }
 
     /// @notice Modifier to restrict access based on matching state
-    modifier onlyMatchingState(uint256 _matchingId, MatchingType.State _state) {
+    modifier onlyMatchingState(uint64 _matchingId, MatchingType.State _state) {
         MatchingType.State matchingState = matchings.getMatchingState(
             _matchingId
         );

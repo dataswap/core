@@ -32,7 +32,7 @@ import {StorageType} from "../../types/StorageType.sol";
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
 contract Storages is IStorages, StoragesModifiers {
-    mapping(uint256 => StorageType.Storage) private storages; //matchingId=>Matchedstore
+    mapping(uint64 => StorageType.Storage) private storages; //matchingId=>Matchedstore
 
     address private governanceAddress;
     IRoles private roles;
@@ -68,7 +68,7 @@ contract Storages is IStorages, StoragesModifiers {
 
     /// @dev Submits a Filecoin deal Id for a matchedstore after successful matching.
     function submitStorageDealId(
-        uint256 _matchingId,
+        uint64 _matchingId,
         bytes32 _cid,
         uint64 _filecoinDealId
     )
@@ -97,7 +97,7 @@ contract Storages is IStorages, StoragesModifiers {
 
     /// @dev Submits multiple Filecoin deal Ids for a matchedstore after successful matching.
     function submitStorageDealIds(
-        uint256 _matchingId,
+        uint64 _matchingId,
         bytes32[] memory _cids,
         uint64[] memory _filecoinDealIds
     ) external {
@@ -107,14 +107,14 @@ contract Storages is IStorages, StoragesModifiers {
                 _filecoinDealIds.length
             );
         }
-        for (uint256 i = 0; i < _cids.length; i++) {
+        for (uint64 i = 0; i < _cids.length; i++) {
             submitStorageDealId(_matchingId, _cids[i], _filecoinDealIds[i]);
         }
     }
 
     /// @dev Gets the list of done cars in the matchedstore.
     function getStoredCars(
-        uint256 _matchingId
+        uint64 _matchingId
     ) public view returns (bytes32[] memory) {
         StorageType.Storage storage storage_ = storages[_matchingId];
         return storage_.doneCars;
@@ -122,23 +122,23 @@ contract Storages is IStorages, StoragesModifiers {
 
     /// @dev Gets the count of done cars in the matchedstore.
     function getStoredCarCount(
-        uint256 _matchingId
-    ) public view returns (uint256) {
+        uint64 _matchingId
+    ) public view returns (uint64) {
         StorageType.Storage storage storage_ = storages[_matchingId];
-        return storage_.doneCars.length;
+        return uint64(storage_.doneCars.length);
     }
 
     /// @dev Gets the stored size in the matchedstore.
     function getTotalStoredCapacity(
-        uint256 _matchingId
-    ) public view returns (uint256) {
+        uint64 _matchingId
+    ) public view returns (uint64) {
         StorageType.Storage storage storage_ = storages[_matchingId];
         // TODO: depends car size https://github.com/dataswap/core/issues/25
-        return storage_.doneCars.length * 32 * 1024 * 1024 * 1024;
+        return uint64(storage_.doneCars.length * 32 * 1024 * 1024 * 1024);
     }
 
     /// @dev Checks if all cars are done in the matchedstore.
-    function isAllStoredDone(uint256 _matchingId) public view returns (bool) {
+    function isAllStoredDone(uint64 _matchingId) public view returns (bool) {
         StorageType.Storage storage storage_ = storages[_matchingId];
         return
             storage_.doneCars.length ==

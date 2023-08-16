@@ -25,7 +25,7 @@ interface IStorages {
     /// @param _cid The content identifier of the matched data.
     /// @param _filecoinDealId The ID of the successful Filecoin storage deal.
     function submitStorageDealId(
-        uint256 _matchingId,
+        uint64 _matchingId,
         bytes32 _cid,
         uint64 _filecoinDealId
     ) external;
@@ -35,7 +35,7 @@ interface IStorages {
     /// @param _cids An array of content identifiers of the matched data.
     /// @param _filecoinDealIds An array of IDs of successful Filecoin storage deals.
     function submitStorageDealIds(
-        uint256 _matchingId,
+        uint64 _matchingId,
         bytes32[] memory _cids,
         uint64[] memory _filecoinDealIds
     ) external;
@@ -44,22 +44,22 @@ interface IStorages {
     /// @param _matchingId The ID of the matching.
     /// @return An array of content identifiers of the done cars.
     function getStoredCars(
-        uint256 _matchingId
+        uint64 _matchingId
     ) external view returns (bytes32[] memory);
 
     /// @dev Gets the count of done cars in the matchedstore.
     /// @param _matchingId The ID of the matching.
     /// @return The count of done cars in the matchedstore.
     function getStoredCarCount(
-        uint256 _matchingId
-    ) external view returns (uint256);
+        uint64 _matchingId
+    ) external view returns (uint64);
 
     function getTotalStoredCapacity(
-        uint256 _matchingId
-    ) external view returns (uint256);
+        uint64 _matchingId
+    ) external view returns (uint64);
 
     /// @dev Checks if all cars are done in the matchedstore.
     /// @param _matchingId The ID of the matching.
     /// @return True if all cars are done in the matchedstore, otherwise false.
-    function isAllStoredDone(uint256 _matchingId) external view returns (bool);
+    function isAllStoredDone(uint64 _matchingId) external view returns (bool);
 }

@@ -23,44 +23,44 @@ interface IFilplus {
     // Public getter function to access datasetRuleMaxReplicasInCountries
     function getDatasetRuleMaxReplicasInCountry(
         bytes32 _countryCode
-    ) external view returns (uint32);
+    ) external view returns (uint16);
 
     // Set functions for public variables
-    function setCarRuleMaxCarReplicas(uint32 _newValue) external;
+    function setCarRuleMaxCarReplicas(uint16 _newValue) external;
 
-    function setDatasetRuleMinRegionsPerDataset(uint32 _newValue) external;
+    function setDatasetRuleMinRegionsPerDataset(uint16 _newValue) external;
 
     function setDatasetRuleDefaultMaxReplicasPerCountry(
-        uint32 _newValue
+        uint16 _newValue
     ) external;
 
     function setDatasetRuleMaxReplicasInCountry(
         bytes32 _countryCode,
-        uint32 _newValue
+        uint16 _newValue
     ) external;
 
-    function setDatasetRuleMaxReplicasPerCity(uint32 _newValue) external;
+    function setDatasetRuleMaxReplicasPerCity(uint16 _newValue) external;
 
-    function setDatasetRuleMinSPsPerDataset(uint32 _newValue) external;
+    function setDatasetRuleMinSPsPerDataset(uint16 _newValue) external;
 
-    function setDatasetRuleMaxReplicasPerSP(uint32 _newValue) external;
+    function setDatasetRuleMaxReplicasPerSP(uint16 _newValue) external;
 
     function setDatasetRuleMinTotalReplicasPerDataset(
-        uint32 _newValue
+        uint16 _newValue
     ) external;
 
     function setDatasetRuleMaxTotalReplicasPerDataset(
-        uint32 _newValue
+        uint16 _newValue
     ) external;
 
     function setDatacapRulesMaxAllocatedSizePerTime(uint64 _newValue) external;
 
     function setDatacapRulesMaxRemainingPercentageForNext(
-        uint64 _newValue
+        uint8 _newValue
     ) external;
 
     function setMatchingRulesDataswapCommissionPercentage(
-        uint256 _newValue
+        uint8 _newValue
     ) external;
 
     function setMatchingRulesCommissionType(uint8 _newType) external;
@@ -68,30 +68,30 @@ interface IFilplus {
     // Default getter functions for public variables
     function governanceAddress() external view returns (address);
 
-    function carRuleMaxCarReplicas() external view returns (uint32);
+    function carRuleMaxCarReplicas() external view returns (uint16);
 
-    function datasetRuleMinRegionsPerDataset() external view returns (uint32);
+    function datasetRuleMinRegionsPerDataset() external view returns (uint16);
 
     function datasetRuleDefaultMaxReplicasPerCountry()
         external
         view
-        returns (uint32);
+        returns (uint16);
 
-    function datasetRuleMaxReplicasPerCity() external view returns (uint32);
+    function datasetRuleMaxReplicasPerCity() external view returns (uint16);
 
-    function datasetRuleMinSPsPerDataset() external view returns (uint32);
+    function datasetRuleMinSPsPerDataset() external view returns (uint16);
 
-    function datasetRuleMaxReplicasPerSP() external view returns (uint32);
+    function datasetRuleMaxReplicasPerSP() external view returns (uint16);
 
     function datasetRuleMinTotalReplicasPerDataset()
         external
         view
-        returns (uint32);
+        returns (uint16);
 
     function datasetRuleMaxTotalReplicasPerDataset()
         external
         view
-        returns (uint32);
+        returns (uint16);
 
     function datacapRulesMaxAllocatedSizePerTime()
         external
@@ -101,12 +101,12 @@ interface IFilplus {
     function datacapRulesMaxRemainingPercentageForNext()
         external
         view
-        returns (uint64);
+        returns (uint8);
 
     function matchingRulesDataswapCommissionPercentage()
         external
         view
-        returns (uint256);
+        returns (uint8);
 
     function getMatchingRulesCommissionType() external view returns (uint8);
 }

@@ -64,7 +64,7 @@ contract DatacapsModifiers is StoragesModifiers {
     }
 
     /// @notice  validNextDatacapAllocation
-    modifier validNextDatacapAllocation(uint256 _matchingId) {
+    modifier validNextDatacapAllocation(uint64 _matchingId) {
         if (!datacaps.isNextDatacapAllocationValid(_matchingId)) {
             revert Errors.NextDatacapAllocationInvalid(_matchingId);
         }

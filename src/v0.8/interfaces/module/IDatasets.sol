@@ -24,19 +24,19 @@ import {DatasetType} from "../../types/DatasetType.sol";
 interface IDatasets {
     ///@notice Approve a dataset.
     ///@dev This function changes the state of the dataset to DatasetApproved and emits the DatasetApproved event.
-    function approveDataset(uint256 _datasetId) external;
+    function approveDataset(uint64 _datasetId) external;
 
     ///@notice Approve the metadata of a dataset.
     ///@dev This function changes the state of the dataset to MetadataApproved and emits the MetadataApproved event.
-    function approveDatasetMetadata(uint256 _datasetId) external;
+    function approveDatasetMetadata(uint64 _datasetId) external;
 
     ///@notice Reject a dataset.
     ///@dev This function changes the state of the dataset to DatasetRejected and emits the DatasetRejected event.
-    function rejectDataset(uint256 _datasetId) external;
+    function rejectDataset(uint64 _datasetId) external;
 
     ///@notice Reject the metadata of a dataset.
     ///@dev This function changes the state of the dataset to MetadataRejected and emits the MetadataRejected event.
-    function rejectDatasetMetadata(uint256 _datasetId) external;
+    function rejectDatasetMetadata(uint64 _datasetId) external;
 
     ///@notice Submit metadata for a dataset
     ///        Note:anyone can submit dataset metadata
@@ -54,18 +54,18 @@ interface IDatasets {
 
     ///@notice Submit proof for a dataset
     function submitDatasetProof(
-        uint256 _datasetId,
+        uint64 _datasetId,
         DatasetType.DataType _dataType,
         string calldata accessMethod,
         bytes32 _rootHash,
         bytes32[] calldata _leafHashes,
-        uint32[] calldata _leafSizes,
+        uint64[] calldata _leafSizes,
         bool _completed
     ) external;
 
     ///@notice Submit proof for a dataset
     function submitDatasetVerification(
-        uint256 _datasetId,
+        uint64 _datasetId,
         uint64 _randomSeed,
         bytes32[][] memory _siblings,
         uint32[] memory _paths
@@ -73,7 +73,7 @@ interface IDatasets {
 
     ///@notice Get dataset metadata
     function getDatasetMetadata(
-        uint256 _datasetId
+        uint64 _datasetId
     )
         external
         view
@@ -93,31 +93,31 @@ interface IDatasets {
 
     ///@notice Get dataset source cars
     function getDatasetCars(
-        uint256 _datasetId,
+        uint64 _datasetId,
         DatasetType.DataType _dataType,
-        uint32 _chunkId
-    ) external view returns (bytes32[] memory, uint32[] memory);
+        uint64 _chunkId
+    ) external view returns (bytes32[] memory, uint64[] memory);
 
     // Get dataset source proof
     function getDatasetProof(
-        uint256 _datasetId,
+        uint64 _datasetId,
         DatasetType.DataType _dataType,
-        uint32 _chunkId
-    ) external view returns (bytes32[] memory, uint32[] memory);
+        uint64 _chunkId
+    ) external view returns (bytes32[] memory, uint64[] memory);
 
     ///@notice Get dataset size
     function getDatasetCapacity(
-        uint256 _datasetId
+        uint64 _datasetId
     ) external view returns (uint64);
 
     ///@notice Get dataset state
     function getDatasetState(
-        uint256 _datasetId
+        uint64 _datasetId
     ) external view returns (DatasetType.State);
 
     ///@notice Get dataset verification
     function getDatasetVerification(
-        uint256 _datasetId,
+        uint64 _datasetId,
         address _auditor
     )
         external
@@ -126,8 +126,8 @@ interface IDatasets {
 
     ///@notice Get count of dataset verifications
     function getDatasetVerificationsCount(
-        uint256 _datasetId
-    ) external view returns (uint32);
+        uint64 _datasetId
+    ) external view returns (uint16);
 
     ///@notice Check if a dataset has metadata
     function hasDatasetMetadata(
@@ -136,16 +136,16 @@ interface IDatasets {
 
     ///@notice Check if a dataset has a cid
     function isDatasetContainsCar(
-        uint256 _datasetId,
+        uint64 _datasetId,
         bytes32 _cid
     ) external returns (bool);
 
     ///@notice Check if a dataset has cids
     function isDatasetContainsCars(
-        uint256 _datasetId,
+        uint64 _datasetId,
         bytes32[] memory _cids
     ) external view returns (bool);
 
     // Default getter functions for public variables
-    function datasetsCount() external view returns (uint256);
+    function datasetsCount() external view returns (uint64);
 }

@@ -24,9 +24,9 @@ library DatasetLeafLIB {
     function setLeaf(
         DatasetType.Leaf[] storage self,
         bytes32[] memory _hashes,
-        uint32[] memory _sizes
+        uint64[] memory _sizes
     ) internal {
-        for (uint256 i = 0; i < _hashes.length; i++) {
+        for (uint64 i = 0; i < _hashes.length; i++) {
             self[i].hash_ = _hashes[i];
             self[i].size = _sizes[i];
         }
@@ -34,8 +34,8 @@ library DatasetLeafLIB {
 
     function getLeaf(
         DatasetType.Leaf[] storage self
-    ) internal view returns (bytes32[] memory _hashes, uint32[] memory _sizes) {
-        for (uint256 i = 0; i < self.length; i++) {
+    ) internal view returns (bytes32[] memory _hashes, uint64[] memory _sizes) {
+        for (uint64 i = 0; i < self.length; i++) {
             _hashes[i] = CidUtils.hashToCID(self[i].hash_);
             _sizes[i] = self[i].size;
         }

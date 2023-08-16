@@ -46,9 +46,9 @@ library CarReplicaType {
 
     /// @notice Struct representing a car and its associated replicas.
     struct Car {
-        uint256 datasetId; // Index of approved dataset
-        uint32 size; //car size TODO add logic in carstore,dataset https://github.com/dataswap/core/issues/25
-        uint32 replicasCount; // Number of replicas associated with the car
-        mapping(uint256 => Replica) replicas; // Mapping from matchingId => Replica details
+        uint64 datasetId; // Index of approved dataset
+        uint64 size; //car size TODO add logic in carstore,dataset https://github.com/dataswap/core/issues/25
+        uint16 replicasCount; // Number of replicas associated with the car
+        mapping(uint64 => Replica) replicas; // Mapping from matchingId => Replica details
     }
 }

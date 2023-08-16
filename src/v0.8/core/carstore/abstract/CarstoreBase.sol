@@ -34,7 +34,7 @@ import {CarReplicaType} from "../../../types/CarReplicaType.sol";
 abstract contract CarstoreBase is ICarstore, CarstoreModifiers {
     using CarLIB for CarReplicaType.Car;
 
-    uint256 public carsCount;
+    uint64 public carsCount;
     ///Car CID=> Car
     mapping(bytes32 => CarReplicaType.Car) internal cars;
 
@@ -55,7 +55,7 @@ abstract contract CarstoreBase is ICarstore, CarstoreModifiers {
     /// @param _event Event to be posted.
     function _emitRepicaEvent(
         bytes32 _cid,
-        uint256 _matchingId,
+        uint64 _matchingId,
         CarReplicaType.Event _event
     )
         internal

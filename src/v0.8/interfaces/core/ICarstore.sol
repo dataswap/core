@@ -27,7 +27,7 @@ interface ICarstore {
     /// @param _cid Car CID to be added.
     /// @param _datasetId dataset index of approved dataset
     /// @param _size car size
-    function addCar(bytes32 _cid, uint256 _datasetId, uint32 _size) external;
+    function addCar(bytes32 _cid, uint64 _datasetId, uint64 _size) external;
 
     /// @notice Add multiple cars to the storage.
     /// @dev This function allows the addition of multiple cars at once.
@@ -36,40 +36,34 @@ interface ICarstore {
     /// @param _sizes car size array
     function addCars(
         bytes32[] memory _cids,
-        uint256 _datasetId,
-        uint32[] memory _sizes
+        uint64 _datasetId,
+        uint64[] memory _sizes
     ) external;
 
     /// @notice Add a replica to a car.
     /// @dev This function allows adding a replica to an existing car.
     /// @param _cid Car CID to which the replica will be added.
     /// @param _matchingId Matching ID for the new replica.
-    function addCarReplica(bytes32 _cid, uint256 _matchingId) external;
+    function addCarReplica(bytes32 _cid, uint64 _matchingId) external;
 
     /// @notice Report that storage deal for a replica has expired.
     /// @dev This function allows reporting that the storage deal for a replica has expired.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    function reportCarReplicaExpired(
-        bytes32 _cid,
-        uint256 _matchingId
-    ) external;
+    function reportCarReplicaExpired(bytes32 _cid, uint64 _matchingId) external;
 
     /// @notice Report that storage of a replica has failed.
     /// @dev This function allows reporting that the storage of a replica has failed.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
     /// TODO: need delete https://github.com/dataswap/core/issues/34
-    function reportCarReplicaFailed(bytes32 _cid, uint256 _matchingId) external;
+    function reportCarReplicaFailed(bytes32 _cid, uint64 _matchingId) external;
 
     /// @notice Report that storage of a replica has been slashed.
     /// @dev This function allows reporting that the storage of a replica has been slashed.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    function reportCarReplicaSlashed(
-        bytes32 _cid,
-        uint256 _matchingId
-    ) external;
+    function reportCarReplicaSlashed(bytes32 _cid, uint64 _matchingId) external;
 
     /// @notice Set the Filecoin deal ID for a replica's storage.
     /// @dev This function allows setting the Filecoin deal ID for a specific replica's storage.
@@ -78,7 +72,7 @@ interface ICarstore {
     /// @param _filecoinDealId New Filecoin deal ID to set for the replica's storage.
     function setCarReplicaFilecoinDealId(
         bytes32 _cid,
-        uint256 _matchingId,
+        uint64 _matchingId,
         uint64 _filecoinDealId
     ) external;
 
@@ -86,7 +80,7 @@ interface ICarstore {
     /// @param _cid Car CID to check.
     /// @return The dataset ID of the car.
     /// NOTE: a car only belongs a datasets
-    function getCarDatasetId(bytes32 _cid) external view returns (uint256);
+    function getCarDatasetId(bytes32 _cid) external view returns (uint64);
 
     /// @notice Get the replica details associated with a car.
     /// @param _cid Car CID associated with the replica.
@@ -94,13 +88,13 @@ interface ICarstore {
     /// @return The dataset ID, state, and Filecoin deal ID of the replica.
     function getCarReplica(
         bytes32 _cid,
-        uint256 _matchingId
+        uint64 _matchingId
     ) external view returns (CarReplicaType.State, uint64);
 
     /// @notice Get the count of replicas associated with a car.
     /// @param _cid Car CID for which to retrieve the replica count.
     /// @return The count of replicas associated with the car.
-    function getCarRepicasCount(bytes32 _cid) external view returns (uint32);
+    function getCarRepicasCount(bytes32 _cid) external view returns (uint16);
 
     /// @notice Get the Filecoin deal ID associated with a specific replica of a car.
     /// @param _cid Car CID associated with the replica.
@@ -108,7 +102,7 @@ interface ICarstore {
     /// @return The Filecoin deal ID of the replica.
     function getCarReplicaFilecoinDealId(
         bytes32 _cid,
-        uint256 _matchingId
+        uint64 _matchingId
     ) external view returns (uint64);
 
     /// @notice Get the state of a replica associated with a car.
@@ -117,7 +111,7 @@ interface ICarstore {
     /// @return The state of the replica.
     function getCarReplicaState(
         bytes32 _cid,
-        uint256 _matchingId
+        uint64 _matchingId
     ) external view returns (CarReplicaType.State);
 
     /// @notice Check if a car exists based on its CID.
@@ -131,7 +125,7 @@ interface ICarstore {
     /// @return True if the replica exists, false otherwise.
     function hasCarReplica(
         bytes32 _cid,
-        uint256 _matchingId
+        uint64 _matchingId
     ) external view returns (bool);
 
     /// @notice Check if multiple cars exist based on their CIDs.
@@ -140,5 +134,5 @@ interface ICarstore {
     function hasCars(bytes32[] memory _cids) external view returns (bool);
 
     // Default getter functions for public variables
-    function carsCount() external view returns (uint256);
+    function carsCount() external view returns (uint64);
 }

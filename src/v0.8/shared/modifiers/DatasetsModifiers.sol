@@ -61,7 +61,7 @@ contract DatasetsModifiers is CarstoreModifiers {
         _;
     }
 
-    modifier onlyDatasetState(uint256 _datasetId, DatasetType.State _state) {
+    modifier onlyDatasetState(uint64 _datasetId, DatasetType.State _state) {
         if (_state != datasets.getDatasetState(_datasetId)) {
             revert Errors.InvalidDatasetState(_datasetId);
         }

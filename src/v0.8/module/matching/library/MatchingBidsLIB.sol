@@ -104,7 +104,7 @@ library MatchingBidsLIB {
 
         uint256 winningBid = self.biddingThreshold;
         address winner = address(0);
-        for (uint256 i = 0; i < self.bids.length; i++) {
+        for (uint64 i = 0; i < self.bids.length; i++) {
             if (
                 self.bidSelectionRule ==
                 MatchingType.BidSelectionRule.HighestBid
@@ -135,7 +135,7 @@ library MatchingBidsLIB {
         MatchingType.Matching storage self,
         address _bidder
     ) internal view returns (uint256) {
-        for (uint256 i = self.bids.length - 1; i >= 0; i++) {
+        for (uint64 i = uint64(self.bids.length - 1); i >= 0; i++) {
             if (_bidder == self.bids[i].bidder) {
                 return self.bids[i].bid;
             }
@@ -149,7 +149,7 @@ library MatchingBidsLIB {
     ) internal view returns (address[] memory, uint256[] memory) {
         address[] memory bidders;
         uint256[] memory amounts;
-        for (uint256 i = 0; i < self.bids.length; i++) {
+        for (uint64 i = 0; i < self.bids.length; i++) {
             bidders[i] = self.bids[i].bidder;
             amounts[i] = self.bids[i].bid;
         }
@@ -162,8 +162,8 @@ library MatchingBidsLIB {
     /// @return The total number of bids.
     function _getMatchingBidsCount(
         MatchingType.Matching storage self
-    ) internal view returns (uint256) {
-        return self.bids.length;
+    ) internal view returns (uint64) {
+        return uint64(self.bids.length);
     }
 
     /// @notice Check if a bidder has placed a bid in the matching.
@@ -175,7 +175,7 @@ library MatchingBidsLIB {
         MatchingType.Matching storage self,
         address _bidder
     ) internal view returns (bool) {
-        for (uint256 i = 0; i < self.bids.length; i++) {
+        for (uint64 i = 0; i < self.bids.length; i++) {
             if (_bidder == self.bids[i].bidder) {
                 return true;
             }

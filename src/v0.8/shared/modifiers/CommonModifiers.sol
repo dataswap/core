@@ -20,7 +20,7 @@ pragma solidity ^0.8.21;
 /// @title ModifierCommon
 contract CommonModifiers {
     /// @dev Modifier to check if an ID is not zero.
-    modifier onlyNotZero(uint256 _value) {
+    modifier onlyNotZero(uint64 _value) {
         require(_value != 0, "Invalid ID");
         _;
     }

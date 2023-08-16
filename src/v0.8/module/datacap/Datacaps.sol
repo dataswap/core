@@ -35,7 +35,7 @@ import {DatacapsEvents} from "../../shared/events/DatacapsEvents.sol";
 ///     rather than allocating all at once.
 contract Datacaps is IDatacaps, DatacapsModifiers {
     //(matchingID => allocated datacap size)
-    mapping(uint256 => uint64) private allocatedDatacaps;
+    mapping(uint64 => uint64) private allocatedDatacaps;
     address private governanceAddress;
     IRoles private roles;
     IFilplus private filplus;
@@ -74,8 +74,8 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
 
     /// @dev Internal function to allocate matched datacap.
     function _allocateDatacap(
-        uint256 /*_matchingId*/,
-        uint256 /*_size*/
+        uint64 /*_matchingId*/,
+        uint64 /*_size*/
     ) internal {
         //TODO: logic https://github.com/dataswap/core/issues/30
     }
@@ -83,7 +83,7 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
     /// @dev Requests the allocation of matched datacap for a matching process.
     /// @param _matchingId The ID of the matching process.
     function requestAllocateDatacap(
-        uint256 _matchingId
+        uint64 _matchingId
     ) external validNextDatacapAllocation(_matchingId) {
         uint64 remainingUnallocatedDatacap = getRemainingUnallocatedDatacap(
             _matchingId
@@ -117,7 +117,7 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
     /// @param _matchingId The ID of the matching process.
     /// @return The allocated datacap size.
     function getAllocatedDatacap(
-        uint256 _matchingId
+        uint64 _matchingId
     ) public view returns (uint64) {
         return allocatedDatacaps[_matchingId];
     }
@@ -126,10 +126,10 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
     /// @param _matchingId The ID of the matching process.
     /// @return The available datacap size.
     function getAvailableDatacap(
-        uint256 _matchingId
-    ) public view returns (uint256) {
-        uint256 allocatedDatacap = getAllocatedDatacap(_matchingId);
-        uint256 reallyStored = storages.getTotalStoredCapacity(_matchingId);
+        uint64 _matchingId
+    ) public view returns (uint64) {
+        uint64 allocatedDatacap = getAllocatedDatacap(_matchingId);
+        uint64 reallyStored = storages.getTotalStoredCapacity(_matchingId);
         return allocatedDatacap - reallyStored;
     }
 
@@ -137,7 +137,7 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
     /// @param _matchingId The ID of the matching process.
     /// @return The total datacap size needed.
     function getTotalDatacapAllocationRequirement(
-        uint256 _matchingId
+        uint64 _matchingId
     ) public view returns (uint64) {
         return matchings.getMatchingCapacity(_matchingId);
     }
@@ -146,7 +146,7 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
     /// @param _matchingId The ID of the matching process.
     /// @return The remaining datacap size needed.
     function getRemainingUnallocatedDatacap(
-        uint256 _matchingId
+        uint64 _matchingId
     ) public view returns (uint64) {
         uint64 allocatedDatacap = getAllocatedDatacap(_matchingId);
         uint64 totalDatacapAllocationRequirement = getTotalDatacapAllocationRequirement(
@@ -159,15 +159,15 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
     /// @param _matchingId The ID of the matching process.
     /// @return True if next allocation is allowed, otherwise false.
     function isNextDatacapAllocationValid(
-        uint256 _matchingId
+        uint64 _matchingId
     ) public view returns (bool) {
-        uint256 totalDatacapAllocationRequirement = getTotalDatacapAllocationRequirement(
+        uint64 totalDatacapAllocationRequirement = getTotalDatacapAllocationRequirement(
                 _matchingId
             );
-        uint256 allocatedDatacap = getAllocatedDatacap(_matchingId);
-        uint256 reallyStored = storages.getTotalStoredCapacity(_matchingId);
-        uint256 availableDatacap = getAvailableDatacap(_matchingId);
-        uint256 allocationThreshold = (filplus
+        uint64 allocatedDatacap = getAllocatedDatacap(_matchingId);
+        uint64 reallyStored = storages.getTotalStoredCapacity(_matchingId);
+        uint64 availableDatacap = getAvailableDatacap(_matchingId);
+        uint64 allocationThreshold = (filplus
             .datacapRulesMaxRemainingPercentageForNext() / 100) *
             filplus.datacapRulesMaxAllocatedSizePerTime();
 

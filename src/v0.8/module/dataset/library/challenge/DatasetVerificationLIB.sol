@@ -92,7 +92,7 @@ library DatasetVerificationLIB {
     /// @param self The dataset for which to retrieve the verification count.
     function getDatasetVerificationsCount(
         DatasetType.Dataset storage self
-    ) public view returns (uint32) {
+    ) public view returns (uint16) {
         return self.verificationsCount;
     }
 }

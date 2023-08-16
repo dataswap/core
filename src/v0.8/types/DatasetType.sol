@@ -64,7 +64,7 @@ library DatasetType {
 
     struct Leaf {
         bytes32 hash_;
-        uint32 size;
+        uint64 size;
     }
 
     /// @notice Struct representing a Merkle proof for data.
@@ -75,9 +75,9 @@ library DatasetType {
     /// @notice Struct representing proofs associated with a dataset challenge submitted by reviewers.
     struct DatasetProof {
         bytes32 rootHash; // Root hash of the data's Merkle tree.
-        uint32 proofCount;
+        uint64 proofCount;
         bool completed;
-        mapping(uint32 => DatasetChunkProof) proof; // Proof associated with the dataset.
+        mapping(uint64 => DatasetChunkProof) proof; // Proof associated with the dataset.
     }
 
     /// @notice Struct representing proofs associated with a dataset challenge submitted by reviewers.
@@ -102,7 +102,7 @@ library DatasetType {
         DatasetProof sourceProof; // Proof associated with the dataset.
         DatasetProof mappingFilesProof; // Proof associated with the dataset.
         //verifications
-        uint32 verificationsCount;
+        uint16 verificationsCount;
         mapping(address => Verification) verifications; // Address of the auditor who submits challenges.
     }
 }

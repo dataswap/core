@@ -28,6 +28,6 @@ enum ProposalType {
 
 /// @notice Struct: Proposal
 struct Proposal {
-    uint256 datasetId; // ID of the dataset
+    uint64 datasetId; // ID of the dataset
     ProposalType proposalType; // Type of the proposal
 }

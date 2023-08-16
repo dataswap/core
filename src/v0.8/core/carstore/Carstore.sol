@@ -49,8 +49,8 @@ contract Carstore is CarstoreBase {
     /// @param _datasetId dataset index of approved dataset
     function addCar(
         bytes32 _cid,
-        uint256 _datasetId,
-        uint32 _size
+        uint64 _datasetId,
+        uint64 _size
     ) public onlyCarNotExist(_cid) onlyNotZero(_datasetId) onlyNotZero(_size) {
         carsCount++;
         CarReplicaType.Car storage car = cars[_cid];
@@ -64,10 +64,10 @@ contract Carstore is CarstoreBase {
     /// @param _datasetId dataset index of approved dataset
     function addCars(
         bytes32[] memory _cids,
-        uint256 _datasetId,
-        uint32[] memory _sizes
+        uint64 _datasetId,
+        uint64[] memory _sizes
     ) external onlyNotZero(_datasetId) {
-        for (uint256 i; i < _cids.length; i++) {
+        for (uint64 i; i < _cids.length; i++) {
             addCar(_cids[i], _datasetId, _sizes[i]);
         }
 
@@ -80,7 +80,7 @@ contract Carstore is CarstoreBase {
     /// @param _matchingId Matching ID for the new replica.
     function addCarReplica(
         bytes32 _cid,
-        uint256 _matchingId
+        uint64 _matchingId
     )
         external
         onlyCarExist(_cid)
@@ -99,7 +99,7 @@ contract Carstore is CarstoreBase {
     /// @param _matchingId Matching ID of the replica.
     function reportCarReplicaExpired(
         bytes32 _cid,
-        uint256 _matchingId
+        uint64 _matchingId
     )
         external
         onlyCarExist(_cid)
@@ -125,7 +125,7 @@ contract Carstore is CarstoreBase {
     /// @param _matchingId Matching ID of the replica.
     function reportCarReplicaFailed(
         bytes32 _cid,
-        uint256 _matchingId
+        uint64 _matchingId
     )
         external
         onlyCarExist(_cid)
@@ -147,7 +147,7 @@ contract Carstore is CarstoreBase {
     /// @param _matchingId Matching ID of the replica.
     function reportCarReplicaSlashed(
         bytes32 _cid,
-        uint256 _matchingId
+        uint64 _matchingId
     )
         external
         onlyCarExist(_cid)
@@ -175,7 +175,7 @@ contract Carstore is CarstoreBase {
     /// @param _filecoinDealId New Filecoin deal ID to set for the replica's storage.
     function setCarReplicaFilecoinDealId(
         bytes32 _cid,
-        uint256 _matchingId,
+        uint64 _matchingId,
         uint64 _filecoinDealId
     )
         external
@@ -201,7 +201,7 @@ contract Carstore is CarstoreBase {
     /// @return The dataset ID of the car.
     function getCarDatasetId(
         bytes32 _cid
-    ) public view onlyCarExist(_cid) returns (uint256) {
+    ) public view onlyCarExist(_cid) returns (uint64) {
         CarReplicaType.Car storage car = cars[_cid];
         return car._getDatasetId();
     }
@@ -212,7 +212,7 @@ contract Carstore is CarstoreBase {
     /// @return The dataset ID, state, and Filecoin deal ID of the replica.
     function getCarReplica(
         bytes32 _cid,
-        uint256 _matchingId
+        uint64 _matchingId
     )
         public
         view
@@ -234,7 +234,7 @@ contract Carstore is CarstoreBase {
     /// @return The count of replicas associated with the car.
     function getCarRepicasCount(
         bytes32 _cid
-    ) public view onlyCarExist(_cid) returns (uint32) {
+    ) public view onlyCarExist(_cid) returns (uint16) {
         CarReplicaType.Car storage car = cars[_cid];
         return car._getRepicasCount();
     }
@@ -245,7 +245,7 @@ contract Carstore is CarstoreBase {
     /// @return The Filecoin deal ID of the replica.
     function getCarReplicaFilecoinDealId(
         bytes32 _cid,
-        uint256 _matchingId
+        uint64 _matchingId
     )
         public
         view
@@ -265,7 +265,7 @@ contract Carstore is CarstoreBase {
     /// @return The state of the replica.
     function getCarReplicaState(
         bytes32 _cid,
-        uint256 _matchingId
+        uint64 _matchingId
     )
         public
         view
@@ -294,7 +294,7 @@ contract Carstore is CarstoreBase {
     /// @return True if the replica exists, false otherwise.
     function hasCarReplica(
         bytes32 _cid,
-        uint256 _matchingId
+        uint64 _matchingId
     ) public view onlyCarExist(_cid) returns (bool) {
         CarReplicaType.Car storage car = cars[_cid];
         return car._hasReplica(_matchingId);
@@ -305,7 +305,7 @@ contract Carstore is CarstoreBase {
     /// @param _cids Array of car CIDs to check.
     /// @return True if all specified cars exist, false if any one does not exist.
     function hasCars(bytes32[] memory _cids) public view returns (bool) {
-        for (uint256 i; i < _cids.length; i++) {
+        for (uint64 i; i < _cids.length; i++) {
             if (!hasCar(_cids[i])) return false;
         }
         return true;

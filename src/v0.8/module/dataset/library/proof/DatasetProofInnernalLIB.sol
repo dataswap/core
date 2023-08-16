@@ -36,7 +36,7 @@ library DatasetProofInnernalLIB {
         DatasetType.DatasetProof storage self,
         bytes32 _rootHash,
         bytes32[] calldata _leafHashes,
-        uint32[] calldata _leafSizes,
+        uint64[] calldata _leafSizes,
         bool _completed
     ) external {
         if (self.proofCount == 0) {
@@ -55,8 +55,8 @@ library DatasetProofInnernalLIB {
     /// @param self The dataset from which to retrieve the source dataset proof.
     function getDatasetChunkProof(
         DatasetType.DatasetProof storage self,
-        uint32 _chunkId
-    ) public view returns (bytes32[] memory cids, uint32[] memory sizes) {
+        uint64 _chunkId
+    ) public view returns (bytes32[] memory cids, uint64[] memory sizes) {
         DatasetType.DatasetChunkProof storage chunkProof = self.proof[_chunkId];
         return chunkProof.getDatasetProof();
     }
@@ -67,8 +67,8 @@ library DatasetProofInnernalLIB {
     /// @return The array of CIDs for the source dataset.
     function getDatasetChunkCars(
         DatasetType.DatasetProof storage self,
-        uint32 _chunkId
-    ) public view returns (bytes32[] memory, uint32[] memory) {
+        uint64 _chunkId
+    ) public view returns (bytes32[] memory, uint64[] memory) {
         DatasetType.DatasetChunkProof storage chunkProof = self.proof[_chunkId];
         return chunkProof.getDatasetCars();
     }

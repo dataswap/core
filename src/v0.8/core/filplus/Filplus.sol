@@ -32,33 +32,33 @@ contract Filplus is IFilplus, CommonModifiers {
     address public immutable governanceAddress; //The address of the governance contract.
 
     ///@notice car rules
-    uint32 public carRuleMaxCarReplicas; // Represents the maximum number of car replicas in the entire network
+    uint16 public carRuleMaxCarReplicas; // Represents the maximum number of car replicas in the entire network
 
     ///@notice dataset region rules
-    uint32 public datasetRuleMinRegionsPerDataset; // Minimum required number of regions (e.g., 3).
+    uint16 public datasetRuleMinRegionsPerDataset; // Minimum required number of regions (e.g., 3).
 
-    uint32 public datasetRuleDefaultMaxReplicasPerCountry; // Default maximum replicas allowed per country.
+    uint16 public datasetRuleDefaultMaxReplicasPerCountry; // Default maximum replicas allowed per country.
 
-    mapping(bytes32 => uint32) private datasetRuleMaxReplicasInCountries; // Maximum replicas allowed per country.
+    mapping(bytes32 => uint16) private datasetRuleMaxReplicasInCountries; // Maximum replicas allowed per country.
 
-    uint32 public datasetRuleMaxReplicasPerCity; // Maximum replicas allowed per city (e.g., 1).
+    uint16 public datasetRuleMaxReplicasPerCity; // Maximum replicas allowed per city (e.g., 1).
 
     ///@notice dataset sp rules
-    uint32 public datasetRuleMinSPsPerDataset; // Minimum required number of storage providers (e.g., 5).
+    uint16 public datasetRuleMinSPsPerDataset; // Minimum required number of storage providers (e.g., 5).
 
-    uint32 public datasetRuleMaxReplicasPerSP; // Maximum replicas allowed per storage provider (e.g., 1).
+    uint16 public datasetRuleMaxReplicasPerSP; // Maximum replicas allowed per storage provider (e.g., 1).
 
-    uint32 public datasetRuleMinTotalReplicasPerDataset; // Minimum required total replicas (e.g., 5).
+    uint16 public datasetRuleMinTotalReplicasPerDataset; // Minimum required total replicas (e.g., 5).
 
-    uint32 public datasetRuleMaxTotalReplicasPerDataset; // Maximum allowed total replicas (e.g., 10).
+    uint16 public datasetRuleMaxTotalReplicasPerDataset; // Maximum allowed total replicas (e.g., 10).
 
     ///@notice datacap rules
     uint64 public datacapRulesMaxAllocatedSizePerTime; // Maximum allocate datacap size per time.
 
-    uint64 public datacapRulesMaxRemainingPercentageForNext; // Minimum completion percentage for the next allocation.
+    uint8 public datacapRulesMaxRemainingPercentageForNext; // Minimum completion percentage for the next allocation.
 
     ///@notice matching rules
-    uint256 public matchingRulesDataswapCommissionPercentage; // Percentage of commission.
+    uint8 public matchingRulesDataswapCommissionPercentage; // Percentage of commission.
 
     FilplusType.MatchingRuleCommissionType private matchingRulesCommissionType; // Type of commission for matching.
 
@@ -75,7 +75,7 @@ contract Filplus is IFilplus, CommonModifiers {
     // Public getter function to access datasetRuleMaxReplicasInCountries
     function getDatasetRuleMaxReplicasInCountry(
         bytes32 _countryCode
-    ) public view returns (uint32) {
+    ) public view returns (uint16) {
         if (datasetRuleMaxReplicasInCountries[_countryCode] == 0) {
             return datasetRuleDefaultMaxReplicasPerCountry;
         } else {
@@ -85,21 +85,21 @@ contract Filplus is IFilplus, CommonModifiers {
 
     // Set functions for public variables
     function setCarRuleMaxCarReplicas(
-        uint32 _newValue
+        uint16 _newValue
     ) external onlyAddress(governanceAddress) {
         carRuleMaxCarReplicas = _newValue;
         emit FilplusEvents.SetCarRuleMaxCarReplicas(_newValue);
     }
 
     function setDatasetRuleMinRegionsPerDataset(
-        uint32 _newValue
+        uint16 _newValue
     ) external onlyAddress(governanceAddress) {
         datasetRuleMinRegionsPerDataset = _newValue;
         emit FilplusEvents.SetDatasetRuleMinRegionsPerDataset(_newValue);
     }
 
     function setDatasetRuleDefaultMaxReplicasPerCountry(
-        uint32 _newValue
+        uint16 _newValue
     ) external onlyAddress(governanceAddress) {
         datasetRuleDefaultMaxReplicasPerCountry = _newValue;
         emit FilplusEvents.SetDatasetRuleDefaultMaxReplicasPerCountry(
@@ -109,7 +109,7 @@ contract Filplus is IFilplus, CommonModifiers {
 
     function setDatasetRuleMaxReplicasInCountry(
         bytes32 _countryCode,
-        uint32 _newValue
+        uint16 _newValue
     ) external onlyAddress(governanceAddress) {
         datasetRuleMaxReplicasInCountries[_countryCode] = _newValue;
         emit FilplusEvents.SetDatasetRuleMaxReplicasInCountry(
@@ -119,35 +119,35 @@ contract Filplus is IFilplus, CommonModifiers {
     }
 
     function setDatasetRuleMaxReplicasPerCity(
-        uint32 _newValue
+        uint16 _newValue
     ) external onlyAddress(governanceAddress) {
         datasetRuleMaxReplicasPerCity = _newValue;
         emit FilplusEvents.SetDatasetRuleMaxReplicasPerCity(_newValue);
     }
 
     function setDatasetRuleMinSPsPerDataset(
-        uint32 _newValue
+        uint16 _newValue
     ) external onlyAddress(governanceAddress) {
         datasetRuleMinSPsPerDataset = _newValue;
         emit FilplusEvents.SetDatasetRuleMinSPsPerDataset(_newValue);
     }
 
     function setDatasetRuleMaxReplicasPerSP(
-        uint32 _newValue
+        uint16 _newValue
     ) external onlyAddress(governanceAddress) {
         datasetRuleMaxReplicasPerSP = _newValue;
         emit FilplusEvents.SetDatasetRuleMaxReplicasPerSP(_newValue);
     }
 
     function setDatasetRuleMinTotalReplicasPerDataset(
-        uint32 _newValue
+        uint16 _newValue
     ) external onlyAddress(governanceAddress) {
         datasetRuleMinTotalReplicasPerDataset = _newValue;
         emit FilplusEvents.SetDatasetRuleMinTotalReplicasPerDataset(_newValue);
     }
 
     function setDatasetRuleMaxTotalReplicasPerDataset(
-        uint32 _newValue
+        uint16 _newValue
     ) external onlyAddress(governanceAddress) {
         datasetRuleMaxTotalReplicasPerDataset = _newValue;
         emit FilplusEvents.SetDatasetRuleMaxTotalReplicasPerDataset(_newValue);
@@ -161,7 +161,7 @@ contract Filplus is IFilplus, CommonModifiers {
     }
 
     function setDatacapRulesMaxRemainingPercentageForNext(
-        uint64 _newValue
+        uint8 _newValue
     ) external onlyAddress(governanceAddress) {
         datacapRulesMaxRemainingPercentageForNext = _newValue;
         emit FilplusEvents.SetDatacapRulesMaxRemainingPercentageForNext(
@@ -170,7 +170,7 @@ contract Filplus is IFilplus, CommonModifiers {
     }
 
     function setMatchingRulesDataswapCommissionPercentage(
-        uint256 _newValue
+        uint8 _newValue
     ) external onlyAddress(governanceAddress) {
         matchingRulesDataswapCommissionPercentage = _newValue;
         emit FilplusEvents.SetMatchingRulesDataswapCommissionPercentage(

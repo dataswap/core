@@ -19,40 +19,38 @@ pragma solidity ^0.8.21;
 interface IDatacaps {
     /// @dev Requests the allocation of matched datacap for a matching process.
     /// @param _matchingId The ID of the matching process.
-    function requestAllocateDatacap(uint256 _matchingId) external;
+    function requestAllocateDatacap(uint64 _matchingId) external;
 
     /// @dev Gets the allocated matched datacap for a storage.
     /// @param _matchingId The ID of the matching process.
     /// @return The allocated datacap size.
-    function getAvailableDatacap(
-        uint256 _matchingId
-    ) external returns (uint256);
+    function getAvailableDatacap(uint64 _matchingId) external returns (uint64);
 
     /// @dev Gets the allocated matched datacap for a matching process.
     /// @param _matchingId The ID of the matching process.
     /// @return The allocated datacap size.
     function getAllocatedDatacap(
-        uint256 _matchingId
+        uint64 _matchingId
     ) external view returns (uint64);
 
     /// @dev Gets the total datacap size needed to be allocated for a matching process.
     /// @param _matchingId The ID of the matching process.
     /// @return The total datacap size needed.
     function getTotalDatacapAllocationRequirement(
-        uint256 _matchingId
+        uint64 _matchingId
     ) external view returns (uint64);
 
     /// @dev Gets the remaining datacap size needed to be allocated for a matching process.
     /// @param _matchingId The ID of the matching process.
     /// @return The remaining datacap size needed.
     function getRemainingUnallocatedDatacap(
-        uint256 _matchingId
+        uint64 _matchingId
     ) external view returns (uint64);
 
     /// @dev Checks if the next datacap allocation is allowed for a matching process.
     /// @param _matchingId The ID of the matching process.
     /// @return True if next allocation is allowed, otherwise false.
     function isNextDatacapAllocationValid(
-        uint256 _matchingId
+        uint64 _matchingId
     ) external view returns (bool);
 }

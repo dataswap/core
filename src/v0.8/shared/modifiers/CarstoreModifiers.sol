@@ -61,7 +61,7 @@ contract CarstoreModifiers is RolesModifiers, FilplusModifiers {
     }
 
     /// @dev Modifier to ensure that a replica of a car exists.
-    modifier onlyCarReplicaExist(bytes32 _cid, uint256 _matchingId) {
+    modifier onlyCarReplicaExist(bytes32 _cid, uint64 _matchingId) {
         if (!carstore.hasCarReplica(_cid, _matchingId)) {
             revert Errors.ReplicaNotExist(_cid, _matchingId);
         }
@@ -69,7 +69,7 @@ contract CarstoreModifiers is RolesModifiers, FilplusModifiers {
     }
 
     /// @dev Modifier to ensure that a replica of a car not exists.
-    modifier onlyCarReplicaNotExist(bytes32 _cid, uint256 _matchingId) {
+    modifier onlyCarReplicaNotExist(bytes32 _cid, uint64 _matchingId) {
         if (carstore.hasCarReplica(_cid, _matchingId)) {
             revert Errors.ReplicaAlreadyExists(_cid, _matchingId);
         }
@@ -79,7 +79,7 @@ contract CarstoreModifiers is RolesModifiers, FilplusModifiers {
     /// @dev Modifier to ensure that a replica of a car exists.
     modifier onlyUnsetCarReplicaFilecoinDealId(
         bytes32 _cid,
-        uint256 _matchingId
+        uint64 _matchingId
     ) {
         if (carstore.getCarReplicaFilecoinDealId(_cid, _matchingId) != 0) {
             revert Errors.ReplicaFilecoinDealIdExists(_cid, _matchingId);
@@ -90,7 +90,7 @@ contract CarstoreModifiers is RolesModifiers, FilplusModifiers {
     /// @dev Modifier to ensure that a replica state before function do.
     modifier onlyCarReplicaState(
         bytes32 _cid,
-        uint256 _matchingId,
+        uint64 _matchingId,
         CarReplicaType.State _state
     ) {
         if (_state != carstore.getCarReplicaState(_cid, _matchingId)) {
@@ -102,7 +102,7 @@ contract CarstoreModifiers is RolesModifiers, FilplusModifiers {
     /// @dev Modifier to ensure that a replica filecoin deal state before function do.
     modifier onlyCarReplicaFilecoinDealState(
         bytes32 _cid,
-        uint256 _matchingId,
+        uint64 _matchingId,
         FilecoinStorageDealState _filecoinDealState
     ) {
         if (
