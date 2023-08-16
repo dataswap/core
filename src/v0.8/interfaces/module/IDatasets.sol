@@ -59,7 +59,8 @@ interface IDatasets {
         string calldata accessMethod,
         bytes32 _rootHash,
         bytes32[] calldata _leafHashes,
-        uint32[] calldata _leafSizes
+        uint32[] calldata _leafSizes,
+        bool _completed
     ) external;
 
     ///@notice Submit proof for a dataset
@@ -91,24 +92,18 @@ interface IDatasets {
         );
 
     ///@notice Get dataset source cars
-    function getDatasetSourceCars(
-        uint256 _datasetId
+    function getDatasetCars(
+        uint256 _datasetId,
+        DatasetType.DataType _dataType,
+        uint32 _chunkId
     ) external view returns (bytes32[] memory, uint32[] memory);
 
     // Get dataset source proof
-    function getDatasetSourceProof(
-        uint256 _datasetId
-    ) external view returns (bytes32, bytes32[] memory, uint32[] memory);
-
-    ///@notice Get dataset source-to-CAR mapping files cars
-    function getDatasetSourceToCarMappingFilesCars(
-        uint256 _datasetId
+    function getDatasetProof(
+        uint256 _datasetId,
+        DatasetType.DataType _dataType,
+        uint32 _chunkId
     ) external view returns (bytes32[] memory, uint32[] memory);
-
-    ///@notice Get dataset source-to-CAR mapping files proof
-    function getDatasetSourceToCarMappingFilesProof(
-        uint256 _datasetId
-    ) external view returns (bytes32, bytes32[] memory, uint32[] memory sizes);
 
     ///@notice Get dataset size
     function getDatasetCapacity(

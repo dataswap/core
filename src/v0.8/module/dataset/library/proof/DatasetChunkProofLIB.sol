@@ -25,7 +25,7 @@ import {MerkleUtils} from "../../../../shared/utils/merkle/MerkleUtils.sol";
 
 /// @title DatasetProofLIB Library,include add,get,verify.
 /// @notice This library provides functions for managing proofs associated with datasets.
-library DatasetProofLIB {
+library DatasetChunkProofLIB {
     using DatasetStateMachineLIB for DatasetType.Dataset;
     using DatasetLeafLIB for DatasetType.Leaf[];
 
@@ -47,31 +47,14 @@ library DatasetProofLIB {
     /// @notice Submit a proof for a dataset.
     /// @dev This function allows submitting a proof for a dataset and emits the SubmitDatasetProof event.
     /// @param self The dataset to which the proof will be submitted.
-    /// @param _rootHash The root hash of the Merkle proof.
     /// @param _leafHashes The array of leaf hashes of the Merkle proof for the source dataset.
     function submitDatasetProof(
-        DatasetType.Dataset storage self,
-        DatasetType.DataType _dataType,
-        string calldata _accessMethod,
-        bytes32 _rootHash,
+        DatasetType.DatasetChunkProof storage self,
         bytes32[] calldata _leafHashes,
         uint32[] calldata _leafSizes
     ) external {
-        _requireValidDatasetProof(_rootHash, _leafHashes);
-        if (_dataType == DatasetType.DataType.Dataset) {
-            self.sourceProof.rootHash = _rootHash;
-            DatasetType.Leaf[] storage leafs = self.sourceProof.leafs;
-            leafs.setLeaf(_leafHashes, _leafSizes);
-        }
-        if (_dataType == DatasetType.DataType.MappingFiles) {
-            self.mappingFilesProof.rootHash = _rootHash;
-            DatasetType.Leaf[] storage leafs = self.mappingFilesProof.leafs;
-            leafs.setLeaf(_leafHashes, _leafSizes);
-            self.mappingFilesAccessMethod = _accessMethod;
-        }
-        //TODO: require both source and mappingfiles submmit
-
-        self._emitDatasetEvent(DatasetType.Event.SubmitDatasetProof);
+        DatasetType.Leaf[] storage leafs = self.leafs;
+        leafs.setLeaf(_leafHashes, _leafSizes);
     }
 
     /// @notice Get the source dataset CID array from the submitted dataset proof.
@@ -79,24 +62,19 @@ library DatasetProofLIB {
     /// @param self The dataset from which to retrieve the source dataset proof.
     /// @return The array of CIDs for the source dataset.
     function getDatasetSourceCids(
-        DatasetType.Dataset storage self
+        DatasetType.DatasetChunkProof storage self
     ) public view returns (bytes32[] memory, uint32[] memory) {
-        DatasetType.Leaf[] storage sourceLeafs = self.sourceProof.leafs;
+        DatasetType.Leaf[] storage sourceLeafs = self.leafs;
         return sourceLeafs.getLeaf();
     }
 
     /// @notice Get the source dataset proof from the submitted dataset proof.
     /// @dev This function returns the root hash and array of leaf hashes of the Merkle proof for the source dataset.
     /// @param self The dataset from which to retrieve the source dataset proof.
-    function getDatasetSourceProof(
-        DatasetType.Dataset storage self
-    )
-        public
-        view
-        returns (bytes32 rootHash, bytes32[] memory cids, uint32[] memory sizes)
-    {
-        DatasetType.Leaf[] storage leafs = self.sourceProof.leafs;
-        rootHash = self.sourceProof.rootHash;
+    function getDatasetProof(
+        DatasetType.DatasetChunkProof storage self
+    ) public view returns (bytes32[] memory cids, uint32[] memory sizes) {
+        DatasetType.Leaf[] storage leafs = self.leafs;
         (cids, sizes) = leafs.getLeaf();
     }
 
@@ -104,25 +82,9 @@ library DatasetProofLIB {
     /// @dev This function returns the array of CIDs for mapping files from source to car from the submitted dataset proof.
     /// @param self The dataset from which to retrieve the mapping files proof.
     /// @return The array of CIDs for mapping files from source to car.
-    function getDatasetSourceToCarMappingFilesCids(
-        DatasetType.Dataset storage self
+    function getDatasetCars(
+        DatasetType.DatasetChunkProof storage self
     ) public view returns (bytes32[] memory, uint32[] memory) {
-        DatasetType.Leaf[] storage sourceLeafs = self.mappingFilesProof.leafs;
-        return sourceLeafs.getLeaf();
-    }
-
-    /// @notice Get the source to car mapping files proof from the submitted dataset proof.
-    /// @dev This function returns the root hash and array of leaf hashes of the Merkle proof for mapping files from source to car.
-    /// @param self The dataset from which to retrieve the mapping files proof.
-    function getDatasetSourceToCarMappingFilesProof(
-        DatasetType.Dataset storage self
-    )
-        public
-        view
-        returns (bytes32 rootHash, bytes32[] memory cids, uint32[] memory sizes)
-    {
-        DatasetType.Leaf[] storage leafs = self.mappingFilesProof.leafs;
-        rootHash = self.mappingFilesProof.rootHash;
-        (cids, sizes) = leafs.getLeaf();
+        return getDatasetProof(self);
     }
 }
