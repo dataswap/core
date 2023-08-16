@@ -23,31 +23,18 @@ import {MatchingStateMachineLIB} from "./MatchingStateMachineLIB.sol";
 
 /// @title Matching Bids Library
 /// @notice This library provides functions for managing bids in matchings.
-library MatchingBidsLIB {
+library ImmediateMatchingBidsLIB {
     using MatchingStateMachineLIB for MatchingType.Matching;
 
     /// @notice Add a bid to the matching.
     /// @dev This function adds a bid to the matching and updates the bids count.
     /// @param self The bids in the matching.
     /// @param _amount The bid amount.
-    function _matchingBidding(
+    function _immediateMatchingBidding(
         MatchingType.Matching storage self,
         uint256 _amount
     ) internal {
-        if (
-            self.bidSelectionRule == MatchingType.BidSelectionRule.HighestBid ||
-            self.bidSelectionRule ==
-            MatchingType.BidSelectionRule.ImmediateAtLeast
-        ) {
-            require(_amount >= self.biddingThreshold, "Invalid amount");
-        }
-        if (
-            self.bidSelectionRule == MatchingType.BidSelectionRule.LowestBid ||
-            self.bidSelectionRule ==
-            MatchingType.BidSelectionRule.ImmediateAtMost
-        ) {
-            require(_amount <= self.biddingThreshold, "Invalid amount");
-        }
+        require(_amount > 0, "Amount must be greater than 0");
         require(self.state == MatchingType.State.InProgress, "Invalid state");
         require(
             block.number >=

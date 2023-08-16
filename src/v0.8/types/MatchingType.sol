@@ -49,10 +49,12 @@ library MatchingType {
         NoWinner // No winner in the matching
     }
 
-    /// @notice Enum representing the rules for determining the winner bid.
+    /// @notice Enum representing the rules for determining the winning bid.
     enum BidSelectionRule {
-        HighestBid, //Note:it is Auction, Winner is determined by the highest bid
-        LowestBid // Note: it is Tender, Winner is determined by the lowest bid
+        HighestBid, // Note: Auction, Winner is determined by the highest bid
+        LowestBid, // Note: Tender, Winner is determined by the lowest bid
+        ImmediateAtLeast, // Note: Auction Immediate winning condition: Bid amount is at least the threshold
+        ImmediateAtMost // Note: Render Immediate winning condition: Bid amount is at most the threshold
     }
 
     /// @notice Enum representing the type of data associated with a matching.

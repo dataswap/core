@@ -93,6 +93,15 @@ contract Matchings is IMatchings, MatchingsModifiers {
             msg.sender,
             _amount
         );
+        if (
+            matching.bidSelectionRule ==
+            MatchingType.BidSelectionRule.ImmediateAtLeast ||
+            matching.bidSelectionRule ==
+            MatchingType.BidSelectionRule.ImmediateAtMost
+        ) {
+            matching._emitMatchingEvent(MatchingType.Event.Close);
+            matching._emitMatchingEvent(MatchingType.Event.HasWinner);
+        }
     }
 
     /// @notice  Function for publishing a new matching
