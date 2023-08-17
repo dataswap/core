@@ -251,6 +251,16 @@ contract Datasets is IDatasets, DatasetsModifiers {
         return dataset.getDatasetProof(_dataType, _startCount, _endCount);
     }
 
+    ///@notice Get dataset source CIDs
+    function getDatasetCars(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType,
+        uint64 _startCount,
+        uint64 _endCount
+    ) public view onlyNotZero(_datasetId) returns (bytes32[] memory) {
+        return getDatasetProof(_datasetId, _dataType, _startCount, _endCount);
+    }
+
     function getDatasetProofCount(
         uint64 _datasetId,
         DatasetType.DataType _dataType
