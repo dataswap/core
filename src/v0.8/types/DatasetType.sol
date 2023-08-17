@@ -58,26 +58,17 @@ library DatasetType {
 
     /// @notice Enum representing the type of data associated with a matching.
     enum DataType {
-        MappingFiles, // Matching is associated with mapping files
-        Dataset // Matching is associated with a dataset
-    }
-
-    struct Leaf {
-        bytes32 hash_;
-        uint64 size;
-    }
-
-    /// @notice Struct representing a Merkle proof for data.
-    struct DatasetChunkProof {
-        Leaf[] leaves; // Array of leaf hashes representing items in the data.
+        Source, // Matching is associated with a dataset
+        MappingFiles // Matching is associated with mapping files
     }
 
     /// @notice Struct representing proofs associated with a dataset challenge submitted by reviewers.
     struct DatasetProof {
+        uint64 datasetSize;
         bytes32 rootHash; // Root hash of the data's Merkle tree.
-        uint64 proofCount;
-        bool completed;
-        mapping(uint64 => DatasetChunkProof) proof; // Proof associated with the dataset.
+        bool allBatchCompleted;
+        uint64 proofBatchsCount;
+        mapping(uint64 => bytes32[] leaves) proofBatchs; // Proof associated with the dataset.
     }
 
     /// @notice Struct representing proofs associated with a dataset challenge submitted by reviewers.
@@ -87,6 +78,7 @@ library DatasetType {
     }
 
     /// @notice Struct representing verification details of a dataset.
+    /// @dev TODO: support batch submit likes DatasetProof
     struct Verification {
         uint64 randomSeed; // Random seed used for verification. This seed determines which nodes need to be challenged.
         DatasetChallengeProof[] challengeProof; // Merkle proof provided by the auditor to support their challenge.

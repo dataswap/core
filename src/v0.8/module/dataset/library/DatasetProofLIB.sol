@@ -19,7 +19,7 @@ pragma solidity ^0.8.21;
 
 import {DatasetType} from "../../../types/DatasetType.sol";
 import {DatasetStateMachineLIB} from "./DatasetStateMachineLIB.sol";
-import {DatasetProofInnernalLIB} from "./proof/DatasetProofInnernalLIB.sol";
+import {DatasetProofInnerLIB} from "./proof/DatasetProofInnerLIB.sol";
 import {CidUtils} from "../../../shared/utils/cid/CidUtils.sol";
 import {MerkleUtils} from "../../../shared/utils/merkle/MerkleUtils.sol";
 
@@ -27,65 +27,112 @@ import {MerkleUtils} from "../../../shared/utils/merkle/MerkleUtils.sol";
 /// @notice This library provides functions for managing proofs associated with datasets.
 library DatasetProofLIB {
     using DatasetStateMachineLIB for DatasetType.Dataset;
-    using DatasetProofInnernalLIB for DatasetType.DatasetProof;
+    using DatasetProofInnerLIB for DatasetType.DatasetProof;
 
     /// @notice Submit a proof for a dataset.
     /// @dev This function allows submitting a proof for a dataset and emits the SubmitDatasetProof event.
     /// @param self The dataset to which the proof will be submitted.
-    function submitDatasetProof(
+    function addDatasetProofBatch(
         DatasetType.Dataset storage self,
         DatasetType.DataType _dataType,
         bytes32 _rootHash,
         bytes32[] calldata _leafHashes,
         uint64[] calldata _leafSizes,
-        bool _completed
+        bool _allBatchCompleted
     ) external {
+        require(_leafHashes.length == _leafSizes.length);
         DatasetType.DatasetProof storage proof;
-        if (_dataType == DatasetType.DataType.Dataset) {
+        if (_dataType == DatasetType.DataType.Source) {
             proof = self.sourceProof;
         } else {
             proof = self.mappingFilesProof;
         }
-        proof.submitDatasetProof(
-            _rootHash,
-            _leafHashes,
-            _leafSizes,
-            _completed
-        );
+        if (proof.proofBatchsCount == 0) {
+            require(_rootHash.length == 32);
+            proof.rootHash = _rootHash;
+        }
+        if (proof.allBatchCompleted == false && _allBatchCompleted == true)
+            proof.allBatchCompleted = _allBatchCompleted;
+        proof.addProofBatch(_leafHashes);
+
+        for (uint64 i; i < _leafSizes.length; i++) {
+            proof.datasetSize += _leafSizes[i];
+        }
     }
 
     /// @notice Get the source dataset proof from the submitted dataset proof.
     /// @dev This function returns the root hash and array of leaf hashes of the Merkle proof for the source dataset.
     /// @param self The dataset from which to retrieve the source dataset proof.
-    function getDatasetChunkProof(
+    function getDatasetProofBatch(
         DatasetType.Dataset storage self,
         DatasetType.DataType _dataType,
-        uint64 _chunkId
-    ) public view returns (bytes32[] memory cids, uint64[] memory sizes) {
+        uint64 _batchIndex
+    ) public view returns (bytes32[] memory) {
         DatasetType.DatasetProof storage proof;
-        if (_dataType == DatasetType.DataType.Dataset) {
+        if (_dataType == DatasetType.DataType.Source) {
             proof = self.sourceProof;
         } else {
             proof = self.mappingFilesProof;
         }
-        return proof.getDatasetChunkProof(_chunkId);
+        return proof.getProofBatch(_batchIndex);
     }
 
-    /// @notice Get the source dataset CID array from the submitted dataset proof.
-    /// @dev This function returns the array of CIDs for the source dataset from the submitted dataset proof.
+    /// @notice Get the source dataset proof from the submitted dataset proof.
+    /// @dev This function returns the root hash and array of leaf hashes of the Merkle proof for the source dataset.
     /// @param self The dataset from which to retrieve the source dataset proof.
-    /// @return The array of CIDs for the source dataset.
-    function getDatasetChunkCars(
+    function getDatasetCarsBatch(
         DatasetType.Dataset storage self,
         DatasetType.DataType _dataType,
-        uint64 _chunkId
-    ) public view returns (bytes32[] memory, uint64[] memory) {
+        uint64 _batchIndex
+    ) public view returns (bytes32[] memory) {
+        bytes32[] memory hashes = getDatasetProofBatch(
+            self,
+            _dataType,
+            _batchIndex
+        );
+        //TODO: hashes to cid
+        return hashes;
+    }
+
+    /// @notice Get the source dataset proof from the submitted dataset proof.
+    /// @dev This function returns the root hash and array of leaf hashes of the Merkle proof for the source dataset.
+    /// @param self The dataset from which to retrieve the source dataset proof.
+    function getDatasetProofBatchsCount(
+        DatasetType.Dataset storage self,
+        DatasetType.DataType _dataType
+    ) public view returns (uint64) {
         DatasetType.DatasetProof storage proof;
-        if (_dataType == DatasetType.DataType.Dataset) {
+        if (_dataType == DatasetType.DataType.Source) {
             proof = self.sourceProof;
         } else {
             proof = self.mappingFilesProof;
         }
-        return proof.getDatasetChunkCars(_chunkId);
+        return proof.proofBatchsCount;
+    }
+
+    /// @notice Get the source dataset proof from the submitted dataset proof.
+    /// @dev This function returns the root hash and array of leaf hashes of the Merkle proof for the source dataset.
+    /// @param self The dataset from which to retrieve the source dataset proof.
+    function getDatasetCarsBatchsCount(
+        DatasetType.Dataset storage self,
+        DatasetType.DataType _dataType
+    ) public view returns (uint64) {
+        return getDatasetProofBatchsCount(self, _dataType);
+    }
+
+    /// @notice Get the source dataset proof from the submitted dataset proof.
+    /// @dev This function returns the root hash and array of leaf hashes of the Merkle proof for the source dataset.
+    /// @param self The dataset from which to retrieve the source dataset proof.
+    function getDatasetSize(
+        DatasetType.Dataset storage self,
+        DatasetType.DataType _dataType
+    ) public view returns (uint64) {
+        DatasetType.DatasetProof storage proof;
+        if (_dataType == DatasetType.DataType.Source) {
+            proof = self.sourceProof;
+        } else {
+            proof = self.mappingFilesProof;
+        }
+        return proof.datasetSize;
     }
 }

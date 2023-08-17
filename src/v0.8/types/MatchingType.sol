@@ -59,11 +59,12 @@ library MatchingType {
 
     /// @notice Enum representing the type of data associated with a matching.
     enum DataType {
-        MappingFiles, // Matching is associated with mapping files
-        Dataset // Matching is associated with a dataset
+        Source, // Matching is associated with a dataset
+        MappingFiles // Matching is associated with mapping files
     }
 
     /// @notice Struct representing the target of a matching.
+    /// @dev TODO: support batch submit likes DatasetProof of dataset
     struct Target {
         uint64 datasetId; // ID of the dataset associated with the matching
         bytes32[] cars; // Array of car IDs associated with the matching

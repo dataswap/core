@@ -67,20 +67,6 @@ contract Datasets is IDatasets, DatasetsModifiers {
         carstore = _carstore;
     }
 
-    ///@dev Need add cids to carStore
-    function _updateCarstore(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _chunkId
-    ) internal {
-        (bytes32[] memory cids, uint64[] memory sizes) = getDatasetCars(
-            _datasetId,
-            _dataType,
-            _chunkId
-        );
-        carstore.addCars(cids, _datasetId, sizes);
-    }
-
     ///@notice Approve a dataset.
     ///@dev This function changes the state of the dataset to DatasetApproved and emits the DatasetApproved event.
     function approveDataset(
@@ -180,10 +166,10 @@ contract Datasets is IDatasets, DatasetsModifiers {
     /// TODO:https://github.com/dataswap/core/issues/24
     /// Proof and verification functionality is provided here as a sample code structure.
     /// The actual functionality is pending completion.
-    function submitDatasetProof(
+    function submitDatasetProofBatch(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
-        string calldata _accessMethod,
+        string calldata _mappingFilesAccessMethod,
         bytes32 _rootHash,
         bytes32[] calldata _leafHashes,
         uint64[] calldata _leafSizes,
@@ -191,32 +177,23 @@ contract Datasets is IDatasets, DatasetsModifiers {
     ) external {
         //Note: params check in lib
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        if (_dataType == DatasetType.DataType.Dataset) {
-            dataset.mappingFilesAccessMethod = _accessMethod;
+        if (_dataType == DatasetType.DataType.MappingFiles) {
+            //TODO: check  mappingFilesAccessMethod is not set
+            dataset.mappingFilesAccessMethod = _mappingFilesAccessMethod;
         }
-        dataset.submitDatasetProof(
+        dataset.addDatasetProofBatch(
             _dataType,
             _rootHash,
             _leafHashes,
             _leafSizes,
             _completed
         );
-        if (_dataType == DatasetType.DataType.Dataset) {
-            _updateCarstore(
-                _datasetId,
-                _dataType,
-                dataset.sourceProof.proofCount
-            );
-        } else {
-            _updateCarstore(
-                _datasetId,
-                _dataType,
-                dataset.mappingFilesProof.proofCount
-            );
-        }
+        //TODO: hashes to CID
+        carstore.addCars(_leafHashes, _datasetId, _leafSizes);
 
         if (
-            dataset.sourceProof.completed && dataset.mappingFilesProof.completed
+            dataset.sourceProof.allBatchCompleted &&
+            dataset.mappingFilesProof.allBatchCompleted
         ) {
             emit DatasetsEvents.DatasetProofSubmitted(_datasetId, msg.sender);
         }
@@ -266,43 +243,48 @@ contract Datasets is IDatasets, DatasetsModifiers {
     }
 
     ///@notice Get dataset source CIDs
-    function getDatasetCars(
+    function getDatasetProofBatch(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
-        uint64 _chunkId
-    )
-        public
-        view
-        onlyNotZero(_datasetId)
-        returns (bytes32[] memory, uint64[] memory)
-    {
+        uint64 _batchIndex
+    ) public view onlyNotZero(_datasetId) returns (bytes32[] memory) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.getDatasetChunkCars(_dataType, _chunkId);
+        return dataset.getDatasetProofBatch(_dataType, _batchIndex);
     }
 
-    // Get dataset source proof
-    function getDatasetProof(
+    function getDatasetProofBatchsCount(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType
+    ) public view onlyNotZero(_datasetId) returns (uint64) {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        return dataset.getDatasetProofBatchsCount(_dataType);
+    }
+
+    ///@notice Get dataset source CIDs
+    function getDatasetCarsBatch(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
-        uint64 _chunkId
-    )
-        public
-        view
-        onlyNotZero(_datasetId)
-        returns (bytes32[] memory, uint64[] memory)
-    {
+        uint64 _batchIndex
+    ) public view onlyNotZero(_datasetId) returns (bytes32[] memory) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.getDatasetChunkProof(_dataType, _chunkId);
+        return dataset.getDatasetCarsBatch(_dataType, _batchIndex);
+    }
+
+    function getDatasetCarsBatchsCount(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType
+    ) public view onlyNotZero(_datasetId) returns (uint64) {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        return dataset.getDatasetCarsBatchsCount(_dataType);
     }
 
     ///@notice Get dataset size
-    function getDatasetCapacity(
-        uint64 _datasetId
+    function getDatasetSize(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType
     ) public view onlyNotZero(_datasetId) returns (uint64) {
-        (, , , , , , , , uint64 sizeInBytes, , ) = getDatasetMetadata(
-            _datasetId
-        );
-        return sizeInBytes;
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        return dataset.getDatasetSize(_dataType);
     }
 
     ///@notice Get dataset state
@@ -358,7 +340,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     function isDatasetContainsCars(
         uint64 _datasetId,
         bytes32[] memory _cids
-    ) public view onlyNotZero(_datasetId) returns (bool) {
+    ) external view onlyNotZero(_datasetId) returns (bool) {
         for (uint64 i = 0; i < _cids.length; i++) {
             if (!isDatasetContainsCar(_datasetId, _cids[i])) return false;
         }

@@ -352,7 +352,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
             "Invalid cids!"
         );
         require(_size > 0, "Invalid size!");
-        if (_dataType == MatchingType.DataType.Dataset) {
+        if (_dataType == MatchingType.DataType.Source) {
             (
                 uint64 datasetId,
                 ,

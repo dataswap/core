@@ -53,7 +53,7 @@ interface IDatasets {
     ) external;
 
     ///@notice Submit proof for a dataset
-    function submitDatasetProof(
+    function submitDatasetProofBatch(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         string calldata accessMethod,
@@ -91,23 +91,34 @@ interface IDatasets {
             uint64 version
         );
 
-    ///@notice Get dataset source cars
-    function getDatasetCars(
+    ///@notice Get dataset source CIDs
+    function getDatasetProofBatch(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
-        uint64 _chunkId
-    ) external view returns (bytes32[] memory, uint64[] memory);
+        uint64 _batchIndex
+    ) external view returns (bytes32[] memory);
 
-    // Get dataset source proof
-    function getDatasetProof(
+    function getDatasetProofBatchsCount(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType
+    ) external view returns (uint64);
+
+    ///@notice Get dataset source CIDs
+    function getDatasetCarsBatch(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
-        uint64 _chunkId
-    ) external view returns (bytes32[] memory, uint64[] memory);
+        uint64 _batchIndex
+    ) external view returns (bytes32[] memory);
+
+    function getDatasetCarsBatchsCount(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType
+    ) external view returns (uint64);
 
     ///@notice Get dataset size
-    function getDatasetCapacity(
-        uint64 _datasetId
+    function getDatasetSize(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType
     ) external view returns (uint64);
 
     ///@notice Get dataset state
