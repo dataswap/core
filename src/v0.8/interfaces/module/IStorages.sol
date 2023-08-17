@@ -54,7 +54,7 @@ interface IStorages {
         uint64 _matchingId
     ) external view returns (uint64);
 
-    function getTotalStoredCapacity(
+    function getTotalStoredSize(
         uint64 _matchingId
     ) external view returns (uint64);
 

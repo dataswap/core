@@ -163,7 +163,6 @@ contract Datasets is IDatasets, DatasetsModifiers {
     }
 
     ///@notice Submit proof for a dataset
-    /// TODO:https://github.com/dataswap/core/issues/24
     /// Proof and verification functionality is provided here as a sample code structure.
     /// The actual functionality is pending completion.
     function submitDatasetProofBatch(
@@ -200,7 +199,6 @@ contract Datasets is IDatasets, DatasetsModifiers {
     }
 
     ///@notice Submit proof for a dataset
-    /// TODO: https://github.com/dataswap/core/issues/24
     /// Proof and verification functionality is provided here as a sample code structure.
     /// The actual functionality is pending completion.
     function submitDatasetVerification(

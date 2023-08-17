@@ -129,7 +129,7 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
         uint64 _matchingId
     ) public view returns (uint64) {
         uint64 allocatedDatacap = getAllocatedDatacap(_matchingId);
-        uint64 reallyStored = storages.getTotalStoredCapacity(_matchingId);
+        uint64 reallyStored = storages.getTotalStoredSize(_matchingId);
         return allocatedDatacap - reallyStored;
     }
 
@@ -165,7 +165,7 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
                 _matchingId
             );
         uint64 allocatedDatacap = getAllocatedDatacap(_matchingId);
-        uint64 reallyStored = storages.getTotalStoredCapacity(_matchingId);
+        uint64 reallyStored = storages.getTotalStoredSize(_matchingId);
         uint64 availableDatacap = getAvailableDatacap(_matchingId);
         uint64 allocationThreshold = (filplus
             .datacapRulesMaxRemainingPercentageForNext() / 100) *

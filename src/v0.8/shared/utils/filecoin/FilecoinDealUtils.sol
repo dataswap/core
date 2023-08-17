@@ -23,7 +23,7 @@ import "../../../types/FilecoinDealType.sol";
 library FilecoinDealUtils {
     /// @notice Internal function to get the state of a Filecoin storage deal for a replica.
     /// @dev This function get the state of a Filecoin storage deal associated with a replica.
-    /// .    TODO:https://github.com/dataswap/core/issues/27
+    /// .    TODO:implements filecoindealutils.getFilecoinStorageDealState
     /// @return The state of the Filecoin storage deal for the replica.
     function getFilecoinStorageDealState(
         bytes32 _cid,

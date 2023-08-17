@@ -129,11 +129,11 @@ contract Storages is IStorages, StoragesModifiers {
     }
 
     /// @dev Gets the stored size in the matchedstore.
-    function getTotalStoredCapacity(
+    function getTotalStoredSize(
         uint64 _matchingId
     ) public view returns (uint64) {
         StorageType.Storage storage storage_ = storages[_matchingId];
-        // TODO: depends car size https://github.com/dataswap/core/issues/25
+        // TODO: compute cars size
         return uint64(storage_.doneCars.length * 32 * 1024 * 1024 * 1024);
     }
 
