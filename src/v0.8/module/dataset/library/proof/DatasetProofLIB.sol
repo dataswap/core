@@ -38,7 +38,7 @@ library DatasetProofLIB {
         bytes32 _rootHash,
         bytes32[] calldata _leafHashes,
         uint64[] calldata _leafSizes,
-        bool _allBatchCompleted
+        bool _allCompleted
     ) external {
         require(_leafHashes.length == _leafSizes.length);
         DatasetType.DatasetProof storage proof;
@@ -47,12 +47,12 @@ library DatasetProofLIB {
         } else {
             proof = self.mappingFilesProof;
         }
-        if (proof.proofBatchsCount == 0) {
+        if (proof.leafHashesCount == 0) {
             require(_rootHash.length == 32);
             proof.rootHash = _rootHash;
         }
-        if (proof.allBatchCompleted == false && _allBatchCompleted == true)
-            proof.allBatchCompleted = _allBatchCompleted;
+        if (proof.allCompleted == false && _allCompleted == true)
+            proof.allCompleted = _allCompleted;
         proof.addProofBatch(_leafHashes);
 
         for (uint64 i; i < _leafSizes.length; i++) {
@@ -63,10 +63,11 @@ library DatasetProofLIB {
     /// @notice Get the source dataset proof from the submitted dataset proof.
     /// @dev This function returns the root hash and array of leaf hashes of the Merkle proof for the source dataset.
     /// @param self The dataset from which to retrieve the source dataset proof.
-    function getDatasetProofBatch(
+    function getDatasetProof(
         DatasetType.Dataset storage self,
         DatasetType.DataType _dataType,
-        uint64 _batchIndex
+        uint64 _startCount,
+        uint64 _endCount
     ) public view returns (bytes32[] memory) {
         DatasetType.DatasetProof storage proof;
         if (_dataType == DatasetType.DataType.Source) {
@@ -74,21 +75,23 @@ library DatasetProofLIB {
         } else {
             proof = self.mappingFilesProof;
         }
-        return proof.getProofBatch(_batchIndex);
+        return proof.getProofByLeavesIndex(_startCount, _endCount);
     }
 
     /// @notice Get the source dataset proof from the submitted dataset proof.
     /// @dev This function returns the root hash and array of leaf hashes of the Merkle proof for the source dataset.
     /// @param self The dataset from which to retrieve the source dataset proof.
-    function getDatasetCarsBatch(
+    function getDatasetCars(
         DatasetType.Dataset storage self,
         DatasetType.DataType _dataType,
-        uint64 _batchIndex
+        uint64 _startCount,
+        uint64 _endCount
     ) public view returns (bytes32[] memory) {
-        bytes32[] memory hashes = getDatasetProofBatch(
+        bytes32[] memory hashes = getDatasetProof(
             self,
             _dataType,
-            _batchIndex
+            _startCount,
+            _endCount
         );
         //TODO: hashes to cid
         return hashes;
@@ -97,7 +100,7 @@ library DatasetProofLIB {
     /// @notice Get the source dataset proof from the submitted dataset proof.
     /// @dev This function returns the root hash and array of leaf hashes of the Merkle proof for the source dataset.
     /// @param self The dataset from which to retrieve the source dataset proof.
-    function getDatasetProofBatchsCount(
+    function getDatasetCount(
         DatasetType.Dataset storage self,
         DatasetType.DataType _dataType
     ) public view returns (uint64) {
@@ -107,17 +110,7 @@ library DatasetProofLIB {
         } else {
             proof = self.mappingFilesProof;
         }
-        return proof.proofBatchsCount;
-    }
-
-    /// @notice Get the source dataset proof from the submitted dataset proof.
-    /// @dev This function returns the root hash and array of leaf hashes of the Merkle proof for the source dataset.
-    /// @param self The dataset from which to retrieve the source dataset proof.
-    function getDatasetCarsBatchsCount(
-        DatasetType.Dataset storage self,
-        DatasetType.DataType _dataType
-    ) public view returns (uint64) {
-        return getDatasetProofBatchsCount(self, _dataType);
+        return proof.leafHashesCount;
     }
 
     /// @notice Get the source dataset proof from the submitted dataset proof.

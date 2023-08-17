@@ -92,25 +92,20 @@ interface IDatasets {
         );
 
     ///@notice Get dataset source CIDs
-    function getDatasetProofBatch(
+    function getDatasetProof(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
-        uint64 _batchIndex
+        uint64 _startCount,
+        uint64 _endCount
     ) external view returns (bytes32[] memory);
 
-    function getDatasetProofBatchsCount(
+    function getDatasetProofCount(
         uint64 _datasetId,
         DatasetType.DataType _dataType
     ) external view returns (uint64);
 
     ///@notice Get dataset source CIDs
-    function getDatasetCarsBatch(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _batchIndex
-    ) external view returns (bytes32[] memory);
-
-    function getDatasetCarsBatchsCount(
+    function getDatasetCarsCount(
         uint64 _datasetId,
         DatasetType.DataType _dataType
     ) external view returns (uint64);

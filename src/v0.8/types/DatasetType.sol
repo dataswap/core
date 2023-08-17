@@ -66,9 +66,9 @@ library DatasetType {
     struct DatasetProof {
         uint64 datasetSize;
         bytes32 rootHash; // Root hash of the data's Merkle tree.
-        bool allBatchCompleted;
-        uint64 proofBatchsCount;
-        mapping(uint64 => bytes32[] leaves) proofBatchs; // Proof associated with the dataset.
+        bool allCompleted;
+        uint64 leafHashesCount;
+        bytes32[] leafHashes; // Proof associated with the dataset.
     }
 
     /// @notice Struct representing proofs associated with a dataset challenge submitted by reviewers.

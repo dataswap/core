@@ -191,8 +191,8 @@ contract Datasets is IDatasets, DatasetsModifiers {
         carstore.addCars(_leafHashes, _datasetId, _leafSizes);
 
         if (
-            dataset.sourceProof.allBatchCompleted &&
-            dataset.mappingFilesProof.allBatchCompleted
+            dataset.sourceProof.allCompleted &&
+            dataset.mappingFilesProof.allCompleted
         ) {
             emit DatasetsEvents.DatasetProofSubmitted(_datasetId, msg.sender);
         }
@@ -241,39 +241,30 @@ contract Datasets is IDatasets, DatasetsModifiers {
     }
 
     ///@notice Get dataset source CIDs
-    function getDatasetProofBatch(
+    function getDatasetProof(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
-        uint64 _batchIndex
+        uint64 _startCount,
+        uint64 _endCount
     ) public view onlyNotZero(_datasetId) returns (bytes32[] memory) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.getDatasetProofBatch(_dataType, _batchIndex);
+        return dataset.getDatasetProof(_dataType, _startCount, _endCount);
     }
 
-    function getDatasetProofBatchsCount(
+    function getDatasetProofCount(
         uint64 _datasetId,
         DatasetType.DataType _dataType
     ) public view onlyNotZero(_datasetId) returns (uint64) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.getDatasetProofBatchsCount(_dataType);
+        return dataset.getDatasetCount(_dataType);
     }
 
     ///@notice Get dataset source CIDs
-    function getDatasetCarsBatch(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _batchIndex
-    ) public view onlyNotZero(_datasetId) returns (bytes32[] memory) {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.getDatasetCarsBatch(_dataType, _batchIndex);
-    }
-
-    function getDatasetCarsBatchsCount(
+    function getDatasetCarsCount(
         uint64 _datasetId,
         DatasetType.DataType _dataType
     ) public view onlyNotZero(_datasetId) returns (uint64) {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.getDatasetCarsBatchsCount(_dataType);
+        return getDatasetProofCount(_datasetId, _dataType);
     }
 
     ///@notice Get dataset size
