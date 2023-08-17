@@ -50,20 +50,21 @@ interface ICarstore {
     /// @dev This function allows reporting that the storage deal for a replica has expired.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    function reportCarReplicaExpired(bytes32 _cid, uint64 _matchingId) external;
-
-    /// @notice Report that storage of a replica has failed.
-    /// @dev This function allows reporting that the storage of a replica has failed.
-    /// @param _cid Car CID associated with the replica.
-    /// @param _matchingId Matching ID of the replica.
-    /// TODO: need delete https://github.com/dataswap/core/issues/34
-    function reportCarReplicaFailed(bytes32 _cid, uint64 _matchingId) external;
+    function reportCarReplicaExpired(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) external;
 
     /// @notice Report that storage of a replica has been slashed.
     /// @dev This function allows reporting that the storage of a replica has been slashed.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    function reportCarReplicaSlashed(bytes32 _cid, uint64 _matchingId) external;
+    function reportCarReplicaSlashed(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) external;
 
     /// @notice Set the Filecoin deal ID for a replica's storage.
     /// @dev This function allows setting the Filecoin deal ID for a specific replica's storage.
@@ -75,6 +76,11 @@ interface ICarstore {
         uint64 _matchingId,
         uint64 _filecoinDealId
     ) external;
+
+    /// @notice Get the dataset ID associated with a car.
+    /// @param _cid Car CID to check.
+    /// @return The car size of the car.
+    function getCarSize(bytes32 _cid) external view returns (uint64);
 
     /// @notice Get the dataset ID associated with a car.
     /// @param _cid Car CID to check.

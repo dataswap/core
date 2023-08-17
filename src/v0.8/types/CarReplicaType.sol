@@ -26,7 +26,10 @@ library CarReplicaType {
     enum State {
         None, //justify if Replica exsits
         Matched, // Replica has been matched for storage
-        Stored // Replica has been successfully stored
+        Stored, // Replica has been successfully stored
+        StorageFailed, // The filecoin deal's verification failed.
+        Slashed, // The filecoin deal has been slashed.
+        Expired // The filecoin deal has expired.
     }
 
     /// @notice Enum representing the events associated with car replicas.
@@ -47,7 +50,7 @@ library CarReplicaType {
     /// @notice Struct representing a car and its associated replicas.
     struct Car {
         uint64 datasetId; // Index of approved dataset
-        uint64 size; //car size TODO add logic in carstore,dataset https://github.com/dataswap/core/issues/25
+        uint64 size; //car size
         uint16 replicasCount; // Number of replicas associated with the car
         mapping(uint64 => Replica) replicas; // Mapping from matchingId => Replica details
     }

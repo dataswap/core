@@ -59,15 +59,15 @@ library CarReplicaLIB {
             }
         } else if (_event == CarReplicaType.Event.StorageFailed) {
             if (currentState == CarReplicaType.State.Matched) {
-                newState = CarReplicaType.State.None;
+                newState = CarReplicaType.State.StorageFailed;
             }
         } else if (_event == CarReplicaType.Event.StorageDealExpired) {
             if (currentState == CarReplicaType.State.Stored) {
-                newState = CarReplicaType.State.None;
+                newState = CarReplicaType.State.Expired;
             }
         } else if (_event == CarReplicaType.Event.StorageSlashed) {
             if (currentState == CarReplicaType.State.Stored) {
-                newState = CarReplicaType.State.None;
+                newState = CarReplicaType.State.Slashed;
             }
         }
 

@@ -102,25 +102,17 @@ contract CarstoreModifiers is RolesModifiers, FilplusModifiers {
     /// @dev Modifier to ensure that a replica filecoin deal state before function do.
     modifier onlyCarReplicaFilecoinDealState(
         bytes32 _cid,
-        uint64 _matchingId,
+        uint64 _filecoinDealId,
         FilecoinStorageDealState _filecoinDealState
     ) {
         if (
-            CarReplicaType.State.Stored !=
-            carstore.getCarReplicaState(_cid, _matchingId)
-        ) {
-            revert Errors.InvalidReplicaState(_cid, _matchingId);
-        }
-
-        if (
             FilecoinStorageDealState.Successed !=
-            FilecoinDealUtils.getFilecoinStorageDealState(
-                _cid,
-                // TODO:_filecoinDealId, instead with _matchingId first https://github.com/dataswap/core/issues/27
-                _matchingId
-            )
+            FilecoinDealUtils.getFilecoinStorageDealState(_cid, _filecoinDealId)
         ) {
-            revert Errors.InvalidReplicaFilecoinDealState(_cid, _matchingId);
+            revert Errors.InvalidReplicaFilecoinDealState(
+                _cid,
+                _filecoinDealId
+            );
         }
         _;
     }

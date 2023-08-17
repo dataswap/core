@@ -99,7 +99,8 @@ contract Carstore is CarstoreBase {
     /// @param _matchingId Matching ID of the replica.
     function reportCarReplicaExpired(
         bytes32 _cid,
-        uint64 _matchingId
+        uint64 _matchingId,
+        uint64 _filecoinDealId
     )
         external
         onlyCarExist(_cid)
@@ -107,7 +108,7 @@ contract Carstore is CarstoreBase {
         onlyCarReplicaExist(_cid, _matchingId)
         onlyCarReplicaFilecoinDealState(
             _cid,
-            _matchingId,
+            _filecoinDealId,
             FilecoinStorageDealState.Expired
         )
     {
@@ -119,35 +120,14 @@ contract Carstore is CarstoreBase {
         emit CarstoreEvents.CarReplicaExpired(_cid, _matchingId);
     }
 
-    /// @notice Report that storage of a replica has failed.
-    /// @dev This function allows reporting that the storage of a replica has failed.
-    /// @param _cid Car CID associated with the replica.
-    /// @param _matchingId Matching ID of the replica.
-    function reportCarReplicaFailed(
-        bytes32 _cid,
-        uint64 _matchingId
-    )
-        external
-        onlyCarExist(_cid)
-        onlyNotZero(_matchingId)
-        onlyCarReplicaExist(_cid, _matchingId)
-        onlyCarReplicaFilecoinDealState(
-            _cid,
-            _matchingId,
-            FilecoinStorageDealState.Failed
-        )
-    {
-        _emitRepicaEvent(_cid, _matchingId, CarReplicaType.Event.StorageFailed);
-        emit CarstoreEvents.CarReplicaFailed(_cid, _matchingId);
-    }
-
     /// @notice Report that storage of a replica has been slashed.
     /// @dev This function allows reporting that the storage of a replica has been slashed.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
     function reportCarReplicaSlashed(
         bytes32 _cid,
-        uint64 _matchingId
+        uint64 _matchingId,
+        uint64 _filecoinDealId
     )
         external
         onlyCarExist(_cid)
@@ -156,7 +136,7 @@ contract Carstore is CarstoreBase {
         onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Stored)
         onlyCarReplicaFilecoinDealState(
             _cid,
-            _matchingId,
+            _filecoinDealId,
             FilecoinStorageDealState.Slashed
         )
     {
@@ -187,13 +167,23 @@ contract Carstore is CarstoreBase {
         onlyUnsetCarReplicaFilecoinDealId(_cid, _matchingId)
     {
         CarReplicaType.Car storage car = cars[_cid];
-        car._setReplicaFilecoinDealId(_matchingId, _filecoinDealId);
+        car._setReplicaFilecoinDealId(_cid, _matchingId, _filecoinDealId);
 
         emit CarstoreEvents.CarReplicaFilecoinDealIdSet(
             _cid,
             _matchingId,
             _filecoinDealId
         );
+    }
+
+    /// @notice Get the dataset ID associated with a car.
+    /// @param _cid Car CID to check.
+    /// @return The car size of the car.
+    function getCarSize(
+        bytes32 _cid
+    ) public view onlyCarExist(_cid) returns (uint64) {
+        CarReplicaType.Car storage car = cars[_cid];
+        return car.size;
     }
 
     /// @notice Get the dataset ID associated with a car.

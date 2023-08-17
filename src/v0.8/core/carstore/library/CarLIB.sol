@@ -19,6 +19,8 @@ pragma solidity ^0.8.21;
 
 import {CarReplicaType} from "../../../types/CarReplicaType.sol";
 import {CarReplicaLIB} from "./CarReplicaLIB.sol";
+import {FilecoinStorageDealState} from "../../../types/FilecoinDealType.sol";
+import {FilecoinDealUtils} from "../../../shared/utils/filecoin/FilecoinDealUtils.sol";
 
 /// @title CarLIB
 /// @dev This library provides functions for managing the lifecycle and events of car and their replicas.
@@ -81,6 +83,7 @@ library CarLIB {
     /// @param _filecoinDealId The new Filecoin deal ID to set.
     function _setReplicaFilecoinDealId(
         CarReplicaType.Car storage self,
+        bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
     ) internal {
@@ -90,12 +93,22 @@ library CarLIB {
         CarReplicaType.Replica storage replica = self.replicas[_matchingId];
         replica._setFilecoinDealId(_filecoinDealId);
 
-        // Set a replica filecoin deal id indicates that the storage has been completed.
-        _emitRepicaEvent(
-            self,
-            _matchingId,
-            CarReplicaType.Event.StorageCompleted
-        );
+        if (
+            FilecoinStorageDealState.Successed !=
+            FilecoinDealUtils.getFilecoinStorageDealState(_cid, _filecoinDealId)
+        ) {
+            _emitRepicaEvent(
+                self,
+                _matchingId,
+                CarReplicaType.Event.StorageCompleted
+            );
+        } else {
+            _emitRepicaEvent(
+                self,
+                _matchingId,
+                CarReplicaType.Event.StorageFailed
+            );
+        }
     }
 
     /// @notice Get the dataset ID associated with a car.
