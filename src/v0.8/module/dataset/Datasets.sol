@@ -28,7 +28,7 @@ import {DatasetsEvents} from "../../shared/events/DatasetsEvents.sol";
 import {DatasetsModifiers} from "../../shared/modifiers/DatasetsModifiers.sol";
 /// library
 import {DatasetMetadataLIB} from "./library/DatasetMetadataLIB.sol";
-import {DatasetProofLIB} from "./library/DatasetProofLIB.sol";
+import {DatasetProofLIB} from "./library/proof/DatasetProofLIB.sol";
 import {DatasetStateMachineLIB} from "./library/DatasetStateMachineLIB.sol";
 import {DatasetVerificationLIB} from "./library/challenge/DatasetVerificationLIB.sol";
 import {DatasetAuditLIB} from "./library/DatasetAuditLIB.sol";
