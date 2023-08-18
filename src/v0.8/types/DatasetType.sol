@@ -91,7 +91,7 @@ library DatasetType {
         //proof
         string mappingFilesAccessMethod; // Method of accessing data (e.g., URL, API).
         DatasetProof sourceProof; // Proof associated with the dataset.
-        DatasetProof mappingFilesProof; // Proof associated with the dataset.
+        DatasetProof mappingFilesProof; // Note:mappingFiles includes mappingFiles and CarMerkleTree,Proof associated with the dataset.
         //verifications
         uint16 verificationsCount;
         mapping(address => Verification) verifications; // Address of the auditor who submits challenges.
