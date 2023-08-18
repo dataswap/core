@@ -100,7 +100,7 @@ interface ICarstore {
     /// @notice Get the count of replicas associated with a car.
     /// @param _cid Car CID for which to retrieve the replica count.
     /// @return The count of replicas associated with the car.
-    function getCarRepicasCount(bytes32 _cid) external view returns (uint16);
+    function getCarReplicasCount(bytes32 _cid) external view returns (uint16);
 
     /// @notice Get the Filecoin deal ID associated with a specific replica of a car.
     /// @param _cid Car CID associated with the replica.

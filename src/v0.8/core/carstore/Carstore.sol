@@ -222,7 +222,7 @@ contract Carstore is CarstoreBase {
     /// @dev This function returns the number of replicas associated with a car.
     /// @param _cid Car CID for which to retrieve the replica count.
     /// @return The count of replicas associated with the car.
-    function getCarRepicasCount(
+    function getCarReplicasCount(
         bytes32 _cid
     ) public view onlyCarExist(_cid) returns (uint16) {
         CarReplicaType.Car storage car = cars[_cid];
