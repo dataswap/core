@@ -66,8 +66,8 @@ library DatasetProofLIB {
     function getDatasetProof(
         DatasetType.Dataset storage self,
         DatasetType.DataType _dataType,
-        uint64 _startCount,
-        uint64 _endCount
+        uint64 _index,
+        uint64 _len
     ) public view returns (bytes32[] memory) {
         DatasetType.DatasetProof storage proof;
         if (_dataType == DatasetType.DataType.Source) {
@@ -75,7 +75,7 @@ library DatasetProofLIB {
         } else {
             proof = self.mappingFilesProof;
         }
-        return proof.getProofByLeavesIndex(_startCount, _endCount);
+        return proof.getProof(_index, _len);
     }
 
     /// @notice Get the source dataset proof from the submitted dataset proof.

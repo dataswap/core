@@ -244,11 +244,11 @@ contract Datasets is IDatasets, DatasetsModifiers {
     function getDatasetProof(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
-        uint64 _startCount,
-        uint64 _endCount
+        uint64 _index,
+        uint64 _len
     ) public view onlyNotZero(_datasetId) returns (bytes32[] memory) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.getDatasetProof(_dataType, _startCount, _endCount);
+        return dataset.getDatasetProof(_dataType, _index, _len);
     }
 
     ///@notice Get dataset source CIDs

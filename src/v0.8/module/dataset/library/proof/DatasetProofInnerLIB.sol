@@ -68,13 +68,13 @@ library DatasetProofInnerLIB {
     /// @notice Get a specific proof batch from a dataset proof.
     /// @dev This function allows getting a specific proof batch from a dataset proof.
     /// @param self The dataset proof from which the proof batch will be retrieved.
-    function getProofByLeavesIndex(
+    function getProof(
         DatasetType.DatasetProof storage self,
-        uint64 _startCount,
-        uint64 _endCount
+        uint64 _index,
+        uint64 _len
     ) external view returns (bytes32[] memory leaves) {
-        for (uint64 i = _startCount - 1; i < _endCount - 1; i++) {
-            leaves[i - _startCount + 1] = self.leafHashes[i];
+        for (uint64 i = _index; i < _index + _len; i++) {
+            leaves[i - _index] = self.leafHashes[i];
         }
     }
 }

@@ -95,16 +95,16 @@ interface IDatasets {
     function getDatasetProof(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
-        uint64 _startCount,
-        uint64 _endCount
+        uint64 _index,
+        uint64 _len
     ) external view returns (bytes32[] memory);
 
     ///@notice Get dataset source CIDs
     function getDatasetCars(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
-        uint64 _startCount,
-        uint64 _endCount
+        uint64 _index,
+        uint64 _len
     ) external view returns (bytes32[] memory);
 
     function getDatasetProofCount(
