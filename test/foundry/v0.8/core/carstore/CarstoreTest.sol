@@ -359,6 +359,47 @@ contract CarstoreTest is Test {
         }
     }
 
+    function testReportCarReplicaExpiredWhenInvalidId(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) public {
+        vm.assume(_matchingId == 0 || _filecoinDealId == 0);
+        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024);
+
+        vm.expectRevert();
+        carstore.reportCarReplicaExpired(_cid, _matchingId, _filecoinDealId);
+    }
+
+    function testReportCarReplicaExpiredWhenCarNotExist(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) public {
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.CarNotExist.selector, _cid)
+        );
+        carstore.reportCarReplicaExpired(_cid, _matchingId, _filecoinDealId);
+    }
+
+    function testReportCarReplicaExpiredWhenReplicaNotExist(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) public {
+        vm.assume(_matchingId != 0 && _filecoinDealId != 0);
+        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.ReplicaNotExist.selector,
+                _cid,
+                _matchingId
+            )
+        );
+        carstore.reportCarReplicaExpired(_cid, _matchingId, _filecoinDealId);
+    }
+
     function testReportCarReplicaSlashed(
         bytes32 _cid,
         uint64 _matchingId,
@@ -416,5 +457,46 @@ contract CarstoreTest is Test {
                 _filecoinDealId
             );
         }
+    }
+
+    function testReportCarReplicaSlashedWhenInvalidId(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) public {
+        vm.assume(_matchingId == 0 || _filecoinDealId == 0);
+        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024);
+
+        vm.expectRevert();
+        carstore.reportCarReplicaSlashed(_cid, _matchingId, _filecoinDealId);
+    }
+
+    function testReportCarReplicaSlashedWhenCarNotExist(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) public {
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.CarNotExist.selector, _cid)
+        );
+        carstore.reportCarReplicaSlashed(_cid, _matchingId, _filecoinDealId);
+    }
+
+    function testReportCarReplicaSlashedWhenReplicaNotExist(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) public {
+        vm.assume(_matchingId != 0 && _filecoinDealId != 0);
+        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.ReplicaNotExist.selector,
+                _cid,
+                _matchingId
+            )
+        );
+        carstore.reportCarReplicaSlashed(_cid, _matchingId, _filecoinDealId);
     }
 }
