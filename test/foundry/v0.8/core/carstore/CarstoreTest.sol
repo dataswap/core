@@ -210,6 +210,13 @@ contract CarstoreTest is Test {
         vm.assume(_matchingId != 0 && _filecoinDealId != 0);
         carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024);
         carstore.addCarReplica(_cid, _matchingId);
+
+        vm.expectEmit(true, true, true, true);
+        emit CarstoreEvents.CarReplicaFilecoinDealIdSet(
+            _cid,
+            _matchingId,
+            _filecoinDealId
+        );
         carstore.setCarReplicaFilecoinDealId(
             _cid,
             _matchingId,
@@ -337,6 +344,8 @@ contract CarstoreTest is Test {
                     _filecoinDealId
                 );
             } else {
+                vm.expectEmit(true, true, false, true);
+                emit CarstoreEvents.CarReplicaExpired(_cid, _matchingId);
                 carstore.reportCarReplicaExpired(
                     _cid,
                     _matchingId,
@@ -437,6 +446,8 @@ contract CarstoreTest is Test {
                     _filecoinDealId
                 );
             } else {
+                vm.expectEmit(true, true, false, true);
+                emit CarstoreEvents.CarReplicaSlashed(_cid, _matchingId);
                 carstore.reportCarReplicaSlashed(
                     _cid,
                     _matchingId,
