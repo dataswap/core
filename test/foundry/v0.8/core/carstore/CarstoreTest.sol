@@ -61,6 +61,7 @@ contract CarstoreTest is Test {
             0,
             "Replica count should be 0"
         );
+        assertEq(carstore.carsCount(), 1, "Replica count should be 0");
     }
 
     function testAddCarWhenCarIdInvalid(
@@ -130,6 +131,8 @@ contract CarstoreTest is Test {
                 "Replica count should be 0"
             );
         }
+
+        assertTrue(carstore.hasCars(cids), "Cars should exist");
     }
 
     function testAddCarsWhenIdInvalid(
@@ -159,6 +162,24 @@ contract CarstoreTest is Test {
             uint8(carstore.getCarReplicaState(_cid, _matchingId)),
             uint8(CarReplicaType.State.Matched),
             "Replica state should be Matched"
+        );
+        assertEq(
+            carstore.getCarReplicasCount(_cid),
+            1,
+            "Replica count should be 1"
+        );
+
+        (CarReplicaType.State state, uint64 filecoinDealId) = carstore
+            .getCarReplica(_cid, _matchingId);
+        assertEq(
+            uint8(state),
+            uint8(CarReplicaType.State.Matched),
+            "Replica state should be Matched"
+        );
+        assertEq(
+            filecoinDealId,
+            carstore.getCarReplicaFilecoinDealId(_cid, _matchingId),
+            "Filecoin deal id should be Matched"
         );
     }
 
