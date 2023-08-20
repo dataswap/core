@@ -22,17 +22,18 @@ import "forge-std/Test.sol";
 import {ICarstore} from "../../../../../src/v0.8/interfaces/core/ICarstore.sol";
 import {IRoles} from "../../../../../src/v0.8/interfaces/core/IRoles.sol";
 import {IFilplus} from "../../../../../src/v0.8/interfaces/core/IFilplus.sol";
+import {IFilecoin} from "../../../../../src/v0.8/interfaces/core/IFilecoin.sol";
 import {Roles} from "../../../../../src/v0.8/core/access/Roles.sol";
 import {Filplus} from "../../../../../src/v0.8/core/filplus/Filplus.sol";
+import {Filecoin} from "../../../../../src/v0.8/core/filecoin/Filecoin.sol";
 ///shared
 import {CarstoreModifiers} from "../../../../../src/v0.8/shared/modifiers/CarstoreModifiers.sol";
 import {CarstoreEvents} from "../../../../../src/v0.8/shared/events/CarstoreEvents.sol";
 import {Errors} from "../../../../../src/v0.8/shared/errors/Errors.sol";
-import {FilecoinDealUtils} from "../../../../../src/v0.8/shared/utils/filecoin/FilecoinDealUtils.sol";
 ///type
 import {CarReplicaType} from "../../../../../src/v0.8/types/CarReplicaType.sol";
 import {Carstore} from "../../../../../src/v0.8/core/carstore/Carstore.sol";
-import {FilecoinStorageDealState} from "../../../../../src/v0.8/types/FilecoinDealType.sol";
+import {FilecoinType} from "../../../../../src/v0.8/types/FilecoinType.sol";
 
 contract CarstoreTest is Test {
     Carstore carstore;
@@ -41,7 +42,10 @@ contract CarstoreTest is Test {
     function setUp() public {
         Roles role = new Roles();
         Filplus filplus = new Filplus(governanceContractAddresss);
-        carstore = new Carstore(role, filplus);
+        Filecoin filecoin = new Filecoin(
+            FilecoinType.Network.CalibrationTestnet
+        );
+        carstore = new Carstore(role, filplus, filecoin);
     }
 
     function testAddCar(bytes32 _cid, uint64 _datasetId, uint64 _size) public {
@@ -346,8 +350,8 @@ contract CarstoreTest is Test {
             carstore.getCarReplicaState(_cid, _matchingId)
         ) {
             if (
-                FilecoinStorageDealState.Expired !=
-                FilecoinDealUtils.getFilecoinStorageDealState(
+                FilecoinType.DealState.Expired !=
+                carstore.getFilecoin().getReplicaDealState(
                     _cid,
                     _filecoinDealId
                 )
@@ -443,13 +447,14 @@ contract CarstoreTest is Test {
             _matchingId,
             _filecoinDealId
         );
+
         if (
             CarReplicaType.State.Stored ==
             carstore.getCarReplicaState(_cid, _matchingId)
         ) {
             if (
-                FilecoinStorageDealState.Slashed !=
-                FilecoinDealUtils.getFilecoinStorageDealState(
+                FilecoinType.DealState.Slashed !=
+                carstore.getFilecoin().getReplicaDealState(
                     _cid,
                     _filecoinDealId
                 )

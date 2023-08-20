@@ -17,6 +17,7 @@ pragma solidity ^0.8.21;
 ///interface
 import {IRoles} from "../../interfaces/core/IRoles.sol";
 import {IFilplus} from "../../interfaces/core/IFilplus.sol";
+import {IFilecoin} from "../../interfaces/core/IFilecoin.sol";
 import {ICarstore} from "../../interfaces/core/ICarstore.sol";
 ///shared
 import {RolesModifiers} from "./RolesModifiers.sol";
@@ -24,8 +25,7 @@ import {FilplusModifiers} from "./FilplusModifiers.sol";
 import {Errors} from "../errors/Errors.sol";
 ///types
 import {CarReplicaType} from "../../types/CarReplicaType.sol";
-import {FilecoinStorageDealState} from "../../types/FilecoinDealType.sol";
-import {FilecoinDealUtils} from "../../shared/utils/filecoin/FilecoinDealUtils.sol";
+import {FilecoinType} from "../../types/FilecoinType.sol";
 
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
@@ -33,15 +33,18 @@ contract CarstoreModifiers is RolesModifiers, FilplusModifiers {
     IRoles private roles;
     IFilplus private filplus;
     ICarstore private carstore;
+    IFilecoin private filecoin;
 
     constructor(
         IRoles _roles,
         IFilplus _filplus,
+        IFilecoin _filecoin,
         ICarstore _carstore
     ) RolesModifiers(_roles) FilplusModifiers(_filplus) {
         roles = _roles;
         filplus = _filplus;
         carstore = _carstore;
+        filecoin = _filecoin;
     }
 
     /// @dev Modifier to ensure that a car with the given CID exists.
@@ -103,11 +106,11 @@ contract CarstoreModifiers is RolesModifiers, FilplusModifiers {
     modifier onlyCarReplicaFilecoinDealState(
         bytes32 _cid,
         uint64 _filecoinDealId,
-        FilecoinStorageDealState _filecoinDealState
+        FilecoinType.DealState _filecoinDealState
     ) {
         if (
             _filecoinDealState !=
-            FilecoinDealUtils.getFilecoinStorageDealState(_cid, _filecoinDealId)
+            filecoin.getReplicaDealState(_cid, _filecoinDealId)
         ) {
             revert Errors.InvalidReplicaFilecoinDealState(
                 _cid,

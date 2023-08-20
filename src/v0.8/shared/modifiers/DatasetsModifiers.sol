@@ -17,6 +17,7 @@ pragma solidity ^0.8.21;
 ///interface
 import {IRoles} from "../../interfaces/core/IRoles.sol";
 import {IFilplus} from "../../interfaces/core/IFilplus.sol";
+import {IFilecoin} from "../../interfaces/core/IFilecoin.sol";
 import {ICarstore} from "../../interfaces/core/ICarstore.sol";
 import {IDatasets} from "../../interfaces/module/IDatasets.sol";
 ///shared
@@ -30,15 +31,17 @@ import {DatasetType} from "../../types/DatasetType.sol";
 contract DatasetsModifiers is CarstoreModifiers {
     IRoles private roles;
     IFilplus private filplus;
+    IFilecoin private filecoin;
     ICarstore private carstore;
     IDatasets private datasets;
 
     constructor(
         IRoles _roles,
         IFilplus _filplus,
+        IFilecoin _filecoin,
         ICarstore _carstore,
         IDatasets _datasets
-    ) CarstoreModifiers(_roles, _filplus, _carstore) {
+    ) CarstoreModifiers(_roles, _filplus, _filecoin, _carstore) {
         roles = _roles;
         filplus = _filplus;
         carstore = _carstore;

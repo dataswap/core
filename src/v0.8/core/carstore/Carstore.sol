@@ -20,6 +20,7 @@ pragma solidity ^0.8.21;
 /// interface
 import {IRoles} from "../../interfaces/core/IRoles.sol";
 import {IFilplus} from "../../interfaces/core/IFilplus.sol";
+import {IFilecoin} from "../../interfaces/core/IFilecoin.sol";
 import {ICarstore} from "../../interfaces/core/ICarstore.sol";
 ///shared
 import {CarstoreEvents} from "../../shared/events/CarstoreEvents.sol";
@@ -29,7 +30,7 @@ import {CarLIB} from "./library/CarLIB.sol";
 import {CarstoreBase} from "./abstract/CarstoreBase.sol";
 ///type
 import {CarReplicaType} from "../../types/CarReplicaType.sol";
-import {FilecoinStorageDealState} from "../../types/FilecoinDealType.sol";
+import {FilecoinType} from "../../types/FilecoinType.sol";
 
 /// @title CarsStorageBase
 /// @notice This contract allows adding cars and managing their associated replicas.
@@ -39,8 +40,9 @@ contract Carstore is CarstoreBase {
 
     constructor(
         IRoles _roles,
-        IFilplus _filplus
-    ) CarstoreBase(_roles, _filplus) {}
+        IFilplus _filplus,
+        IFilecoin _filecoin
+    ) CarstoreBase(_roles, _filplus, _filecoin) {}
 
     /// @dev Internal function to add a car based on its CID.
     ///      tips: diffent dataset has the same car is dones't matter,maybe need limit replicas count for a car.
@@ -110,7 +112,7 @@ contract Carstore is CarstoreBase {
         onlyCarReplicaFilecoinDealState(
             _cid,
             _filecoinDealId,
-            FilecoinStorageDealState.Expired
+            FilecoinType.DealState.Expired
         )
     {
         _emitRepicaEvent(
@@ -138,7 +140,7 @@ contract Carstore is CarstoreBase {
         onlyCarReplicaFilecoinDealState(
             _cid,
             _filecoinDealId,
-            FilecoinStorageDealState.Slashed
+            FilecoinType.DealState.Slashed
         )
     {
         _emitRepicaEvent(
@@ -168,7 +170,12 @@ contract Carstore is CarstoreBase {
         onlyUnsetCarReplicaFilecoinDealId(_cid, _matchingId)
     {
         CarReplicaType.Car storage car = cars[_cid];
-        car._setReplicaFilecoinDealId(_cid, _matchingId, _filecoinDealId);
+        car._setReplicaFilecoinDealId(
+            _cid,
+            _matchingId,
+            _filecoinDealId,
+            filecoin
+        );
 
         emit CarstoreEvents.CarReplicaFilecoinDealIdSet(
             _cid,
@@ -266,6 +273,11 @@ contract Carstore is CarstoreBase {
     {
         CarReplicaType.Car storage car = cars[_cid];
         return car._getReplicaState(_matchingId);
+    }
+
+    /// @notice get filecoin object
+    function getFilecoin() public view returns (IFilecoin) {
+        return filecoin;
     }
 
     /// @notice Check if a car exists based on its CID.

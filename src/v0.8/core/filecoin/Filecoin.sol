@@ -15,12 +15,27 @@
  ********************************************************************************/
 
 // SPDX-License-Identifier: GPL-3.0-or-later
+
 pragma solidity ^0.8.21;
 
-/// @notice Enum representing the possible states of a Filecoin storage deal.
-enum FilecoinStorageDealState {
-    Successed, // The filecoin deal's verification was successful.
-    Failed, // The filecoin deal's verification failed.
-    Slashed, // The filecoin deal has been slashed.
-    Expired // The filecoin deal has expired.
+///interface
+import {IFilecoin} from "../../interfaces/core/IFilecoin.sol";
+///type
+import {FilecoinType} from "../../types/FilecoinType.sol";
+
+/// @title Filecoin
+contract Filecoin is IFilecoin {
+    FilecoinType.Network public network;
+
+    constructor(FilecoinType.Network _network) {
+        network = _network;
+    }
+
+    /// @notice Internal function to get the state of a Filecoin storage deal for a replica.
+    function getReplicaDealState(
+        bytes32 /*_cid*/,
+        uint256 /*_filecoinDealId*/
+    ) external pure returns (FilecoinType.DealState) {
+        return FilecoinType.DealState.Stored;
+    }
 }

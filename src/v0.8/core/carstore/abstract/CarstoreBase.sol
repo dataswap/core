@@ -20,6 +20,7 @@ pragma solidity ^0.8.21;
 /// interface
 import {IRoles} from "../../../interfaces/core/IRoles.sol";
 import {IFilplus} from "../../../interfaces/core/IFilplus.sol";
+import {IFilecoin} from "../../../interfaces/core/IFilecoin.sol";
 import {ICarstore} from "../../../interfaces/core/ICarstore.sol";
 ///shared
 import {CarstoreModifiers} from "../../../shared/modifiers/CarstoreModifiers.sol";
@@ -40,13 +41,16 @@ abstract contract CarstoreBase is ICarstore, CarstoreModifiers {
 
     IRoles internal roles;
     IFilplus internal filplus;
+    IFilecoin internal filecoin;
 
     constructor(
         IRoles _roles,
-        IFilplus _filplus
-    ) CarstoreModifiers(_roles, _filplus, this) {
+        IFilplus _filplus,
+        IFilecoin _filecoin
+    ) CarstoreModifiers(_roles, _filplus, _filecoin, this) {
         roles = _roles;
         filplus = _filplus;
+        filecoin = _filecoin;
     }
 
     /// @notice Post an event for a car's replica based on the matching ID, triggering state transitions.

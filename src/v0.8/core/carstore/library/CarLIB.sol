@@ -19,8 +19,8 @@ pragma solidity ^0.8.21;
 
 import {CarReplicaType} from "../../../types/CarReplicaType.sol";
 import {CarReplicaLIB} from "./CarReplicaLIB.sol";
-import {FilecoinStorageDealState} from "../../../types/FilecoinDealType.sol";
-import {FilecoinDealUtils} from "../../../shared/utils/filecoin/FilecoinDealUtils.sol";
+import {IFilecoin} from "../../../interfaces/core/IFilecoin.sol";
+import {FilecoinType} from "../../../types/FilecoinType.sol";
 
 /// @title CarLIB
 /// @dev This library provides functions for managing the lifecycle and events of car and their replicas.
@@ -85,7 +85,8 @@ library CarLIB {
         CarReplicaType.Car storage self,
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _filecoinDealId,
+        IFilecoin _filecoin
     ) internal {
         require(_matchingId != 0, "Invalid matching id");
         require(_filecoinDealId != 0, "Invalid filecoin deal id");
@@ -94,8 +95,8 @@ library CarLIB {
         replica._setFilecoinDealId(_filecoinDealId);
 
         if (
-            FilecoinStorageDealState.Successed ==
-            FilecoinDealUtils.getFilecoinStorageDealState(_cid, _filecoinDealId)
+            FilecoinType.DealState.Stored ==
+            _filecoin.getReplicaDealState(_cid, _filecoinDealId)
         ) {
             _emitRepicaEvent(
                 self,

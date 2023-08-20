@@ -21,11 +21,13 @@ pragma solidity ^0.8.21;
 import {IDataswapStorage} from "../interfaces/service/IDataswapStorage.sol";
 import {Roles} from "../core/access/Roles.sol";
 import {Filplus} from "../core/filplus/Filplus.sol";
+import {Filecoin} from "../core/filecoin/Filecoin.sol";
 import {Carstore} from "../core/carstore/Carstore.sol";
 import {Datasets} from "../module/dataset/Datasets.sol";
 import {Matchings} from "../module/matching/Matchings.sol";
 import {Datacaps} from "../module/datacap/Datacaps.sol";
 import {Storages} from "../module/storage/Storages.sol";
+import {FilecoinType} from "../types/FilecoinType.sol";
 
 /// @title Dataswap
 /// TODO:https://github.com/dataswap/core/issues/33
@@ -34,6 +36,7 @@ abstract contract DataswapStorage is IDataswapStorage {
     Roles private roles = new Roles();
     Carstore private carstore;
     Filplus private filplus;
+    Filecoin private filecoin;
     Datasets private datasets;
     Matchings private matchings;
     Storages private storages;
@@ -41,17 +44,20 @@ abstract contract DataswapStorage is IDataswapStorage {
 
     constructor(address payable _governanceContractAddress) {
         filplus = new Filplus(_governanceContractAddress);
-        carstore = new Carstore(roles, filplus);
+        filecoin = new Filecoin(FilecoinType.Network.CalibrationTestnet);
+        carstore = new Carstore(roles, filplus, filecoin);
         datasets = new Datasets(
             _governanceContractAddress,
             roles,
             filplus,
+            filecoin,
             carstore
         );
         matchings = new Matchings(
             _governanceContractAddress,
             roles,
             filplus,
+            filecoin,
             carstore,
             datasets
         );
@@ -59,6 +65,7 @@ abstract contract DataswapStorage is IDataswapStorage {
             _governanceContractAddress,
             roles,
             filplus,
+            filecoin,
             carstore,
             datasets,
             matchings
@@ -67,6 +74,7 @@ abstract contract DataswapStorage is IDataswapStorage {
             _governanceContractAddress,
             roles,
             filplus,
+            filecoin,
             carstore,
             datasets,
             matchings,

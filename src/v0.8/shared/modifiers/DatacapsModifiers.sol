@@ -17,6 +17,7 @@ pragma solidity ^0.8.21;
 ///interface
 import {IRoles} from "../../interfaces/core/IRoles.sol";
 import {IFilplus} from "../../interfaces/core/IFilplus.sol";
+import {IFilecoin} from "../../interfaces/core/IFilecoin.sol";
 import {ICarstore} from "../../interfaces/core/ICarstore.sol";
 import {IDatasets} from "../../interfaces/module/IDatasets.sol";
 import {IMatchings} from "../../interfaces/module/IMatchings.sol";
@@ -31,6 +32,7 @@ import {Errors} from "../errors/Errors.sol";
 contract DatacapsModifiers is StoragesModifiers {
     IRoles private roles;
     IFilplus private filplus;
+    IFilecoin private filecoin;
     ICarstore private carstore;
     IDatasets private datasets;
     IMatchings private matchings;
@@ -40,6 +42,7 @@ contract DatacapsModifiers is StoragesModifiers {
     constructor(
         IRoles _roles,
         IFilplus _filplus,
+        IFilecoin _filecoin,
         ICarstore _carstore,
         IDatasets _datasets,
         IMatchings _matchings,
@@ -49,6 +52,7 @@ contract DatacapsModifiers is StoragesModifiers {
         StoragesModifiers(
             _roles,
             _filplus,
+            _filecoin,
             _carstore,
             _datasets,
             _matchings,
