@@ -106,7 +106,7 @@ contract CarstoreModifiers is RolesModifiers, FilplusModifiers {
         FilecoinStorageDealState _filecoinDealState
     ) {
         if (
-            FilecoinStorageDealState.Successed !=
+            _filecoinDealState !=
             FilecoinDealUtils.getFilecoinStorageDealState(_cid, _filecoinDealId)
         ) {
             revert Errors.InvalidReplicaFilecoinDealState(

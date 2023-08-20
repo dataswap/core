@@ -106,6 +106,7 @@ contract Carstore is CarstoreBase {
         onlyCarExist(_cid)
         onlyNotZero(_matchingId)
         onlyCarReplicaExist(_cid, _matchingId)
+        onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Stored)
         onlyCarReplicaFilecoinDealState(
             _cid,
             _filecoinDealId,
@@ -242,7 +243,6 @@ contract Carstore is CarstoreBase {
         onlyCarExist(_cid)
         onlyNotZero(_matchingId)
         onlyCarReplicaExist(_cid, _matchingId)
-        onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Stored)
         returns (uint64)
     {
         CarReplicaType.Car storage car = cars[_cid];

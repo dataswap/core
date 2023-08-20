@@ -88,13 +88,13 @@ library CarLIB {
         uint64 _filecoinDealId
     ) internal {
         require(_matchingId != 0, "Invalid matching id");
-        require(_filecoinDealId == 0, "Invalid filecoin deal id");
+        require(_filecoinDealId != 0, "Invalid filecoin deal id");
         require(_hasReplica(self, _matchingId), "Replica is not exists");
         CarReplicaType.Replica storage replica = self.replicas[_matchingId];
         replica._setFilecoinDealId(_filecoinDealId);
 
         if (
-            FilecoinStorageDealState.Successed !=
+            FilecoinStorageDealState.Successed ==
             FilecoinDealUtils.getFilecoinStorageDealState(_cid, _filecoinDealId)
         ) {
             _emitRepicaEvent(
@@ -142,10 +142,6 @@ library CarLIB {
     ) internal view returns (uint64) {
         require(_matchingId != 0, "Invalid matching id");
         require(_hasReplica(self, _matchingId), "Replica is not exists");
-        require(
-            _getReplicaState(self, _matchingId) == CarReplicaType.State.Stored,
-            "Replica is not stored"
-        );
         CarReplicaType.Replica storage replica = self.replicas[_matchingId];
         return replica.filecoinDealId;
     }
