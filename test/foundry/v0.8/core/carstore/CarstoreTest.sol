@@ -25,7 +25,7 @@ import {IFilplus} from "../../../../../src/v0.8/interfaces/core/IFilplus.sol";
 import {IFilecoin} from "../../../../../src/v0.8/interfaces/core/IFilecoin.sol";
 import {Roles} from "../../../../../src/v0.8/core/access/Roles.sol";
 import {Filplus} from "../../../../../src/v0.8/core/filplus/Filplus.sol";
-import {Filecoin} from "../../../../../src/v0.8/core/filecoin/Filecoin.sol";
+import {MockFilecoin} from "../../../../../src/v0.8/mocks/core/filecoin/MockFilecoin.sol";
 ///shared
 import {CarstoreModifiers} from "../../../../../src/v0.8/shared/modifiers/CarstoreModifiers.sol";
 import {CarstoreEvents} from "../../../../../src/v0.8/shared/events/CarstoreEvents.sol";
@@ -42,9 +42,7 @@ contract CarstoreTest is Test {
     function setUp() public {
         Roles role = new Roles();
         Filplus filplus = new Filplus(governanceContractAddresss);
-        Filecoin filecoin = new Filecoin(
-            FilecoinType.Network.CalibrationTestnet
-        );
+        MockFilecoin filecoin = new MockFilecoin();
         carstore = new Carstore(role, filplus, filecoin);
     }
 
@@ -227,7 +225,7 @@ contract CarstoreTest is Test {
         carstore.addCarReplica(_cid, _matchingId);
     }
 
-    function testSetCarReplicaFilecoinDealId(
+    function testSetCarReplicaFilecoinDealIdWhenStored(
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
@@ -235,6 +233,8 @@ contract CarstoreTest is Test {
         vm.assume(_matchingId != 0 && _filecoinDealId != 0);
         carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024);
         carstore.addCarReplica(_cid, _matchingId);
+
+        carstore.getFilecoin().setMockDealState(FilecoinType.DealState.Stored);
 
         vm.expectEmit(true, true, true, true);
         emit CarstoreEvents.CarReplicaFilecoinDealIdSet(
@@ -248,15 +248,45 @@ contract CarstoreTest is Test {
             _filecoinDealId
         );
         assertTrue(
-            CarReplicaType.State.None !=
-                carstore.getCarReplicaState(_cid, _matchingId) &&
-                CarReplicaType.State.Matched !=
-                carstore.getCarReplicaState(_cid, _matchingId) &&
-                CarReplicaType.State.Slashed !=
-                carstore.getCarReplicaState(_cid, _matchingId) &&
-                CarReplicaType.State.Expired !=
+            CarReplicaType.State.Stored ==
                 carstore.getCarReplicaState(_cid, _matchingId),
-            "Replica state should be Stored or StorageFailed"
+            "Replica state should be Stored "
+        );
+        assertEq(
+            carstore.getCarReplicaFilecoinDealId(_cid, _matchingId),
+            _filecoinDealId,
+            "Filecoin deal ID should match"
+        );
+    }
+
+    function testSetCarReplicaFilecoinDealIdWhenStorageFailed(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) public {
+        vm.assume(_matchingId != 0 && _filecoinDealId != 0);
+        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024);
+        carstore.addCarReplica(_cid, _matchingId);
+
+        carstore.getFilecoin().setMockDealState(
+            FilecoinType.DealState.StorageFailed
+        );
+
+        vm.expectEmit(true, true, true, true);
+        emit CarstoreEvents.CarReplicaFilecoinDealIdSet(
+            _cid,
+            _matchingId,
+            _filecoinDealId
+        );
+        carstore.setCarReplicaFilecoinDealId(
+            _cid,
+            _matchingId,
+            _filecoinDealId
+        );
+        assertTrue(
+            CarReplicaType.State.StorageFailed ==
+                carstore.getCarReplicaState(_cid, _matchingId),
+            "Replica state should be StorageFailed"
         );
         assertEq(
             carstore.getCarReplicaFilecoinDealId(_cid, _matchingId),
@@ -337,60 +367,65 @@ contract CarstoreTest is Test {
         uint64 _matchingId,
         uint64 _filecoinDealId
     ) public {
-        vm.assume(_matchingId != 0 && _filecoinDealId != 0);
-        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024);
-        carstore.addCarReplica(_cid, _matchingId);
-        carstore.setCarReplicaFilecoinDealId(
+        testSetCarReplicaFilecoinDealIdWhenStored(
             _cid,
             _matchingId,
             _filecoinDealId
         );
-        if (
-            CarReplicaType.State.Stored ==
-            carstore.getCarReplicaState(_cid, _matchingId)
-        ) {
-            if (
-                FilecoinType.DealState.Expired !=
-                carstore.getFilecoin().getReplicaDealState(
-                    _cid,
-                    _filecoinDealId
-                )
-            ) {
-                vm.expectRevert(
-                    abi.encodeWithSelector(
-                        Errors.InvalidReplicaFilecoinDealState.selector,
-                        _cid,
-                        _filecoinDealId
-                    )
-                );
-                carstore.reportCarReplicaExpired(
-                    _cid,
-                    _matchingId,
-                    _filecoinDealId
-                );
-            } else {
-                vm.expectEmit(true, true, false, true);
-                emit CarstoreEvents.CarReplicaExpired(_cid, _matchingId);
-                carstore.reportCarReplicaExpired(
-                    _cid,
-                    _matchingId,
-                    _filecoinDealId
-                );
-            }
-        } else {
-            vm.expectRevert(
-                abi.encodeWithSelector(
-                    Errors.InvalidReplicaState.selector,
-                    _cid,
-                    _matchingId
-                )
-            );
-            carstore.reportCarReplicaExpired(
+        carstore.getFilecoin().setMockDealState(FilecoinType.DealState.Expired);
+        vm.expectEmit(true, true, false, true);
+        emit CarstoreEvents.CarReplicaExpired(_cid, _matchingId);
+        carstore.reportCarReplicaExpired(_cid, _matchingId, _filecoinDealId);
+        assertTrue(
+            CarReplicaType.State.Expired ==
+                carstore.getCarReplicaState(_cid, _matchingId),
+            "Replica state should be Expired"
+        );
+    }
+
+    function testReportCarReplicaExpiredWhenStored(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) public {
+        testSetCarReplicaFilecoinDealIdWhenStored(
+            _cid,
+            _matchingId,
+            _filecoinDealId
+        );
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.InvalidReplicaFilecoinDealState.selector,
                 _cid,
-                _matchingId,
                 _filecoinDealId
-            );
-        }
+            )
+        );
+        carstore.reportCarReplicaExpired(_cid, _matchingId, _filecoinDealId);
+    }
+
+    function testReportCarReplicaExpiredWhenStorageFailed(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) public {
+        testSetCarReplicaFilecoinDealIdWhenStored(
+            _cid,
+            _matchingId,
+            _filecoinDealId
+        );
+
+        carstore.getFilecoin().setMockDealState(
+            FilecoinType.DealState.StorageFailed
+        );
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.InvalidReplicaFilecoinDealState.selector,
+                _cid,
+                _filecoinDealId
+            )
+        );
+        carstore.reportCarReplicaExpired(_cid, _matchingId, _filecoinDealId);
     }
 
     function testReportCarReplicaExpiredWhenInvalidId(
@@ -439,61 +474,65 @@ contract CarstoreTest is Test {
         uint64 _matchingId,
         uint64 _filecoinDealId
     ) public {
-        vm.assume(_matchingId != 0 && _filecoinDealId != 0);
-        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024);
-        carstore.addCarReplica(_cid, _matchingId);
-        carstore.setCarReplicaFilecoinDealId(
+        testSetCarReplicaFilecoinDealIdWhenStored(
+            _cid,
+            _matchingId,
+            _filecoinDealId
+        );
+        carstore.getFilecoin().setMockDealState(FilecoinType.DealState.Slashed);
+        vm.expectEmit(true, true, false, true);
+        emit CarstoreEvents.CarReplicaSlashed(_cid, _matchingId);
+        carstore.reportCarReplicaSlashed(_cid, _matchingId, _filecoinDealId);
+        assertTrue(
+            CarReplicaType.State.Slashed ==
+                carstore.getCarReplicaState(_cid, _matchingId),
+            "Replica state should be Slashed"
+        );
+    }
+
+    function testReportCarReplicaSlashedWhenStored(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) public {
+        testSetCarReplicaFilecoinDealIdWhenStored(
             _cid,
             _matchingId,
             _filecoinDealId
         );
 
-        if (
-            CarReplicaType.State.Stored ==
-            carstore.getCarReplicaState(_cid, _matchingId)
-        ) {
-            if (
-                FilecoinType.DealState.Slashed !=
-                carstore.getFilecoin().getReplicaDealState(
-                    _cid,
-                    _filecoinDealId
-                )
-            ) {
-                vm.expectRevert(
-                    abi.encodeWithSelector(
-                        Errors.InvalidReplicaFilecoinDealState.selector,
-                        _cid,
-                        _filecoinDealId
-                    )
-                );
-                carstore.reportCarReplicaSlashed(
-                    _cid,
-                    _matchingId,
-                    _filecoinDealId
-                );
-            } else {
-                vm.expectEmit(true, true, false, true);
-                emit CarstoreEvents.CarReplicaSlashed(_cid, _matchingId);
-                carstore.reportCarReplicaSlashed(
-                    _cid,
-                    _matchingId,
-                    _filecoinDealId
-                );
-            }
-        } else {
-            vm.expectRevert(
-                abi.encodeWithSelector(
-                    Errors.InvalidReplicaState.selector,
-                    _cid,
-                    _matchingId
-                )
-            );
-            carstore.reportCarReplicaSlashed(
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.InvalidReplicaFilecoinDealState.selector,
                 _cid,
-                _matchingId,
                 _filecoinDealId
-            );
-        }
+            )
+        );
+        carstore.reportCarReplicaSlashed(_cid, _matchingId, _filecoinDealId);
+    }
+
+    function testReportCarReplicaSlashedWhenStorageFailed(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) public {
+        testSetCarReplicaFilecoinDealIdWhenStored(
+            _cid,
+            _matchingId,
+            _filecoinDealId
+        );
+
+        carstore.getFilecoin().setMockDealState(
+            FilecoinType.DealState.StorageFailed
+        );
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.InvalidReplicaFilecoinDealState.selector,
+                _cid,
+                _filecoinDealId
+            )
+        );
+        carstore.reportCarReplicaSlashed(_cid, _matchingId, _filecoinDealId);
     }
 
     function testReportCarReplicaSlashedWhenInvalidId(

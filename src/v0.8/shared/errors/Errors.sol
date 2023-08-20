@@ -27,7 +27,7 @@ library Errors {
     error ReplicaAlreadyExists(bytes32 _cid, uint256 _matchingId);
     error ReplicaFilecoinDealIdExists(bytes32 _cid, uint256 _matchingId);
     error InvalidReplicaState(bytes32 _cid, uint256 _matchingId);
-    error InvalidReplicaFilecoinDealState(bytes32 _cid, uint256 _matchingId);
+    error InvalidReplicaFilecoinDealState(bytes32 _cid, uint256 _filecoinId);
 
     /// @notice Dataset errors
     error DatasetMetadataNotExist(string accessMethod);

@@ -32,10 +32,15 @@ contract Filecoin is IFilecoin {
     }
 
     /// @notice Internal function to get the state of a Filecoin storage deal for a replica.
+    /// @dev TODO:getReplicaDealState
     function getReplicaDealState(
         bytes32 /*_cid*/,
         uint256 /*_filecoinDealId*/
-    ) external pure returns (FilecoinType.DealState) {
+    ) external view returns (FilecoinType.DealState) {
+        network;
         return FilecoinType.DealState.Stored;
     }
+
+    /// @dev do nothing,just for mock
+    function setMockDealState(FilecoinType.DealState _state) external {}
 }
