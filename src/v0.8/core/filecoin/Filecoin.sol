@@ -18,6 +18,9 @@
 
 pragma solidity ^0.8.21;
 
+import {MarketAPI} from "@zondax/filecoin-solidity/contracts/v0.8/MarketAPI.sol";
+import {MarketTypes} from "@zondax/filecoin-solidity/contracts/v0.8/types/MarketTypes.sol";
+import {CommonTypes} from "@zondax/filecoin-solidity/contracts/v0.8/types/CommonTypes.sol";
 ///interface
 import {IFilecoin} from "../../interfaces/core/IFilecoin.sol";
 ///type
@@ -32,12 +35,32 @@ contract Filecoin is IFilecoin {
     }
 
     /// @notice Internal function to get the state of a Filecoin storage deal for a replica.
-    /// @dev TODO:getReplicaDealState
+    /// @dev TODO:check _filecoinDealId belongs to the _cid, now filecoin-solidity is not support
+    ///           https://github.com/dataswap/core/issues/41
     function getReplicaDealState(
         bytes32 /*_cid*/,
-        uint64 /*_filecoinDealId*/
-    ) external view returns (FilecoinType.DealState) {
-        network;
+        uint64 _filecoinDealId
+    ) external returns (FilecoinType.DealState) {
+        //get expired info
+        MarketTypes.GetDealTermReturn memory dealTerm = MarketAPI.getDealTerm(
+            _filecoinDealId
+        );
+        if (
+            CommonTypes.ChainEpoch.unwrap(dealTerm.end) < int256(block.number)
+        ) {
+            return FilecoinType.DealState.Expired;
+        }
+
+        //get slashed info
+        MarketTypes.GetDealActivationReturn memory DealActivation = MarketAPI
+            .getDealActivation(_filecoinDealId);
+        if (
+            CommonTypes.ChainEpoch.unwrap(DealActivation.terminated) <
+            int256(block.number)
+        ) {
+            return FilecoinType.DealState.Slashed;
+        }
+
         return FilecoinType.DealState.Stored;
     }
 

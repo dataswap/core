@@ -26,7 +26,7 @@ interface IFilecoin {
     function getReplicaDealState(
         bytes32 _cid,
         uint64 _filecoinDealId
-    ) external view returns (FilecoinType.DealState);
+    ) external returns (FilecoinType.DealState);
 
     /// @dev do nothing,just for mock
     function setMockDealState(FilecoinType.DealState _state) external;
