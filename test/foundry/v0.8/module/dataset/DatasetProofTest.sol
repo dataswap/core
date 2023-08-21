@@ -106,19 +106,28 @@ contract DatasetProofTest is Test, DatasetTestHelpers {
             uint8(datasets.getDatasetState(1))
         );
         assertTrue(datasets.isDatasetContainsCar(1, mappingLeafHashes[0]));
-        // TODO:test failed as follows
-        // assertTrue(
-        //     datasets.isDatasetContainsCars(
-        //         1,
-        //         datasets.getDatasetProof(1, DatasetType.DataType.Source, 1, 1)
-        //     )
-        // );
-        // assertTrue(
-        //     datasets.isDatasetContainsCars(
-        //         1,
-        //         datasets.getDatasetCars(1, DatasetType.DataType.Source, 1, 1)
-        //     )
-        // );
+        assertTrue(
+            datasets.isDatasetContainsCars(
+                1,
+                datasets.getDatasetProof(
+                    1,
+                    DatasetType.DataType.Source,
+                    0,
+                    sourceLeavesCount
+                )
+            )
+        );
+        assertTrue(
+            datasets.isDatasetContainsCars(
+                1,
+                datasets.getDatasetCars(
+                    1,
+                    DatasetType.DataType.MappingFiles,
+                    0,
+                    mappingLeavesCount
+                )
+            )
+        );
         assertEq(
             10000 * sourceLeavesCount,
             datasets.getDatasetSize(1, DatasetType.DataType.Source)

@@ -72,9 +72,16 @@ library DatasetProofInnerLIB {
         DatasetType.DatasetProof storage self,
         uint64 _index,
         uint64 _len
-    ) external view returns (bytes32[] memory leaves) {
+    ) external view returns (bytes32[] memory) {
+        require(
+            _index + _len <= self.leafHashes.length,
+            "Index+len out of bounds"
+        );
+        require(self.leafHashesCount == self.leafHashes.length);
+        bytes32[] memory result = new bytes32[](_len);
         for (uint64 i = 0; i < _len; i++) {
-            leaves[i] = self.leafHashes[i + _index];
+            result[i] = self.leafHashes[i + _index];
         }
+        return result;
     }
 }
