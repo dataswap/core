@@ -175,7 +175,10 @@ contract Datasets is IDatasets, DatasetsModifiers {
         bytes32[] calldata _leafHashes,
         uint64[] calldata _leafSizes,
         bool _completed
-    ) external {
+    )
+        external
+    // onlyDatasetState(_datasetId, DatasetType.State.MetadataApproved)
+    {
         //Note: params check in lib
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         if (_dataType == DatasetType.DataType.MappingFiles) {
@@ -196,6 +199,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
             dataset.sourceProof.allCompleted &&
             dataset.mappingFilesProof.allCompleted
         ) {
+            dataset._emitDatasetEvent((DatasetType.Event.SubmitDatasetProof));
             emit DatasetsEvents.DatasetProofSubmitted(_datasetId, msg.sender);
         }
     }

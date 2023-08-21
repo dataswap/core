@@ -44,13 +44,13 @@ import {DatasetType} from "../../../../../src/v0.8/types/DatasetType.sol";
 contract DatasetTestHelpers is Test {
     Datasets datasets;
     address payable governanceContractAddresss;
+    Roles role = new Roles();
+    Filplus filplus = new Filplus(governanceContractAddresss);
+    MockFilecoin filecoin = new MockFilecoin();
+    Carstore carstore = new Carstore(role, filplus, filecoin);
 
     // Helper function to set up the initial environment
     function setUp() public {
-        Roles role = new Roles();
-        Filplus filplus = new Filplus(governanceContractAddresss);
-        MockFilecoin filecoin = new MockFilecoin();
-        Carstore carstore = new Carstore(role, filplus, filecoin);
         datasets = new Datasets(
             governanceContractAddresss,
             role,
@@ -58,6 +58,17 @@ contract DatasetTestHelpers is Test {
             filecoin,
             carstore
         );
+    }
+
+    // Helper function to convert uint64 to bytes32
+    function convertUint64ToBytes32(
+        uint64 value
+    ) internal pure returns (bytes32) {
+        bytes32 convertedValue;
+        assembly {
+            convertedValue := value
+        }
+        return convertedValue;
     }
 
     function assertApproveDatasetMetadataSuccess(
