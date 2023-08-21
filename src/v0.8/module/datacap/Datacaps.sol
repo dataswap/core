@@ -29,6 +29,12 @@ import {Errors} from "../../shared/errors/Errors.sol";
 import {DatacapsModifiers} from "../../shared/modifiers/DatacapsModifiers.sol";
 import {DatacapsEvents} from "../../shared/events/DatacapsEvents.sol";
 
+// TODO:version issue
+// import {DataCapAPI} from "@zondax/filecoin-solidity/contracts/v0.8/DataCapAPI.sol";
+// import {DataCapTypes} from "@zondax/filecoin-solidity/contracts/v0.8/types/DataCapTypes.sol";
+// import {FilAddresses} from "@zondax/filecoin-solidity/contracts/v0.8/utils/FilAddresses.sol";
+// import {BigInts} from "@zondax/filecoin-solidity/contracts/v0.8/utils/BigInts.sol";
+
 /// @title Datacap
 /// @dev Manages the allocation of datacap for matched data storage after successful matching with Filecoin storage deals.
 /// Note:The removal of datacap is not necessary.
@@ -81,6 +87,12 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
         uint64 /*_matchingId*/,
         uint64 /*_size*/
     ) internal {
+        // DataCapTypes.TransferParams memory params = DataCapTypes.TransferParams(
+        //     FilAddresses.fromEthAddress(_to),
+        //     BigInts.fromUint256(_size),
+        //     ""
+        // );
+        // DataCapAPI.transfer(params);
         //TODO: logic https://github.com/dataswap/core/issues/30
     }
 
