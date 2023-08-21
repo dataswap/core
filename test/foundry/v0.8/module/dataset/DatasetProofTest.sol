@@ -137,19 +137,4 @@ contract DatasetProofTest is Test, DatasetTestHelpers {
             datasets.getDatasetProofCount(1, DatasetType.DataType.MappingFiles)
         );
     }
-
-    // function getDatasetVerification(
-    // function getDatasetVerificationsCount(
-    // function testSubmitDatasetVerification(
-    //     uint64 _datasetId,
-    //     uint64 _randomSeed,
-    //     bytes32[][] memory _siblings,
-    //     uint32[] memory _paths
-    // ) external {}
-    // function testApproveDataset(uint64 _datasetId, uint8 _state) external {
-    //     vm.assume(_datasetId != 0);
-    //     vm.assume(_state == uint8(DatasetType.State.DatasetProofSubmitted));
-    //     vm.prank(governanceContractAddresss);
-    //     datasets.approveDataset(_datasetId);
-    // }
 }
