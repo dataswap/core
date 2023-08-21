@@ -39,7 +39,11 @@ import {CarstoreTestHelpers} from "./CarstoreTestHelpers.sol";
 // Main test contract inheriting from Test and CarstoreTestHelpers
 contract CarstoreTest is Test, CarstoreTestHelpers {
     // Test function to add a car
-    function testAddCar(bytes32 _cid, uint64 _datasetId, uint64 _size) public {
+    function testAddCar(
+        bytes32 _cid,
+        uint64 _datasetId,
+        uint64 _size
+    ) external {
         vm.assume(_datasetId != 0 && _size != 0);
         addCarAndAssert(_cid, _datasetId, _size);
     }
@@ -49,7 +53,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size
-    ) public {
+    ) external {
         vm.assume(_datasetId == 0 || _size == 0);
         vm.expectRevert(bytes("Invalid ID"));
         carstore.addCar(_cid, _datasetId, _size);
@@ -60,7 +64,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size
-    ) public {
+    ) external {
         vm.assume(_datasetId != 0 && _size != 0);
         addCarAndAssert(_cid, _datasetId, _size);
         vm.expectRevert(
@@ -70,7 +74,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
     }
 
     // Test function to add cars
-    function testAddCars(uint64 _datasetId) public {
+    function testAddCars(uint64 _datasetId) external {
         vm.assume(_datasetId != 0);
 
         uint64 carsCount = 100;
@@ -91,14 +95,14 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         bytes32[] memory _cids,
         uint64 _datasetId,
         uint64[] memory _sizes
-    ) public {
+    ) external {
         vm.assume(_datasetId == 0);
         vm.expectRevert(bytes("Invalid ID"));
         carstore.addCars(_cids, _datasetId, _sizes);
     }
 
     // Test function to add car replica
-    function testAddCarReplica(bytes32 _cid, uint64 _matchingId) public {
+    function testAddCarReplica(bytes32 _cid, uint64 _matchingId) external {
         // Assume valid _matchingId
         vm.assume(_matchingId != 0);
 
@@ -117,7 +121,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
     function testAddCarReplicaWithInvalidId(
         bytes32 _cid,
         uint64 _matchingId
-    ) public {
+    ) external {
         vm.assume(_matchingId == 0);
         addCarAndAssert(_cid, 1, 32 * 1024 * 1024 * 1024);
         vm.expectRevert(bytes("Invalid ID"));
@@ -128,7 +132,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
     function testAddCarReplicaWithCarNotExist(
         bytes32 _cid,
         uint64 _matchingId
-    ) public {
+    ) external {
         vm.assume(_matchingId != 0);
         vm.expectRevert(
             abi.encodeWithSelector(Errors.CarNotExist.selector, _cid)
@@ -140,7 +144,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
     function testAddCarReplicaWithReplicaAlreadyExists(
         bytes32 _cid,
         uint64 _matchingId
-    ) public {
+    ) external {
         vm.assume(_matchingId != 0);
         addCarAndAssert(_cid, 1, 32 * 1024 * 1024 * 1024);
         carstore.addCarReplica(_cid, _matchingId);
@@ -163,7 +167,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         uint64 _filecoinDealId,
         uint8 _filecoinDealState,
         uint8 _replicaState
-    ) public {
+    ) external {
         vm.assume(_matchingId != 0 && _filecoinDealId != 0);
         vm.assume(
             (_filecoinDealState == uint8(FilecoinType.DealState.Stored) &&
@@ -186,7 +190,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
-    ) public {
+    ) external {
         vm.assume(_matchingId != 0 && _filecoinDealId == 0);
         addCarAndAssert(_cid, 1, 32 * 1024 * 1024 * 1024);
         addReplicaAndAssert(_cid, _matchingId);
@@ -203,7 +207,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
-    ) public {
+    ) external {
         vm.assume(_matchingId != 0 && _filecoinDealId != 0);
         addCarAndAssert(_cid, 1, 32 * 1024 * 1024 * 1024);
 
@@ -228,7 +232,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         uint64 _filecoinDealId,
         uint8 _filecoinDealState,
         uint8 _replicaState
-    ) public {
+    ) external {
         vm.assume(_matchingId != 0 && _filecoinDealId != 0);
         vm.assume(
             (_filecoinDealState == uint8(FilecoinType.DealState.Stored) &&
@@ -264,7 +268,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
-    ) public {
+    ) external {
         vm.assume(_matchingId != 0 && _filecoinDealId != 0);
         setCarReplicaFilecoinDealIdAndAssert(
             _cid,
@@ -291,7 +295,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         uint64 _matchingId,
         uint64 _filecoinDealId,
         uint8 _filecoinDealState
-    ) public {
+    ) external {
         vm.assume(_matchingId != 0 && _filecoinDealId != 0);
         setCarReplicaFilecoinDealIdAndAssert(
             _cid,
@@ -325,7 +329,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
-    ) public {
+    ) external {
         vm.assume(_matchingId == 0 || _filecoinDealId == 0);
         vm.expectRevert();
         carstore.reportCarReplicaExpired(_cid, _matchingId, _filecoinDealId);
@@ -336,7 +340,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
-    ) public {
+    ) external {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.CarNotExist.selector, _cid)
         );
@@ -348,7 +352,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
-    ) public {
+    ) external {
         vm.assume(_matchingId != 0 && _filecoinDealId != 0);
         carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024);
 
@@ -367,7 +371,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
-    ) public {
+    ) external {
         vm.assume(_matchingId != 0 && _filecoinDealId != 0);
         setCarReplicaFilecoinDealIdAndAssert(
             _cid,
@@ -394,7 +398,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         uint64 _matchingId,
         uint64 _filecoinDealId,
         uint8 _filecoinDealState
-    ) public {
+    ) external {
         vm.assume(_matchingId != 0 && _filecoinDealId != 0);
         setCarReplicaFilecoinDealIdAndAssert(
             _cid,
@@ -428,7 +432,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
-    ) public {
+    ) external {
         vm.assume(_matchingId == 0 || _filecoinDealId == 0);
         vm.expectRevert();
         carstore.reportCarReplicaSlashed(_cid, _matchingId, _filecoinDealId);
@@ -439,7 +443,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
-    ) public {
+    ) external {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.CarNotExist.selector, _cid)
         );
@@ -451,7 +455,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
-    ) public {
+    ) external {
         vm.assume(_matchingId != 0 && _filecoinDealId != 0);
         carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024);
 

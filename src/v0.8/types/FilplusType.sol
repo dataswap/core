@@ -23,6 +23,7 @@ library FilplusType {
     enum MatchingRuleCommissionType {
         BuyerPays,
         SellerPays,
-        SplitPayment
+        SplitPayment,
+        Max
     }
 }

@@ -19,7 +19,6 @@
 pragma solidity ^0.8.21;
 
 ///interface
-import {IRoles} from "../../interfaces/core/IRoles.sol";
 import {IFilplus} from "../../interfaces/core/IFilplus.sol";
 ///shared
 import {FilplusEvents} from "../../shared/events/FilplusEvents.sol";
@@ -64,8 +63,29 @@ contract Filplus is IFilplus, CommonModifiers {
 
     constructor(address payable _governanceAddress) {
         governanceAddress = _governanceAddress;
+        //defalut car rules
+        carRuleMaxCarReplicas = 20;
 
-        //TODO: add default value for every https://github.com/dataswap/core/issues/28
+        //defalut dataset region rules
+        datasetRuleMinRegionsPerDataset = 3;
+        datasetRuleDefaultMaxReplicasPerCountry = 1;
+        datasetRuleMaxReplicasPerCity = 1;
+
+        //defalut dataset sp rules
+        datasetRuleMinSPsPerDataset = 5;
+        datasetRuleMaxReplicasPerSP = 1;
+        datasetRuleMinTotalReplicasPerDataset = 5;
+        datasetRuleMaxTotalReplicasPerDataset = 10;
+
+        //defalut datacap rules
+        datacapRulesMaxAllocatedSizePerTime = 50 * 1024 * 1024 * 1024 * 1024; //50TB
+        datacapRulesMaxRemainingPercentageForNext = 20; //20%
+
+        //default matching rules
+        matchingRulesDataswapCommissionPercentage = 3;
+        matchingRulesCommissionType = FilplusType
+            .MatchingRuleCommissionType
+            .BuyerPays;
     }
 
     function getMatchingRulesCommissionType() external view returns (uint8) {
@@ -110,7 +130,7 @@ contract Filplus is IFilplus, CommonModifiers {
     function setDatasetRuleMaxReplicasInCountry(
         bytes32 _countryCode,
         uint16 _newValue
-    ) external onlyAddress(governanceAddress) {
+    ) external onlyAddress(governanceAddress) onlyNotZero(_newValue) {
         datasetRuleMaxReplicasInCountries[_countryCode] = _newValue;
         emit FilplusEvents.SetDatasetRuleMaxReplicasInCountry(
             _countryCode,
@@ -181,6 +201,7 @@ contract Filplus is IFilplus, CommonModifiers {
     function setMatchingRulesCommissionType(
         uint8 _newValue
     ) external onlyAddress(governanceAddress) {
+        require(_newValue < uint8(FilplusType.MatchingRuleCommissionType.Max));
         matchingRulesCommissionType = FilplusType.MatchingRuleCommissionType(
             _newValue
         );
