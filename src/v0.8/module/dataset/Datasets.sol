@@ -322,7 +322,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     function hasDatasetMetadata(
         string memory _accessMethod
     ) public view returns (bool) {
-        for (uint64 i = 1; i < datasetsCount; i++) {
+        for (uint64 i = 1; i <= datasetsCount; i++) {
             DatasetType.Dataset storage dataset = datasets[i];
             if (dataset.hasDatasetMetadata(_accessMethod)) return true;
         }
