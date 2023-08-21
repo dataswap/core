@@ -73,8 +73,8 @@ library DatasetProofInnerLIB {
         uint64 _index,
         uint64 _len
     ) external view returns (bytes32[] memory leaves) {
-        for (uint64 i = _index; i < _index + _len; i++) {
-            leaves[i - _index] = self.leafHashes[i];
+        for (uint64 i = 0; i < _len; i++) {
+            leaves[i] = self.leafHashes[i + _index];
         }
     }
 }
