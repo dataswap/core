@@ -18,16 +18,31 @@
 
 pragma solidity ^0.8.21;
 
-import {FilecoinType} from "../../types/FilecoinType.sol";
+// Import required external contracts and interfaces
+import "forge-std/Test.sol";
+import {MockFilecoin} from "../../../../../../src/v0.8/mocks/core/filecoin/MockFilecoin.sol";
+import "../../../../../../src/v0.8/types/FilecoinType.sol";
 
-/// @title IFilplus
-interface IFilecoin {
-    /// @notice Internal function to get the state of a Filecoin storage deal for a replica.
-    function getReplicaDealState(
+// Contract definition for test helper functions
+contract MockFilecoinTest is Test {
+    MockFilecoin filecoin;
+
+    // Setting up the test environment
+    function setUp() public {
+        filecoin = new MockFilecoin();
+    }
+
+    //test function for setMockDealState
+    function testSetMockDealState(
+        uint8 _state,
         bytes32 _cid,
         uint64 _filecoinDealId
-    ) external view returns (FilecoinType.DealState);
-
-    /// @dev do nothing,just for mock
-    function setMockDealState(FilecoinType.DealState _state) external;
+    ) external {
+        vm.assume(_state <= uint8(FilecoinType.DealState.Expired));
+        filecoin.setMockDealState(FilecoinType.DealState(_state));
+        assertEq(
+            _state,
+            uint8(filecoin.getReplicaDealState(_cid, _filecoinDealId))
+        );
+    }
 }

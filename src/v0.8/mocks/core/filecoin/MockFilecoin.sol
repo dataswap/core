@@ -13,7 +13,7 @@ contract MockFilecoin is IFilecoin {
 
     function getReplicaDealState(
         bytes32,
-        uint256
+        uint64
     ) external view override returns (FilecoinType.DealState) {
         return mockDealState;
     }

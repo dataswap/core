@@ -35,7 +35,7 @@ contract Filecoin is IFilecoin {
     /// @dev TODO:getReplicaDealState
     function getReplicaDealState(
         bytes32 /*_cid*/,
-        uint256 /*_filecoinDealId*/
+        uint64 /*_filecoinDealId*/
     ) external view returns (FilecoinType.DealState) {
         network;
         return FilecoinType.DealState.Stored;
