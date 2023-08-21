@@ -207,4 +207,109 @@ contract DatasetTestHelpers is Test {
         assertEq(source, _source);
         assertEq(accessMethod, _accessMethod);
     }
+
+    function assertSubmitDatasetProofSuccess(
+        bytes32 _mappingRootHash,
+        bytes32 _sourceRootHash
+    ) internal {
+        vm.assume(_mappingRootHash.length == 32);
+        vm.assume(_sourceRootHash.length == 32);
+        assertApproveDatasetMetadataSuccess(
+            "a",
+            "b",
+            "c",
+            "d",
+            "e",
+            "_source_accessMethod",
+            123456789,
+            true,
+            0
+        );
+
+        assertEq(
+            uint8(DatasetType.State.MetadataApproved),
+            uint8(datasets.getDatasetState(1))
+        );
+        uint64 mappingLeavesCount = 10;
+        bytes32[] memory mappingLeafHashes = new bytes32[](mappingLeavesCount);
+        uint64[] memory mappingLeafSizes = new uint64[](mappingLeavesCount);
+        for (uint64 i = 0; i < mappingLeavesCount; i++) {
+            mappingLeafSizes[i] = 10;
+            mappingLeafHashes[i] = convertUint64ToBytes32(i);
+        }
+        datasets.submitDatasetProofBatch(
+            1,
+            DatasetType.DataType.MappingFiles,
+            "_mapping_accessmethod",
+            _mappingRootHash,
+            mappingLeafHashes,
+            mappingLeafSizes,
+            true
+        );
+
+        uint64 sourceLeavesCount = 100;
+        bytes32[] memory sourceLeafHashes = new bytes32[](sourceLeavesCount);
+        uint64[] memory sourceLeafSizes = new uint64[](sourceLeavesCount);
+        for (uint64 i = 0; i < sourceLeavesCount; i++) {
+            sourceLeafSizes[i] = 10000;
+            sourceLeafHashes[i] = convertUint64ToBytes32(i + 10000);
+        }
+        vm.prank(address(199));
+        vm.expectEmit(true, false, false, true);
+        emit DatasetsEvents.DatasetProofSubmitted(1, address(199));
+        datasets.submitDatasetProofBatch(
+            1,
+            DatasetType.DataType.Source,
+            "",
+            _sourceRootHash,
+            sourceLeafHashes,
+            sourceLeafSizes,
+            true
+        );
+
+        assertEq(
+            uint8(DatasetType.State.DatasetProofSubmitted),
+            uint8(datasets.getDatasetState(1))
+        );
+        assertTrue(datasets.isDatasetContainsCar(1, mappingLeafHashes[0]));
+        assertTrue(
+            datasets.isDatasetContainsCars(
+                1,
+                datasets.getDatasetProof(
+                    1,
+                    DatasetType.DataType.Source,
+                    0,
+                    sourceLeavesCount
+                )
+            )
+        );
+        assertTrue(
+            datasets.isDatasetContainsCars(
+                1,
+                datasets.getDatasetCars(
+                    1,
+                    DatasetType.DataType.MappingFiles,
+                    0,
+                    mappingLeavesCount
+                )
+            )
+        );
+        assertEq(
+            10000 * sourceLeavesCount,
+            datasets.getDatasetSize(1, DatasetType.DataType.Source)
+        );
+        assertEq(
+            10 * mappingLeavesCount,
+            datasets.getDatasetSize(1, DatasetType.DataType.MappingFiles)
+        );
+        assertTrue(datasets.isDatasetContainsCars(1, sourceLeafHashes));
+        assertEq(
+            sourceLeavesCount,
+            datasets.getDatasetCarsCount(1, DatasetType.DataType.Source)
+        );
+        assertEq(
+            mappingLeavesCount,
+            datasets.getDatasetProofCount(1, DatasetType.DataType.MappingFiles)
+        );
+    }
 }

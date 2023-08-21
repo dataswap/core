@@ -22,10 +22,10 @@ import {CidUtils} from "../../../../shared/utils/cid/CidUtils.sol";
 
 library DatasetChallengeProofLIB {
     function setChallengeProof(
-        DatasetType.DatasetChallengeProof storage self,
+        DatasetType.DatasetChallengeProof memory self,
         bytes32[] memory _siblings,
         uint32 _path
-    ) internal {
+    ) internal pure {
         for (uint256 i = 0; i < _siblings.length; i++) {
             self.siblings[i] = _siblings[i];
         }

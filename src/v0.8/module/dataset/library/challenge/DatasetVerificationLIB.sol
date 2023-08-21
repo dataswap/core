@@ -54,10 +54,11 @@ library DatasetVerificationLIB {
         DatasetType.Verification storage verification = self.verifications[
             msg.sender
         ];
-        for (uint256 i = 0; i < _paths.length; i++) {
-            DatasetType.DatasetChallengeProof
-                storage challengeProof = verification.challengeProof[i];
+        for (uint32 i = 0; i < _paths.length; i++) {
+            DatasetType.DatasetChallengeProof memory challengeProof;
+            challengeProof.siblings = new bytes32[](_siblings[i].length);
             challengeProof.setChallengeProof(_siblings[i], _paths[i]);
+            verification.challengeProof.push(challengeProof);
         }
         return true;
     }

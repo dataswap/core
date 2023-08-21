@@ -29,7 +29,8 @@ contract RolesModifiers is CommonModifiers {
     }
 
     modifier onlyRole(bytes32 _role) {
-        roles.checkRole(_role);
+        // roles.checkRole(_role);
+        require(roles.hasRole(_role, msg.sender));
         _;
     }
 }
