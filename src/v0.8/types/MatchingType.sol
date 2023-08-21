@@ -85,7 +85,7 @@ library MatchingType {
         BidSelectionRule bidSelectionRule;
         uint64 biddingDelayBlockCount; // Number of blocks to delay bidding
         uint64 biddingPeriodBlockCount; // Number of blocks for bidding period
-        uint64 storagePeriodBlockCount; // Number of blocks for storage period,, representing the duration of the storage completion time period.
+        uint64 storageCompletionPeriodBlocks; // Number of blocks for storage period,, representing the duration of the storage completion time period.
         uint256 biddingThreshold; // Threshold for bidding
         string additionalInfo; // Additional information about the matching
         address initiator; // Address of the initiator of the matching
