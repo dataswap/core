@@ -35,9 +35,12 @@ library DatasetChallengeProofLIB {
     function getChallengeProof(
         DatasetType.DatasetChallengeProof storage self
     ) internal view returns (bytes32[] memory _siblings, uint32 _path) {
+        bytes32[] memory result = new bytes32[](self.siblings.length);
+        uint32 path;
         for (uint256 i = 0; i < self.siblings.length; i++) {
-            _siblings[i] = self.siblings[i];
-            _path = self.path;
+            result[i] = self.siblings[i];
         }
+        path = self.path;
+        return (result, path);
     }
 }

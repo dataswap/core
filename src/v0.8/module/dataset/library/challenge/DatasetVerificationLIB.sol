@@ -70,22 +70,25 @@ library DatasetVerificationLIB {
     function getDatasetVerification(
         DatasetType.Dataset storage self,
         address _auditor
-    )
-        public
-        view
-        returns (bytes32[][] memory _siblings, uint32[] memory _paths)
-    {
+    ) public view returns (bytes32[][] memory, uint32[] memory) {
         DatasetType.Verification storage verification = self.verifications[
             _auditor
         ];
+        bytes32[][] memory siblingss = new bytes32[][](
+            verification.challengeProof.length
+        );
+        uint32[] memory paths = new uint32[](
+            verification.challengeProof.length
+        );
         for (uint256 i = 0; i < verification.challengeProof.length; i++) {
             DatasetType.DatasetChallengeProof
                 storage challengeProof = verification.challengeProof[i];
-            (bytes32[] memory _sibling, uint32 path) = challengeProof
+            (bytes32[] memory siblings, uint32 path) = challengeProof
                 .getChallengeProof();
-            _siblings[i] = _sibling;
-            _paths[i] = path;
+            siblingss[i] = siblings;
+            paths[i] = path;
         }
+        return (siblingss, paths);
     }
 
     /// @notice Get the count of verifications for a dataset.

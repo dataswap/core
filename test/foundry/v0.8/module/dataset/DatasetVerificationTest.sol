@@ -69,8 +69,9 @@ contract DatasetVerificationTest is Test, DatasetTestHelpers {
 
         assertEq(1, datasets.getDatasetVerificationsCount(1));
 
-        //TODO:FAIL. Reason: Index out of bounds
-        // datasets.getDatasetVerification(1, address(this));
+        datasets.getDatasetVerification(1, address(this));
+
+        assertEq(1, datasets.getDatasetVerificationsCount(1));
     }
 
     function testApproveDataset(
