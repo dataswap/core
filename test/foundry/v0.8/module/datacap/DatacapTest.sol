@@ -19,9 +19,58 @@ pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
 import "forge-std/Test.sol";
-import {DatacapTestHelpers} from "./DatacapTestHelpers.sol";
+import {DatacapTestHelpers} from "./helpers/DatacapTestHelpers.sol";
 
 // Contract definition for test functions
 contract DatacapTest is Test, DatacapTestHelpers {
+    function testRequestAllocateDatacap() external {
+        setupForDatacapTest();
+        uint64 matchingId = matchings.matchingsCount();
 
+        // before allcation
+        assertEq(
+            matchings.getMatchingSize(matchingId),
+            datacaps.getTotalDatacapAllocationRequirement(matchingId)
+        );
+
+        assertTrue(datacaps.isNextDatacapAllocationValid(matchingId));
+
+        assertEq(
+            matchings.getMatchingSize(matchingId),
+            datacaps.getRemainingUnallocatedDatacap(matchingId)
+        );
+
+        assertEq(0, datacaps.getAvailableDatacap(matchingId));
+
+        vm.startPrank(matchings.getMatchingInitiator(matchingId));
+        datacaps.requestAllocateDatacap(matchingId);
+        vm.stopPrank();
+
+        //after allocate
+        assertTrue(
+            matchings.getMatchingSize(matchingId) <
+                filplus.datacapRulesMaxAllocatedSizePerTime()
+        );
+        assertEq(
+            matchings.getMatchingSize(matchingId),
+            datacaps.getAllocatedDatacap(matchingId)
+        );
+
+        vm.expectRevert();
+        datacaps.isNextDatacapAllocationValid(matchingId);
+
+        assertEq(0, datacaps.getRemainingUnallocatedDatacap(matchingId));
+
+        assertEq(
+            matchings.getMatchingSize(matchingId),
+            datacaps.getAvailableDatacap(matchingId)
+        );
+
+        //after storage
+        vm.startPrank(matchings.getMatchingWinner(matchingId));
+        submitStorageDealIds(matchingId, matchings.getMatchingCars(matchingId));
+        vm.stopPrank();
+
+        assertEq(0, datacaps.getAvailableDatacap(matchingId));
+    }
 }

@@ -100,7 +100,11 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
     /// @param _matchingId The ID of the matching process.
     function requestAllocateDatacap(
         uint64 _matchingId
-    ) external validNextDatacapAllocation(_matchingId) {
+    )
+        external
+        onlyAddress(matchings.getMatchingInitiator(_matchingId))
+        validNextDatacapAllocation(_matchingId)
+    {
         uint64 remainingUnallocatedDatacap = getRemainingUnallocatedDatacap(
             _matchingId
         );

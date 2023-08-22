@@ -138,8 +138,11 @@ contract Storages is IStorages, StoragesModifiers {
         uint64 _matchingId
     ) public view returns (uint64) {
         StorageType.Storage storage storage_ = storages[_matchingId];
-        // TODO: compute cars size
-        return uint64(storage_.doneCars.length * 32 * 1024 * 1024 * 1024);
+        uint64 size = 0;
+        for (uint64 i = 0; i < storage_.doneCars.length; i++) {
+            size += carstore.getCarSize(storage_.doneCars[i]);
+        }
+        return size;
     }
 
     /// @dev Checks if all cars are done in the matchedstore.
