@@ -35,7 +35,7 @@ contract DatasetTestSetupHelpers is Test {
     Carstore carstore = new Carstore(role, filplus, filecoin);
 
     // Helper function to set up the initial environment
-    function setUp() public {
+    function setUp() public virtual {
         datasets = new Datasets(
             governanceContractAddresss,
             role,

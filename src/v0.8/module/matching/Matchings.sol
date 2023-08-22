@@ -254,9 +254,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
     }
 
     /// @notice  Function for getting the total data size of bids in a matching
-    function getMatchingCapacity(
-        uint64 _matchingId
-    ) public view returns (uint64) {
+    function getMatchingSize(uint64 _matchingId) public view returns (uint64) {
         (, , uint64 datasize, , ) = getMatchingTarget(_matchingId);
         return datasize;
     }

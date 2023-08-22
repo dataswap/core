@@ -19,9 +19,28 @@ pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
 import "forge-std/Test.sol";
+import {Roles} from "../../../../../../../src/v0.8/core/access/Roles.sol";
+import {Filplus} from "../../../../../../../src/v0.8/core/filplus/Filplus.sol";
+import {MockFilecoin} from "../../../../../../../src/v0.8/mocks/core/filecoin/MockFilecoin.sol";
+import {Carstore} from "../../../../../../../src/v0.8/core/carstore/Carstore.sol";
+import {Datasets} from "../../../../../../../src/v0.8/module/dataset/Datasets.sol";
+import {Matchings} from "../../../../../../../src/v0.8/module/matching/Matchings.sol";
+import {DatasetAuditTestHelpers} from "../../../dataset/helpers/DatasetAuditTestHelpers.sol";
 
 // Contract definition for test helper functions
-contract MatchingTestHelpers is Test {
+contract MatchingTestSetupHelpers is Test, DatasetAuditTestHelpers {
     // Helper function to set up the initial environment
-    function setUp() public {}
+    Matchings matchings;
+
+    function setUp() public override {
+        super.setUp();
+        matchings = new Matchings(
+            governanceContractAddresss,
+            role,
+            filplus,
+            filecoin,
+            carstore,
+            datasets
+        );
+    }
 }

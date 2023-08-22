@@ -19,9 +19,18 @@ pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
 import "forge-std/Test.sol";
-import {MatchingTestHelpers} from "./MatchingTestHelpers.sol";
+import {MatchingMappingFilesPublishTestHelpers} from "./helpers/MatchingMappingFilesPublishTestHelpers.sol";
+import {MatchingType} from "../../../../../src/v0.8/types/MatchingType.sol";
 
 // Contract definition for test functions
-contract MatchingTest is Test, MatchingTestHelpers {
-
+contract MatchingPublishTest is Test, MatchingMappingFilesPublishTestHelpers {
+    function testPublishMatching() external {
+        assertMatchingMappingFilesPublishExpectingSuccess();
+    }
+    // function testBidding(uint64 _matchingId, uint256 _amount) external {}
+    // function testPauseMatching(uint64 _matchingId) external {}
+    // function testReportMatchingPauseExpired(uint64 _matchingId) external {}
+    // function testResumeMatching(uint64 _matchingId) external {}
+    // function testCancelMatching(uint64 _matchingId) external {}
+    // function testCloseMatching(uint64 _matchingId) external {}
 }

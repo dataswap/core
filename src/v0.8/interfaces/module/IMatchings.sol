@@ -76,9 +76,7 @@ interface IMatchings {
         uint64 _matchingId
     ) external view returns (bytes32[] memory);
 
-    function getMatchingCapacity(
-        uint64 _matchingId
-    ) external view returns (uint64);
+    function getMatchingSize(uint64 _matchingId) external view returns (uint64);
 
     function getMatchingInitiator(
         uint64 _matchingId

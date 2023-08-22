@@ -155,7 +155,7 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
     function getTotalDatacapAllocationRequirement(
         uint64 _matchingId
     ) public view returns (uint64) {
-        return matchings.getMatchingCapacity(_matchingId);
+        return matchings.getMatchingSize(_matchingId);
     }
 
     /// @dev Gets the remaining datacap size needed to be allocated for a matching process.
