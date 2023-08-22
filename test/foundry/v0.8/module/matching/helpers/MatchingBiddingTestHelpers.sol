@@ -96,4 +96,24 @@ contract MatchingBiddingTestHelpers is
         /// @dev step 3: assert result after bidding
         assertBidded();
     }
+
+    function assertMatchingCloseExpectingSuccess() internal {
+        /// step1:set env
+        /// @dev publish at block:1
+        ///      dev bidding start at block:101
+        ///      dev close start at block:201
+        assertBiddingExpectingSuccess();
+
+        /// @dev step2: close
+        vm.roll(201);
+        uint64 matchingId = matchings.matchingsCount();
+        matchings.closeMatching(matchingId);
+
+        /// @dev assert
+        assertEq(
+            uint8(MatchingType.State.Completed),
+            uint8(matchings.getMatchingState(matchingId))
+        );
+        assertEq(address(999), matchings.getMatchingWinner(matchingId));
+    }
 }

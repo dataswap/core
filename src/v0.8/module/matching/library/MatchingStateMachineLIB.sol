@@ -72,11 +72,11 @@ library MatchingStateMachineLIB {
                 newState = MatchingType.State.Closed;
             }
         } else if (_event == MatchingType.Event.HasWinner) {
-            if (currentState == MatchingType.State.InProgress) {
+            if (currentState == MatchingType.State.Closed) {
                 newState = MatchingType.State.Completed;
             }
         } else if (_event == MatchingType.Event.NoWinner) {
-            if (currentState == MatchingType.State.InProgress) {
+            if (currentState == MatchingType.State.Closed) {
                 newState = MatchingType.State.Failed;
             }
         }

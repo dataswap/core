@@ -212,6 +212,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
         address winner = matching._chooseMatchingWinner();
         if (winner != address(0)) {
             _beforeCompleteMatching(_matchingId);
+            matching.winner = winner;
             matching._emitMatchingEvent(MatchingType.Event.HasWinner);
             emit MatchingsEvents.MatchingHasWinner(_matchingId, winner);
         } else {
@@ -303,6 +304,14 @@ contract Matchings is IMatchings, MatchingsModifiers {
             matching.target.dataType,
             matching.target.associatedMappingFilesMatchingID
         );
+    }
+
+    /// @notice  Function for getting winner of a matching
+    function getMatchingWinner(
+        uint64 _matchingId
+    ) public view returns (address) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        return matching.winner;
     }
 
     /// @notice  Function for checking if a bidder has a bid in a matching

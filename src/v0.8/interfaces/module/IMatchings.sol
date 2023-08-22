@@ -107,6 +107,11 @@ interface IMatchings {
             uint64 associatedMappingFilesMatchingID
         );
 
+    /// @notice  Function for getting winner of a matching
+    function getMatchingWinner(
+        uint64 _matchingId
+    ) external view returns (address);
+
     /// @notice  Function for checking if a bidder has a bid in a matching
     function hasMatchingBid(
         uint64 _matchingId,
