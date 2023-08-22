@@ -83,9 +83,9 @@ contract MatchingMappingFilesPublishTestHelpers is
             _dataType,
             _associatedMappingFilesMatchingID,
             _bidSelectionRule,
-            5, //biddingDelayBlockCount
-            10, //biddingPeriodBlockCount
-            50, //storageCompletionPeriodBlocks
+            100, //biddingDelayBlockCount
+            100, //biddingPeriodBlockCount
+            100, //storageCompletionPeriodBlocks
             100 //biddingThreshold
         );
     }
