@@ -57,19 +57,13 @@ library MatchingType {
         ImmediateAtMost // Note: Render Immediate winning condition: Bid amount is at most the threshold
     }
 
-    /// @notice Enum representing the type of data associated with a matching.
-    enum DataType {
-        Source, // Matching is associated with a dataset
-        MappingFiles // Matching is associated with mapping files
-    }
-
     /// @notice Struct representing the target of a matching.
     /// @dev TODO: support batch submit likes DatasetProof of dataset
     struct Target {
         uint64 datasetId; // ID of the dataset associated with the matching
         bytes32[] cars; // Array of car IDs associated with the matching
         uint64 size; // Size of the matching target，Note:total datacap size that this matching need allocate
-        DataType dataType; // Type of data associated with the matching
+        DatasetType.DataType dataType; // Type of data associated with the matching
         uint64 associatedMappingFilesMatchingID; // ID of the matching associated with mapping files
     }
 

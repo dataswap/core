@@ -120,7 +120,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
         uint64 _datasetId,
         bytes32[] memory _cars,
         uint64 _size,
-        MatchingType.DataType _dataType,
+        DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID,
         MatchingType.BidSelectionRule _bidSelectionRule,
         uint64 _biddingDelayBlockCount,
@@ -292,7 +292,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
             uint64 datasetID,
             bytes32[] memory cars,
             uint64 size,
-            MatchingType.DataType dataType,
+            DatasetType.DataType dataType,
             uint64 associatedMappingFilesMatchingID
         )
     {
@@ -350,7 +350,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
         uint64 _datasetId,
         bytes32[] memory _cars,
         uint64 _size,
-        MatchingType.DataType _dataType,
+        DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID
     ) public view returns (bool) {
         require(
@@ -363,12 +363,12 @@ contract Matchings is IMatchings, MatchingsModifiers {
             "Invalid cids!"
         );
         require(_size > 0, "Invalid size!");
-        if (_dataType == MatchingType.DataType.Source) {
+        if (_dataType == DatasetType.DataType.Source) {
             (
                 uint64 datasetId,
                 ,
                 ,
-                MatchingType.DataType dataType,
+                DatasetType.DataType dataType,
 
             ) = getMatchingTarget(_associatedMappingFilesMatchingID);
 
@@ -410,7 +410,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
         uint64 /*_datasetId*/,
         bytes32[] memory /*_cars*/,
         uint64 /*_size*/,
-        MatchingType.DataType /*_dataType*/,
+        DatasetType.DataType /*_dataType*/,
         uint64 /*_associatedMappingFilesMatchingID*/
     ) public pure returns (bool) {
         //TODO https://github.com/dataswap/core/issues/29

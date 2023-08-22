@@ -30,7 +30,7 @@ interface IMatchings {
         uint64 _datasetId,
         bytes32[] memory _cars,
         uint64 _size,
-        MatchingType.DataType _dataType,
+        DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID,
         MatchingType.BidSelectionRule _bidSelectionRule,
         uint64 _biddingDelayBlockCount,
@@ -105,7 +105,7 @@ interface IMatchings {
             uint64 datasetID,
             bytes32[] memory cars,
             uint64 size,
-            MatchingType.DataType dataType,
+            DatasetType.DataType dataType,
             uint64 associatedMappingFilesMatchingID
         );
 
@@ -138,7 +138,7 @@ interface IMatchings {
         uint64 _datasetId,
         bytes32[] memory _cars,
         uint64 _size,
-        MatchingType.DataType _dataType,
+        DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID
     ) external view returns (bool);
 
@@ -152,7 +152,7 @@ interface IMatchings {
         uint64 _datasetId,
         bytes32[] memory _cars,
         uint64 _size,
-        MatchingType.DataType _dataType,
+        DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID
     ) external view returns (bool);
 
