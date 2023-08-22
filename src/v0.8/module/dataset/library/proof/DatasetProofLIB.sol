@@ -84,14 +84,14 @@ library DatasetProofLIB {
     function getDatasetCars(
         DatasetType.Dataset storage self,
         DatasetType.DataType _dataType,
-        uint64 _startCount,
-        uint64 _endCount
+        uint64 _index,
+        uint64 _len
     ) public view returns (bytes32[] memory) {
         bytes32[] memory hashes = getDatasetProof(
             self,
             _dataType,
-            _startCount,
-            _endCount
+            _index,
+            _len
         );
         //TODO: hashes to cid
         return hashes;

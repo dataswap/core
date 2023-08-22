@@ -261,10 +261,10 @@ contract Datasets is IDatasets, DatasetsModifiers {
     function getDatasetCars(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
-        uint64 _startCount,
-        uint64 _endCount
+        uint64 _index,
+        uint64 _len
     ) public view onlyNotZero(_datasetId) returns (bytes32[] memory) {
-        return getDatasetProof(_datasetId, _dataType, _startCount, _endCount);
+        return getDatasetProof(_datasetId, _dataType, _index, _len);
     }
 
     function getDatasetProofCount(

@@ -35,7 +35,7 @@ interface IMatchings {
         MatchingType.BidSelectionRule _bidSelectionRule,
         uint64 _biddingDelayBlockCount,
         uint64 _biddingPeriodBlockCount,
-        uint64 _storagePeriodBlockCount,
+        uint64 _storageCompletionPeriodBlocks,
         uint256 _biddingThreshold,
         string memory _additionalInfo
     ) external;
