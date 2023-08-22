@@ -110,8 +110,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
             matching.bidSelectionRule ==
             MatchingType.BidSelectionRule.ImmediateAtMost
         ) {
-            matching._emitMatchingEvent(MatchingType.Event.Close);
-            matching._emitMatchingEvent(MatchingType.Event.HasWinner);
+            closeMatching(_matchingId);
         }
     }
 
@@ -205,8 +204,31 @@ contract Matchings is IMatchings, MatchingsModifiers {
     /// @notice  Function for closing a matching and choosing a winner
     function closeMatching(
         uint64 _matchingId
-    ) external onlyMatchingState(_matchingId, MatchingType.State.InProgress) {
+    ) public onlyMatchingState(_matchingId, MatchingType.State.InProgress) {
         MatchingType.Matching storage matching = matchings[_matchingId];
+        if (
+            matching.bidSelectionRule ==
+            MatchingType.BidSelectionRule.ImmediateAtLeast ||
+            matching.bidSelectionRule ==
+            MatchingType.BidSelectionRule.ImmediateAtMost
+        ) {
+            require(
+                block.number >=
+                    matching.createdBlockNumber +
+                        matching.biddingDelayBlockCount +
+                        matching.pausedBlockCount,
+                "Matching: Bidding too early"
+            );
+        } else {
+            require(
+                block.number >=
+                    matching.createdBlockNumber +
+                        matching.biddingDelayBlockCount +
+                        matching.biddingPeriodBlockCount +
+                        matching.pausedBlockCount,
+                "Matching: Bidding period not expired"
+            );
+        }
         matching._closeMatching();
         address winner = matching._chooseMatchingWinner();
         if (winner != address(0)) {

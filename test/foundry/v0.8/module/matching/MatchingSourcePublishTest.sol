@@ -19,16 +19,23 @@ pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
 import "forge-std/Test.sol";
+import {MatchingMappingFilesBiddingTestHelpers} from "./helpers/MatchingMappingFilesBiddingTestHelpers.sol";
 import {MatchingBiddingTestHelpers} from "./helpers/MatchingBiddingTestHelpers.sol";
+import {MatchingPublishTestHelpers} from "./helpers/MatchingPublishTestHelpers.sol";
 import {MatchingType} from "../../../../../src/v0.8/types/MatchingType.sol";
 import {RolesType} from "../../../../../src/v0.8/types/RolesType.sol";
 import {DatasetType} from "../../../../../src/v0.8/types/DatasetType.sol";
 
 // Contract definition for test functions
-contract MatchingSourcePublishTest is Test, MatchingBiddingTestHelpers {
+contract MatchingSourcePublishTest is
+    Test,
+    MatchingPublishTestHelpers,
+    MatchingBiddingTestHelpers,
+    MatchingMappingFilesBiddingTestHelpers
+{
     function testPublishMatchingForSourceDataset() external {
         // @dev step1: set env mapping matching complete
-        assertMatchingCloseExpectingSuccess();
+        assertMatchingMappingFilesCloseExpectingSuccess();
 
         // @dev step2: publish source
         uint64 datasetId = datasets.datasetsCount();

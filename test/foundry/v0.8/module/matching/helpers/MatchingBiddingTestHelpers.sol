@@ -31,11 +31,6 @@ contract MatchingBiddingTestHelpers is
     Test,
     MatchingMappingFilesPublishTestHelpers
 {
-    /// @dev step 1: setup the env for bidding
-    function setupForBidding() internal {
-        assertMatchingMappingFilesPublishExpectingSuccess();
-    }
-
     // step 2: do bidding action,not decouple it if this function simple
     function bidding(
         address _bidder,
@@ -47,73 +42,5 @@ contract MatchingBiddingTestHelpers is
         vm.prank(address(_bidder));
         vm.roll(_blocknumber);
         matchings.bidding(matchingId, _amount);
-    }
-
-    /// @dev step 3: assert result after bidding
-    function assertBidded() internal {
-        ///assert bids count
-        uint64 matchingId = matchings.matchingsCount();
-        assertEq(3, matchings.getMatchingBidsCount(matchingId));
-
-        ///assert bidder's amount
-        assertEq(
-            999,
-            matchings.getMatchingBidAmount(matchingId, address(1999))
-        );
-        assertEq(
-            10000,
-            matchings.getMatchingBidAmount(matchingId, address(999))
-        );
-
-        ///assert if bidder already bid
-        assertTrue(matchings.hasMatchingBid(matchingId, address(999)));
-        assertTrue(!matchings.hasMatchingBid(matchingId, address(998)));
-
-        ///assert all bids
-        (address[] memory bidders, uint256[] memory amounts) = matchings
-            .getMatchingBids(matchingId);
-        assertEq(3, bidders.length);
-        assertEq(3, amounts.length);
-        assertEq(1000, amounts[0]);
-        assertEq(10000, amounts[1]);
-        assertEq(999, amounts[2]);
-        assertEq(address(999), bidders[0]);
-        assertEq(address(999), bidders[1]);
-        assertEq(address(1999), bidders[2]);
-    }
-
-    ///@dev success test and  as env set for other module
-    function assertBiddingExpectingSuccess() internal {
-        /// @dev step 1: setup the env for bidding
-        vm.roll(1);
-        setupForBidding();
-
-        /// @dev step 2: do bidding action,not decouple it if this function simple
-        bidding(address(999), 1000, 101);
-        bidding(address(999), 10000, 102);
-        bidding(address(1999), 999, 200);
-
-        /// @dev step 3: assert result after bidding
-        assertBidded();
-    }
-
-    function assertMatchingCloseExpectingSuccess() internal {
-        /// step1:set env
-        /// @dev publish at block:1
-        ///      dev bidding start at block:101
-        ///      dev close start at block:201
-        assertBiddingExpectingSuccess();
-
-        /// @dev step2: close
-        vm.roll(201);
-        uint64 matchingId = matchings.matchingsCount();
-        matchings.closeMatching(matchingId);
-
-        /// @dev assert
-        assertEq(
-            uint8(MatchingType.State.Completed),
-            uint8(matchings.getMatchingState(matchingId))
-        );
-        assertEq(address(999), matchings.getMatchingWinner(matchingId));
     }
 }

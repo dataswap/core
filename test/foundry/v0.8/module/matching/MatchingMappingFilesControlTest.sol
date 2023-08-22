@@ -19,14 +19,17 @@ pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
 import "forge-std/Test.sol";
-import {MatchingBiddingTestHelpers} from "./helpers/MatchingBiddingTestHelpers.sol";
+import {MatchingMappingFilesBiddingTestHelpers} from "./helpers/MatchingMappingFilesBiddingTestHelpers.sol";
 import {MatchingType} from "../../../../../src/v0.8/types/MatchingType.sol";
 
 // Contract definition for test functions
-contract MatchingControlTest is Test, MatchingBiddingTestHelpers {
+contract MatchingMappingFilesControlTest is
+    Test,
+    MatchingMappingFilesBiddingTestHelpers
+{
     function testPauseAndResumeMatching() external {
         /// @dev step1:set env
-        assertBiddingExpectingSuccess();
+        assertMappingFilesBiddingExpectingSuccess();
 
         /// @dev step2:pause and assert
         uint64 matchingId = matchings.matchingsCount();
@@ -71,7 +74,7 @@ contract MatchingControlTest is Test, MatchingBiddingTestHelpers {
     }
 
     function testFailPauseMatchingAfterClosed() external {
-        assertBiddingExpectingSuccess();
+        assertMappingFilesBiddingExpectingSuccess();
 
         uint64 matchingId = matchings.matchingsCount();
         vm.roll(201);
@@ -84,11 +87,11 @@ contract MatchingControlTest is Test, MatchingBiddingTestHelpers {
     }
 
     function testResumeMatching() external {
-        assertBiddingExpectingSuccess();
+        assertMappingFilesBiddingExpectingSuccess();
     }
 
     function testCancelMatchingAtStateInProgress() external {
-        assertBiddingExpectingSuccess();
+        assertMappingFilesBiddingExpectingSuccess();
         uint64 matchingId = matchings.matchingsCount();
         matchings.cancelMatching(matchingId);
         /// @dev assert
@@ -110,12 +113,12 @@ contract MatchingControlTest is Test, MatchingBiddingTestHelpers {
     }
 
     function testFailCancelMatchingAtClosed() external {
-        assertMatchingCloseExpectingSuccess();
+        assertMatchingMappingFilesCloseExpectingSuccess();
         uint64 matchingId = matchings.matchingsCount();
         matchings.cancelMatching(matchingId);
     }
 
     function testCloseMatching() external {
-        assertMatchingCloseExpectingSuccess();
+        assertMatchingMappingFilesCloseExpectingSuccess();
     }
 }

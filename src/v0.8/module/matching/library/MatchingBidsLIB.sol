@@ -97,28 +97,48 @@ library MatchingBidsLIB {
             self.state == MatchingType.State.Closed,
             "Matching: Invalid state for choosing winner"
         );
-        require(
-            block.number >=
-                self.createdBlockNumber +
-                    self.biddingDelayBlockCount +
-                    self.biddingPeriodBlockCount +
-                    self.pausedBlockCount,
-            "Matching: Bidding period has not ended yet"
-        );
+        if (
+            self.bidSelectionRule ==
+            MatchingType.BidSelectionRule.ImmediateAtLeast ||
+            self.bidSelectionRule ==
+            MatchingType.BidSelectionRule.ImmediateAtMost
+        ) {
+            require(
+                block.number >=
+                    self.createdBlockNumber +
+                        self.biddingDelayBlockCount +
+                        self.pausedBlockCount,
+                "Matching: Bidding too early"
+            );
+        } else {
+            require(
+                block.number >=
+                    self.createdBlockNumber +
+                        self.biddingDelayBlockCount +
+                        self.biddingPeriodBlockCount +
+                        self.pausedBlockCount,
+                "Matching: Bidding period has not ended yet"
+            );
+        }
 
         uint256 winningBid = self.biddingThreshold;
         address winner = address(0);
         for (uint64 i = 0; i < self.bids.length; i++) {
             if (
                 self.bidSelectionRule ==
-                MatchingType.BidSelectionRule.HighestBid
+                MatchingType.BidSelectionRule.HighestBid ||
+                self.bidSelectionRule ==
+                MatchingType.BidSelectionRule.ImmediateAtLeast
             ) {
                 if (self.bids[i].bid > winningBid) {
                     winningBid = self.bids[i].bid;
                     winner = self.bids[i].bidder;
                 }
             } else if (
-                self.bidSelectionRule == MatchingType.BidSelectionRule.LowestBid
+                self.bidSelectionRule ==
+                MatchingType.BidSelectionRule.LowestBid ||
+                self.bidSelectionRule ==
+                MatchingType.BidSelectionRule.ImmediateAtMost
             ) {
                 if (self.bids[i].bid < winningBid) {
                     winningBid = self.bids[i].bid;

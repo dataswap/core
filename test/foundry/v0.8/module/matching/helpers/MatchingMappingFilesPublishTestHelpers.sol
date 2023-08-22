@@ -24,70 +24,18 @@ import {MatchingsEvents} from "../../../../../../src/v0.8/shared/events/Matching
 import {DatasetType} from "../../../../../../src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "../../../../../../src/v0.8/types/MatchingType.sol";
 import {RolesType} from "../../../../../../src/v0.8/types/RolesType.sol";
-import {MatchingTestSetupHelpers} from "./setup/MatchingTestSetupHelpers.sol";
+import {MatchingPublishTestHelpers} from "./MatchingPublishTestHelpers.sol";
 
 // Contract definition for test functions
 // @dev TODO:isMatchingTargetValid not implements and test
 // @dev TODO:isMatchingTargetMeetsFilPlusRequirements not implements and test
 contract MatchingMappingFilesPublishTestHelpers is
     Test,
-    MatchingTestSetupHelpers
+    MatchingPublishTestHelpers
 {
     /// @dev step 1: setup the env for matching publish
     function setupForMatchingMappingFilesPublish() internal {
         assertApproveDatasetExpectingSuccess();
-    }
-
-    // step 2: do matching publish action,not decouple it if this function simple
-    function publishMatching(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _associatedMappingFilesMatchingID,
-        MatchingType.BidSelectionRule _bidSelectionRule,
-        uint64 _biddingDelayBlockCount,
-        uint64 _biddingPeriodBlockCount,
-        uint64 _storageCompletionPeriodBlocks,
-        uint256 _biddingThreshold
-    ) internal {
-        bytes32[] memory cars = datasets.getDatasetCars(
-            _datasetId,
-            _dataType,
-            0,
-            datasets.getDatasetCarsCount(_datasetId, _dataType)
-        );
-        uint64 size = datasets.getDatasetSize(_datasetId, _dataType);
-        matchings.publishMatching(
-            _datasetId,
-            cars,
-            size,
-            _dataType,
-            _associatedMappingFilesMatchingID,
-            _bidSelectionRule,
-            _biddingDelayBlockCount,
-            _biddingPeriodBlockCount,
-            _storageCompletionPeriodBlocks,
-            _biddingThreshold,
-            ""
-        );
-    }
-
-    /// @dev step 2: usually use this for setp2
-    function publishMatchingWithDeaultPeriodStrategy(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _associatedMappingFilesMatchingID,
-        MatchingType.BidSelectionRule _bidSelectionRule
-    ) internal {
-        publishMatching(
-            _datasetId,
-            _dataType,
-            _associatedMappingFilesMatchingID,
-            _bidSelectionRule,
-            100, //biddingDelayBlockCount
-            100, //biddingPeriodBlockCount
-            100, //storageCompletionPeriodBlocks
-            100 //biddingThreshold
-        );
     }
 
     /// @dev step 3: assert result after matching published

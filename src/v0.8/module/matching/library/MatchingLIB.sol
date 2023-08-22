@@ -99,14 +99,6 @@ library MatchingLIB {
             self.state == MatchingType.State.InProgress,
             "Matching: Invalid state for closing"
         );
-        require(
-            block.number >=
-                self.createdBlockNumber +
-                    self.biddingDelayBlockCount +
-                    self.biddingPeriodBlockCount +
-                    self.pausedBlockCount,
-            "Matching: Bidding period not expired"
-        );
         self._emitMatchingEvent(MatchingType.Event.Close);
     }
 }
