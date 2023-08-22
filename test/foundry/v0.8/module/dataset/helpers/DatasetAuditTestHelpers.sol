@@ -25,11 +25,15 @@ import {DatasetVerificationTestHelpers} from "./DatasetVerificationTestHelpers.s
 
 // Contract definition for test helper functions
 contract DatasetAuditTestHelpers is Test, DatasetVerificationTestHelpers {
+    /// @dev step 1: setup the env for dataset audit
     function setupForDatasetAudit() internal {
         assertDatasetProofSubmissionExpectingSuccess();
         //TODO: need some verifications requirements
     }
 
+    /// @dev step 2: do dataset audit action,not decouple it because this function too simple
+
+    /// @dev step 3: assert result after dataset auditted
     function assertDatasetAuditted(
         uint64 _datasetId,
         DatasetType.State _state
@@ -38,26 +42,33 @@ contract DatasetAuditTestHelpers is Test, DatasetVerificationTestHelpers {
     }
 
     function assertApproveDatasetExpectingSuccess() internal {
+        /// @dev step 1: setup the env for dataset audit
         setupForDatasetAudit();
 
+        /// @dev step 2: do dataset audit action
         uint64 datasetId = datasets.datasetsCount();
         vm.prank(governanceContractAddresss);
         vm.expectEmit(true, false, false, true);
         emit DatasetsEvents.DatasetApproved(datasetId);
         datasets.approveDataset(datasetId);
 
+        /// @dev step 3: assert result after dataset auditted
         assertDatasetAuditted(datasetId, DatasetType.State.DatasetApproved);
     }
 
+    ///@dev success test and  as env set for other module
     function assertRejectDatasetExpectingSuccess() internal {
+        /// @dev step 1: setup the env for dataset audit
         setupForDatasetAudit();
 
+        /// @dev step 2: do dataset audit action
         uint64 datasetId = datasets.datasetsCount();
         vm.prank(governanceContractAddresss);
         vm.expectEmit(true, false, false, true);
         emit DatasetsEvents.DatasetRejected(datasetId);
         datasets.rejectDataset(datasetId);
 
+        /// @dev step 3: assert result after dataset auditted
         assertDatasetAuditted(datasetId, DatasetType.State.MetadataApproved);
     }
 }

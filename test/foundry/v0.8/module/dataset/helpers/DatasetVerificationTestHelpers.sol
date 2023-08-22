@@ -29,11 +29,12 @@ import {RolesType} from "../../../../../../src/v0.8/types/RolesType.sol";
 contract DatasetVerificationTestHelpers is Test, DatasetProofTestHelpers {
     uint64 private nonce = 0;
 
+    /// @dev step 1: setup the env for dataset verification submission
     function setupForVerificationSubmission() internal {
         assertDatasetProofSubmissionExpectingSuccess();
     }
 
-    /// @dev Submit dataset proof batch
+    /// @dev step 2: do dataset verification submission action
     function submitDatasetVerification(
         uint64 _datasetId,
         uint64 _pointCount,
@@ -57,6 +58,7 @@ contract DatasetVerificationTestHelpers is Test, DatasetProofTestHelpers {
         datasets.submitDatasetVerification(_datasetId, nonce, siblings, paths);
     }
 
+    /// @dev step 3: assert result after dataset verification submitted
     function assertDatasetVerificationSubmtted(
         uint64 _datasetId,
         uint64 _submitersCount
@@ -72,13 +74,21 @@ contract DatasetVerificationTestHelpers is Test, DatasetProofTestHelpers {
         );
     }
 
-    /// @dev dataset submission
+    ///@dev success test and  as env set for other module
     function assertDatasetVerificationSubmissionExpectingSuccess() internal {
+        /// @dev step 1: setup the env for dataset verification submission
         setupForVerificationSubmission();
         uint64 datasetId = datasets.datasetsCount();
+
+        /// @dev step 2: do dataset verification submission action
         submitDatasetVerification(datasetId, 10, 1000);
+        /// @dev step 3: assert result after dataset verification submitted
         assertDatasetVerificationSubmtted(datasetId, 1);
+
+        /// do one more for getDatasetVerificationsCount test
+        /// @dev step 2: do dataset verification submission action
         submitDatasetVerification(datasetId, 10, 1000);
+        /// @dev step 3: assert result after dataset verification submitted
         assertDatasetVerificationSubmtted(datasetId, 2);
     }
 }

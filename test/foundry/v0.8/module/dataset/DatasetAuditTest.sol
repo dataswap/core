@@ -24,10 +24,12 @@ import {DatasetAuditTestHelpers} from "./helpers/DatasetAuditTestHelpers.sol";
 
 // Contract definition for test functions
 contract DatasetVerificationTest is Test, DatasetAuditTestHelpers {
+    ///@dev success test
     function testApproveDataset() external {
         assertApproveDatasetExpectingSuccess();
     }
 
+    ///@dev success test
     function testRejectDataset() external {
         assertRejectDatasetExpectingSuccess();
     }

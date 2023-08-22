@@ -23,6 +23,7 @@ import {DatasetProofTestHelpers} from "./helpers/DatasetProofTestHelpers.sol";
 
 // Contract definition for test functions
 contract DatasetProofTest is Test, DatasetProofTestHelpers {
+    ///@dev success test
     function testSubmitDatasetProofBatch() external {
         assertDatasetProofSubmissionExpectingSuccess();
     }

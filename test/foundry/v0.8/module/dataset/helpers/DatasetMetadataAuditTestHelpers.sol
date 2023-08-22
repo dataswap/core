@@ -25,6 +25,7 @@ import {DatasetMetadataTestHelpers} from "./DatasetMetadataTestHelpers.sol";
 
 // Contract definition for test helper functions
 contract DatasetMetadataAuditTestHelpers is Test, DatasetMetadataTestHelpers {
+    /// @dev step 1: setup the env for dataset metadata audit
     function setupForMetadataAudit(
         string memory _title,
         string memory _industry,
@@ -49,6 +50,9 @@ contract DatasetMetadataAuditTestHelpers is Test, DatasetMetadataTestHelpers {
         );
     }
 
+    /// @dev step 2: do dataset audit metadata action,not decouple it because this function too simple
+
+    /// @dev step 3: assert result after dataset metadata auditted
     function assertMetadataAuditted(
         uint64 _datasetId,
         DatasetType.State _state
@@ -67,6 +71,7 @@ contract DatasetMetadataAuditTestHelpers is Test, DatasetMetadataTestHelpers {
         bool _isPublic,
         uint64 _version
     ) internal {
+        /// @dev step 1: setup the env for dataset metadata audit
         setupForMetadataAudit(
             _title,
             _industry,
@@ -79,15 +84,18 @@ contract DatasetMetadataAuditTestHelpers is Test, DatasetMetadataTestHelpers {
             _version
         );
 
+        /// @dev step 2: do dataset audit metadata action
         uint64 datasetId = datasets.datasetsCount();
         vm.prank(governanceContractAddresss);
         vm.expectEmit(true, false, false, true);
         emit DatasetsEvents.DatasetMetadataApproved(datasetId);
         datasets.approveDatasetMetadata(datasetId);
 
+        /// @dev step 3: assert result after dataset metadata auditted
         assertMetadataAuditted(datasetId, DatasetType.State.MetadataApproved);
     }
 
+    ///@dev success test and  as env set for other module
     function assertRejectDatasetMetadataExpectingSuccess(
         string memory _title,
         string memory _industry,

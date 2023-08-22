@@ -24,6 +24,7 @@ import {DatasetVerificationTestHelpers} from "./helpers/DatasetVerificationTestH
 
 // Contract definition for test functions
 contract DatasetVerificationTest is Test, DatasetVerificationTestHelpers {
+    ///@dev success test
     function testSubmitDatasetVerification() external {
         assertDatasetVerificationSubmissionExpectingSuccess();
     }

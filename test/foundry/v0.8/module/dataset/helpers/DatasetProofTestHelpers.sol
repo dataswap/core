@@ -28,6 +28,7 @@ import {DatasetMetadataAuditTestHelpers} from "./DatasetMetadataAuditTestHelpers
 contract DatasetProofTestHelpers is Test, DatasetMetadataAuditTestHelpers {
     uint64 private nonce = 0;
 
+    /// @dev step 1: setup the env for dataset proof submission
     function setupForProofSubmission() internal {
         assertApproveDatasetMetadataExpectingSuccess(
             "a",
@@ -47,7 +48,7 @@ contract DatasetProofTestHelpers is Test, DatasetMetadataAuditTestHelpers {
         );
     }
 
-    /// @dev Submit dataset proof batch
+    /// @dev step 2: do dataset proof(single) submission action,NOTE:private for submitDatasetProofBatch
     function submitDatasetProofSingle(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
@@ -84,6 +85,7 @@ contract DatasetProofTestHelpers is Test, DatasetMetadataAuditTestHelpers {
         );
     }
 
+    /// @dev step 2: do dataset proof(batch) submission action
     function submitDatasetProofBatch(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
@@ -95,7 +97,6 @@ contract DatasetProofTestHelpers is Test, DatasetMetadataAuditTestHelpers {
         bytes32 rootHash = TestHelpers.convertUint64ToBytes32(
             nonce + 999999999999999999
         );
-        //submit source
         bool submitComplete;
         for (uint64 i = 0; i < _proofSubmissionCount; i++) {
             if (i < _proofSubmissionCount - 1) {
@@ -114,6 +115,7 @@ contract DatasetProofTestHelpers is Test, DatasetMetadataAuditTestHelpers {
         }
     }
 
+    /// @dev step 3: assert result after dataset proof submitted
     function assertDatasetProofSubmtted(
         uint64 _datasetId,
         uint64 _sourceLeavesCount,
@@ -123,6 +125,7 @@ contract DatasetProofTestHelpers is Test, DatasetMetadataAuditTestHelpers {
         uint64 _mappingFilesLeafSize,
         uint64 _mappingFilesProofSubmissionCount
     ) internal {
+        /// @dev step 1: setup the env for dataset proof submission
         assertEq(
             uint8(DatasetType.State.DatasetProofSubmitted),
             uint8(datasets.getDatasetState(_datasetId))
@@ -180,13 +183,13 @@ contract DatasetProofTestHelpers is Test, DatasetMetadataAuditTestHelpers {
         );
     }
 
-    /// @dev dataset submission
+    ///@dev success test and  as env set for other module
     function assertDatasetProofSubmissionExpectingSuccess() internal {
         setupForProofSubmission();
 
         uint64 datasetId = datasets.datasetsCount();
 
-        //submit source
+        /// @dev step 2.1: do dataset proof(batch) submission action for source
         uint64 sourceLeavesCount = 100;
         uint64 sourceLeafSize = 1000000;
         uint64 sourceProofSubmissionCount = 10;
@@ -204,7 +207,7 @@ contract DatasetProofTestHelpers is Test, DatasetMetadataAuditTestHelpers {
             uint8(datasets.getDatasetState(datasetId))
         );
 
-        //submit mappingFiles
+        /// @dev step 2.2: do dataset proof(batch) submission action for mappingFiles
         uint64 mappingFilesLeavesCount = 10;
         uint64 mappingFilesLeafSize = 1000;
         uint64 mappingFilesProofSubmissionCount = 10;
@@ -216,7 +219,7 @@ contract DatasetProofTestHelpers is Test, DatasetMetadataAuditTestHelpers {
             mappingFilesProofSubmissionCount
         );
 
-        //assert
+        /// @dev step 3: assert result after dataset proof submitted
         assertDatasetProofSubmtted(
             datasetId,
             sourceLeavesCount,

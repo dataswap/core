@@ -23,6 +23,7 @@ import {DatasetMetadataAuditTestHelpers} from "./helpers/DatasetMetadataAuditTes
 
 // Contract definition for test functions
 contract DatasetMetadataTest is Test, DatasetMetadataAuditTestHelpers {
+    ///@dev success test
     function testApproveDatasetMetadata(
         string memory _title,
         string memory _industry,
@@ -47,6 +48,7 @@ contract DatasetMetadataTest is Test, DatasetMetadataAuditTestHelpers {
         );
     }
 
+    ///@dev success test
     function testRejectDatasetMetadata(
         string memory _title,
         string memory _industry,

@@ -23,6 +23,7 @@ import {DatasetMetadataTestHelpers} from "./helpers/DatasetMetadataTestHelpers.s
 
 // Contract definition for test functions
 contract DatasetMetadataTest is Test, DatasetMetadataTestHelpers {
+    ///@dev success test
     function testSubmitDatasetMetadata(
         string memory _title,
         string memory _industry,

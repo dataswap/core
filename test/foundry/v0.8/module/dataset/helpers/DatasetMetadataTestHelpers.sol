@@ -25,6 +25,7 @@ import {DatasetType} from "../../../../../../src/v0.8/types/DatasetType.sol";
 
 // Contract definition for test helper functions
 contract DatasetMetadataTestHelpers is Test, DatasetTestSetupHelpers {
+    /// @dev step 1: setup the env for dataset metadata submission
     function setupForDatasetMetadataSubmission(
         string memory _title,
         string memory _industry,
@@ -45,6 +46,9 @@ contract DatasetMetadataTestHelpers is Test, DatasetTestSetupHelpers {
         vm.assume(_sizeInBytes != 0);
     }
 
+    /// @dev step 2: do dataset metadata submission action
+
+    /// @dev step 3: assert result after dataset metadata submitted
     function assertDatasetMetadataSubmitted(
         string memory _title,
         string memory /*_industry*/,
@@ -83,6 +87,7 @@ contract DatasetMetadataTestHelpers is Test, DatasetTestSetupHelpers {
         assertEq(_oldDatasetsCount + 1, datasets.datasetsCount());
     }
 
+    ///@dev success test and  as env set for other module
     function assertDatasetMetadataSubmissionExpectingSuccess(
         string memory _title,
         string memory _industry,
@@ -94,6 +99,7 @@ contract DatasetMetadataTestHelpers is Test, DatasetTestSetupHelpers {
         bool _isPublic,
         uint64 _version
     ) internal {
+        /// @dev step 1: setup the env for dataset metadata submission
         setupForDatasetMetadataSubmission(
             _title,
             _industry,
@@ -106,6 +112,7 @@ contract DatasetMetadataTestHelpers is Test, DatasetTestSetupHelpers {
             _version
         );
 
+        /// @dev step 2: do dataset metadata submission action
         uint64 oldDatasetsCount = datasets.datasetsCount();
         vm.prank(address(10000));
         vm.expectEmit(true, true, false, true);
@@ -122,6 +129,7 @@ contract DatasetMetadataTestHelpers is Test, DatasetTestSetupHelpers {
             _version
         );
 
+        /// @dev step 3: assert result after dataset metadata submitted
         assertDatasetMetadataSubmitted(
             _title,
             _industry,
