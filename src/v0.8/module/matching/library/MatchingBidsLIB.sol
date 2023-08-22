@@ -51,14 +51,17 @@ library MatchingBidsLIB {
         require(self.state == MatchingType.State.InProgress, "Invalid state");
         require(
             block.number >=
-                self.createdBlockNumber + self.biddingDelayBlockCount,
+                self.createdBlockNumber +
+                    self.biddingDelayBlockCount +
+                    self.pausedBlockCount,
             "Matching: Bidding is not start"
         );
         require(
             block.number <
                 self.createdBlockNumber +
                     self.biddingDelayBlockCount +
-                    self.biddingPeriodBlockCount,
+                    self.biddingPeriodBlockCount +
+                    self.pausedBlockCount,
             "Matching: Bidding is end"
         );
         if (_hasMatchingBid(self, msg.sender)) {
@@ -98,7 +101,8 @@ library MatchingBidsLIB {
             block.number >=
                 self.createdBlockNumber +
                     self.biddingDelayBlockCount +
-                    self.biddingPeriodBlockCount,
+                    self.biddingPeriodBlockCount +
+                    self.pausedBlockCount,
             "Matching: Bidding period has not ended yet"
         );
 

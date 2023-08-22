@@ -43,9 +43,6 @@ interface IMatchings {
     /// @notice  Function for pausing a matching
     function pauseMatching(uint64 _matchingId) external;
 
-    /// @notice Function for reporting that a matching pause has expired
-    function reportMatchingPauseExpired(uint64 _matchingId) external;
-
     /// @notice  Function for resuming a paused matching
     function resumeMatching(uint64 _matchingId) external;
 

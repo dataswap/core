@@ -170,15 +170,14 @@ contract Matchings is IMatchings, MatchingsModifiers {
         onlyMatchingState(_matchingId, MatchingType.State.InProgress)
     {
         MatchingType.Matching storage matching = matchings[_matchingId];
+        require(matching.pausedBlockCount == 0, "only can paused one time");
+        require(
+            uint8(block.number) <
+                matching.createdBlockNumber + matching.biddingDelayBlockCount,
+            "alreay bidding,can't pause."
+        );
         matching._pauseMatching();
         emit MatchingsEvents.MatchingPaused(_matchingId);
-    }
-
-    /// @notice Function for reporting that a matching pause has expired
-    function reportMatchingPauseExpired(uint64 _matchingId) external {
-        MatchingType.Matching storage matching = matchings[_matchingId];
-        matching._reportMatchingPauseExpired();
-        emit MatchingsEvents.MatchingPauseExpired(_matchingId);
     }
 
     /// @notice  Function for resuming a paused matching

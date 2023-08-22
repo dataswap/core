@@ -48,6 +48,9 @@ library MatchingLIB {
             self.state == MatchingType.State.InProgress,
             "Matching: Invalid state for pausing"
         );
+        require(self.pausedBlockCount == 0, "only can paused one time");
+        //@dev:NOTE: here set pausedBlockNumber as pausedBlockCount,will correct in resume
+        self.pausedBlockCount = uint64(block.number);
         self._emitMatchingEvent(MatchingType.Event.Pause);
     }
 
@@ -70,6 +73,10 @@ library MatchingLIB {
             self.state == MatchingType.State.Paused,
             "Matching: Invalid state for resuming"
         );
+        require(self.pausedBlockCount != 0, "only can paused one time");
+        //@dev:NOTE: set pausedBlockCount  as the dealy block count because paused
+        self.pausedBlockCount = uint64(block.number) - self.pausedBlockCount;
+
         self._emitMatchingEvent(MatchingType.Event.Resume);
     }
 
@@ -96,7 +103,8 @@ library MatchingLIB {
             block.number >=
                 self.createdBlockNumber +
                     self.biddingDelayBlockCount +
-                    self.biddingPeriodBlockCount,
+                    self.biddingPeriodBlockCount +
+                    self.pausedBlockCount,
             "Matching: Bidding period not expired"
         );
         self._emitMatchingEvent(MatchingType.Event.Close);

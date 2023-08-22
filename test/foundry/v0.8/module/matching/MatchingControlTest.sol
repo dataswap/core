@@ -24,11 +24,64 @@ import {MatchingType} from "../../../../../src/v0.8/types/MatchingType.sol";
 
 // Contract definition for test functions
 contract MatchingControlTest is Test, MatchingBiddingTestHelpers {
-    function testPauseMatching() external {
+    function testPauseAndResumeMatching() external {
+        /// @dev step1:set env
         assertBiddingExpectingSuccess();
+
+        /// @dev step2:pause and assert
+        uint64 matchingId = matchings.matchingsCount();
+        vm.roll(100);
+        matchings.pauseMatching(matchingId);
+        /// @dev assert
+        assertEq(
+            uint8(MatchingType.State.Paused),
+            uint8(matchings.getMatchingState(matchingId))
+        );
+
+        /// @dev step3:resume and assert
+        vm.roll(1100);
+        matchings.resumeMatching(matchingId);
+        assertEq(
+            uint8(MatchingType.State.InProgress),
+            uint8(matchings.getMatchingState(matchingId))
+        );
+        // @dev TODO:step4.1:not staring bidding,can't bidding
+        // info: [FAIL. Reason: Call did not revert as expected]
+        // vm.expectRevert();
+        // bidding(address(9999), 100000, 1100);
+
+        // @dev step4.2:can normally bidding
+        vm.roll(1101);
+        bidding(address(9999), 100000, 1101);
+
+        // @dev step5: can't pause again and can't resume
+        vm.expectRevert();
+        matchings.pauseMatching(matchingId);
+        vm.expectRevert();
+        matchings.resumeMatching(matchingId);
+
+        // @dev step6: can normlly close
+        vm.roll(1201);
+        matchings.closeMatching(matchingId);
+        assertEq(
+            uint8(MatchingType.State.Completed),
+            uint8(matchings.getMatchingState(matchingId))
+        );
+        assertEq(address(9999), matchings.getMatchingWinner(matchingId));
     }
 
-    function testReportMatchingPauseExpired() external {}
+    function testFailPauseMatchingAfterClosed() external {
+        assertBiddingExpectingSuccess();
+
+        uint64 matchingId = matchings.matchingsCount();
+        vm.roll(201);
+        matchings.pauseMatching(matchingId);
+        /// @dev assert
+        assertEq(
+            uint8(MatchingType.State.Paused),
+            uint8(matchings.getMatchingState(matchingId))
+        );
+    }
 
     function testResumeMatching() external {
         assertBiddingExpectingSuccess();

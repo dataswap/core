@@ -87,5 +87,6 @@ library MatchingType {
         State state; // Current state of the matching
         Bid[] bids; // Array of bids in the matching
         address winner; // Address of the winner in the matching
+        uint64 pausedBlockCount; // Number of blocks to paused
     }
 }
