@@ -71,16 +71,17 @@ contract Storages is IStorages, StoragesModifiers {
     }
 
     /// @dev Submits a Filecoin deal Id for a matchedstore after successful matching.
+    //TODO: verify filecoin deal id matched cid
     function submitStorageDealId(
         uint64 _matchingId,
         bytes32 _cid,
         uint64 _filecoinDealId
     )
         public
+        onlyAddress(matchings.getMatchingWinner(_matchingId))
         onlyMatchingContainsCar(_matchingId, _cid)
         onlyUnsetCarReplicaFilecoinDealId(_cid, _matchingId)
         onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Matched)
-    //TODO: verify filecoin deal id matched cid
     {
         StorageType.Storage storage storage_ = storages[_matchingId];
         storage_.doneCars.push(_cid);

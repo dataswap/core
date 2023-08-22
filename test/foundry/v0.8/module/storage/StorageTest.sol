@@ -19,9 +19,11 @@ pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
 import "forge-std/Test.sol";
-import {StorageTestHelpers} from "./StorageTestHelpers.sol";
+import {StorageTestHelpers} from "./helpers/StorageTestHelpers.sol";
 
 // Contract definition for test functions
 contract StorageTest is Test, StorageTestHelpers {
-
+    function testSubmitStorageDealId() external {
+        assertStorageDealIdSubmissionExpectingSuccess();
+    }
 }

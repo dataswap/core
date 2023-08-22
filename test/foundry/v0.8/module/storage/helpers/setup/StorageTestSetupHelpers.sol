@@ -25,22 +25,27 @@ import {MockFilecoin} from "../../../../../../../src/v0.8/mocks/core/filecoin/Mo
 import {Carstore} from "../../../../../../../src/v0.8/core/carstore/Carstore.sol";
 import {Datasets} from "../../../../../../../src/v0.8/module/dataset/Datasets.sol";
 import {Matchings} from "../../../../../../../src/v0.8/module/matching/Matchings.sol";
-import {DatasetAuditTestHelpers} from "../../../dataset/helpers/DatasetAuditTestHelpers.sol";
+import {Storages} from "../../../../../../../src/v0.8/module/storage/Storages.sol";
+import {MatchingMappingFilesBiddingTestHelpers} from "../../../matching/helpers/MatchingMappingFilesBiddingTestHelpers.sol";
 
 // Contract definition for test helper functions
-contract MatchingTestSetupHelpers is Test, DatasetAuditTestHelpers {
+contract StorageTestSetupHelpers is
+    Test,
+    MatchingMappingFilesBiddingTestHelpers
+{
     // Helper function to set up the initial environment
-    Matchings matchings;
+    Storages storages;
 
-    function setUp() public virtual override {
+    function setUp() public override {
         super.setUp();
-        matchings = new Matchings(
+        storages = new Storages(
             governanceContractAddresss,
             role,
             filplus,
             filecoin,
             carstore,
-            datasets
+            datasets,
+            matchings
         );
     }
 }
