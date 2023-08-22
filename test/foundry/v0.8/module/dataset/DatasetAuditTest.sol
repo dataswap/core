@@ -19,11 +19,16 @@ pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
 import "forge-std/Test.sol";
-import {DatasetProofTestHelpers} from "./helpers/DatasetProofTestHelpers.sol";
+import "forge-std/Test.sol";
+import {DatasetAuditTestHelpers} from "./helpers/DatasetAuditTestHelpers.sol";
 
 // Contract definition for test functions
-contract DatasetProofTest is Test, DatasetProofTestHelpers {
-    function testSubmitDatasetProofBatch() external {
-        assertDatasetProofSubmissionExpectingSuccess();
+contract DatasetVerificationTest is Test, DatasetAuditTestHelpers {
+    function testApproveDataset() external {
+        assertApproveDatasetExpectingSuccess();
+    }
+
+    function testRejectDataset() external {
+        assertRejectDatasetExpectingSuccess();
     }
 }

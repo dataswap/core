@@ -17,18 +17,15 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-/// @title ArrayUtil Library
-/// @notice This library provides utility functions for working with arrays.
-library ArrayUtil {
-    /// @notice Append an array of bytes32 elements to an existing storage bytes32 array.
-    /// @param self The storage bytes32 array to which elements are appended.
-    /// @param _newArray The memory array of bytes32 elements to be appended.
-    function appendArrayBytes32(
-        bytes32[] storage self,
-        bytes32[] memory _newArray
-    ) internal {
-        for (uint256 i = 0; i < _newArray.length; i++) {
-            self.push(_newArray[i]);
+library TestHelpers {
+    // Helper function to convert uint64 to bytes32
+    function convertUint64ToBytes32(
+        uint64 value
+    ) internal pure returns (bytes32) {
+        bytes32 convertedValue;
+        assembly {
+            convertedValue := value
         }
+        return convertedValue;
     }
 }

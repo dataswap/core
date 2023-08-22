@@ -19,11 +19,11 @@ pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
 import "forge-std/Test.sol";
-import {DatasetMetadataTestHelpers} from "./helpers/DatasetMetadataTestHelpers.sol";
+import {DatasetMetadataAuditTestHelpers} from "./helpers/DatasetMetadataAuditTestHelpers.sol";
 
 // Contract definition for test functions
-contract DatasetMetadataTest is Test, DatasetMetadataTestHelpers {
-    function testSubmitDatasetMetadata(
+contract DatasetMetadataTest is Test, DatasetMetadataAuditTestHelpers {
+    function testApproveDatasetMetadata(
         string memory _title,
         string memory _industry,
         string memory _name,
@@ -34,7 +34,31 @@ contract DatasetMetadataTest is Test, DatasetMetadataTestHelpers {
         bool _isPublic,
         uint64 _version
     ) external {
-        assertDatasetMetadataSubmissionExpectingSuccess(
+        assertApproveDatasetMetadataExpectingSuccess(
+            _title,
+            _industry,
+            _name,
+            _description,
+            _source,
+            _accessMethod,
+            _sizeInBytes,
+            _isPublic,
+            _version
+        );
+    }
+
+    function testRejectDatasetMetadata(
+        string memory _title,
+        string memory _industry,
+        string memory _name,
+        string memory _description,
+        string memory _source,
+        string memory _accessMethod,
+        uint64 _sizeInBytes,
+        bool _isPublic,
+        uint64 _version
+    ) external {
+        assertRejectDatasetMetadataExpectingSuccess(
             _title,
             _industry,
             _name,
