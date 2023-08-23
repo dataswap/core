@@ -21,6 +21,7 @@ pragma solidity ^0.8.21;
 import "forge-std/Test.sol";
 import {MatchingMappingFilesBiddingTestHelpers} from "./helpers/MatchingMappingFilesBiddingTestHelpers.sol";
 import {MatchingType} from "../../../../../src/v0.8/types/MatchingType.sol";
+import {RolesType} from "../../../../../src/v0.8/types/RolesType.sol";
 
 // Contract definition for test functions
 contract MatchingMappingFilesControlTest is
@@ -33,7 +34,7 @@ contract MatchingMappingFilesControlTest is
 
         /// @dev step2:pause and assert
         uint64 matchingId = matchings.matchingsCount();
-        vm.roll(100);
+        vm.roll(99);
         matchings.pauseMatching(matchingId);
         /// @dev assert
         assertEq(
@@ -42,16 +43,19 @@ contract MatchingMappingFilesControlTest is
         );
 
         /// @dev step3:resume and assert
-        vm.roll(1100);
+        vm.roll(1099);
         matchings.resumeMatching(matchingId);
         assertEq(
             uint8(MatchingType.State.InProgress),
             uint8(matchings.getMatchingState(matchingId))
         );
-        // @dev TODO:step4.1:not staring bidding,can't bidding
-        // info: [FAIL. Reason: Call did not revert as expected]
-        // vm.expectRevert();
-        // bidding(address(9999), 100000, 1100);
+        // @dev step4.1:not staring bidding,can't bidding
+        vm.prank(address(this));
+        role.grantRole(RolesType.STORAGE_PROVIDER, address(address(9999)));
+        vm.roll(1100);
+        vm.prank(address(9999));
+        vm.expectRevert(bytes("Matching: Bidding is not start"));
+        matchings.bidding(matchingId, 10000);
 
         // @dev step4.2:can normally bidding
         vm.roll(1101);

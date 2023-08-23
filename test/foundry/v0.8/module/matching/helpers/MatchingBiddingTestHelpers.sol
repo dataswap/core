@@ -38,9 +38,10 @@ contract MatchingBiddingTestHelpers is
         uint64 _blocknumber
     ) internal {
         uint64 matchingId = matchings.matchingsCount();
+        vm.prank(address(this));
         role.grantRole(RolesType.STORAGE_PROVIDER, address(_bidder));
-        vm.prank(address(_bidder));
         vm.roll(_blocknumber);
+        vm.prank(address(_bidder));
         matchings.bidding(matchingId, _amount);
     }
 }
