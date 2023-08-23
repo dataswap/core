@@ -47,10 +47,12 @@ contract RolesTest is Test {
         vm.roll(2);
         if (_role != DEFAULT_ADMIN_ROLE) {
             assertEq(1, roles.getRoleMemberCount(_role));
+            assertEq(_account, roles.getRoleMember(_role, 0));
         } else {
             assertEq(2, roles.getRoleMemberCount(_role));
+            assertEq(_account, roles.getRoleMember(_role, 1));
         }
-        assertEq(_account, roles.getRoleMember(_role, 0));
+
         assertEq(true, roles.hasRole(_role, _account));
         assertEq(DEFAULT_ADMIN_ROLE, roles.getRoleAdmin(_role));
         roles.checkRole(DEFAULT_ADMIN_ROLE); // Check if msg.sender is DEFAULT_ADMIN_ROLE
