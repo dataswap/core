@@ -1,4 +1,4 @@
-name: foundry_and_hardhat_test
+name: manual_check
 
 on: workflow_dispatch
 
@@ -64,3 +64,34 @@ jobs:
               run: |
                   yarn hardhat test
               id: test
+
+    check-Solhint:
+        strategy:
+            fail-fast: true
+            matrix:
+              solidity-version: [0.8.21]
+
+        name: Solhint Analysis
+        runs-on: ubuntu-latest
+
+        steps:
+          - name: Checkout code
+            uses: actions/checkout@v3
+            with:
+              submodules: recursive
+
+          - name: Setup Node.js
+            uses: actions/setup-node@v3
+            with:
+              node-version: '18'
+
+          - name: Install Solhint
+            run: npm install -g solhint
+
+          - name: Run Solhint Analysis
+            run: |
+              echo "Running Solhint analysis..."
+              solhint "**/*.sol"
+
+          - name: Display Completed Message
+            run: echo "Solhint analysis completed."
