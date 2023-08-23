@@ -39,6 +39,7 @@ contract DatacapsModifiers is StoragesModifiers {
     IStorages private storages;
     IDatacaps private datacaps;
 
+    // solhint-disable-next-line
     constructor(
         IRoles _roles,
         IFilplus _filplus,

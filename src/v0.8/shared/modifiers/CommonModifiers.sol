@@ -33,10 +33,7 @@ contract CommonModifiers {
 
     /// @dev Modifier to check the sender's address
     modifier onlyAddress(address allowedAddress) {
-        require(
-            msg.sender == allowedAddress,
-            "Only allowed address can call this function"
-        );
+        require(msg.sender == allowedAddress, "Only allowed address can call");
         _;
     }
 }

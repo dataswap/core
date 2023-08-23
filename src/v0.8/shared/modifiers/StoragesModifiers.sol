@@ -24,7 +24,6 @@ import {IMatchings} from "../../interfaces/module/IMatchings.sol";
 import {IStorages} from "../../interfaces/module/IStorages.sol";
 ///shared
 import {MatchingsModifiers} from "./MatchingsModifiers.sol";
-import {Errors} from "../errors/Errors.sol";
 
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
@@ -37,6 +36,7 @@ contract StoragesModifiers is MatchingsModifiers {
     IMatchings private matchings;
     IStorages private storages;
 
+    // solhint-disable-next-line
     constructor(
         IRoles _roles,
         IFilplus _filplus,

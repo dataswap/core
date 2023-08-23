@@ -93,10 +93,7 @@ library MatchingBidsLIB {
     function _chooseMatchingWinner(
         MatchingType.Matching storage self
     ) internal view returns (address) {
-        require(
-            self.state == MatchingType.State.Closed,
-            "Matching: Invalid state for choosing winner"
-        );
+        require(self.state == MatchingType.State.Closed, "Invalid state");
         if (
             self.bidSelectionRule ==
             MatchingType.BidSelectionRule.ImmediateAtLeast ||
@@ -108,7 +105,7 @@ library MatchingBidsLIB {
                     self.createdBlockNumber +
                         self.biddingDelayBlockCount +
                         self.pausedBlockCount,
-                "Matching: Bidding too early"
+                "Bidding too early"
             );
         } else {
             require(
@@ -117,7 +114,7 @@ library MatchingBidsLIB {
                         self.biddingDelayBlockCount +
                         self.biddingPeriodBlockCount +
                         self.pausedBlockCount,
-                "Matching: Bidding period has not ended yet"
+                "Bidding period has not ended yet"
             );
         }
 

@@ -18,7 +18,7 @@
 pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {DatasetMetadataTestHelpers} from "./helpers/DatasetMetadataTestHelpers.sol";
 
 // Contract definition for test functions

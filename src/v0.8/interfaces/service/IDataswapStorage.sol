@@ -18,13 +18,14 @@
 
 pragma solidity ^0.8.21;
 
-import "../../interfaces/core/IRoles.sol";
-import "../../interfaces/core/IFilplus.sol";
-import "../../interfaces/module/IDatasets.sol";
-import "../../interfaces/module/IMatchings.sol";
-import "../../interfaces/module/IStorages.sol";
-import "../../interfaces/module/IDatacaps.sol";
+import {IRoles} from "../../interfaces/core/IRoles.sol";
+import {IFilplus} from "../../interfaces/core/IFilplus.sol";
+import {IDatasets} from "../../interfaces/module/IDatasets.sol";
+import {IMatchings} from "../../interfaces/module/IMatchings.sol";
+import {IStorages} from "../../interfaces/module/IStorages.sol";
+import {IDatacaps} from "../../interfaces/module/IDatacaps.sol";
 
+// solhint-disable-next-line
 interface IDataswapStorage is
     IRoles,
     IFilplus,
@@ -32,4 +33,6 @@ interface IDataswapStorage is
     IMatchings,
     IStorages,
     IDatacaps
-{}
+{
+
+}

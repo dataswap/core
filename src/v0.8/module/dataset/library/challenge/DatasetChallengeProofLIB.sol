@@ -18,7 +18,6 @@
 pragma solidity ^0.8.21;
 
 import {DatasetType} from "../../../../types/DatasetType.sol";
-import {CidUtils} from "../../../../shared/utils/cid/CidUtils.sol";
 
 library DatasetChallengeProofLIB {
     function setChallengeProof(

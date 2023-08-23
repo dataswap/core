@@ -17,12 +17,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {Governor, IGovernor, IERC165} from "@openzeppelin/contracts/governance/Governor.sol";
-import {GovernorCompatibilityBravo} from "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
-import {GovernorVotes, IVotes} from "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
-import {GovernorVotesQuorumFraction} from "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
-import {GovernorTimelockControl} from "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
-import "./DataswapDAOBase.sol";
+// import {Governor, IGovernor, IERC165} from "@openzeppelin/contracts/governance/Governor.sol";
+// import {GovernorCompatibilityBravo} from "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
+import {IVotes} from "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
+// import {GovernorVotesQuorumFraction} from "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+// import {GovernorTimelockControl} from "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+import {DataswapDAOBase} from "./DataswapDAOBase.sol";
 
 /// @title DataswapDAOPerPersonVoting Contract
 /// @notice This contract serves as the base for the DataSwap DAO governance mechanism with per-person voting.
@@ -30,5 +30,6 @@ import "./DataswapDAOBase.sol";
 abstract contract DataswapDAOPerPersonVoting is DataswapDAOBase {
     /// @notice Constructor function to initialize the DataswapDAOPerPersonVoting contract.
     /// @param _token The token used for voting.
+    // solhint-disable-next-line
     constructor(IVotes _token) DataswapDAOBase(_token) {}
 }

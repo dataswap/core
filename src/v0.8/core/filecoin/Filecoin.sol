@@ -30,6 +30,7 @@ import {FilecoinType} from "../../types/FilecoinType.sol";
 contract Filecoin is IFilecoin {
     FilecoinType.Network public network;
 
+    // solhint-disable-next-line
     constructor(FilecoinType.Network _network) {
         network = _network;
     }
@@ -52,6 +53,7 @@ contract Filecoin is IFilecoin {
         }
 
         //get slashed info
+        // solhint-disable-next-line
         MarketTypes.GetDealActivationReturn memory DealActivation = MarketAPI
             .getDealActivation(_filecoinDealId);
         if (
@@ -65,5 +67,6 @@ contract Filecoin is IFilecoin {
     }
 
     /// @dev do nothing,just for mock
+    // solhint-disable-next-line
     function setMockDealState(FilecoinType.DealState _state) external {}
 }

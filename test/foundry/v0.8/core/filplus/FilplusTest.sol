@@ -19,12 +19,10 @@
 pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
-import "forge-std/Test.sol";
-import {IFilplus} from "../../../../../src/v0.8/interfaces/core/IFilplus.sol";
+import {Test} from "forge-std/Test.sol";
 import {Filplus} from "../../../../../src/v0.8/core/filplus/Filplus.sol";
 
 // Import various shared modules, modifiers, events, and error definitions
-import {Errors} from "../../../../../src/v0.8/shared/errors/Errors.sol";
 import {FilplusEvents} from "../../../../../src/v0.8/shared/events/FilplusEvents.sol";
 
 // Import necessary custom types
@@ -32,8 +30,8 @@ import {FilplusType} from "../../../../../src/v0.8/types/FilplusType.sol";
 
 // Contract definition for test helper functions
 contract FilplusTest is Test {
-    Filplus filplus;
-    address payable governanceContractAddresss;
+    Filplus public filplus;
+    address payable public governanceContractAddresss;
 
     // Setting up the test environment
     function setUp() public {
@@ -95,7 +93,6 @@ contract FilplusTest is Test {
             _newValue
         );
         filplus.setDatasetRuleMaxReplicasInCountry(_countryCode, _newValue);
-        console.log(filplus.getDatasetRuleMaxReplicasInCountry(_countryCode));
         assertEq(
             _newValue,
             filplus.getDatasetRuleMaxReplicasInCountry(_countryCode)

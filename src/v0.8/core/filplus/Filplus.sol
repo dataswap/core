@@ -28,7 +28,7 @@ import {FilplusType} from "../../types/FilplusType.sol";
 
 /// @title Filplus
 contract Filplus is IFilplus, CommonModifiers {
-    address public immutable governanceAddress; //The address of the governance contract.
+    address public immutable GOVERNANCE_ADDRESS; //The address of the governance contract.
 
     ///@notice car rules
     uint16 public carRuleMaxCarReplicas; // Represents the maximum number of car replicas in the entire network
@@ -61,8 +61,9 @@ contract Filplus is IFilplus, CommonModifiers {
 
     FilplusType.MatchingRuleCommissionType private matchingRulesCommissionType; // Type of commission for matching.
 
-    constructor(address payable _governanceAddress) {
-        governanceAddress = _governanceAddress;
+    // solhint-disable-next-line
+    constructor(address payable _governance_address) {
+        GOVERNANCE_ADDRESS = _governance_address;
         //defalut car rules
         carRuleMaxCarReplicas = 20;
 
@@ -106,21 +107,21 @@ contract Filplus is IFilplus, CommonModifiers {
     // Set functions for public variables
     function setCarRuleMaxCarReplicas(
         uint16 _newValue
-    ) external onlyAddress(governanceAddress) {
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
         carRuleMaxCarReplicas = _newValue;
         emit FilplusEvents.SetCarRuleMaxCarReplicas(_newValue);
     }
 
     function setDatasetRuleMinRegionsPerDataset(
         uint16 _newValue
-    ) external onlyAddress(governanceAddress) {
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
         datasetRuleMinRegionsPerDataset = _newValue;
         emit FilplusEvents.SetDatasetRuleMinRegionsPerDataset(_newValue);
     }
 
     function setDatasetRuleDefaultMaxReplicasPerCountry(
         uint16 _newValue
-    ) external onlyAddress(governanceAddress) {
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
         datasetRuleDefaultMaxReplicasPerCountry = _newValue;
         emit FilplusEvents.SetDatasetRuleDefaultMaxReplicasPerCountry(
             _newValue
@@ -130,7 +131,7 @@ contract Filplus is IFilplus, CommonModifiers {
     function setDatasetRuleMaxReplicasInCountry(
         bytes32 _countryCode,
         uint16 _newValue
-    ) external onlyAddress(governanceAddress) onlyNotZero(_newValue) {
+    ) external onlyAddress(GOVERNANCE_ADDRESS) onlyNotZero(_newValue) {
         datasetRuleMaxReplicasInCountries[_countryCode] = _newValue;
         emit FilplusEvents.SetDatasetRuleMaxReplicasInCountry(
             _countryCode,
@@ -140,49 +141,49 @@ contract Filplus is IFilplus, CommonModifiers {
 
     function setDatasetRuleMaxReplicasPerCity(
         uint16 _newValue
-    ) external onlyAddress(governanceAddress) {
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
         datasetRuleMaxReplicasPerCity = _newValue;
         emit FilplusEvents.SetDatasetRuleMaxReplicasPerCity(_newValue);
     }
 
     function setDatasetRuleMinSPsPerDataset(
         uint16 _newValue
-    ) external onlyAddress(governanceAddress) {
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
         datasetRuleMinSPsPerDataset = _newValue;
         emit FilplusEvents.SetDatasetRuleMinSPsPerDataset(_newValue);
     }
 
     function setDatasetRuleMaxReplicasPerSP(
         uint16 _newValue
-    ) external onlyAddress(governanceAddress) {
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
         datasetRuleMaxReplicasPerSP = _newValue;
         emit FilplusEvents.SetDatasetRuleMaxReplicasPerSP(_newValue);
     }
 
     function setDatasetRuleMinTotalReplicasPerDataset(
         uint16 _newValue
-    ) external onlyAddress(governanceAddress) {
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
         datasetRuleMinTotalReplicasPerDataset = _newValue;
         emit FilplusEvents.SetDatasetRuleMinTotalReplicasPerDataset(_newValue);
     }
 
     function setDatasetRuleMaxTotalReplicasPerDataset(
         uint16 _newValue
-    ) external onlyAddress(governanceAddress) {
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
         datasetRuleMaxTotalReplicasPerDataset = _newValue;
         emit FilplusEvents.SetDatasetRuleMaxTotalReplicasPerDataset(_newValue);
     }
 
     function setDatacapRulesMaxAllocatedSizePerTime(
         uint64 _newValue
-    ) external onlyAddress(governanceAddress) {
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
         datacapRulesMaxAllocatedSizePerTime = _newValue;
         emit FilplusEvents.SetDatacapRulesMaxAllocatedSizePerTime(_newValue);
     }
 
     function setDatacapRulesMaxRemainingPercentageForNext(
         uint8 _newValue
-    ) external onlyAddress(governanceAddress) {
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
         datacapRulesMaxRemainingPercentageForNext = _newValue;
         emit FilplusEvents.SetDatacapRulesMaxRemainingPercentageForNext(
             _newValue
@@ -191,7 +192,7 @@ contract Filplus is IFilplus, CommonModifiers {
 
     function setMatchingRulesDataswapCommissionPercentage(
         uint8 _newValue
-    ) external onlyAddress(governanceAddress) {
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
         matchingRulesDataswapCommissionPercentage = _newValue;
         emit FilplusEvents.SetMatchingRulesDataswapCommissionPercentage(
             _newValue
@@ -200,8 +201,11 @@ contract Filplus is IFilplus, CommonModifiers {
 
     function setMatchingRulesCommissionType(
         uint8 _newValue
-    ) external onlyAddress(governanceAddress) {
-        require(_newValue < uint8(FilplusType.MatchingRuleCommissionType.Max));
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
+        require(
+            _newValue < uint8(FilplusType.MatchingRuleCommissionType.Max),
+            "Invalid state"
+        );
         matchingRulesCommissionType = FilplusType.MatchingRuleCommissionType(
             _newValue
         );

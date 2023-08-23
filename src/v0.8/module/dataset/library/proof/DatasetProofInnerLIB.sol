@@ -3,8 +3,6 @@ pragma solidity ^0.8.21;
 
 import {DatasetType} from "../../../../types/DatasetType.sol";
 import {DatasetStateMachineLIB} from "../DatasetStateMachineLIB.sol";
-import {CidUtils} from "../../../../shared/utils/cid/CidUtils.sol";
-import {MerkleUtils} from "../../../../shared/utils/merkle/MerkleUtils.sol";
 
 library DatasetProofInnerLIB {
     using DatasetStateMachineLIB for DatasetType.Dataset;
@@ -77,7 +75,10 @@ library DatasetProofInnerLIB {
             _index + _len <= self.leafHashes.length,
             "Index+len out of bounds"
         );
-        require(self.leafHashesCount == self.leafHashes.length);
+        require(
+            self.leafHashesCount == self.leafHashes.length,
+            "length must matched"
+        );
         bytes32[] memory result = new bytes32[](_len);
         for (uint64 i = 0; i < _len; i++) {
             result[i] = self.leafHashes[i + _index];

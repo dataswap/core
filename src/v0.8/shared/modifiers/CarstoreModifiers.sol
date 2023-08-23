@@ -35,6 +35,7 @@ contract CarstoreModifiers is RolesModifiers, FilplusModifiers {
     ICarstore private carstore;
     IFilecoin private filecoin;
 
+    // solhint-disable-next-line
     constructor(
         IRoles _roles,
         IFilplus _filplus,

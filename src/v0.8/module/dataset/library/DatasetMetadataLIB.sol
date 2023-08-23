@@ -50,7 +50,7 @@ library DatasetMetadataLIB {
                 bytes(_source).length > 0 &&
                 bytes(_accessMethod).length > 0 &&
                 _sizeInBytes > 0,
-            "All fields must be non-empty and size must be greater than 0"
+            "all params must be non-empty"
         );
     }
 

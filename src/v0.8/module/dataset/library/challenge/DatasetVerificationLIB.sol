@@ -18,7 +18,6 @@
 pragma solidity ^0.8.21;
 
 import {DatasetType} from "../../../../types/DatasetType.sol";
-import {MerkleUtils} from "../../../../shared/utils/merkle/MerkleUtils.sol";
 import {DatasetChallengeProofLIB} from "./DatasetChallengeProofLIB.sol";
 
 /// @title DatasetVerificationLIB Library,include add,get,verify.
@@ -29,11 +28,13 @@ library DatasetVerificationLIB {
 
     /// @notice Validates the submitted verification proofs.
     /// @dev This function checks the validity of the submitted Merkle proofs for both the source dataset and mapping files.
+    // solhint-disable-next-line
     function _requireValidVerification(
         uint64 _randomSeed,
         bytes32[][] memory _siblings,
         uint32[] memory _paths
-    ) private pure {
+    ) private pure // solhint-disable-next-line
+    {
         //TODO:_requireValidVerification
     }
 

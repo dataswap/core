@@ -20,8 +20,6 @@ pragma solidity ^0.8.21;
 import {DatasetType} from "../../../../types/DatasetType.sol";
 import {DatasetStateMachineLIB} from "../DatasetStateMachineLIB.sol";
 import {DatasetProofInnerLIB} from "./DatasetProofInnerLIB.sol";
-import {CidUtils} from "../../../../shared/utils/cid/CidUtils.sol";
-import {MerkleUtils} from "../../../../shared/utils/merkle/MerkleUtils.sol";
 
 /// @title DatasetProofLIB Library,include add,get,verify.
 /// @notice This library provides functions for managing proofs associated with datasets.
@@ -40,7 +38,7 @@ library DatasetProofLIB {
         uint64[] calldata _leafSizes,
         bool _allCompleted
     ) external {
-        require(_leafHashes.length == _leafSizes.length);
+        require(_leafHashes.length == _leafSizes.length, "length must matched");
         DatasetType.DatasetProof storage proof;
         if (_dataType == DatasetType.DataType.Source) {
             proof = self.sourceProof;
@@ -48,7 +46,7 @@ library DatasetProofLIB {
             proof = self.mappingFilesProof;
         }
         if (proof.leafHashesCount == 0) {
-            require(_rootHash.length == 32);
+            require(_rootHash.length == 32, "length must matched");
             proof.rootHash = _rootHash;
         }
         if (proof.allCompleted == false && _allCompleted == true)

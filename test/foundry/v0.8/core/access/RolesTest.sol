@@ -19,21 +19,13 @@
 pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {Roles} from "../../../../../src/v0.8/core/access/Roles.sol";
-import {IAccessControlEnumerable} from "@openzeppelin/contracts/access/IAccessControlEnumerable.sol";
-import {IAccessControl} from "@openzeppelin/contracts/access/IAccessControl.sol";
-
-// Import various shared modules, modifiers, events, and error definitions
-import {Errors} from "../../../../../src/v0.8/shared/errors/Errors.sol";
-
-// Import necessary custom types
-import {RolesType} from "../../../../../src/v0.8/types/RolesType.sol";
 
 // Contract definition for test helper functions
 contract RolesTest is Test {
-    bytes32 constant DEFAULT_ADMIN_ROLE = 0x00;
-    Roles roles;
+    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
+    Roles public roles;
 
     // Setting up the test environment
     function setUp() public {

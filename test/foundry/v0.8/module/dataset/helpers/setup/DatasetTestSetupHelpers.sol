@@ -18,7 +18,7 @@
 pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {Roles} from "../../../../../../../src/v0.8/core/access/Roles.sol";
 import {Filplus} from "../../../../../../../src/v0.8/core/filplus/Filplus.sol";
 import {MockFilecoin} from "../../../../../../../src/v0.8/mocks/core/filecoin/MockFilecoin.sol";
@@ -27,12 +27,12 @@ import {Datasets} from "../../../../../../../src/v0.8/module/dataset/Datasets.so
 
 // Contract definition for test helper functions
 contract DatasetTestSetupHelpers is Test {
-    Datasets datasets;
-    address payable governanceContractAddresss;
-    Roles role = new Roles();
-    Filplus filplus = new Filplus(governanceContractAddresss);
-    MockFilecoin filecoin = new MockFilecoin();
-    Carstore carstore = new Carstore(role, filplus, filecoin);
+    Datasets public datasets;
+    address payable public governanceContractAddresss;
+    Roles public role = new Roles();
+    Filplus public filplus = new Filplus(governanceContractAddresss);
+    MockFilecoin public filecoin = new MockFilecoin();
+    Carstore public carstore = new Carstore(role, filplus, filecoin);
 
     // Helper function to set up the initial environment
     function setUp() public virtual {

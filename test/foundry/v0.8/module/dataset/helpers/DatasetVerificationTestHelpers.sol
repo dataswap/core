@@ -18,10 +18,9 @@
 pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {TestHelpers} from "../../../../../../src/v0.8/shared/utils/common/TestHelpers.sol";
 import {DatasetsEvents} from "../../../../../../src/v0.8/shared/events/DatasetsEvents.sol";
-import {DatasetType} from "../../../../../../src/v0.8/types/DatasetType.sol";
 import {DatasetProofTestHelpers} from "./DatasetProofTestHelpers.sol";
 import {RolesType} from "../../../../../../src/v0.8/types/RolesType.sol";
 
@@ -41,7 +40,10 @@ contract DatasetVerificationTestHelpers is Test, DatasetProofTestHelpers {
         uint64 _pointLeafCount
     ) internal {
         nonce++;
-        require(_datasetId > 0 && _datasetId <= datasets.datasetsCount());
+        require(
+            _datasetId > 0 && _datasetId <= datasets.datasetsCount(),
+            "Invalid params"
+        );
         bytes32[][] memory siblings = new bytes32[][](_pointCount);
         uint32[] memory paths = new uint32[](_pointCount);
         for (uint32 i = 0; i < _pointCount; i++) {

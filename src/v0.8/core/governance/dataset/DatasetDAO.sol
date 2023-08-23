@@ -17,19 +17,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import "@openzeppelin/contracts/governance/Governor.sol";
-import "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
-import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
-import "../abstract/DataswapDAOPerPersonVoting.sol";
-import "../interface/IDatasetDAO.sol";
+// import {DataswapDAOPerPersonVoting} from "../abstract/DataswapDAOPerPersonVoting.sol";
+// import {IDatasetDAO} from "../interface/IDatasetDAO.sol";
 
 /// @title DataswapDAOPerPersonVoting Contract
 /// @notice This contract serves as the base for the DataSwap DAO governance mechanism with per-person voting.
 /// @dev This contract inherits from DataswapDAOBase and provides the foundation for individual voting.
-abstract contract DatasetDAO is DataswapDAOPerPersonVoting, IDatasetDAO {
-    /// @notice Constructor function to initialize the DataswapDAOPerPersonVoting contract.
-    /// @param _token The token used for voting.
-    constructor(IVotes _token) DataswapDAOPerPersonVoting(_token) {}
-}
+// abstract contract DatasetDAO is DataswapDAOPerPersonVoting, IDatasetDAO {
+//     /// @notice Constructor function to initialize the DataswapDAOPerPersonVoting contract.
+//     /// @param _token The token used for voting.
+//     constructor(IVotes _token) DataswapDAOPerPersonVoting(_token) {}
+// }

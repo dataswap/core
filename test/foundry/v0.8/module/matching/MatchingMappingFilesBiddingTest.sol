@@ -18,9 +18,8 @@
 pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {MatchingMappingFilesBiddingTestHelpers} from "./helpers/MatchingMappingFilesBiddingTestHelpers.sol";
-import {MatchingType} from "../../../../../src/v0.8/types/MatchingType.sol";
 
 // Contract definition for test functions
 contract MatchingMappingFilesBiddingTest is

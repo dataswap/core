@@ -27,6 +27,7 @@ import {IRoles} from "../../interfaces/core/IRoles.sol";
 /// @notice This contract defines the role-based access control for various roles within the system.
 contract Roles is IRoles, Ownable, Ownable2Step, AccessControlEnumerable {
     /// @notice Constructor function to initialize the contract and grant the default admin role to the deployer.
+    // solhint-disable-next-line
     constructor() {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }

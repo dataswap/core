@@ -66,8 +66,6 @@ interface IFilplus {
     function setMatchingRulesCommissionType(uint8 _newType) external;
 
     // Default getter functions for public variables
-    function governanceAddress() external view returns (address);
-
     function carRuleMaxCarReplicas() external view returns (uint16);
 
     function datasetRuleMinRegionsPerDataset() external view returns (uint16);

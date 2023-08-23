@@ -18,7 +18,6 @@
 pragma solidity ^0.8.21;
 
 import {DatasetType} from "../../../types/DatasetType.sol";
-import {DatasetStateMachineLIB} from "./DatasetStateMachineLIB.sol";
 
 /// @title DatasetStateMachineLIB Library,include add,get,verify.
 /// @notice This library defines the state machine for managing the states of datasets.

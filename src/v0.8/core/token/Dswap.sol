@@ -26,6 +26,7 @@ import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 /// @notice This contract serves as the base for the DataSwap token (DSWAP).
 /// @dev This contract inherits from ERC20, ERC20Permit, ERC20Votes, and Ownable2Step contracts.
 abstract contract Dswap is ERC20, ERC20Permit, ERC20Votes, Ownable2Step {
+    // solhint-disable-next-line
     constructor() ERC20("DataSwap", "DSWAP") ERC20Permit("DSWAP") {}
 
     /// @dev Overrides the _afterTokenTransfer function from ERC20Votes and ERC20.

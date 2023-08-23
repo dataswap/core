@@ -19,13 +19,13 @@
 pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 import {MockFilecoin} from "../../../../../../src/v0.8/mocks/core/filecoin/MockFilecoin.sol";
-import "../../../../../../src/v0.8/types/FilecoinType.sol";
+import {FilecoinType} from "../../../../../../src/v0.8/types/FilecoinType.sol";
 
 // Contract definition for test helper functions
 contract MockFilecoinTest is Test {
-    MockFilecoin filecoin;
+    MockFilecoin public filecoin;
 
     // Setting up the test environment
     function setUp() public {

@@ -59,6 +59,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
     ICarstore private carstore;
     IDatasets private datasets;
 
+    // solhint-disable-next-line
     constructor(
         address _governanceAddress,
         IRoles _roles,
@@ -136,7 +137,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
                 _dataType,
                 _associatedMappingFilesMatchingID
             ),
-            "target not meets filplus requirements"
+            "Target invalid"
         );
         matchingsCount++;
         MatchingType.Matching storage matching = matchings[matchingsCount];
@@ -217,7 +218,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
                     matching.createdBlockNumber +
                         matching.biddingDelayBlockCount +
                         matching.pausedBlockCount,
-                "Matching: Bidding too early"
+                "Bidding too early"
             );
         } else {
             require(
@@ -226,7 +227,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
                         matching.biddingDelayBlockCount +
                         matching.biddingPeriodBlockCount +
                         matching.pausedBlockCount,
-                "Matching: Bidding period not expired"
+                "Bidding period not expired"
             );
         }
         matching._closeMatching();
@@ -402,7 +403,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
 
             require(
                 datasetId == _datasetId && dataType == _dataType,
-                "Need has a associated MappingFiles matching id"
+                "Need a associated matching id"
             );
             require(
                 isMatchingTargetMeetsFilPlusRequirements(

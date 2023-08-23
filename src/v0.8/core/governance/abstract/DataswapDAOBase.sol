@@ -37,6 +37,7 @@ abstract contract DataswapDAOBase is
     /// @notice Constructor function to initialize the DataswapDAOBase contract.
     /// @param _token The token used for voting.
     //  @param _timelock The timelock contract.
+    // solhint-disable-next-line
     constructor(
         IVotes _token
     )

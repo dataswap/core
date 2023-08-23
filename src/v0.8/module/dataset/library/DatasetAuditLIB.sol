@@ -33,7 +33,7 @@ library DatasetAuditLIB {
     function approveDatasetMetadata(DatasetType.Dataset storage self) external {
         require(
             self.state == DatasetType.State.MetadataSubmitted,
-            "Invalid state for approval metadata"
+            "Invalid state"
         );
         self._emitDatasetEvent(DatasetType.Event.MetadataApproved);
     }
@@ -44,7 +44,7 @@ library DatasetAuditLIB {
     function rejectDatasetMetadata(DatasetType.Dataset storage self) external {
         require(
             self.state == DatasetType.State.MetadataSubmitted,
-            "Invalid state for rejection metadata"
+            "Invalid state"
         );
         self._emitDatasetEvent(DatasetType.Event.MetadataRejected);
     }
@@ -55,7 +55,7 @@ library DatasetAuditLIB {
     function approveDataset(DatasetType.Dataset storage self) external {
         require(
             self.state == DatasetType.State.DatasetProofSubmitted,
-            "Invalid state for approval dataset"
+            "Invalid state"
         );
         self._emitDatasetEvent(DatasetType.Event.DatasetApproved);
     }
@@ -66,7 +66,7 @@ library DatasetAuditLIB {
     function rejectDataset(DatasetType.Dataset storage self) external {
         require(
             self.state == DatasetType.State.DatasetProofSubmitted,
-            "Invalid state for rejection dataset"
+            "Invalid state"
         );
         self._emitDatasetEvent(DatasetType.Event.DatasetRejected);
     }

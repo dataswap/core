@@ -42,6 +42,7 @@ abstract contract DataswapStorage is IDataswapStorage {
     Storages private storages;
     Datacaps private datacaps;
 
+    // solhint-disable-next-line
     constructor(address payable _governanceContractAddress) {
         filplus = new Filplus(_governanceContractAddress);
         filecoin = new Filecoin(FilecoinType.Network.CalibrationTestnet);

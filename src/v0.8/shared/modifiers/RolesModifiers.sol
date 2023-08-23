@@ -24,13 +24,14 @@ import {CommonModifiers} from "./CommonModifiers.sol";
 contract RolesModifiers is CommonModifiers {
     IRoles private roles;
 
+    // solhint-disable-next-line
     constructor(IRoles _roles) {
         roles = _roles;
     }
 
     modifier onlyRole(bytes32 _role) {
         // roles.checkRole(_role);
-        require(roles.hasRole(_role, msg.sender));
+        require(roles.hasRole(_role, msg.sender), "Only allowed role can call");
         _;
     }
 }

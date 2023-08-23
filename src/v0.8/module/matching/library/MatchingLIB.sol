@@ -32,10 +32,7 @@ library MatchingLIB {
     /// @notice Publish a matching.
     /// @dev This function is used to publish a matching and initiate the matching process.
     function _publishMatching(MatchingType.Matching storage self) internal {
-        require(
-            self.state == MatchingType.State.None,
-            "Matching: Invalid state for publishing"
-        );
+        require(self.state == MatchingType.State.None, "Invalid state");
         self._emitMatchingEvent(MatchingType.Event.Publish);
         //NOTE:consider that if need audit,so keep the FilPlusCheckSuccessed here.
         self._emitMatchingEvent(MatchingType.Event.FilPlusCheckSuccessed);
@@ -44,10 +41,7 @@ library MatchingLIB {
     /// @notice Pause a matching.
     /// @dev This function is used to pause a matching that is in progress.
     function _pauseMatching(MatchingType.Matching storage self) internal {
-        require(
-            self.state == MatchingType.State.InProgress,
-            "Matching: Invalid state for pausing"
-        );
+        require(self.state == MatchingType.State.InProgress, "Invalid state");
         require(self.pausedBlockCount == 0, "only can paused one time");
         //@dev:NOTE: here set pausedBlockNumber as pausedBlockCount,will correct in resume
         self.pausedBlockCount = uint64(block.number);
@@ -59,20 +53,14 @@ library MatchingLIB {
     function _reportMatchingPauseExpired(
         MatchingType.Matching storage self
     ) internal {
-        require(
-            self.state == MatchingType.State.Paused,
-            "Matching: Invalid state for reportPauseExpired"
-        );
+        require(self.state == MatchingType.State.Paused, "Invalid state");
         self._emitMatchingEvent(MatchingType.Event.PauseExpired);
     }
 
     /// @notice Resume a paused matching.
     /// @dev This function is used to resume a paused matching.
     function _resumeMatching(MatchingType.Matching storage self) internal {
-        require(
-            self.state == MatchingType.State.Paused,
-            "Matching: Invalid state for resuming"
-        );
+        require(self.state == MatchingType.State.Paused, "Invalid state");
         require(self.pausedBlockCount != 0, "only can paused one time");
         //@dev:NOTE: set pausedBlockCount  as the dealy block count because paused
         self.pausedBlockCount = uint64(block.number) - self.pausedBlockCount;
@@ -87,7 +75,7 @@ library MatchingLIB {
             self.state == MatchingType.State.Published ||
                 self.state == MatchingType.State.InProgress ||
                 self.state == MatchingType.State.Paused,
-            "Matching: Invalid state for canceling"
+            "Invalid state"
         );
         self._emitMatchingEvent(MatchingType.Event.Cancel);
     }
@@ -95,10 +83,7 @@ library MatchingLIB {
     /// @notice Close a matching and choose a winner.
     /// @dev This function is used to close a matching and choose a winner based on the specified rule.
     function _closeMatching(MatchingType.Matching storage self) internal {
-        require(
-            self.state == MatchingType.State.InProgress,
-            "Matching: Invalid state for closing"
-        );
+        require(self.state == MatchingType.State.InProgress, "Invalid state");
         self._emitMatchingEvent(MatchingType.Event.Close);
     }
 }

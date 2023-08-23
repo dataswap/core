@@ -52,6 +52,7 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
     IMatchings private matchings;
     IStorages private storages;
 
+    // solhint-disable-next-line
     constructor(
         address _governanceAddress,
         IRoles _roles,
@@ -83,10 +84,12 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
     }
 
     /// @dev Internal function to allocate matched datacap.
+    // solhint-disable-next-line
     function _allocateDatacap(
         uint64 /*_matchingId*/,
         uint64 /*_size*/
-    ) internal {
+    ) internal // solhint-disable-next-line
+    {
         // DataCapTypes.TransferParams memory params = DataCapTypes.TransferParams(
         //     FilAddresses.fromEthAddress(_to),
         //     BigInts.fromUint256(_size),

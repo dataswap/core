@@ -32,7 +32,10 @@ library CarReplicaLIB {
         CarReplicaType.Replica storage self,
         uint64 _filecoinDealId
     ) internal {
-        require(_filecoinDealId != 0 && self.filecoinDealId != _filecoinDealId);
+        require(
+            _filecoinDealId != 0 && self.filecoinDealId != _filecoinDealId,
+            "Invalid params"
+        );
         self.filecoinDealId = _filecoinDealId;
     }
 

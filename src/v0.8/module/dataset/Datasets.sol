@@ -35,7 +35,6 @@ import {DatasetVerificationLIB} from "./library/challenge/DatasetVerificationLIB
 import {DatasetAuditLIB} from "./library/DatasetAuditLIB.sol";
 /// type
 import {RolesType} from "../../types/RolesType.sol";
-import {CarReplicaType} from "../../types/CarReplicaType.sol";
 import {DatasetType} from "../../types/DatasetType.sol";
 
 /// @title Datasets Base Contract
@@ -56,6 +55,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     IFilplus private filplus;
     ICarstore private carstore;
 
+    // solhint-disable-next-line
     constructor(
         address _governanceAddress,
         IRoles _roles,

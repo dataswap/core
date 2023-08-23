@@ -23,6 +23,7 @@ library TestHelpers {
         uint64 value
     ) internal pure returns (bytes32) {
         bytes32 convertedValue;
+        // solhint-disable-next-line
         assembly {
             convertedValue := value
         }

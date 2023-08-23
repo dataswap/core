@@ -18,19 +18,13 @@
 pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
-import "forge-std/Test.sol";
-import {ICarstore} from "../../../../../src/v0.8/interfaces/core/ICarstore.sol";
-import {IRoles} from "../../../../../src/v0.8/interfaces/core/IRoles.sol";
-import {IFilplus} from "../../../../../src/v0.8/interfaces/core/IFilplus.sol";
-import {IFilecoin} from "../../../../../src/v0.8/interfaces/core/IFilecoin.sol";
+import {Test} from "forge-std/Test.sol";
 import {Roles} from "../../../../../src/v0.8/core/access/Roles.sol";
 import {Filplus} from "../../../../../src/v0.8/core/filplus/Filplus.sol";
 import {MockFilecoin} from "../../../../../src/v0.8/mocks/core/filecoin/MockFilecoin.sol";
 
 // Import various shared modules, modifiers, events, and error definitions
-import {CarstoreModifiers} from "../../../../../src/v0.8/shared/modifiers/CarstoreModifiers.sol";
 import {CarstoreEvents} from "../../../../../src/v0.8/shared/events/CarstoreEvents.sol";
-import {Errors} from "../../../../../src/v0.8/shared/errors/Errors.sol";
 
 // Import necessary custom types
 import {CarReplicaType} from "../../../../../src/v0.8/types/CarReplicaType.sol";
@@ -39,8 +33,8 @@ import {FilecoinType} from "../../../../../src/v0.8/types/FilecoinType.sol";
 
 // Contract definition for test helper functions
 contract CarstoreTestHelpers is Test {
-    Carstore carstore;
-    address payable governanceContractAddresss;
+    Carstore public carstore;
+    address payable public governanceContractAddresss;
 
     // Helper function to set up the initial environment
     function setUp() public {
@@ -82,17 +76,6 @@ contract CarstoreTestHelpers is Test {
             "Replica count should be 0"
         );
         assertEq(carstore.carsCount(), 1, "Cars count should be 1");
-    }
-
-    // Helper function to convert uint64 to bytes32
-    function convertUint64ToBytes32(
-        uint64 value
-    ) internal pure returns (bytes32) {
-        bytes32 convertedValue;
-        assembly {
-            convertedValue := value
-        }
-        return convertedValue;
     }
 
     // Helper function: Add a batch of Cars and perform assertions
