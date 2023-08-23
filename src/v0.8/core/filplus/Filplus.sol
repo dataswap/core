@@ -28,6 +28,7 @@ import {FilplusType} from "../../types/FilplusType.sol";
 
 /// @title Filplus
 contract Filplus is IFilplus, CommonModifiers {
+    // solhint-disable-next-line
     address public immutable GOVERNANCE_ADDRESS; //The address of the governance contract.
 
     ///@notice car rules

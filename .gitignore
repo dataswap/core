@@ -24,3 +24,5 @@ typechain-types
 cache-hardhat
 artifacts
 
+# npm file
+package-lock.json

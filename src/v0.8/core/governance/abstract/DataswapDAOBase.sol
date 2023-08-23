@@ -46,6 +46,7 @@ abstract contract DataswapDAOBase is
         GovernorVotes(_token)
         GovernorVotesQuorumFraction(4)
     // GovernorTimelockControl(_timelock)
+    // solhint-disable-next-line
     {
 
     }
