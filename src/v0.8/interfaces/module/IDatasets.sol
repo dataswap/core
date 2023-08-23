@@ -113,6 +113,11 @@ interface IDatasets {
         DatasetType.DataType _dataType
     ) external view returns (uint64);
 
+    ///@notice Get dataset proof's submitter
+    function getDatasetProofSubmitter(
+        uint64 _datasetId
+    ) external view returns (address);
+
     ///@notice Get dataset source CIDs
     function getDatasetCarsCount(
         uint64 _datasetId,
@@ -159,6 +164,19 @@ interface IDatasets {
     function isDatasetContainsCars(
         uint64 _datasetId,
         bytes32[] memory _cids
+    ) external view returns (bool);
+
+    ///@notice Check if a dataset has submitter
+    function isDatasetProofSubmitter(
+        uint64 _datasetId,
+        address _submitter
+    ) external view returns (bool);
+
+    ///@notice Checking if duplicate verifications of the Dataset
+    function isDatasetVerificationDuplicate(
+        uint64 _datasetId,
+        address _auditor,
+        uint64 _randomSeed
     ) external view returns (bool);
 
     // Default getter functions for public variables

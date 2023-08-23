@@ -36,6 +36,7 @@ library Errors {
     error DatasetMetadataNotExist(string accessMethod);
     error DatasetMetadataAlreadyExist(string accessMethod);
     error InvalidDatasetState(uint64 datasetId);
+    error InvalidDatasetProofsSubmitter(uint64 datasetId, address submitter);
 
     /// @notice matching errors
     error InvalidMatchingState(

@@ -40,6 +40,9 @@ library FilplusEvents {
     // Event emitted when the maximum replicas per city rule is set for a dataset
     event SetDatasetRuleMaxReplicasPerCity(uint32 _newValue);
 
+    // Event emitted when the maximum proportion of dataset mapping files rule is set for a dataset
+    event SetDatasetRuleMaxProportionOfMappingFilesToDataset(uint8 _newValue);
+
     // Event emitted when the minimum service providers (SPs) per dataset rule is set
     event SetDatasetRuleMinSPsPerDataset(uint32 _newValue);
 

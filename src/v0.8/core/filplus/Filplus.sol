@@ -43,6 +43,8 @@ contract Filplus is IFilplus, CommonModifiers {
 
     uint16 public datasetRuleMaxReplicasPerCity; // Maximum replicas allowed per city (e.g., 1).
 
+    uint8 public datasetRuleMaxProportionOfMappingFilesToDataset; //Maximum proportion of dataset mapping files,measured in ten-thousandths.(e.g.,40)
+
     ///@notice dataset sp rules
     uint16 public datasetRuleMinSPsPerDataset; // Minimum required number of storage providers (e.g., 5).
 
@@ -72,6 +74,7 @@ contract Filplus is IFilplus, CommonModifiers {
         datasetRuleMinRegionsPerDataset = 3;
         datasetRuleDefaultMaxReplicasPerCountry = 1;
         datasetRuleMaxReplicasPerCity = 1;
+        datasetRuleMaxProportionOfMappingFilesToDataset = 40; // 40/10000
 
         //defalut dataset sp rules
         datasetRuleMinSPsPerDataset = 5;
@@ -145,6 +148,16 @@ contract Filplus is IFilplus, CommonModifiers {
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
         datasetRuleMaxReplicasPerCity = _newValue;
         emit FilplusEvents.SetDatasetRuleMaxReplicasPerCity(_newValue);
+    }
+
+    /// @notice set maximum proportion of dataset mapping files
+    function setDatasetRuleMaxProportionOfMappingFilesToDataset(
+        uint8 _newValue
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
+        datasetRuleMaxProportionOfMappingFilesToDataset = _newValue;
+        emit FilplusEvents.SetDatasetRuleMaxProportionOfMappingFilesToDataset(
+            _newValue
+        );
     }
 
     function setDatasetRuleMinSPsPerDataset(

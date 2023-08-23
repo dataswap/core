@@ -55,7 +55,6 @@ contract Datasets is IDatasets, DatasetsModifiers {
     IFilplus private filplus;
     ICarstore private carstore;
 
-    // solhint-disable-next-line
     constructor(
         address _governanceAddress,
         IRoles _roles,
@@ -177,6 +176,8 @@ contract Datasets is IDatasets, DatasetsModifiers {
         bool _completed
     )
         external
+    // TODO: Handling problem: Stack too deep ,Uncomment onlyDatasetProofSubmitterOrSubmitterNotExsits and onlyDatasetState:https://github.com/dataswap/core/issues/81
+    // onlyDatasetProofSubmitterOrSubmitterNotExsits(_datasetId, msg.sender)
     // onlyDatasetState(_datasetId, DatasetType.State.MetadataApproved)
     {
         //Note: params check in lib
@@ -185,6 +186,22 @@ contract Datasets is IDatasets, DatasetsModifiers {
             //TODO: check  mappingFilesAccessMethod is not set:https://github.com/dataswap/core/issues/75
             dataset.mappingFilesAccessMethod = _mappingFilesAccessMethod;
         }
+        // If the Dataset proof has not been submitted before,
+        // then set the current sender as the submitter.
+        if (
+            dataset.getDatasetCount(DatasetType.DataType.Source) == 0 &&
+            dataset.getDatasetCount(DatasetType.DataType.MappingFiles) == 0
+        ) {
+            dataset.proofSubmitter = msg.sender;
+        }
+        // Checking if the current sender is the submitter.
+        require(
+            dataset.isDatasetSubmitter(msg.sender),
+            "Invalid Dataset submitter"
+        );
+
+        carstore.addCars(_leafHashes, _datasetId, _leafSizes);
+
         dataset.addDatasetProofBatch(
             _dataType,
             _rootHash,
@@ -192,8 +209,6 @@ contract Datasets is IDatasets, DatasetsModifiers {
             _leafSizes,
             _completed
         );
-        //TODO: hashes to CID
-        carstore.addCars(_leafHashes, _datasetId, _leafSizes);
 
         if (
             dataset.sourceProof.allCompleted &&
@@ -267,12 +282,21 @@ contract Datasets is IDatasets, DatasetsModifiers {
         return getDatasetProof(_datasetId, _dataType, _index, _len);
     }
 
+    /// @notice Get the number of leaf nodes (cars) in the dataset proofs.
     function getDatasetProofCount(
         uint64 _datasetId,
         DatasetType.DataType _dataType
     ) public view onlyNotZero(_datasetId) returns (uint64) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetCount(_dataType);
+    }
+
+    /// @notice Get submitter of dataset's proofs
+    function getDatasetProofSubmitter(
+        uint64 _datasetId
+    ) public view returns (address) {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        return dataset.getDatasetSubmitter();
     }
 
     ///@notice Get dataset source CIDs
@@ -350,5 +374,24 @@ contract Datasets is IDatasets, DatasetsModifiers {
             if (!isDatasetContainsCar(_datasetId, _cids[i])) return false;
         }
         return true;
+    }
+
+    ///@notice Check if a dataset has submitter
+    function isDatasetProofSubmitter(
+        uint64 _datasetId,
+        address _submitter
+    ) public view returns (bool) {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        return dataset.isDatasetSubmitter(_submitter);
+    }
+
+    ///@notice Check if the verification is a duplicate.
+    function isDatasetVerificationDuplicate(
+        uint64 _datasetId,
+        address _auditor,
+        uint64 _randomSeed
+    ) public view returns (bool) {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        return dataset.isDatasetVerificationDuplicate(_auditor, _randomSeed);
     }
 }
