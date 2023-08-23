@@ -24,4 +24,6 @@
         "editor.defaultFormatter": "JuanBlanco.solidity"
     },
     "window.zoomLevel": 1,
+    "solidity.packageDefaultDependenciesContractsDirectory": "src",
+    "solidity.packageDefaultDependenciesDirectory": ["node_modules", "lib"]
 }
