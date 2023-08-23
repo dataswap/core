@@ -7,7 +7,7 @@ const config: HardhatUserConfig = {
     artifacts: './artifacts',
     cache: './cache-hardhat',
     sources: './src',
-    tests: './test/hardhat/v0.8',
+    tests: './hardhat/v0.8',
   },
 };
 
