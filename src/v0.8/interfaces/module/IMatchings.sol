@@ -18,8 +18,8 @@
 
 pragma solidity ^0.8.21;
 
-import {DatasetType} from "../../types/DatasetType.sol";
-import {MatchingType} from "../../types/MatchingType.sol";
+import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
 /// @title IMatchings
 interface IMatchings {

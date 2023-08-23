@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {IFilecoin} from "../../../interfaces/core/IFilecoin.sol";
-import {FilecoinType} from "../../../types/FilecoinType.sol";
+import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
+import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
 contract MockFilecoin is IFilecoin {
     FilecoinType.DealState private mockDealState;

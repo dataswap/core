@@ -19,12 +19,12 @@
 pragma solidity ^0.8.21;
 
 ///interface
-import {IFilplus} from "../../interfaces/core/IFilplus.sol";
+import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 ///shared
-import {FilplusEvents} from "../../shared/events/FilplusEvents.sol";
-import {CommonModifiers} from "../../shared/modifiers/CommonModifiers.sol";
+import {FilplusEvents} from "src/v0.8/shared/events/FilplusEvents.sol";
+import {CommonModifiers} from "src/v0.8/shared/modifiers/CommonModifiers.sol";
 ///type
-import {FilplusType} from "../../types/FilplusType.sol";
+import {FilplusType} from "src/v0.8/types/FilplusType.sol";
 
 /// @title Filplus
 contract Filplus is IFilplus, CommonModifiers {

@@ -14,7 +14,7 @@
 
 pragma solidity ^0.8.21;
 
-import {MatchingType} from "../../types/MatchingType.sol";
+import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
 library Errors {
     /// @notice commmon errors

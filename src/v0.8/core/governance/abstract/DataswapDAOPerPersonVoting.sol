@@ -22,7 +22,7 @@ pragma solidity ^0.8.21;
 import {IVotes} from "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
 // import {GovernorVotesQuorumFraction} from "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
 // import {GovernorTimelockControl} from "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
-import {DataswapDAOBase} from "./DataswapDAOBase.sol";
+import {DataswapDAOBase} from "src/v0.8/core/governance/abstract/DataswapDAOBase.sol";
 
 /// @title DataswapDAOPerPersonVoting Contract
 /// @notice This contract serves as the base for the DataSwap DAO governance mechanism with per-person voting.

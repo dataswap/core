@@ -18,18 +18,18 @@
 pragma solidity ^0.8.21;
 
 /// interface
-import {IRoles} from "../../interfaces/core/IRoles.sol";
-import {IFilplus} from "../../interfaces/core/IFilplus.sol";
-import {IFilecoin} from "../../interfaces/core/IFilecoin.sol";
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
+import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 ///shared
-import {CarstoreEvents} from "../../shared/events/CarstoreEvents.sol";
+import {CarstoreEvents} from "src/v0.8/shared/events/CarstoreEvents.sol";
 ///library
-import {CarLIB} from "./library/CarLIB.sol";
+import {CarLIB} from "src/v0.8/core/carstore/library/CarLIB.sol";
 ///abstract
-import {CarstoreBase} from "./abstract/CarstoreBase.sol";
+import {CarstoreBase} from "src/v0.8/core/carstore/abstract/CarstoreBase.sol";
 ///type
-import {CarReplicaType} from "../../types/CarReplicaType.sol";
-import {FilecoinType} from "../../types/FilecoinType.sol";
+import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
+import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
 /// @title CarsStorageBase
 /// @notice This contract allows adding cars and managing their associated replicas.

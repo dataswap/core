@@ -17,9 +17,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {DatasetType} from "../../../../types/DatasetType.sol";
-import {DatasetStateMachineLIB} from "../DatasetStateMachineLIB.sol";
-import {DatasetProofInnerLIB} from "./DatasetProofInnerLIB.sol";
+import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {DatasetStateMachineLIB} from "src/v0.8/module/dataset/library/DatasetStateMachineLIB.sol";
+import {DatasetProofInnerLIB} from "src/v0.8/module/dataset/library/proof/DatasetProofInnerLIB.sol";
 
 /// @title DatasetProofLIB Library,include add,get,verify.
 /// @notice This library provides functions for managing proofs associated with datasets.

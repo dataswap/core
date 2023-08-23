@@ -15,9 +15,9 @@
 pragma solidity ^0.8.21;
 
 ///interface
-import {IFilplus} from "../../interfaces/core/IFilplus.sol";
+import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 ///shared
-import {CommonModifiers} from "./CommonModifiers.sol";
+import {CommonModifiers} from "src/v0.8/shared/modifiers/CommonModifiers.sol";
 
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.

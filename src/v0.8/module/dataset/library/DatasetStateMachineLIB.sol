@@ -17,7 +17,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {DatasetType} from "../../../types/DatasetType.sol";
+import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
 /// @title DatasetStateMachineLIB Library,include add,get,verify.
 /// @notice This library defines the state machine for managing the states of datasets.

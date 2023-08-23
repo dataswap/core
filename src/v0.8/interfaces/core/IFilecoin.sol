@@ -18,7 +18,7 @@
 
 pragma solidity ^0.8.21;
 
-import {FilecoinType} from "../../types/FilecoinType.sol";
+import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
 /// @title IFilplus
 interface IFilecoin {

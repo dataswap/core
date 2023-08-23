@@ -17,8 +17,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {IRoles} from "../../interfaces/core/IRoles.sol";
-import {CommonModifiers} from "./CommonModifiers.sol";
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {CommonModifiers} from "src/v0.8/shared/modifiers/CommonModifiers.sol";
 
 /// @title RolesModifier
 contract RolesModifiers is CommonModifiers {

@@ -22,9 +22,9 @@ import {MarketAPI} from "@zondax/filecoin-solidity/contracts/v0.8/MarketAPI.sol"
 import {MarketTypes} from "@zondax/filecoin-solidity/contracts/v0.8/types/MarketTypes.sol";
 import {CommonTypes} from "@zondax/filecoin-solidity/contracts/v0.8/types/CommonTypes.sol";
 ///interface
-import {IFilecoin} from "../../interfaces/core/IFilecoin.sol";
+import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 ///type
-import {FilecoinType} from "../../types/FilecoinType.sol";
+import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
 /// @title Filecoin
 contract Filecoin is IFilecoin {

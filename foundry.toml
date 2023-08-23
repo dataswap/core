@@ -1,6 +1,6 @@
 [profile.default]
 src = "src"
-test = "test/foundry/v0.8"
+test = "test/v0.8"
 out = "out"
 cache_path = 'cache-foundry'
 libs = ['node_modules', "lib"]

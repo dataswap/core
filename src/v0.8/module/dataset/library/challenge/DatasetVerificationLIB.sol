@@ -17,8 +17,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {DatasetType} from "../../../../types/DatasetType.sol";
-import {DatasetChallengeProofLIB} from "./DatasetChallengeProofLIB.sol";
+import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {DatasetChallengeProofLIB} from "src/v0.8/module/dataset/library/challenge/DatasetChallengeProofLIB.sol";
 
 /// @title DatasetVerificationLIB Library,include add,get,verify.
 /// @notice This library provides functions for managing verification associated with datasets.
@@ -32,9 +32,8 @@ library DatasetVerificationLIB {
     function _requireValidVerification(
         uint64 _randomSeed,
         bytes32[][] memory _siblings,
-        uint32[] memory _paths
-    ) private pure // solhint-disable-next-line
-    {
+        uint32[] memory _paths // solhint-disable-next-line
+    ) private pure {
         //TODO:_requireValidVerification
     }
 
