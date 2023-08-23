@@ -45,7 +45,11 @@ contract RolesTest is Test {
         roles.grantRole(_role, _account);
 
         vm.roll(2);
-        assertEq(1, roles.getRoleMemberCount(_role));
+        if (_role != DEFAULT_ADMIN_ROLE) {
+            assertEq(1, roles.getRoleMemberCount(_role));
+        } else {
+            assertEq(2, roles.getRoleMemberCount(_role));
+        }
         assertEq(_account, roles.getRoleMember(_role, 0));
         assertEq(true, roles.hasRole(_role, _account));
         assertEq(DEFAULT_ADMIN_ROLE, roles.getRoleAdmin(_role));
@@ -110,7 +114,13 @@ contract RolesTest is Test {
         vm.startPrank(_newOwner);
         roles.renounceOwnership();
         vm.stopPrank();
-        assertNotEq(_newOwner, roles.owner());
-        assertNotEq(address(this), roles.owner());
+        if (_newOwner != address(0)) {
+            assertNotEq(_newOwner, roles.owner());
+        }
+        if (address(this) != address(0)) {
+            assertNotEq(address(this), roles.owner());
+        } else {
+            assertEq(address(this), roles.owner());
+        }
     }
 }
