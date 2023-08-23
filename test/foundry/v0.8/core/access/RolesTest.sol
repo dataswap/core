@@ -49,14 +49,15 @@ contract RolesTest is Test {
      * Lastly, it checks if the message sender is the DEFAULT_ADMIN_ROLE.
      */
     function testGrantRole(bytes32 _role, address _account) external {
+        vm.roll(1);
         roles.grantRole(_role, _account);
 
+        vm.roll(2);
         assertEq(1, roles.getRoleMemberCount(_role));
         assertEq(_account, roles.getRoleMember(_role, 0));
         assertEq(true, roles.hasRole(_role, _account));
         assertEq(DEFAULT_ADMIN_ROLE, roles.getRoleAdmin(_role));
-        // TODO: sometimes checkRole failed,but unkown reason.
-        // roles.checkRole(DEFAULT_ADMIN_ROLE); // Check if msg.sender is DEFAULT_ADMIN_ROLE
+        roles.checkRole(DEFAULT_ADMIN_ROLE); // Check if msg.sender is DEFAULT_ADMIN_ROLE
     }
 
     /**
@@ -66,8 +67,11 @@ contract RolesTest is Test {
      * After revoking the role, the function asserts that the account no longer has the role.
      */
     function testRevokeRole(bytes32 _role, address _account) external {
+        vm.roll(1);
         roles.grantRole(_role, _account);
         assertEq(true, roles.hasRole(_role, _account));
+
+        vm.roll(2);
         roles.revokeRole(_role, _account);
         assertEq(false, roles.hasRole(_role, _account));
     }
@@ -79,8 +83,11 @@ contract RolesTest is Test {
      * After renouncing the role, the function asserts that the account no longer has the role.
      */
     function testRenounceRole(bytes32 _role, address _account) external {
+        vm.roll(1);
         roles.grantRole(_role, _account);
         assertEq(true, roles.hasRole(_role, _account));
+
+        vm.roll(2);
         vm.prank(_account);
         roles.renounceRole(_role, _account);
         assertEq(false, roles.hasRole(_role, _account));
@@ -95,15 +102,22 @@ contract RolesTest is Test {
      */
     function testTransferOwnership(address _newOwner) external {
         assertEq(address(this), roles.owner());
+
+        vm.roll(1);
         roles.transferOwnership(_newOwner);
+
+        vm.roll(2);
         assertEq(_newOwner, roles.pendingOwner());
 
+        vm.roll(3);
         vm.prank(_newOwner);
         roles.acceptOwnership();
         assertEq(_newOwner, roles.owner());
 
-        vm.prank(_newOwner);
+        vm.roll(4);
+        vm.startPrank(_newOwner);
         roles.renounceOwnership();
+        vm.stopPrank();
         assertNotEq(_newOwner, roles.owner());
         assertNotEq(address(this), roles.owner());
     }

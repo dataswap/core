@@ -77,8 +77,8 @@ contract Roles is IRoles, Ownable, Ownable2Step, AccessControlEnumerable {
     }
 
     function _transferOwnership(
-        address newOwner
+        address _newOwner
     ) internal override(Ownable, Ownable2Step) {
-        super._transferOwnership(newOwner);
+        super._transferOwnership(_newOwner);
     }
 }

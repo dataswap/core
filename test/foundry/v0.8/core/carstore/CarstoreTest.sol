@@ -55,7 +55,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         uint64 _size
     ) external {
         vm.assume(_datasetId == 0 || _size == 0);
-        vm.expectRevert(bytes("Invalid ID"));
+        vm.expectRevert(bytes("Value must not be zero"));
         carstore.addCar(_cid, _datasetId, _size);
     }
 
@@ -97,7 +97,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         uint64[] memory _sizes
     ) external {
         vm.assume(_datasetId == 0);
-        vm.expectRevert(bytes("Invalid ID"));
+        vm.expectRevert(bytes("Value must not be zero"));
         carstore.addCars(_cids, _datasetId, _sizes);
     }
 
@@ -124,7 +124,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
     ) external {
         vm.assume(_matchingId == 0);
         addCarAndAssert(_cid, 1, 32 * 1024 * 1024 * 1024);
-        vm.expectRevert(bytes("Invalid ID"));
+        vm.expectRevert(bytes("Value must not be zero"));
         carstore.addCarReplica(_cid, _matchingId);
     }
 
@@ -194,7 +194,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
         vm.assume(_matchingId != 0 && _filecoinDealId == 0);
         addCarAndAssert(_cid, 1, 32 * 1024 * 1024 * 1024);
         addReplicaAndAssert(_cid, _matchingId);
-        vm.expectRevert(bytes("Invalid ID"));
+        vm.expectRevert(bytes("Value must not be zero"));
         carstore.setCarReplicaFilecoinDealId(
             _cid,
             _matchingId,

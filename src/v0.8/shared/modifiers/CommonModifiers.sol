@@ -21,7 +21,13 @@ pragma solidity ^0.8.21;
 contract CommonModifiers {
     /// @dev Modifier to check if an ID is not zero.
     modifier onlyNotZero(uint64 _value) {
-        require(_value != 0, "Invalid ID");
+        require(_value != 0, "Value must not be zero");
+        _;
+    }
+
+    /// @dev Modifier to check if an address is not zero
+    modifier onlyNotZeroAddress(address _address) {
+        require(address(0) != _address, "Address must not be zero");
         _;
     }
 
@@ -29,15 +35,6 @@ contract CommonModifiers {
     modifier onlyAddress(address allowedAddress) {
         require(
             msg.sender == allowedAddress,
-            "Only allowed address can call this function"
-        );
-        _;
-    }
-
-    /// @dev Modifier to check the sender's address
-    modifier notZeroAddress(address allowedAddress) {
-        require(
-            msg.sender != address(0),
             "Only allowed address can call this function"
         );
         _;
