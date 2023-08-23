@@ -42,7 +42,9 @@ contract Carstore is CarstoreBase {
         IRoles _roles,
         IFilplus _filplus,
         IFilecoin _filecoin
-    ) CarstoreBase(_roles, _filplus, _filecoin) {}
+    )
+        CarstoreBase(_roles, _filplus, _filecoin) // solhint-disable-next-line
+    {}
 
     /// @dev Internal function to add a car based on its CID.
     ///      tips: diffent dataset has the same car is dones't matter,maybe need limit replicas count for a car.
