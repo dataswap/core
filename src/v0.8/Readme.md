@@ -1,7 +1,7 @@
 # Dataswap  contract software architecture
 
 ### I. software layer architecture
-![](../../doc/img/contractArchitecture.png)
+![](https://github.com/dataswap/specs/blob/main/systems/img/contractArchitecture.png)
 
 ### II. Basic source code structure.
 ```
