@@ -40,7 +40,7 @@ contract FilplusTest is Test {
 
     // Test function for setting the maximum car replicas rule
     function testSetCarRuleMaxCarReplicas(uint16 _newValue) external {
-        vm.expectRevert(bytes("Only allowed address can call this function"));
+        vm.expectRevert(bytes("Only allowed address can call"));
         filplus.setCarRuleMaxCarReplicas(_newValue);
 
         vm.prank(governanceContractAddresss);
@@ -52,7 +52,7 @@ contract FilplusTest is Test {
 
     // Test function for setting the minimum regions per dataset rule
     function testSetDatasetRuleMinRegionsPerDataset(uint16 _newValue) external {
-        vm.expectRevert(bytes("Only allowed address can call this function"));
+        vm.expectRevert(bytes("Only allowed address can call"));
         filplus.setDatasetRuleMinRegionsPerDataset(_newValue);
 
         vm.prank(governanceContractAddresss);
@@ -66,7 +66,7 @@ contract FilplusTest is Test {
     function testSetDatasetRuleDefaultMaxReplicasPerCountry(
         uint16 _newValue
     ) external {
-        vm.expectRevert(bytes("Only allowed address can call this function"));
+        vm.expectRevert(bytes("Only allowed address can call"));
         filplus.setDatasetRuleDefaultMaxReplicasPerCountry(_newValue);
 
         vm.prank(governanceContractAddresss);
@@ -84,7 +84,7 @@ contract FilplusTest is Test {
         uint16 _newValue
     ) external {
         vm.assume(_newValue != 0);
-        vm.expectRevert(bytes("Only allowed address can call this function"));
+        vm.expectRevert(bytes("Only allowed address can call"));
         filplus.setDatasetRuleMaxReplicasInCountry(_countryCode, _newValue);
         vm.prank(governanceContractAddresss);
         vm.expectEmit(true, true, false, true);
@@ -101,7 +101,7 @@ contract FilplusTest is Test {
 
     // Test function for setting the maximum replicas per city rule
     function testSetDatasetRuleMaxReplicasPerCity(uint16 _newValue) external {
-        vm.expectRevert(bytes("Only allowed address can call this function"));
+        vm.expectRevert(bytes("Only allowed address can call"));
         filplus.setDatasetRuleMaxReplicasPerCity(_newValue);
 
         vm.prank(governanceContractAddresss);
@@ -113,7 +113,7 @@ contract FilplusTest is Test {
 
     // Test function for setting the minimum storage providers per dataset rule
     function testSetDatasetRuleMinSPsPerDataset(uint16 _newValue) external {
-        vm.expectRevert(bytes("Only allowed address can call this function"));
+        vm.expectRevert(bytes("Only allowed address can call"));
         filplus.setDatasetRuleMinSPsPerDataset(_newValue);
 
         vm.prank(governanceContractAddresss);
@@ -125,7 +125,7 @@ contract FilplusTest is Test {
 
     // Test function for setting the maximum replicas per storage provider rule
     function testSetDatasetRuleMaxReplicasPerSP(uint16 _newValue) external {
-        vm.expectRevert(bytes("Only allowed address can call this function"));
+        vm.expectRevert(bytes("Only allowed address can call"));
         filplus.setDatasetRuleMaxReplicasPerSP(_newValue);
 
         vm.prank(governanceContractAddresss);
@@ -139,7 +139,7 @@ contract FilplusTest is Test {
     function testSetDatasetRuleMinTotalReplicasPerDataset(
         uint16 _newValue
     ) external {
-        vm.expectRevert(bytes("Only allowed address can call this function"));
+        vm.expectRevert(bytes("Only allowed address can call"));
         filplus.setDatasetRuleMinTotalReplicasPerDataset(_newValue);
 
         vm.prank(governanceContractAddresss);
@@ -153,7 +153,7 @@ contract FilplusTest is Test {
     function testSetDatasetRuleMaxTotalReplicasPerDataset(
         uint16 _newValue
     ) external {
-        vm.expectRevert(bytes("Only allowed address can call this function"));
+        vm.expectRevert(bytes("Only allowed address can call"));
         filplus.setDatasetRuleMaxTotalReplicasPerDataset(_newValue);
 
         vm.prank(governanceContractAddresss);
@@ -167,7 +167,7 @@ contract FilplusTest is Test {
     function testSetDatacapRulesMaxAllocatedSizePerTime(
         uint64 _newValue
     ) external {
-        vm.expectRevert(bytes("Only allowed address can call this function"));
+        vm.expectRevert(bytes("Only allowed address can call"));
         filplus.setDatacapRulesMaxAllocatedSizePerTime(_newValue);
 
         vm.prank(governanceContractAddresss);
@@ -181,7 +181,7 @@ contract FilplusTest is Test {
     function testSetDatacapRulesMaxRemainingPercentageForNext(
         uint8 _newValue
     ) external {
-        vm.expectRevert(bytes("Only allowed address can call this function"));
+        vm.expectRevert(bytes("Only allowed address can call"));
         filplus.setDatacapRulesMaxRemainingPercentageForNext(_newValue);
 
         vm.prank(governanceContractAddresss);
@@ -200,7 +200,7 @@ contract FilplusTest is Test {
     function testSetMatchingRulesDataswapCommissionPercentage(
         uint8 _newValue
     ) external {
-        vm.expectRevert(bytes("Only allowed address can call this function"));
+        vm.expectRevert(bytes("Only allowed address can call"));
         filplus.setMatchingRulesDataswapCommissionPercentage(_newValue);
 
         vm.prank(governanceContractAddresss);
@@ -218,7 +218,7 @@ contract FilplusTest is Test {
     // Test function for setting the matching rules commission type
     function testSetMatchingRulesCommissionType(uint8 _newType) external {
         vm.assume(_newType < uint8(FilplusType.MatchingRuleCommissionType.Max));
-        vm.expectRevert(bytes("Only allowed address can call this function"));
+        vm.expectRevert(bytes("Only allowed address can call"));
         filplus.setMatchingRulesCommissionType(_newType);
 
         vm.prank(governanceContractAddresss);
