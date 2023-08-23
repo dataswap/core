@@ -19,34 +19,34 @@ library MatchingsEvents {
 
     // Event emitted when a matching is published
     event MatchingPublished(
-        uint256 indexed matchingId,
+        uint64 indexed matchingId,
         address indexed initiator
     );
 
     // Event emitted when a matching is paused
-    event MatchingPaused(uint256 indexed _matchingId);
+    event MatchingPaused(uint64 indexed _matchingId);
 
     // Event emitted when a matching's pause expires
-    event MatchingPauseExpired(uint256 indexed _matchingId);
+    event MatchingPauseExpired(uint64 indexed _matchingId);
 
     // Event emitted when a matching is resumed
-    event MatchingResumed(uint256 indexed _matchingId);
+    event MatchingResumed(uint64 indexed _matchingId);
 
     // Event emitted when a matching is cancelled
-    event MatchingCancelled(uint256 indexed _matchingId);
+    event MatchingCancelled(uint64 indexed _matchingId);
 
     // Event emitted when a matching has a winner
     event MatchingHasWinner(
-        uint256 indexed _matchingId,
+        uint64 indexed _matchingId,
         address indexed _winner
     );
 
     // Event emitted when a matching has no winner
-    event MatchingNoWinner(uint256 indexed _matchingId);
+    event MatchingNoWinner(uint64 indexed _matchingId);
 
     // Event emitted when a bid is placed in a matching
     event MatchingBidPlaced(
-        uint256 indexed _matchingId,
+        uint64 indexed _matchingId,
         address _bidder,
         uint256 _amount
     );

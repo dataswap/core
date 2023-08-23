@@ -24,30 +24,30 @@ library CarstoreEvents {
     event CarsAdded(bytes32[] _cids);
 
     /// @notice Emitted when a replica is added to a car.
-    event CarReplicaAdded(bytes32 indexed _cid, uint256 _matchingId);
+    event CarReplicaAdded(bytes32 indexed _cid, uint64 _matchingId);
 
     /// @notice Report that storage deal for a replica has expired.
     /// @dev This function allows reporting that the storage deal for a replica has expired.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    event CarReplicaExpired(bytes32 indexed _cid, uint256 _matchingId);
+    event CarReplicaExpired(bytes32 indexed _cid, uint64 _matchingId);
 
     /// @notice Report that storage of a replica has failed.
     /// @dev This function allows reporting that the storage of a replica has failed.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    event CarReplicaFailed(bytes32 indexed _cid, uint256 _matchingId);
+    event CarReplicaFailed(bytes32 indexed _cid, uint64 _matchingId);
 
     /// @notice Emitted when the Filecoin deal ID is set for a replica's storage.
     event CarReplicaFilecoinDealIdSet(
         bytes32 indexed _cid,
-        uint256 _matchingId,
-        uint256 _filecoinDealId
+        uint64 _matchingId,
+        uint64 _filecoinDealId
     );
 
     /// @notice Report that storage of a replica has been slashed.
     /// @dev This function allows reporting that the storage of a replica has been slashed.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    event CarReplicaSlashed(bytes32 indexed _cid, uint256 _matchingId);
+    event CarReplicaSlashed(bytes32 indexed _cid, uint64 _matchingId);
 }

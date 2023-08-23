@@ -20,7 +20,7 @@ library StoragesEvents {
     /// @param _cid The CID of the file.
     /// @param _filecoinDealId The Filecoin deal ID.
     event StorageDealIdSubmitted(
-        uint256 indexed _matchingId,
+        uint64 indexed _matchingId,
         bytes32 indexed _cid,
         uint64 _filecoinDealId
     );

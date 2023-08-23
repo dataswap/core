@@ -23,49 +23,49 @@ library Errors {
     /// @notice car errors
     error CarNotExist(bytes32 _cid);
     error CarAlreadyExists(bytes32 _cid);
-    error ReplicaNotExist(bytes32 _cid, uint256 _matchingId);
-    error ReplicaAlreadyExists(bytes32 _cid, uint256 _matchingId);
-    error ReplicaFilecoinDealIdExists(bytes32 _cid, uint256 _matchingId);
-    error InvalidReplicaState(bytes32 _cid, uint256 _matchingId);
-    error InvalidReplicaFilecoinDealState(bytes32 _cid, uint256 _filecoinId);
+    error ReplicaNotExist(bytes32 _cid, uint64 _matchingId);
+    error ReplicaAlreadyExists(bytes32 _cid, uint64 _matchingId);
+    error ReplicaFilecoinDealIdExists(bytes32 _cid, uint64 _matchingId);
+    error InvalidReplicaState(bytes32 _cid, uint64 _matchingId);
+    error InvalidReplicaFilecoinDealState(bytes32 _cid, uint64 _filecoinId);
 
     /// @notice Dataset errors
     error DatasetMetadataNotExist(string accessMethod);
     error DatasetMetadataAlreadyExist(string accessMethod);
-    error InvalidDatasetState(uint256 datasetId);
+    error InvalidDatasetState(uint64 datasetId);
 
     /// @notice matching errors
     error InvalidMatchingState(
-        uint256 matchingId,
+        uint64 matchingId,
         MatchingType.State expectedState,
         MatchingType.State actualState
     );
     error NotMatchingInitiator(
-        uint256 matchingId,
+        uint64 matchingId,
         address expectedInitiator,
         address actualInitiator
     );
 
     /// @notice storage errors
-    error StorageDealNotSuccessful(uint256 _filecoinDealId);
+    error StorageDealNotSuccessful(uint64 _filecoinDealId);
     error StorageDealIdAlreadySet(
-        uint256 _matchingId,
+        uint64 _matchingId,
         bytes32 _cid,
-        uint256 _filecoinDealId
+        uint64 _filecoinDealId
     );
 
     /// @notice datacap errors
     error AllocatedDatacapExceedsTotalRequirement(
-        uint256 _allocatedDatacap,
-        uint256 _totalDatacapAllocationRequirement
+        uint64 _allocatedDatacap,
+        uint64 _totalDatacapAllocationRequirement
     );
     error AvailableDatacapExceedAllocationThreshold(
-        uint256 availableDatacap,
-        uint256 allocationThreshold
+        uint64 availableDatacap,
+        uint64 allocationThreshold
     );
-    error NextDatacapAllocationInvalid(uint256 _matchingId);
+    error NextDatacapAllocationInvalid(uint64 _matchingId);
     error StoredExceedsAllocatedDatacap(
-        uint256 reallyStored,
-        uint256 allocatedDatacap
+        uint64 reallyStored,
+        uint64 allocatedDatacap
     );
 }

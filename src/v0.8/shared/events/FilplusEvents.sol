@@ -59,7 +59,7 @@ library FilplusEvents {
     event SetDatacapRulesMaxRemainingPercentageForNext(uint64 _newValue);
 
     // Event emitted when the matching commission percentage rule is set
-    event SetMatchingRulesDataswapCommissionPercentage(uint256 _newValue);
+    event SetMatchingRulesDataswapCommissionPercentage(uint8 _newValue);
 
     // Event emitted when the matching commission type rule is set
     event SetMatchingRulesCommissionType(

@@ -16,32 +16,32 @@ pragma solidity ^0.8.21;
 
 library DatasetsEvents {
     /// @notice Event emitted when metadata is approved for a dataset.
-    event DatasetMetadataApproved(uint256 indexed _datasetId);
+    event DatasetMetadataApproved(uint64 indexed _datasetId);
 
     /// @notice Event emitted when metadata is rejected for a dataset.
-    event DatasetMetadataRejected(uint256 indexed _datasetId);
+    event DatasetMetadataRejected(uint64 indexed _datasetId);
 
     /// @notice Event emitted when a dataset is approved.
-    event DatasetApproved(uint256 indexed _datasetId);
+    event DatasetApproved(uint64 indexed _datasetId);
 
     /// @notice Event emitted when a dataset is rejected.
-    event DatasetRejected(uint256 indexed _datasetId);
+    event DatasetRejected(uint64 indexed _datasetId);
 
     /// @notice Event emitted when metadata is submitted for a new dataset.
     event DatasetMetadataSubmitted(
-        uint256 indexed _datasetId,
+        uint64 indexed _datasetId,
         address indexed _provider
     );
 
     /// @notice Event emitted when a proof is submitted for a dataset.
     event DatasetProofSubmitted(
-        uint256 indexed _datasetId,
+        uint64 indexed _datasetId,
         address indexed _provider
     );
 
     /// @notice Event emitted when a dataset is verified.
     event DatasetVerificationSubmitted(
-        uint256 indexed _datasetId,
+        uint64 indexed _datasetId,
         address indexed _verifier
     );
 }
