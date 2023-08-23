@@ -126,4 +126,26 @@ library DatasetProofLIB {
         }
         return proof.datasetSize;
     }
+
+    /// @notice Get submitter of dataset's proofs.
+    /// @param self The dataset from which to retrieve the source dataset proof.
+    /// @return The address of submitter
+    function getDatasetSubmitter(
+        DatasetType.Dataset storage self
+    ) public view returns (address) {
+        return self.proofSubmitter;
+    }
+
+    /// @notice Check if a dataset has submitter
+    /// @param self The dataset from which to retrieve the source dataset proof.
+    /// @param submitter The address being compared.
+    function isDatasetSubmitter(
+        DatasetType.Dataset storage self,
+        address submitter
+    ) public view returns (bool) {
+        if (submitter == self.proofSubmitter) {
+            return true;
+        }
+        return false;
+    }
 }

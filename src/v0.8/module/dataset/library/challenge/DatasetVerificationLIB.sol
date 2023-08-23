@@ -46,6 +46,11 @@ library DatasetVerificationLIB {
         bytes32[][] memory _siblings,
         uint32[] memory _paths
     ) internal returns (bool) {
+        //For each verification submitted by an auditor, the random seed must be different.
+        require(
+            !isDatasetVerificationDuplicate(self, msg.sender, _randomSeed),
+            "Verification is duplicate"
+        );
         require(_randomSeed > 0, "Invalid random seed");
         _requireValidVerification(_randomSeed, _siblings, _paths);
 
@@ -60,6 +65,9 @@ library DatasetVerificationLIB {
             challengeProof.setChallengeProof(_siblings[i], _paths[i]);
             verification.challengeProof.push(challengeProof);
         }
+        // Recording the auditor
+        self.auditors.push(msg.sender);
+
         return true;
     }
 
@@ -98,5 +106,24 @@ library DatasetVerificationLIB {
         DatasetType.Dataset storage self
     ) public view returns (uint16) {
         return self.verificationsCount;
+    }
+
+    /// @notice Check if the verification is a duplicate.
+    /// @param self The dataset for which to retrieve verification details.
+    /// @param _auditor The address of the auditor submitting the verification.
+    /// @param _randomSeed The random value used for selecting the challenge point.
+    function isDatasetVerificationDuplicate(
+        DatasetType.Dataset storage self,
+        address _auditor,
+        uint64 _randomSeed
+    ) public view returns (bool) {
+        for (uint32 i = 0; i < self.auditors.length; i++) {
+            if (self.auditors[i] == _auditor) return true;
+            DatasetType.Verification storage verification = self.verifications[
+                _auditor
+            ];
+            if (verification.randomSeed == _randomSeed) return true;
+        }
+        return false;
     }
 }

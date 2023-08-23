@@ -75,4 +75,30 @@ contract DatasetsModifiers is CarstoreModifiers {
         }
         _;
     }
+    /// @notice The sender of the dataset proof transaction must be the submitter of the proof.
+    modifier onlyDatasetProofSubmitterOrSubmitterNotExsits(
+        uint64 _datasetId,
+        address _sender
+    ) {
+        if (
+            datasets.getDatasetProofCount(
+                _datasetId,
+                DatasetType.DataType.Source
+            ) !=
+            0 ||
+            datasets.getDatasetProofCount(
+                _datasetId,
+                DatasetType.DataType.MappingFiles
+            ) !=
+            0
+        ) {
+            if (datasets.isDatasetProofSubmitter(_datasetId, _sender) != true) {
+                revert Errors.InvalidDatasetProofsSubmitter(
+                    _datasetId,
+                    _sender
+                );
+            }
+        }
+        _;
+    }
 }

@@ -230,43 +230,96 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         );
 
         // After the action, check the updated state.
-
-        // Check proof count.
-        uint64 newProofCount = datasets.getDatasetProofCount(
+        _afterSubmitDatasetProof(
+            caller,
             _datasetId,
-            _dataType
+            _dataType,
+            _leafHashes,
+            _leafSizes,
+            oldProofCount,
+            oldDatasetSize
         );
-        assertEq(newProofCount, oldProofCount + uint64(_leafHashes.length));
+    }
 
-        // Check leaf hashes and sizes.
-        getDatasetProofCountAssertion(_datasetId, _dataType, newProofCount);
-        getDatasetCarsCountAssertion(_datasetId, _dataType, newProofCount);
+    /// @notice After the action, check the updated state.
+    /// @param caller The address of the caller.
+    /// @param _datasetId The ID of the dataset for which to submit proof.
+    /// @param _dataType The data type of the proof.
+    /// @param _leafHashes The leaf hashes of the proof.
+    /// @param _leafSizes The sizes of the leaf hashes.
+    /// @param _oldProofCount A boolean indicating if the proof is completed.
+    /// @param _oldDatasetSize A boolean indicating if the proof is completed.
+    function _afterSubmitDatasetProof(
+        address caller,
+        uint64 _datasetId,
+        DatasetType.DataType _dataType,
+        bytes32[] calldata _leafHashes,
+        uint64[] calldata _leafSizes,
+        uint64 _oldProofCount,
+        uint64 _oldDatasetSize
+    ) internal {
+        // Check proof count.
+        assertEq(
+            datasets.getDatasetProofCount(_datasetId, _dataType),
+            _oldProofCount + uint64(_leafHashes.length)
+        );
+        // assert leves
+        getDatasetProofCountAssertion(
+            _datasetId,
+            _dataType,
+            datasets.getDatasetProofCount(_datasetId, _dataType)
+        );
+        getDatasetCarsCountAssertion(
+            _datasetId,
+            _dataType,
+            datasets.getDatasetProofCount(_datasetId, _dataType)
+        );
+
         getDatasetProofAssertion(
             _datasetId,
             _dataType,
-            oldProofCount,
+            _oldProofCount,
             uint64(_leafHashes.length),
             _leafHashes
         );
         getDatasetCarsAssertion(
             _datasetId,
             _dataType,
-            oldProofCount,
+            _oldProofCount,
             uint64(_leafHashes.length),
             _leafHashes
         );
 
         // Check dataset size.
-        uint64 newDatasetSize = oldDatasetSize;
-        for (uint64 i = 0; i < _leafSizes.length; i++) {
-            newDatasetSize += _leafSizes[i];
-        }
-        getDatasetSizeAssertion(_datasetId, _dataType, newDatasetSize);
+        getDatasetSizeAssertion(
+            _datasetId,
+            _dataType,
+            _getDatasetSizeWithNewProof(_oldDatasetSize, _leafSizes)
+        );
+
+        // Check dataset submitter.
+        getDatasetProofSubmitterAssertion(_datasetId, caller);
 
         // Check if dataset contains car(s).
         isDatasetContainsCarAssertion(_datasetId, _leafHashes[0], true);
         isDatasetContainsCarsAssertion(_datasetId, _leafHashes, true);
+        isDatasetProofSubmitterAssertion(_datasetId, caller, true);
         /// @dev TODO:check state after submit proof,need add method in dataset interface:https://github.com/dataswap/core/issues/71
+    }
+
+    /// @notice Calculate the new size of the target.
+    /// @param _oldDatasetSize The old value of the target.
+    /// @param _leafSizes The _leafSizes array used for updating the size of the target.
+    /// @return The new size value of the target.
+    function _getDatasetSizeWithNewProof(
+        uint64 _oldDatasetSize,
+        uint64[] memory _leafSizes
+    ) internal pure returns (uint64) {
+        uint64 newDatasetSize = _oldDatasetSize;
+        for (uint64 i = 0; i < _leafSizes.length; i++) {
+            newDatasetSize += _leafSizes[i];
+        }
+        return newDatasetSize;
     }
 
     /// @notice Assertion function for submitting dataset verification.
@@ -284,6 +337,13 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
     ) external {
         // Before the action, capture the initial state.
         uint16 oldCount = datasets.getDatasetVerificationsCount(_datasetId);
+
+        isDatasetVerificationDuplicateAssertion(
+            _datasetId,
+            caller,
+            _randomSeed,
+            false
+        );
 
         // Perform the action.
         vm.prank(caller);
@@ -391,6 +451,17 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         for (uint64 i = 0; i < cars.length; i++) {
             assertEq(cars[i], _expectCars[i], "cars not matched");
         }
+    }
+
+    function getDatasetProofSubmitterAssertion(
+        uint64 _datasetId,
+        address _submitter
+    ) public {
+        assertEq(
+            datasets.getDatasetProofSubmitter(_datasetId),
+            _submitter,
+            "invalid submitter"
+        );
     }
 
     /// @notice Assertion function for getting dataset proof count.
@@ -556,6 +627,44 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             datasets.isDatasetContainsCars(_datasetId, _cids),
             _expectIsDatasetContainsCars,
             "isDatasetContainsCars not matched"
+        );
+    }
+
+    /// @notice Assertion function for checking if a _submitter of the dataset proof is the submitter of the dataset proof.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _submitter The submitter to check.
+    /// @param _expectIsDatasetProofSubmitter The expected result, true if _submitter is the submitter of the dataset proof.
+    function isDatasetProofSubmitterAssertion(
+        uint64 _datasetId,
+        address _submitter,
+        bool _expectIsDatasetProofSubmitter
+    ) public {
+        assertEq(
+            datasets.isDatasetProofSubmitter(_datasetId, _submitter),
+            _expectIsDatasetProofSubmitter,
+            "isDatasetProofSubmitter not matched"
+        );
+    }
+
+    /// @notice Assertion function for checking if a _randomSeed is duplicate in dataset or the _auditor is submitted.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _auditor The _auditor to check.
+    /// @param _randomSeed The _randomSeed to check.
+    /// @param _expectIsDatasetVerificationDuplicate The expected result, true if dupulicated of the dataset varification.
+    function isDatasetVerificationDuplicateAssertion(
+        uint64 _datasetId,
+        address _auditor,
+        uint64 _randomSeed,
+        bool _expectIsDatasetVerificationDuplicate
+    ) public {
+        assertEq(
+            datasets.isDatasetVerificationDuplicate(
+                _datasetId,
+                _auditor,
+                _randomSeed
+            ),
+            _expectIsDatasetVerificationDuplicate,
+            "isDatasetVerificationDuplicate not matched"
         );
     }
 

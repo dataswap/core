@@ -41,6 +41,11 @@ interface IFilplus {
 
     function setDatasetRuleMaxReplicasPerCity(uint16 _newValue) external;
 
+    // set maximum proportion of dataset mapping files
+    function setDatasetRuleMaxProportionOfMappingFilesToDataset(
+        uint8 _newValue
+    ) external;
+
     function setDatasetRuleMinSPsPerDataset(uint16 _newValue) external;
 
     function setDatasetRuleMaxReplicasPerSP(uint16 _newValue) external;
@@ -76,6 +81,11 @@ interface IFilplus {
         returns (uint16);
 
     function datasetRuleMaxReplicasPerCity() external view returns (uint16);
+
+    function datasetRuleMaxProportionOfMappingFilesToDataset()
+        external
+        view
+        returns (uint8);
 
     function datasetRuleMinSPsPerDataset() external view returns (uint16);
 

@@ -81,6 +81,15 @@ contract FilplusAssertion is DSTest, Test, IFilplusAssertion {
         datasetRuleMaxReplicasPerCityAssertion(_newValue);
     }
 
+    /// @notice Sets the maximum proportion of dataset mapping files and asserts the value.
+    /// @param _newValue The new max proportion of mapping files to dataset value.
+    function setDatasetRuleMaxProportionOfMappingFilesToDatasetAssertion(
+        uint8 _newValue
+    ) external {
+        filplus.setDatasetRuleMaxProportionOfMappingFilesToDataset(_newValue);
+        datasetRuleMaxProportionOfMappingFilesToDatasetAssertion(_newValue);
+    }
+
     /// @notice Sets the minimum number of storage providers (SPs) per dataset and asserts the value.
     /// @param _newValue The new minimum SPs per dataset value.
     function setDatasetRuleMinSPsPerDatasetAssertion(
@@ -184,6 +193,17 @@ contract FilplusAssertion is DSTest, Test, IFilplusAssertion {
         uint16 _expectCount
     ) public {
         assertEq(filplus.datasetRuleMaxReplicasPerCity(), _expectCount);
+    }
+
+    /// @notice Asserts the maximum proportion of mapping files to dataset.
+    /// @param _expectCount The expected maximum proportion of mapping files to dataset value.
+    function datasetRuleMaxProportionOfMappingFilesToDatasetAssertion(
+        uint8 _expectCount
+    ) public {
+        assertEq(
+            filplus.datasetRuleMaxProportionOfMappingFilesToDataset(),
+            _expectCount
+        );
     }
 
     /// @notice Asserts the minimum number of storage providers (SPs) per dataset.
