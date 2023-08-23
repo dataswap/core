@@ -1,5 +1,5 @@
 /*******************************************************************************
- *   (c) 2023 DataSwap
+ *   (c) 2023 Dataswap
  *
  *  Licensed under the GNU General Public License, Version 3.0 or later (the "License");
  *  you may not use this file except in compliance with the License.
