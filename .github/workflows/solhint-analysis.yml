@@ -1,0 +1,37 @@
+name: Solhint Analysis
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  solhint:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        solidity-version: [0.8.21]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Solhint
+        run: npm install -g solhint
+
+      - name: Run Solhint Analysis
+        run: |
+          echo "Running Solhint analysis..."
+          solhint "**/*.sol"
+
+      - name: Display Completed Message
+        run: echo "Solhint analysis completed."

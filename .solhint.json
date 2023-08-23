@@ -3,6 +3,11 @@
 	"rules": {
 	  "prettier/prettier": "error",
 	  "compiler-version": ["error", "^0.8.0"],
-	  "func-named-parameters": "off"
+	  "func-named-parameters": "off",
+	  "no-unused-vars": "error",
+	  "max-states-count": ["error", 18],
+	  "avoid-low-level-calls": "error",
+	  "reentrancy": "error",
+	  "not-rely-on-time": "error"
 	}
 }
