@@ -31,10 +31,13 @@ import {MatchingsModifiers} from "src/v0.8/shared/modifiers/MatchingsModifiers.s
 import {MatchingLIB} from "src/v0.8/module/matching/library/MatchingLIB.sol";
 import {MatchingStateMachineLIB} from "src/v0.8/module/matching/library/MatchingStateMachineLIB.sol";
 import {MatchingBidsLIB} from "src/v0.8/module/matching/library/MatchingBidsLIB.sol";
+import {ArraysLIB} from "src/v0.8/shared/library/ArraysLIB.sol";
+
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
 
 /// @title Matchings Base Contract
 /// @notice This contract serves as the base for managing matchings, their states, and associated actions.
@@ -48,6 +51,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
     using MatchingLIB for MatchingType.Matching;
     using MatchingStateMachineLIB for MatchingType.Matching;
     using MatchingBidsLIB for MatchingType.Matching;
+    using ArraysLIB for uint64[];
 
     /// @notice  Declare private variables
     uint64 public matchingsCount;
@@ -88,7 +92,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
     function _beforeCompleteMatching(uint64 _matchingId) internal {
         bytes32[] memory cars = getMatchingCars(_matchingId);
         for (uint64 i; i < cars.length; i++) {
-            carstore.addCarReplica(cars[i], _matchingId);
+            carstore.reportCarReplicaMetched(cars[i], _matchingId);
         }
     }
 
@@ -115,11 +119,9 @@ contract Matchings is IMatchings, MatchingsModifiers {
         }
     }
 
-    /// @notice  Function for publishing a new matching
-    function publishMatching(
+    function createMatching(
         uint64 _datasetId,
-        bytes32[] memory _cars,
-        uint64 _size,
+        uint64 _region,
         DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID,
         MatchingType.BidSelectionRule _bidSelectionRule,
@@ -128,23 +130,31 @@ contract Matchings is IMatchings, MatchingsModifiers {
         uint64 _storageCompletionPeriodBlocks,
         uint256 _biddingThreshold,
         string memory _additionalInfo
-    ) external onlyRole(RolesType.DATASET_PROVIDER) {
+    ) external onlyRole(RolesType.DATASET_PROVIDER) returns (uint64) {
         require(
-            isMatchingTargetMeetsFilPlusRequirements(
+            datasets.getDatasetState(_datasetId) ==
+                DatasetType.State.DatasetApproved,
+            "datasetId is not approved!"
+        );
+
+        require(
+            isMappingFilesMeetsFilPlusRequirements(
                 _datasetId,
-                _cars,
-                _size,
                 _dataType,
                 _associatedMappingFilesMatchingID
             ),
-            "Target invalid"
+            "invalid mapping files"
         );
+
+        // TODO: Check whether the mappingfiles have been successfully stored.
+
         matchingsCount++;
+
         MatchingType.Matching storage matching = matchings[matchingsCount];
         matching.target = MatchingType.Target({
             datasetId: _datasetId,
-            cars: _cars,
-            size: _size,
+            cars: new bytes32[](0),
+            size: 0,
             dataType: _dataType,
             associatedMappingFilesMatchingID: _associatedMappingFilesMatchingID
         });
@@ -156,9 +166,70 @@ contract Matchings is IMatchings, MatchingsModifiers {
         matching.additionalInfo = _additionalInfo;
         matching.initiator = msg.sender;
         matching.createdBlockNumber = uint64(block.number);
+        matching.region = _region;
 
-        matching._publishMatching();
-        emit MatchingsEvents.MatchingPublished(matchingsCount, msg.sender);
+        emit MatchingsEvents.MatchingCreated(matchingsCount, msg.sender);
+        return matchingsCount;
+    }
+
+    /// @notice  Function for publishing cars for a matching
+    function publishMatching(
+        uint64 _matchingId,
+        uint64 _datasetId,
+        bytes32[] memory _cars,
+        bool complete
+    ) external onlyRole(RolesType.DATASET_PROVIDER) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        require((matching.initiator == msg.sender), "Initiator can publich");
+
+        require(
+            (matching.target.datasetId == _datasetId),
+            "dataset id invalid"
+        );
+
+        require(
+            isMatchingTargetMeetsFilPlusRequirements(
+                _datasetId,
+                _cars,
+                matching.region
+            ),
+            "Target invalid"
+        );
+
+        require(
+            datasets.getDatasetState(_datasetId) ==
+                DatasetType.State.DatasetApproved,
+            "datasetId is not approved!"
+        );
+
+        require(
+            datasets.isDatasetContainsCars(_datasetId, _cars),
+            "Invalid cids!"
+        );
+
+        // Initialize the replica and set the state of the replica to "None",
+        // indicating that the replica has started matching,
+        // and it can be determined whether the replica has been resubmitted redundantly.
+        for (uint64 i = 0; i < _cars.length; i++) {
+            carstore.addCarReplica(_cars[i], _matchingId);
+        }
+
+        // check if car duplicate
+        uint64 _size = 0;
+        for (uint64 i = 0; i < _cars.length; i++) {
+            _size += carstore.getCarSize(_cars[i]);
+        }
+
+        for (uint64 i; i < _cars.length; i++) {
+            matching.target.cars.push(_cars[i]);
+        }
+
+        matching.target.size += _size;
+
+        if (complete) {
+            matching._publishMatching();
+            emit MatchingsEvents.MatchingPublished(matchingsCount, msg.sender);
+        }
     }
 
     /// @notice  Function for pausing a matching
@@ -289,6 +360,54 @@ contract Matchings is IMatchings, MatchingsModifiers {
         return matching.initiator;
     }
 
+    /// @notice  Function for getting the region of a matching
+    function getMatchingRegion(
+        uint64 _matchingId
+    ) public view returns (uint64) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        return matching.region;
+    }
+
+    /// @notice  Function for getting the city of a matching
+    function getMatchingCity(uint64 _matchingId) public view returns (uint64) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        (uint64 city, , ) = roles.getStorageProviderInfo(matching.winner);
+        return city;
+    }
+
+    /// @notice  Function for getting the citys of a matchings
+    function getMatchingCitys(
+        uint64[] memory _matchingIds
+    ) public view returns (uint64[] memory) {
+        uint64[] memory buf = new uint64[](_matchingIds.length);
+        for (uint64 i = 0; i < _matchingIds.length; i++) {
+            buf[i] = getMatchingCity(_matchingIds[i]);
+        }
+        uint64[] memory citys = buf.deDuplicate();
+        return citys;
+    }
+
+    /// @notice  Function for getting the country of a matching
+    function getMatchingCountry(
+        uint64 _matchingId
+    ) public view returns (uint64) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        (, uint64 country, ) = roles.getStorageProviderInfo(matching.winner);
+        return country;
+    }
+
+    /// @notice  Function for getting the countrys of a matchings
+    function getMatchingCountrys(
+        uint64[] memory _matchingIds
+    ) public view returns (uint64[] memory) {
+        uint64[] memory buf = new uint64[](_matchingIds.length);
+        for (uint64 i = 0; i < _matchingIds.length; i++) {
+            buf[i] = getMatchingCountry(_matchingIds[i]);
+        }
+        uint64[] memory countrys = buf.deDuplicate();
+        return countrys;
+    }
+
     /// @notice  Function for getting the state of a matching
     function getMatchingState(
         uint64 _matchingId
@@ -378,7 +497,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
     function isMatchingTargetValid(
         uint64 _datasetId,
         bytes32[] memory _cars,
-        uint64 _size,
+        uint64 _region,
         DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID
     ) public view returns (bool) {
@@ -391,7 +510,6 @@ contract Matchings is IMatchings, MatchingsModifiers {
             datasets.isDatasetContainsCars(_datasetId, _cars),
             "Invalid cids!"
         );
-        require(_size > 0, "Invalid size!");
         if (_dataType == DatasetType.DataType.Source) {
             (
                 uint64 datasetId,
@@ -409,9 +527,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
                 isMatchingTargetMeetsFilPlusRequirements(
                     _datasetId,
                     _cars,
-                    _size,
-                    _dataType,
-                    _associatedMappingFilesMatchingID
+                    _region
                 ),
                 "Not meets filplus requirements"
             );
@@ -428,21 +544,112 @@ contract Matchings is IMatchings, MatchingsModifiers {
             isMatchingTargetMeetsFilPlusRequirements(
                 matching.target.datasetId,
                 matching.target.cars,
-                matching.target.size,
-                matching.target.dataType,
-                matching.target.associatedMappingFilesMatchingID
+                matching.region
             );
     }
 
     /// @notice Check if a matching meets the requirements of Fil+.
     function isMatchingTargetMeetsFilPlusRequirements(
         uint64 /*_datasetId*/,
-        bytes32[] memory /*_cars*/,
-        uint64 /*_size*/,
-        DatasetType.DataType /*_dataType*/,
-        uint64 /*_associatedMappingFilesMatchingID*/
-    ) public pure returns (bool) {
+        bytes32[] memory _cars,
+        uint64 region
+    ) public view returns (bool) {
         //TODO https://github.com/dataswap/core/issues/29
+        for (uint64 i = 0; i < _cars.length; i++) {
+            if (!isMatchingCarMeetsFilPlusRequirements(_cars[i], region)) {
+                return false;
+            }
+
+            // TODO: Check other FilPlus rules.
+        }
+        return true;
+    }
+
+    /// @notice Check if a matching meets the region's requirements of Fil+.
+    function isMatchingCarMeetsFilPlusRequirements(
+        bytes32 _car,
+        uint64 _region
+    ) public view returns (bool) {
+        // If there are unfinished matching replicas for the car,
+        // new matching cannot be initiated.
+        // A car can only have one match ongoing in the same region at the same time.
+        uint64[] memory validMatchs = carstore.getCarMatchings(
+            _car,
+            [true, true, true, false, false, false]
+        );
+
+        // If the effective replica count of the car exceeds carRuleMaxCarReplicas, then this car is not allowed to create new copies.
+        if (validMatchs.length >= filplus.carRuleMaxCarReplicas()) {
+            return false;
+        }
+
+        if (filplus.datasetRuleMinRegionsPerDataset() < validMatchs.length) {
+            for (uint64 j = 0; j < validMatchs.length; j++) {
+                if (getMatchingRegion(validMatchs[j]) == _region) {
+                    return false;
+                }
+            }
+        } else {
+            for (uint64 j = 0; j < validMatchs.length; j++) {
+                // If there are unfinished matching replicas for the car,
+                // new matching cannot be initiated.
+                // A car can only have one match ongoing in the same region at the same time.
+                if (
+                    (getMatchingRegion(validMatchs[j]) == _region) &&
+                    carstore.getCarReplicaState(_car, validMatchs[j]) ==
+                    CarReplicaType.State.None
+                ) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /// @notice Check if a mapping files meets the requirements of Fil+.
+    function isMappingFilesMeetsFilPlusRequirements(
+        uint64 /*_datasetId*/,
+        DatasetType.DataType _dataType,
+        uint64 _associatedMappingFilesMatchingID
+    ) public view returns (bool) {
+        // TODO: check msg.sender must be the dataset proofSubmitter.
+        if (_dataType == DatasetType.DataType.MappingFiles) {
+            return true;
+        }
+
+        bytes32[] memory cars = getMatchingCars(
+            _associatedMappingFilesMatchingID
+        );
+
+        // TODO: After completing the testing code, this comment here needs to be unblocked,
+        // which is used to verify whether _associatedMappingFilesMatchingID matches perfectly with the 'car' in the dataset.
+
+        //uint64 datasetMappingFilesCarCount = datasets.getDatasetCarsCount(
+        //    _datasetId,
+        //    DatasetType.DataType.MappingFiles
+        //);
+
+        //if (cars.length != datasetMappingFilesCarCount) {
+        //    return false;
+        //}
+
+        // The status of all car replicas in the mapping files must be "Stored".
+        for (uint64 i = 0; i < cars.length; i++) {
+            //if (carstore.getCarDatasetId(cars[i]) != _datasetId) {
+            //    return false;
+            //}
+            if (
+                carstore.getCarReplicaState(
+                    cars[i],
+                    _associatedMappingFilesMatchingID
+                    //) != CarReplicaType.State.Stored
+                ) != CarReplicaType.State.Matched
+            ) {
+                return false;
+            }
+        }
+
         return true;
     }
 }

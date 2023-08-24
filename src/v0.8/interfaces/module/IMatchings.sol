@@ -27,10 +27,9 @@ interface IMatchings {
     /// @notice  Function for bidding on a matching
     function bidding(uint64 _matchingId, uint256 _amount) external;
 
-    function publishMatching(
+    function createMatching(
         uint64 _datasetId,
-        bytes32[] memory _cars,
-        uint64 _size,
+        uint64 _region,
         DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID,
         MatchingType.BidSelectionRule _bidSelectionRule,
@@ -39,6 +38,13 @@ interface IMatchings {
         uint64 _storageCompletionPeriodBlocks,
         uint256 _biddingThreshold,
         string memory _additionalInfo
+    ) external returns (uint64);
+
+    function publishMatching(
+        uint64 _matchingId,
+        uint64 _datasetId,
+        bytes32[] memory _cars,
+        bool complete
     ) external;
 
     /// @notice  Function for pausing a matching
@@ -79,6 +85,29 @@ interface IMatchings {
     function getMatchingInitiator(
         uint64 _matchingId
     ) external view returns (address);
+
+    /// @notice  Function for getting the region of a matching
+    function getMatchingRegion(
+        uint64 _matchingId
+    ) external view returns (uint64);
+
+    /// @notice  Function for getting the city of a matching
+    function getMatchingCity(uint64 _matchingId) external view returns (uint64);
+
+    /// @notice  Function for getting the citys of a matchings
+    function getMatchingCitys(
+        uint64[] memory _matchingIds
+    ) external view returns (uint64[] memory);
+
+    /// @notice  Function for getting the country of a matching
+    function getMatchingCountry(
+        uint64 _matchingId
+    ) external view returns (uint64);
+
+    /// @notice  Function for getting the countrys of a matchings
+    function getMatchingCountrys(
+        uint64[] memory _matchingIds
+    ) external view returns (uint64[] memory);
 
     /// @notice  Function for getting the state of a matching
     function getMatchingState(
@@ -152,7 +181,18 @@ interface IMatchings {
     function isMatchingTargetMeetsFilPlusRequirements(
         uint64 _datasetId,
         bytes32[] memory _cars,
-        uint64 _size,
+        uint64 _region
+    ) external view returns (bool);
+
+    /// @notice Check if a matching meets the region's requirements of Fil+.
+    function isMatchingCarMeetsFilPlusRequirements(
+        bytes32 _car,
+        uint64 _region
+    ) external view returns (bool);
+
+    /// @notice Check if a mapping files meets the requirements of Fil+.
+    function isMappingFilesMeetsFilPlusRequirements(
+        uint64 /*_datasetId*/,
         DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID
     ) external view returns (bool);

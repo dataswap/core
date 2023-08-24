@@ -32,11 +32,52 @@ library CarReplicaLIB {
         CarReplicaType.Replica storage self,
         uint64 _filecoinDealId
     ) internal {
+        //require(
+        //    _filecoinDealId != 0 && self.filecoinDealId != _filecoinDealId,
+        //    "Invalid params"
+        //);
+        self.filecoinDealId = _filecoinDealId;
+    }
+
+    function _setMatchingId(
+        CarReplicaType.Replica storage self,
+        uint64 _matchingID
+    ) internal {
         require(
-            _filecoinDealId != 0 && self.filecoinDealId != _filecoinDealId,
+            _matchingID != 0 && self.matchingId != _matchingID,
             "Invalid params"
         );
-        self.filecoinDealId = _filecoinDealId;
+        self.matchingId = _matchingID;
+    }
+
+    function _setRegion(
+        CarReplicaType.Replica storage self,
+        uint16 _region
+    ) internal {
+        //require(_region != 0, "Invalid params");
+        self.region = _region;
+    }
+
+    function _setCountry(
+        CarReplicaType.Replica storage self,
+        uint16 _country
+    ) internal {
+        //require(_country != 0, "Invalid params");
+        self.country = _country;
+    }
+
+    function _setCity(
+        CarReplicaType.Replica storage self,
+        uint32 _city
+    ) internal {
+        //require(_city != 0, "Invalid params");
+        self.city = _city;
+    }
+
+    /// @notice Init the state for a car replica.
+    /// @param self The reference to the replica storage.
+    function _initState(CarReplicaType.Replica storage self) internal {
+        self.state = CarReplicaType.State.None;
     }
 
     /// @notice Emit an event for a car replica, triggering state transitions.

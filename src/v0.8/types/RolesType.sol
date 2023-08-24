@@ -47,4 +47,11 @@ library RolesType {
 
     /// @notice Bytes32 constant representing the role of a compute client.
     bytes32 public constant COMPUTE_CLIENT = keccak256("CC");
+
+    /// @notice The structure for basic information about the storage provider.
+    struct StorageProvider {
+        uint64 city; // The city where the storage provider is located.
+        uint64 contry; // The country where the storage provider is located.
+        uint64 region; // The region where the storage provider is located.
+    }
 }

@@ -1,4 +1,4 @@
-/*******************************************************************************
+t /*******************************************************************************
  *   (c) 2023 Dataswap
  *
  *  Licensed under the GNU General Public License, Version 3.0 or later (the "License");
@@ -33,15 +33,36 @@ library CarLIB {
     ///      This should be called by an external dataset contract after a dataset be approved.
     /// @param self The reference to the car storage.
     /// @param _matchingId The matching ID for the new replica.
-    function _addRepica(
+    function _registerRepica(
         CarReplicaType.Car storage self,
+        uint16 replicaIndex,
         uint64 _matchingId
     ) internal {
         require(_matchingId != 0, "Invalid matching id");
         require(!_hasReplica(self, _matchingId), "Replica already exists");
-        self.replicasCount++;
-        CarReplicaType.Replica storage replica = self.replicas[_matchingId];
-        replica._emitEvent(CarReplicaType.Event.MatchingCompleted);
+        if (replicaIndex >= self.replicas.length) {
+            self.replicas.push(
+                CarReplicaType.Replica({
+                    filecoinDealId: 0,
+                    state: CarReplicaType.State.None,
+                    matchingId: _matchingId,
+                    region: 0,
+                    country: 0,
+                    city: 0
+                })
+            );
+        } else {
+            CarReplicaType.Replica storage replica = self.replicas[
+                replicaIndex
+            ];
+            replica._setMatchingId(_matchingId);
+            replica._setFilecoinDealId(0);
+            replica._setRegion(0);
+            replica._setCountry(0);
+            replica._setCity(0);
+            replica._initState();
+        }
+        self.matchings.push(_matchingId);
     }
 
     /// @notice Post an event for a car's replica based on the matching ID, triggering state transitions.
@@ -90,8 +111,8 @@ library CarLIB {
     ) internal {
         require(_matchingId != 0, "Invalid matching id");
         require(_filecoinDealId != 0, "Invalid filecoin deal id");
-        require(_hasReplica(self, _matchingId), "Replica is not exists");
-        CarReplicaType.Replica storage replica = self.replicas[_matchingId];
+        uint16 index = _getReplicaIndex(self, _matchingId);
+        CarReplicaType.Replica storage replica = self.replicas[index];
         replica._setFilecoinDealId(_filecoinDealId);
 
         if (
@@ -112,6 +133,18 @@ library CarLIB {
         }
     }
 
+    function _setRegion(
+        CarReplicaType.Car storage self,
+        uint64 _matchingId,
+        uint16 _region
+    ) internal {
+        require(_matchingId != 0, "Invalid matching id");
+        require(_region != 0, "Invalid region");
+        uint16 index = _getReplicaIndex(self, _matchingId);
+        CarReplicaType.Replica storage replica = self.replicas[index];
+        replica._setRegion(_region);
+    }
+
     /// @notice Get the dataset ID associated with a car.
     /// @dev Retrieves the dataset ID associated with the car.
     /// @param self The reference to the car storage.
@@ -122,6 +155,39 @@ library CarLIB {
         return self.datasetId;
     }
 
+    /// @notice Get the valid matchings of a car.
+    /// @dev Retrieves the valid machings of a car.
+    /// @param self The reference to the car storage.
+    /// @param states The replica states that needs to be retrieved.
+    /// @return The valid matchings id of the car.
+    function _getMatchings(
+        CarReplicaType.Car storage self,
+        //CarReplicaType.State[] memory states
+        bool[6] memory states
+    ) internal view returns (uint64[] memory) {
+        uint64[] memory validMatchings = new uint64[](self.matchings.length);
+        uint64 count = 0;
+        for (uint64 i = 0; i < self.matchings.length; i++) {
+            CarReplicaType.State state = _getReplicaState(
+                self,
+                self.matchings[i]
+            );
+            for (uint64 j = 0; j < states.length; j++) {
+                if (states[j]) {
+                    if (state == CarReplicaType.State(j)) {
+                        validMatchings[count] = self.matchings[i];
+                        count++;
+                    }
+                }
+            }
+        }
+        uint64[] memory res = new uint64[](count);
+        for (uint64 i = 0; i < count; i++) {
+            res[i] = validMatchings[i];
+        }
+        return res;
+    }
+
     /// @notice Get the count of replicas associated with a car.
     /// @dev Retrieves the count of replicas associated with the car.
     /// @param self The reference to the car storage.
@@ -129,7 +195,7 @@ library CarLIB {
     function _getRepicasCount(
         CarReplicaType.Car storage self
     ) internal view returns (uint16) {
-        return self.replicasCount;
+        return uint16(self.replicas.length);
     }
 
     /// @notice Get the Filecoin deal ID associated with a specific replica of a car.
@@ -161,6 +227,84 @@ library CarLIB {
         return replica.state;
     }
 
+    function _getReplicaIndex(
+        CarReplicaType.Car storage self,
+        uint64 _matchingId
+    ) internal view returns (uint16) {
+        require(_matchingId != 0, "Invalid matching id");
+        require(_hasReplica(self, _matchingId), "Replica is not exists");
+        return self.replicasIndex[_matchingId];
+    }
+
+    function _getReplicaRegions(
+        CarReplicaType.Car storage self
+    ) internal view returns (uint16[] memory) {
+        uint16[] memory buf = new uint16[](self.replicas.length);
+        uint16 count = 0;
+        for (uint16 i = 0; i < self.replicas.length; i++) {
+            if (
+                self.replicas[i].state != CarReplicaType.State.None &&
+                self.replicas[i].state != CarReplicaType.State.Matched &&
+                self.replicas[i].state != CarReplicaType.State.Stored
+            ) {
+                buf[count] = self.replicas[i].region;
+                count++;
+            }
+        }
+
+        uint16[] memory regions = new uint16[](count);
+        for (uint16 i = 0; i < count; i++) {
+            regions[i] = buf[i];
+        }
+        return regions;
+    }
+
+    function _getReplicaCountrys(
+        CarReplicaType.Car storage self
+    ) internal view returns (uint16[] memory) {
+        uint16[] memory buf = new uint16[](self.replicas.length);
+        uint16 count = 0;
+        for (uint16 i = 0; i < self.replicas.length; i++) {
+            if (
+                self.replicas[i].state != CarReplicaType.State.None &&
+                self.replicas[i].state != CarReplicaType.State.Matched &&
+                self.replicas[i].state != CarReplicaType.State.Stored
+            ) {
+                buf[count] = self.replicas[i].country;
+                count++;
+            }
+        }
+
+        uint16[] memory countrys = new uint16[](count);
+        for (uint16 i = 0; i < count; i++) {
+            countrys[i] = buf[i];
+        }
+        return countrys;
+    }
+
+    function _getReplicaCitys(
+        CarReplicaType.Car storage self
+    ) internal view returns (uint32[] memory) {
+        uint32[] memory buf = new uint32[](self.replicas.length);
+        uint16 count = 0;
+        for (uint16 i = 0; i < self.replicas.length; i++) {
+            if (
+                self.replicas[i].state != CarReplicaType.State.None &&
+                self.replicas[i].state != CarReplicaType.State.Matched &&
+                self.replicas[i].state != CarReplicaType.State.Stored
+            ) {
+                buf[count] = self.replicas[i].city;
+                count++;
+            }
+        }
+
+        uint32[] memory citys = new uint32[](count);
+        for (uint16 i = 0; i < count; i++) {
+            citys[i] = buf[i];
+        }
+        return citys;
+    }
+
     /// @notice Check if a replica with a specific matching ID exists for a car.
     /// @dev Checks whether a replica with the given matching ID exists for the car.
     /// @param self The reference to the car storage.
@@ -171,7 +315,37 @@ library CarLIB {
         uint64 _matchingId
     ) internal view returns (bool) {
         require(_matchingId != 0, "Invalid matching id");
-        CarReplicaType.Replica storage replica = self.replicas[_matchingId];
-        return replica.state != CarReplicaType.State.None;
+        require(
+            self.replicasIndex[_matchingId] < self.replicas.length,
+            "Invalid replica index"
+        );
+        if (
+            self.replicas[self.replicasIndex[_matchingId]].matchingId ==
+            _matchingId
+        ) {
+            return true;
+        }
+        return false;
+    }
+
+    function _getReplicaIndexCanRegister(
+        CarReplicaType.Car storage self,
+        uint16 max
+    ) internal view returns (bool, uint16) {
+        for (uint16 i = 0; i < self.replicas.length; i++) {
+            if (
+                self.replicas[i].state != CarReplicaType.State.None &&
+                self.replicas[i].state != CarReplicaType.State.Matched &&
+                self.replicas[i].state != CarReplicaType.State.Stored
+            ) {
+                return (true, i);
+            }
+        }
+
+        if (max < self.replicas.length) {
+            return (true, uint16(self.replicas.length));
+        }
+
+        return (false, max);
     }
 }

@@ -39,7 +39,7 @@ contract Filplus is IFilplus, CommonModifiers {
 
     uint16 public datasetRuleDefaultMaxReplicasPerCountry; // Default maximum replicas allowed per country.
 
-    mapping(bytes32 => uint16) private datasetRuleMaxReplicasInCountries; // Maximum replicas allowed per country.
+    mapping(uint64 => uint16) private datasetRuleMaxReplicasInCountries; // Maximum replicas allowed per country.
 
     uint16 public datasetRuleMaxReplicasPerCity; // Maximum replicas allowed per city (e.g., 1).
 
@@ -96,7 +96,7 @@ contract Filplus is IFilplus, CommonModifiers {
 
     // Public getter function to access datasetRuleMaxReplicasInCountries
     function getDatasetRuleMaxReplicasInCountry(
-        bytes32 _countryCode
+        uint64 _countryCode
     ) public view returns (uint16) {
         if (datasetRuleMaxReplicasInCountries[_countryCode] == 0) {
             return datasetRuleDefaultMaxReplicasPerCountry;
@@ -130,7 +130,7 @@ contract Filplus is IFilplus, CommonModifiers {
     }
 
     function setDatasetRuleMaxReplicasInCountry(
-        bytes32 _countryCode,
+        uint64 _countryCode,
         uint16 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) onlyNotZero(_newValue) {
         datasetRuleMaxReplicasInCountries[_countryCode] = _newValue;

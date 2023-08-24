@@ -20,6 +20,12 @@ pragma solidity ^0.8.21;
 library MatchingsEvents {
     /// @notice Declare events for external monitoring
 
+    // Event emitted when matching is created.
+    event MatchingCreated(
+        uint64 indexed _matchingId,
+        address indexed _submitter
+    );
+
     // Event emitted when a matching is published
     event MatchingPublished(
         uint64 indexed matchingId,

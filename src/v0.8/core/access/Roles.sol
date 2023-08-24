@@ -22,6 +22,8 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import {AccessControlEnumerable} from "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+///type
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 
 /// @title Role Contract
 /// @notice This contract defines the role-based access control for various roles within the system.
@@ -31,6 +33,8 @@ contract Roles is IRoles, Ownable, Ownable2Step, AccessControlEnumerable {
     constructor() {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
+
+    mapping(address => RolesType.StorageProvider) internal sps;
 
     ///@dev The new owner accepts the ownership transfer.
     function acceptOwnership() public override(IRoles, Ownable2Step) {
@@ -81,5 +85,15 @@ contract Roles is IRoles, Ownable, Ownable2Step, AccessControlEnumerable {
         address _newOwner
     ) internal override(Ownable, Ownable2Step) {
         super._transferOwnership(_newOwner);
+    }
+
+    /// @notice Get storage provider information.
+    /// @param _sp The address of storage provider.
+    /// @return city,county,region of sp.
+    function getStorageProviderInfo(
+        address _sp
+    ) public view returns (uint64, uint64, uint64) {
+        RolesType.StorageProvider storage sp = sps[_sp];
+        return (sp.city, sp.contry, sp.region);
     }
 }

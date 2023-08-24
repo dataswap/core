@@ -59,6 +59,12 @@ interface ICarstore {
         uint64 _filecoinDealId
     ) external;
 
+    /// @notice Report that matched state for a replica.
+    /// @dev This function allows reporting that the matched state for a replica.
+    /// @param _cid Car CID associated with the replica.
+    /// @param _matchingId Matching ID of the replica.
+    function reportCarReplicaMetched(bytes32 _cid, uint64 _matchingId) external;
+
     /// @notice Report that storage of a replica has been slashed.
     /// @dev This function allows reporting that the storage of a replica has been slashed.
     /// @param _cid Car CID associated with the replica.
@@ -90,6 +96,15 @@ interface ICarstore {
     /// @return The dataset ID of the car.
     /// NOTE: a car only belongs a datasets
     function getCarDatasetId(bytes32 _cid) external view returns (uint64);
+
+    /// @notice Get the valid machings of a car.
+    /// @param _cid Car CID.
+    /// @param _states The replica states that needs to be retrieved.
+    /// @return The valid matchings id of the car.
+    function getCarMatchings(
+        bytes32 _cid,
+        bool[6] memory _states
+    ) external view returns (uint64[] memory);
 
     /// @notice Get the replica details associated with a car.
     /// @param _cid Car CID associated with the replica.
@@ -136,6 +151,13 @@ interface ICarstore {
         bytes32 _cid,
         uint64 _matchingId
     ) external view returns (bool);
+
+    /// @notice Check if a None state replica exists within a car.
+    /// @dev This function returns whether a None state replica within a car or not.
+    /// @param _cid Car CID to check.
+    //function hasCarReplicaWithNoneState(
+    //    bytes32 _cid
+    //) external view returns (bool);
 
     /// @notice Check if multiple cars exist based on their CIDs.
     /// @param _cids Array of car CIDs to check.

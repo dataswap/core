@@ -76,6 +76,7 @@ library MatchingType {
     /// @notice Struct representing a dataset matching.
     struct Matching {
         Target target; // Matching target details
+        uint64 region;
         BidSelectionRule bidSelectionRule;
         uint64 biddingDelayBlockCount; // Number of blocks to delay bidding
         uint64 biddingPeriodBlockCount; // Number of blocks for bidding period

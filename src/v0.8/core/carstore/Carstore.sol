@@ -30,12 +30,16 @@ import {CarstoreBase} from "src/v0.8/core/carstore/abstract/CarstoreBase.sol";
 ///type
 import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
+import {ArraysLIB, ArraysUINT32LIB, ArraysUINT16LIB} from "src/v0.8/shared/library/ArraysLIB.sol";
 
 /// @title CarsStorageBase
 /// @notice This contract allows adding cars and managing their associated replicas.
 /// @dev This contract provides functionality for managing car data and associated replicas.
 contract Carstore is CarstoreBase {
     using CarLIB for CarReplicaType.Car;
+    using ArraysLIB for uint64[];
+    using ArraysUINT32LIB for uint32[];
+    using ArraysUINT16LIB for uint16[];
 
     // solhint-disable-next-line
     constructor(
@@ -85,6 +89,7 @@ contract Carstore is CarstoreBase {
     /// @param _matchingId Matching ID for the new replica.
     function addCarReplica(
         bytes32 _cid,
+        //uint16 /*_region*/,
         uint64 _matchingId
     )
         external
@@ -93,7 +98,11 @@ contract Carstore is CarstoreBase {
         onlyCarReplicaNotExist(_cid, _matchingId)
     {
         CarReplicaType.Car storage car = cars[_cid];
-        car._addRepica(_matchingId);
+        (bool ok, uint16 replicaIndex) = car._getReplicaIndexCanRegister(
+            filplus.datasetRuleMinTotalReplicasPerDataset()
+        );
+        require(ok, "replica is full");
+        car._registerRepica(replicaIndex, _matchingId);
 
         emit CarstoreEvents.CarReplicaAdded(_cid, _matchingId);
     }
@@ -122,6 +131,28 @@ contract Carstore is CarstoreBase {
             _cid,
             _matchingId,
             CarReplicaType.Event.StorageDealExpired
+        );
+        emit CarstoreEvents.CarReplicaExpired(_cid, _matchingId);
+    }
+
+    /// @notice Report that matched state for a replica.
+    /// @dev This function allows reporting that the matched state for a replica.
+    /// @param _cid Car CID associated with the replica.
+    /// @param _matchingId Matching ID of the replica.
+    function reportCarReplicaMetched(
+        bytes32 _cid,
+        uint64 _matchingId
+    )
+        external
+        onlyCarExist(_cid)
+        onlyNotZero(_matchingId)
+        onlyCarReplicaExist(_cid, _matchingId)
+        onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.None)
+    {
+        _emitRepicaEvent(
+            _cid,
+            _matchingId,
+            CarReplicaType.Event.MatchingCompleted
         );
         emit CarstoreEvents.CarReplicaExpired(_cid, _matchingId);
     }
@@ -205,6 +236,24 @@ contract Carstore is CarstoreBase {
         return car._getDatasetId();
     }
 
+    /// @notice Get the valid machings of a car.
+    /// @param _cid Car CID.
+    /// @param _states The replica states that needs to be retrieved.
+    /// @return The valid matchings id of the car.
+    function getCarMatchings(
+        bytes32 _cid,
+        bool[6] memory _states
+    ) external view returns (uint64[] memory) {
+        CarReplicaType.Car storage car = cars[_cid];
+        uint64 stateCount = 0;
+        for (uint64 i = 0; i < 6; i++) {
+            if (_states[i]) {
+                stateCount++;
+            }
+        }
+        return car._getMatchings(_states);
+    }
+
     /// @notice Get the replica details associated with a car.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
@@ -236,6 +285,30 @@ contract Carstore is CarstoreBase {
     ) public view onlyCarExist(_cid) returns (uint16) {
         CarReplicaType.Car storage car = cars[_cid];
         return car._getRepicasCount();
+    }
+
+    function getCarReplicasRegions(
+        bytes32 _cid
+    ) public view onlyCarExist(_cid) returns (uint16[] memory) {
+        CarReplicaType.Car storage car = cars[_cid];
+        uint16[] memory regions = car._getReplicaRegions();
+        return regions.deDuplicate();
+    }
+
+    function getCarReplicasCountrys(
+        bytes32 _cid
+    ) public view onlyCarExist(_cid) returns (uint16[] memory) {
+        CarReplicaType.Car storage car = cars[_cid];
+        uint16[] memory countrys = car._getReplicaCountrys();
+        return countrys.deDuplicate();
+    }
+
+    function getCarReplicasCitys(
+        bytes32 _cid
+    ) public view onlyCarExist(_cid) returns (uint32[] memory) {
+        CarReplicaType.Car storage car = cars[_cid];
+        uint32[] memory citys = car._getReplicaCitys();
+        return citys.deDuplicate();
     }
 
     /// @notice Get the Filecoin deal ID associated with a specific replica of a car.
@@ -296,6 +369,22 @@ contract Carstore is CarstoreBase {
         CarReplicaType.Car storage car = cars[_cid];
         return car._hasReplica(_matchingId);
     }
+
+    /// @notice Check if a None state replica exists within a car.
+    /// @dev This function returns whether a None state replica within a car or not.
+    /// @param _cid Car CID to check.
+    //function hasCarReplicaWithNoneState(
+    //    bytes32 _cid
+    //) public view onlyCarExist(_cid) returns (bool) {
+    //    CarReplicaType.Car storage car = cars[_cid];
+    //    CarReplicaType.State[] memory states = new CarReplicaType.State[](1);
+    //    states[0] = CarReplicaType.State.None;
+    //    uint64[] memory machings = car._getMatchings(states);
+    //    if (machings.length > 0) {
+    //        return true;
+    //    }
+    //    return false;
+    //}
 
     /// @notice Check if multiple cars exist based on their CIDs.
     /// @dev This function returns whether all the specified cars exist or not.

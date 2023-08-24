@@ -22,7 +22,7 @@ pragma solidity ^0.8.21;
 interface IFilplus {
     // Public getter function to access datasetRuleMaxReplicasInCountries
     function getDatasetRuleMaxReplicasInCountry(
-        bytes32 _countryCode
+        uint64 _countryCode
     ) external view returns (uint16);
 
     // Set functions for public variables
@@ -35,7 +35,7 @@ interface IFilplus {
     ) external;
 
     function setDatasetRuleMaxReplicasInCountry(
-        bytes32 _countryCode,
+        uint64 _countryCode,
         uint16 _newValue
     ) external;
 

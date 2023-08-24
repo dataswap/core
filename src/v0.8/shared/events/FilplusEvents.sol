@@ -33,7 +33,7 @@ library FilplusEvents {
 
     // Event emitted when the maximum replicas per country rule is set for a dataset
     event SetDatasetRuleMaxReplicasInCountry(
-        bytes32 _countryCode,
+        uint64 _countryCode,
         uint32 _newValue
     );
 

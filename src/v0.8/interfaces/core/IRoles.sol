@@ -55,4 +55,11 @@ interface IRoles is IAccessControlEnumerable {
      * Can only be called by the current owner.
      */
     function transferOwnership(address _newOwner) external;
+
+    /// @notice Get storage provider information.
+    /// @param _sp The address of storage provider.
+    /// @return city,county,region of sp.
+    function getStorageProviderInfo(
+        address _sp
+    ) external view returns (uint64, uint64, uint64);
 }

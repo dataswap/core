@@ -16,6 +16,7 @@
 
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
+import {CommonType} from "src/v0.8/types/CommonType.sol";
 
 /// @title CarReplicaType Library
 /// @notice This library defines data structures and enums related to car replicas and their states.
@@ -42,15 +43,20 @@ library CarReplicaType {
 
     /// @notice Struct representing a car replica.
     struct Replica {
-        uint64 filecoinDealId; // ID of the Filecoin deal associated with the replica's storage
         State state; // Current state of the replica
+        uint64 filecoinDealId; // ID of the Filecoin deal associated with the replica's storage
+        uint64 matchingId;
+        uint16 region;
+        uint16 country;
+        uint32 city;
     }
 
     /// @notice Struct representing a car and its associated replicas.
     struct Car {
         uint64 datasetId; // Index of approved dataset
         uint64 size; //car size
-        uint16 replicasCount; // Number of replicas associated with the car
-        mapping(uint64 => Replica) replicas; // Mapping from matchingId => Replica details
+        mapping(uint64 => uint16) replicasIndex; // The record of the matching Id where the replica is located
+        uint64[] matchings; // The record of the matching Id where the replica is located
+        Replica[] replicas;
     }
 }
