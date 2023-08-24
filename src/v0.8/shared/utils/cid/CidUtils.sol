@@ -23,22 +23,56 @@ library CidUtils {
     /// @dev This function converts a bytes32 hash to a CID using the specified encoding.
     ///      TODO:https://github.com/dataswap/core/issues/32
     /// @return The CID corresponding to the input hash.
-    function hashToCID(bytes32 /*hash*/) internal pure returns (bytes32) {
-        // Convert bytes32 hash to bytes
-        return "";
+    function hashToCID(bytes32 _hash) internal pure returns (bytes memory) {
+        // Hardcoded, to be refined for full implementation.
+        // From https://github.com/filecoin-project/go-fil-commcid/blob/master/commcid.go#CommitmentToCID
+        uint64 filCommitmentUnsealed = 0xf101;
+        uint64 sha256Trunc254Padded = 0x1012;
+
+        bytes memory fBuf = bytes.concat(
+            putUvarint(1),
+            putUvarint(filCommitmentUnsealed)
+        );
+
+        bytes memory result = bytes.concat(
+            putUvarint(sha256Trunc254Padded),
+            putUvarint(_hash.length)
+        );
+        result = bytes.concat(result, _hash);
+
+        return bytes.concat(fBuf, result);
     }
 
     /// @notice Convert an array of bytes32 hashes to an array of CIDs.
     /// @dev This function converts an array of bytes32 hashes to an array of CIDs using the specified encoding.
-    /// @param hashes The array of bytes32 hashes to convert.
+    /// @param _hashes The array of bytes32 hashes to convert.
     /// @return The array of CIDs corresponding to the input hashes.
     function hashesToCIDs(
-        bytes32[] memory hashes
-    ) internal pure returns (bytes32[] memory) {
-        bytes32[] memory cids = new bytes32[](hashes.length);
-        for (uint256 i = 0; i < hashes.length; i++) {
-            cids[i] = hashToCID(hashes[i]);
+        bytes32[] memory _hashes
+    ) internal pure returns (bytes[] memory) {
+        bytes[] memory cids = new bytes[](_hashes.length);
+        for (uint256 i = 0; i < _hashes.length; i++) {
+            cids[i] = hashToCID(bytes32(_hashes[i]));
         }
         return cids;
+    }
+
+    function putUvarint(uint64 _x) public pure returns (bytes memory) {
+        uint8 i = 0;
+        uint8[] memory buffer = new uint8[](10); // Requires up to 10 bytes
+
+        while (_x >= 0x80) {
+            buffer[i] = uint8(_x) | 0x80;
+            _x >>= 7;
+            i++;
+        }
+        buffer[i] = uint8(_x);
+
+        bytes memory result = new bytes(i + 1);
+        for (uint8 j = 0; j <= i; j++) {
+            result[j] = bytes1(buffer[j]);
+        }
+
+        return result;
     }
 }
