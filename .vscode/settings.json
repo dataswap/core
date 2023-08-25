@@ -25,5 +25,6 @@
     },
     "window.zoomLevel": 1,
     "solidity.packageDefaultDependenciesContractsDirectory": "src",
-    "solidity.packageDefaultDependenciesDirectory": ["node_modules", "lib"]
+    "solidity.packageDefaultDependenciesDirectory": ["node_modules", "lib"],
+    "solidity.enabledAsYouTypeCompilationErrorCheck": true,
 }

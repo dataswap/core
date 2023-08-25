@@ -17,6 +17,9 @@
 pragma solidity ^0.8.21;
 
 import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
+import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 
 /// @title ICarStore
 /// @notice This interface defines the functions for managing car data and associated replicas.
@@ -141,4 +144,13 @@ interface ICarstore {
 
     // Default getter functions for public variables
     function carsCount() external view returns (uint64);
+
+    /// @notice get filecoin object
+    function getFilecoin() external view returns (IFilecoin);
+
+    /// @notice get roles object
+    function getRoles() external view returns (IRoles);
+
+    /// @notice get filplus object
+    function getFilplus() external view returns (IFilplus);
 }

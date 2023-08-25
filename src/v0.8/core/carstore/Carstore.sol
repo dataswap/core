@@ -71,6 +71,7 @@ contract Carstore is CarstoreBase {
         uint64 _datasetId,
         uint64[] memory _sizes
     ) external onlyNotZero(_datasetId) {
+        require(_cids.length == _sizes.length, "Invalid params");
         for (uint64 i; i < _cids.length; i++) {
             addCar(_cids[i], _datasetId, _sizes[i]);
         }
@@ -280,6 +281,16 @@ contract Carstore is CarstoreBase {
     /// @notice get filecoin object
     function getFilecoin() public view returns (IFilecoin) {
         return filecoin;
+    }
+
+    /// @notice get roles object
+    function getRoles() public view returns (IRoles) {
+        return roles;
+    }
+
+    /// @notice get filplus object
+    function getFilplus() public view returns (IFilplus) {
+        return filplus;
     }
 
     /// @notice Check if a car exists based on its CID.
