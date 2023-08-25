@@ -109,6 +109,7 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
         external
         onlyAddress(matchings.getMatchingInitiator(_matchingId))
         validNextDatacapAllocation(_matchingId)
+        returns (uint64)
     {
         uint64 remainingUnallocatedDatacap = getRemainingUnallocatedDatacap(
             _matchingId
@@ -125,6 +126,7 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
                 _matchingId,
                 remainingUnallocatedDatacap
             );
+            return remainingUnallocatedDatacap;
         } else {
             allocatedDatacaps[_matchingId] =
                 allocatedDatacaps[_matchingId] +
@@ -135,6 +137,7 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
                 _matchingId,
                 maxAllocateCapacityPreTime
             );
+            return maxAllocateCapacityPreTime;
         }
     }
 

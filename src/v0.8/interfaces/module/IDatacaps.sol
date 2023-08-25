@@ -19,7 +19,9 @@ pragma solidity ^0.8.21;
 interface IDatacaps {
     /// @dev Requests the allocation of matched datacap for a matching process.
     /// @param _matchingId The ID of the matching process.
-    function requestAllocateDatacap(uint64 _matchingId) external;
+    function requestAllocateDatacap(
+        uint64 _matchingId
+    ) external returns (uint64);
 
     /// @dev Gets the allocated matched datacap for a storage.
     /// @param _matchingId The ID of the matching process.
