@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {PublishMatchingTestSuiteBase} from "test/v0.8/testcases/module/matching/abstract/MatchingsTestSuiteBase.sol";
+import {MatchingsTestBase} from "test/v0.8/testcases/module/matching/abstract/MatchingsTestBase.sol";
 
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
@@ -26,72 +26,50 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 
-contract PublishMatchingTestCaseWithSuccess is PublishMatchingTestSuiteBase {
+contract PublishMatchingTestCaseWithSuccess is MatchingsTestBase {
     constructor(
         IMatchings _matchings,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        PublishMatchingTestSuiteBase(
-            _matchings,
-            _matchingsHelpers,
-            _matchingsAssertion
-        ) // solhint-disable-next-line
+        MatchingsTestBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
     {}
 
-    function before(
-        uint64 _datasetId,
-        bytes32[] memory /*_cars*/,
-        uint64 /*_size*/,
-        DatasetType.DataType /*_dataType*/,
-        uint64 /*_associatedMappingFilesMatchingID*/,
-        MatchingType.BidSelectionRule /*_bidSelectionRule*/,
-        uint64 /*_biddingDelayBlockCount*/,
-        uint64 /*_biddingPeriodBlockCount*/,
-        uint64 /*_storageCompletionPeriodBlocks*/,
-        uint256 /*_biddingThreshold*/,
-        string memory /*_additionalInfo*/
-    ) internal virtual override {
-        _datasetId = matchingsHelpers.setup(
+    function before() internal virtual override returns (uint64) {
+        uint64 datasetId = matchingsHelpers.setup(
             "testAccessMethod",
             100,
             10,
             10,
             10
         );
+        return datasetId;
     }
 
-    function action(
-        uint64 _datasetId,
-        bytes32[] memory _cars,
-        uint64 _size,
-        DatasetType.DataType /*_dataType*/,
-        uint64 /*_associatedMappingFilesMatchingID*/,
-        MatchingType.BidSelectionRule /*_bidSelectionRule*/,
-        uint64 /*_biddingDelayBlockCount*/,
-        uint64 /*_biddingPeriodBlockCount*/,
-        uint64 /*_storageCompletionPeriodBlocks*/,
-        uint256 /*_biddingThreshold*/,
-        string memory /*_additionalInfo*/
-    ) internal virtual override {
-        IRoles roles = matchings.datasets().roles();
-        _size = matchings.datasets().getDatasetSize(
+    function action(uint64 _datasetId) internal virtual override {
+        uint64 size = matchings.datasets().getDatasetSize(
             _datasetId,
             DatasetType.DataType.MappingFiles
         );
-        _cars = matchings.datasets().getDatasetCars(
+        uint64 carsCount = matchings.datasets().getDatasetCarsCount(
+            _datasetId,
+            DatasetType.DataType.MappingFiles
+        );
+        bytes32[] memory cars = new bytes32[](carsCount);
+        cars = matchings.datasets().getDatasetCars(
             _datasetId,
             DatasetType.DataType.MappingFiles,
             0,
-            1
+            carsCount
         );
 
+        IRoles roles = matchings.datasets().roles();
         roles.grantRole(RolesType.DATASET_PROVIDER, address(99));
         vm.startPrank(address(99));
-        super.action(
+        matchingsAssertion.publishMatchingAssertion(
             _datasetId,
-            _cars,
-            _size,
+            cars,
+            size,
             DatasetType.DataType.MappingFiles,
             0,
             MatchingType.BidSelectionRule.HighestBid,

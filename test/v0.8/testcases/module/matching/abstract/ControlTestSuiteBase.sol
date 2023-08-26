@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {ControlTestSuiteBase} from "test/v0.8/testcases/module/matching/abstract/ControlTestSuiteBase.sol";
+import {MatchingsTestBase} from "test/v0.8/testcases/module/matching/abstract/MatchingsTestBase.sol";
 
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
@@ -26,29 +26,39 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 
-contract CloseTestCaseWithSuccess is ControlTestSuiteBase {
+abstract contract ControlTestSuiteBase is MatchingsTestBase {
     constructor(
         IMatchings _matchings,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        MatchingsTestBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64) {
-        uint64 matchingId = super.before();
-        IRoles roles = matchings.datasets().roles();
-        roles.grantRole(RolesType.STORAGE_PROVIDER, address(99));
-        vm.roll(101);
-        vm.prank(address(99));
-        matchings.bidding(matchingId, 200);
-        return matchingId;
-    }
+        uint64 datasetId = matchingsHelpers.setup(
+            "testAccessMethod",
+            100,
+            10,
+            10,
+            10
+        );
 
-    function action(uint64 _matchingId) internal virtual override {
-        address initiator = matchings.getMatchingInitiator(_matchingId);
-        vm.startPrank(initiator);
-        matchingsAssertion.closeMatchingAssertion(_matchingId, address(99));
+        IRoles roles = matchings.datasets().roles();
+        roles.grantRole(RolesType.DATASET_PROVIDER, address(99));
+        vm.startPrank(address(99));
+        uint64 matchingId = matchingsHelpers.publishMatching(
+            datasetId,
+            DatasetType.DataType.MappingFiles,
+            0,
+            MatchingType.BidSelectionRule.HighestBid,
+            100,
+            100,
+            100,
+            100,
+            "TEST"
+        );
         vm.stopPrank();
+        return matchingId;
     }
 }

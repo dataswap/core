@@ -29,4 +29,10 @@ interface IStoragesHeplers {
         uint64 _storageCompletionPeriodBlocks,
         uint256 _biddingThreshold
     ) external returns (uint64 datasetId, uint64 matchingId);
+
+    function generateFilecoinDealIds(
+        uint64 _count
+    ) external returns (uint64[] memory filecoinDealIds);
+
+    function generateFilecoinDealId() external returns (uint64);
 }

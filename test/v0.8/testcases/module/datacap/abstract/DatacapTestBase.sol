@@ -16,12 +16,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {Test} from "forge-std/Test.sol";
+import {TestCaseBase} from "test/v0.8/testcases/module/abstract/TestCaseBase.sol";
 import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
 import {IDatacapsAssertion} from "test/v0.8/interfaces/assertions/module/IDatacapsAssertion.sol";
 import {IDatacapsHelpers} from "test/v0.8/interfaces/helpers/module/IDatacapsHelpers.sol";
+import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
 /// @dev design CarstoreTestBase as all test suite must constructor the same parmas
-abstract contract DatacapTestBase {
+abstract contract DatacapTestBase is TestCaseBase, Test {
     IDatacaps internal datacaps;
     IDatacapsHelpers internal datacapsHelpers;
     IDatacapsAssertion internal datacapsAssertion;
@@ -34,5 +38,19 @@ abstract contract DatacapTestBase {
         datacaps = _datacaps;
         datacapsHelpers = _datacapsHelpers;
         datacapsAssertion = _datacapsAssertion;
+    }
+
+    function before() internal virtual override returns (uint64) {
+        (, uint64 matchingId) = datacapsHelpers.setup(
+            "testAccessMethod",
+            DatasetType.DataType.MappingFiles,
+            0,
+            MatchingType.BidSelectionRule.HighestBid,
+            100,
+            100,
+            100,
+            100
+        );
+        return matchingId;
     }
 }

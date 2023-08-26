@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {BiddingTestSuiteBase} from "test/v0.8/testcases/module/matching/abstract/MatchingsTestSuiteBase.sol";
+import {MatchingsTestBase} from "test/v0.8/testcases/module/matching/abstract/MatchingsTestBase.sol";
 
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
@@ -26,19 +26,16 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 
-contract BiddingTestCaseWithSuccess is BiddingTestSuiteBase {
+contract BiddingTestCaseWithSuccess is MatchingsTestBase {
     constructor(
         IMatchings _matchings,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        BiddingTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        MatchingsTestBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
     {}
 
-    function before(
-        uint64 _matchingId,
-        uint256 /*_amount*/
-    ) internal virtual override {
+    function before() internal virtual override returns (uint64) {
         uint64 datasetId = matchingsHelpers.setup(
             "testAccessMethod",
             100,
@@ -46,7 +43,11 @@ contract BiddingTestCaseWithSuccess is BiddingTestSuiteBase {
             10,
             10
         );
-        _matchingId = matchingsHelpers.publishMatching(
+
+        IRoles roles = matchings.datasets().roles();
+        roles.grantRole(RolesType.DATASET_PROVIDER, address(99));
+        vm.startPrank(address(99));
+        uint64 matchingId = matchingsHelpers.publishMatching(
             datasetId,
             DatasetType.DataType.MappingFiles,
             0,
@@ -57,18 +58,18 @@ contract BiddingTestCaseWithSuccess is BiddingTestSuiteBase {
             100,
             "TEST"
         );
+        vm.stopPrank();
+        return matchingId;
     }
 
-    function action(
-        uint64 _matchingId,
-        uint256 _amount
-    ) internal virtual override {
+    function action(uint64 _matchingId) internal virtual override {
+        uint64 amount = 10000;
+
         IRoles roles = matchings.datasets().roles();
         roles.grantRole(RolesType.STORAGE_PROVIDER, address(99));
-        _amount = 10000;
         vm.startPrank(address(99));
-        vm.startPrank(address(99));
-        super.action(_matchingId, _amount);
+        vm.roll(101);
+        matchingsAssertion.biddingAssertion(_matchingId, amount);
         vm.stopPrank();
     }
 }

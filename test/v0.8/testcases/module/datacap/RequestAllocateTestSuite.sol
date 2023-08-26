@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {DatacapTestSuiteBase} from "test/v0.8/testcases/module/datacap/abstract/DatacapTestSuiteBase.sol";
+import {DatacapTestBase} from "test/v0.8/testcases/module/datacap/abstract/DatacapTestBase.sol";
 
 import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
 import {IDatacapsAssertion} from "test/v0.8/interfaces/assertions/module/IDatacapsAssertion.sol";
@@ -25,75 +25,53 @@ import {IDatacapsHelpers} from "test/v0.8/interfaces/helpers/module/IDatacapsHel
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
-contract RequestAllocateTestCaseWithSuccess is DatacapTestSuiteBase {
+contract RequestAllocateTestCaseWithSuccess is DatacapTestBase {
     constructor(
         IDatacaps _datacaps,
         IDatacapsHelpers _datacapsHelpers,
         IDatacapsAssertion _datacapsAssertion
     )
-        DatacapTestSuiteBase(_datacaps, _datacapsHelpers, _datacapsAssertion) // solhint-disable-next-line
+        DatacapTestBase(_datacaps, _datacapsHelpers, _datacapsAssertion) // solhint-disable-next-line
     {}
-
-    function before(uint64 _matchingId) internal virtual override {
-        (, _matchingId) = datacapsHelpers.setup(
-            "testAccessMethod",
-            DatasetType.DataType.MappingFiles,
-            0,
-            MatchingType.BidSelectionRule.HighestBid,
-            100,
-            100,
-            100,
-            100
-        );
-    }
 
     function action(uint64 _matchingId) internal virtual override {
         vm.startPrank(
             datacaps.storages().matchings().getMatchingInitiator(_matchingId)
         );
-        super.action(_matchingId);
+        datacapsAssertion.requestAllocateDatacapAssertion(_matchingId);
         vm.stopPrank();
     }
 }
 
-contract RequestAllocateTestSuiteWithInvalidMatchingId is DatacapTestSuiteBase {
+contract RequestAllocateTestSuiteWithInvalidMatchingId is DatacapTestBase {
     constructor(
         IDatacaps _datacaps,
         IDatacapsHelpers _datacapsHelpers,
         IDatacapsAssertion _datacapsAssertion
     )
-        DatacapTestSuiteBase(_datacaps, _datacapsHelpers, _datacapsAssertion) // solhint-disable-next-line
+        DatacapTestBase(_datacaps, _datacapsHelpers, _datacapsAssertion) // solhint-disable-next-line
     {}
 
-    function before(uint64 _matchingId) internal virtual override {}
+    function before() internal virtual override returns (uint64) {}
 
     function action(uint64 _matchingId) internal virtual override {
+        vm.startPrank(
+            datacaps.storages().matchings().getMatchingInitiator(_matchingId)
+        );
         vm.expectRevert();
-        super.action(_matchingId);
+        datacapsAssertion.requestAllocateDatacapAssertion(_matchingId);
+        vm.stopPrank();
     }
 }
 
-contract RequestAllocateTestSuiteWithInvalidCaller is DatacapTestSuiteBase {
+contract RequestAllocateTestSuiteWithInvalidCaller is DatacapTestBase {
     constructor(
         IDatacaps _datacaps,
         IDatacapsHelpers _datacapsHelpers,
         IDatacapsAssertion _datacapsAssertion
     )
-        DatacapTestSuiteBase(_datacaps, _datacapsHelpers, _datacapsAssertion) // solhint-disable-next-line
+        DatacapTestBase(_datacaps, _datacapsHelpers, _datacapsAssertion) // solhint-disable-next-line
     {}
-
-    function before(uint64 _matchingId) internal virtual override {
-        (, _matchingId) = datacapsHelpers.setup(
-            "testAccessMethod",
-            DatasetType.DataType.MappingFiles,
-            0,
-            MatchingType.BidSelectionRule.HighestBid,
-            100,
-            100,
-            100,
-            100
-        );
-    }
 
     function action(uint64 _matchingId) internal virtual override {
         vm.assume(
@@ -104,42 +82,27 @@ contract RequestAllocateTestSuiteWithInvalidCaller is DatacapTestSuiteBase {
         );
         vm.startPrank(msg.sender);
         vm.expectRevert();
-        super.action(_matchingId);
+        datacapsAssertion.requestAllocateDatacapAssertion(_matchingId);
         vm.stopPrank();
     }
 }
 
-contract RequestAllocateTestSuiteWithInvalidNextRequest is
-    DatacapTestSuiteBase
-{
+contract RequestAllocateTestSuiteWithInvalidNextRequest is DatacapTestBase {
     constructor(
         IDatacaps _datacaps,
         IDatacapsHelpers _datacapsHelpers,
         IDatacapsAssertion _datacapsAssertion
     )
-        DatacapTestSuiteBase(_datacaps, _datacapsHelpers, _datacapsAssertion) // solhint-disable-next-line
+        DatacapTestBase(_datacaps, _datacapsHelpers, _datacapsAssertion) // solhint-disable-next-line
     {}
-
-    function before(uint64 _matchingId) internal virtual override {
-        (, _matchingId) = datacapsHelpers.setup(
-            "testAccessMethod",
-            DatasetType.DataType.MappingFiles,
-            0,
-            MatchingType.BidSelectionRule.HighestBid,
-            100,
-            100,
-            100,
-            100
-        );
-    }
 
     function action(uint64 _matchingId) internal virtual override {
         vm.startPrank(
             datacaps.storages().matchings().getMatchingInitiator(_matchingId)
         );
+        datacapsAssertion.requestAllocateDatacapAssertion(_matchingId);
         vm.expectRevert();
         datacapsAssertion.requestAllocateDatacapAssertion(_matchingId);
-        super.action(_matchingId);
         vm.stopPrank();
     }
 }

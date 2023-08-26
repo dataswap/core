@@ -16,12 +16,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {Test} from "forge-std/Test.sol";
+import {TestCaseBase} from "test/v0.8/testcases/module/abstract/TestCaseBase.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
 import {IStoragesHeplers} from "test/v0.8/interfaces/helpers/module/IStoragesHeplers.sol";
 
 /// @dev design CarstoreTestBase as all test suite must constructor the same parmas
-abstract contract StoragesTestBase {
+abstract contract StoragesTestBase is TestCaseBase, Test {
     IStorages internal storages;
     IStoragesHeplers internal storagesHelpers;
     IStoragesAssertion internal storagesAssertion;

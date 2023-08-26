@@ -16,7 +16,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {SubmitStorageDealIdsTestSuiteBase} from "test/v0.8/testcases/module/storage/abstract/StoragesTestSuiteBase.sol";
+import {StoragesTestBase} from "test/v0.8/testcases/module/storage/abstract/StoragesTestBase.sol";
 
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
@@ -25,27 +25,17 @@ import {IStoragesHeplers} from "test/v0.8/interfaces/helpers/module/IStoragesHep
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
-contract SubmitStorageDealIdsTestCaseWithSuccess is
-    SubmitStorageDealIdsTestSuiteBase
-{
+contract SubmitStorageDealIdsTestCaseWithSuccess is StoragesTestBase {
     constructor(
         IStorages _storages,
         IStoragesHeplers _storagesHelpers,
         IStoragesAssertion _storagesAssertion
     )
-        SubmitStorageDealIdsTestSuiteBase(
-            _storages,
-            _storagesHelpers,
-            _storagesAssertion
-        ) // solhint-disable-next-line
+        StoragesTestBase(_storages, _storagesHelpers, _storagesAssertion) // solhint-disable-next-line
     {}
 
-    function before(
-        uint64 _matchingId,
-        bytes32[] memory /*_cids*/,
-        uint64[] memory /*_filecoinDealIds*/
-    ) internal virtual override {
-        (, _matchingId) = storagesHelpers.setup(
+    function before() internal virtual override returns (uint64) {
+        (, uint64 matchingId) = storagesHelpers.setup(
             "testAccessMethod",
             DatasetType.DataType.MappingFiles,
             0,
@@ -55,18 +45,21 @@ contract SubmitStorageDealIdsTestCaseWithSuccess is
             100,
             100
         );
+        return matchingId;
     }
 
-    function action(
-        uint64 _matchingId,
-        bytes32[] memory _cids,
-        uint64[] memory _filecoinDealIds
-    ) internal virtual override {
-        (, _cids /*uint64 size*/, , , ) = storages
+    function action(uint64 _matchingId) internal virtual override {
+        (, bytes32[] memory cars /*uint64 size*/, , , ) = storages
             .matchings()
             .getMatchingTarget(_matchingId);
+        uint64[] memory filecoinDealIds = storagesHelpers
+            .generateFilecoinDealIds(uint64(cars.length));
         vm.startPrank(storages.matchings().getMatchingWinner(_matchingId));
-        super.action(_matchingId, _cids, _filecoinDealIds);
+        storagesAssertion.submitStorageDealIdsAssertion(
+            _matchingId,
+            cars,
+            filecoinDealIds
+        );
         vm.stopPrank();
     }
 }
