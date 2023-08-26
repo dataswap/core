@@ -16,16 +16,23 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
-import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
+import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
+import {IDatacapAssertion} from "test/v0.8/interfaces/assertions/module/IDatacapAssertion.sol";
+import {IDatacapsSetupHelpers} from "test/v0.8/interfaces/helpers/setup/IDatacapsSetupHelpers.sol";
 
 /// @dev design CarstoreTestBase as all test suite must constructor the same parmas
-abstract contract CarstoreTestBase {
-    ICarstore internal carstore;
-    ICarstoreAssertion internal assertion;
+abstract contract DatacapTestBase {
+    IDatacaps internal datacaps;
+    IDatacapsSetupHelpers internal datacapsSetupHelpers;
+    IDatacapAssertion internal datacapAssertion;
 
-    constructor(ICarstore _carstore, ICarstoreAssertion _assertion) {
-        carstore = _carstore;
-        assertion = _assertion;
+    constructor(
+        IDatacaps _datacaps,
+        IDatacapsSetupHelpers _datacapsSetupHelpers,
+        IDatacapAssertion _datacapAssertion
+    ) {
+        datacaps = _datacaps;
+        datacapsSetupHelpers = _datacapsSetupHelpers;
+        datacapAssertion = _datacapAssertion;
     }
 }

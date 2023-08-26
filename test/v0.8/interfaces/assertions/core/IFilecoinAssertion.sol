@@ -16,16 +16,22 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
-import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
+import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
-/// @dev design CarstoreTestBase as all test suite must constructor the same parmas
-abstract contract CarstoreTestBase {
-    ICarstore internal carstore;
-    ICarstoreAssertion internal assertion;
+// assert carstore action
+// NOTE: view asserton functions must all be tested by the functions that will change state
+interface IFilecoinAssertion {
+    /// @dev get mock filecin deal state assertion
+    function getReplicaDealStateAssertion(
+        bytes32 _cid,
+        uint64 _filecoinDealId,
+        FilecoinType.DealState _state
+    ) external;
 
-    constructor(ICarstore _carstore, ICarstoreAssertion _assertion) {
-        carstore = _carstore;
-        assertion = _assertion;
-    }
+    /// @dev set mock filecin deal state assertion
+    function setMockDealStateAssertion(
+        bytes32 _cid,
+        uint64 _filecoinDealId,
+        FilecoinType.DealState _state
+    ) external;
 }

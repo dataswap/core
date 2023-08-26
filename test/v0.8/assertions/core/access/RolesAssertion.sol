@@ -19,10 +19,11 @@ pragma solidity ^0.8.21;
 import {DSTest} from "ds-test/test.sol";
 import {Test} from "forge-std/Test.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {IRolesAssertion} from "test/v0.8/interfaces/assertions/core/IRolesAssertion.sol";
 
 // assert carstore action
 // NOTE: view asserton functions must all be tested by the functions that will change state
-contract RolesAssertion is DSTest, Test {
+contract RolesAssertion is DSTest, Test, IRolesAssertion {
     IRoles public roles;
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 

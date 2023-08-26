@@ -26,7 +26,8 @@ contract AddCarsTest is Test, CarstoreTestSetup {
     function testAddCarsWithSuccess(uint64 _datasetId) public {
         setup();
         AddCarsTestCaseWithSuccess testCase = new AddCarsTestCaseWithSuccess(
-            carstore
+            carstore,
+            assertion
         );
         // make sure the cids is different
         uint64 carsCount = 100;
@@ -48,7 +49,8 @@ contract AddCarsTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         AddCarsTestCaseWithInvalidPrams testCase = new AddCarsTestCaseWithInvalidPrams(
-                carstore
+                carstore,
+                assertion
             );
         // run testcase
         testCase.run(_cids, _datasetId, _sizes);

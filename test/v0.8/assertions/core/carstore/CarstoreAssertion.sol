@@ -21,10 +21,11 @@ import {Test} from "forge-std/Test.sol";
 import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
+import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 
 // assert carstore action
 // NOTE: view asserton functions must all be tested by the functions that will change state
-contract CarstoreAssertion is DSTest, Test {
+contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
     ICarstore public carstore;
 
     constructor(ICarstore _carstore) {

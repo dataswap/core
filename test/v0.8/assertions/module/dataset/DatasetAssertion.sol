@@ -20,10 +20,11 @@ import {DSTest} from "ds-test/test.sol";
 import {Test} from "forge-std/Test.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IDatasetAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetAssertion.sol";
 
 // assert carstore action
 // NOTE: view asserton functions must all be tested by the functions that will change state
-contract DatasetAssertion is DSTest, Test {
+contract DatasetAssertion is DSTest, Test, IDatasetAssertion {
     IDatasets public datasets;
 
     constructor(IDatasets _datasets) {

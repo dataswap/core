@@ -16,16 +16,18 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {AddCarsTestSuiteBase} from "test/v0.8/testcases/core/carstore/abstract/CarstoreTestSuiteBase.sol";
-import {Errors} from "src/v0.8/shared/errors/Errors.sol";
+
+import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
+import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 
 /// @dev add cars test case,it should be success
 contract AddCarsTestCaseWithSuccess is AddCarsTestSuiteBase {
     constructor(
-        ICarstore _carstore
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
     )
-        AddCarsTestSuiteBase(_carstore) // solhint-disable-next-line
+        AddCarsTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
     {}
 
     function before(
@@ -44,9 +46,10 @@ contract AddCarsTestCaseWithSuccess is AddCarsTestSuiteBase {
 /// @dev add cars test case with invalid prams,it should can capture revert
 contract AddCarsTestCaseWithInvalidPrams is AddCarsTestSuiteBase {
     constructor(
-        ICarstore _carstore
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
     )
-        AddCarsTestSuiteBase(_carstore) // solhint-disable-next-line
+        AddCarsTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
     {}
 
     function before(

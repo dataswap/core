@@ -20,9 +20,11 @@ import {Roles} from "src/v0.8/core/access/Roles.sol";
 import {Filplus} from "src/v0.8/core/filplus/Filplus.sol";
 import {MockFilecoin} from "src/v0.8/mocks/core/filecoin/MockFilecoin.sol";
 import {Carstore} from "src/v0.8/core/carstore/Carstore.sol";
+import {CarstoreAssertion} from "test/v0.8/assertions/core/carstore/CarstoreAssertion.sol";
 
 contract CarstoreTestSetup {
     Carstore public carstore;
+    CarstoreAssertion assertion;
     address payable public governanceContractAddresss;
 
     function setup() internal {
@@ -30,5 +32,6 @@ contract CarstoreTestSetup {
         Filplus filplus = new Filplus(governanceContractAddresss);
         MockFilecoin filecoin = new MockFilecoin();
         carstore = new Carstore(role, filplus, filecoin);
+        assertion = new CarstoreAssertion(carstore);
     }
 }

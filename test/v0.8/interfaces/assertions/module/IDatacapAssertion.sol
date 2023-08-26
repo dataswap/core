@@ -16,16 +16,32 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
-import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
+// NOTE: view asserton functions must all be tested by the functions that will change state
+interface IDatacapAssertion {
+    function requestAllocateDatacapAssertion(uint64 _matchingId) external;
 
-/// @dev design CarstoreTestBase as all test suite must constructor the same parmas
-abstract contract CarstoreTestBase {
-    ICarstore internal carstore;
-    ICarstoreAssertion internal assertion;
+    function getAvailableDatacapAssertion(
+        uint64 _matchingId,
+        uint64 _expectSize
+    ) external;
 
-    constructor(ICarstore _carstore, ICarstoreAssertion _assertion) {
-        carstore = _carstore;
-        assertion = _assertion;
-    }
+    function getAllocatedDatacapAssertion(
+        uint64 _matchingId,
+        uint64 _expectSize
+    ) external;
+
+    function getTotalDatacapAllocationRequirementAssertion(
+        uint64 _matchingId,
+        uint64 _expectSize
+    ) external;
+
+    function getRemainingUnallocatedDatacapAssertion(
+        uint64 _matchingId,
+        uint64 _expectSize
+    ) external;
+
+    function isNextDatacapAllocationValidAssertion(
+        uint64 _matchingId,
+        bool _expectOK
+    ) external;
 }

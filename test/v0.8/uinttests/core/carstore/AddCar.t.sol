@@ -29,7 +29,8 @@ contract AddCarTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         AddCarTestCaseWithSuccess testCase = new AddCarTestCaseWithSuccess(
-            carstore
+            carstore,
+            assertion
         );
         testCase.run(_cid, _datasetId, _size);
     }
@@ -42,7 +43,8 @@ contract AddCarTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         AddCarTestCaseWithInvalidId testCase = new AddCarTestCaseWithInvalidId(
-            carstore
+            carstore,
+            assertion
         );
         testCase.run(_cid, _datasetId, _size);
     }
@@ -55,7 +57,8 @@ contract AddCarTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         AddCarTestCaseWithCarAlreayExsit testCase = new AddCarTestCaseWithCarAlreayExsit(
-                carstore
+                carstore,
+                assertion
             );
         testCase.run(_cid, _datasetId, _size);
     }

@@ -16,16 +16,20 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {AddCarTestSuiteBase} from "test/v0.8/testcases/core/carstore/abstract/CarstoreTestSuiteBase.sol";
+
+import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
+import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
+
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 
 /// @dev add car test case,it should be success
 contract AddCarTestCaseWithSuccess is AddCarTestSuiteBase {
     constructor(
-        ICarstore _carstore
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
     )
-        AddCarTestSuiteBase(_carstore) // solhint-disable-next-line
+        AddCarTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
     {}
 
     function before(
@@ -41,9 +45,10 @@ contract AddCarTestCaseWithSuccess is AddCarTestSuiteBase {
 /// @dev add car test case with invalid id,it should be capture revert
 contract AddCarTestCaseWithInvalidId is AddCarTestSuiteBase {
     constructor(
-        ICarstore _carstore
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
     )
-        AddCarTestSuiteBase(_carstore) // solhint-disable-next-line
+        AddCarTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
     {}
 
     function before(
@@ -67,9 +72,10 @@ contract AddCarTestCaseWithInvalidId is AddCarTestSuiteBase {
 /// @dev add car test case with car alreay exsit,it should be capture revert
 contract AddCarTestCaseWithCarAlreayExsit is AddCarTestSuiteBase {
     constructor(
-        ICarstore _carstore
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
     )
-        AddCarTestSuiteBase(_carstore) // solhint-disable-next-line
+        AddCarTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
     {}
 
     function before(

@@ -33,7 +33,8 @@ contract SetCarReplicaFilecoinDealIdTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         SetCarReplicaFilecoinDealIdTestCaseWithSuccess testCase = new SetCarReplicaFilecoinDealIdTestCaseWithSuccess(
-                carstore
+                carstore,
+                assertion
             );
         // set filecoin store is ok
         carstore.getFilecoin().setMockDealState(FilecoinType.DealState.Stored);
@@ -51,7 +52,8 @@ contract SetCarReplicaFilecoinDealIdTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         SetCarReplicaFilecoinDealIdTestCaseWithSuccess testCase = new SetCarReplicaFilecoinDealIdTestCaseWithSuccess(
-                carstore
+                carstore,
+                assertion
             );
         // set filecoin store is ok
         carstore.getFilecoin().setMockDealState(

@@ -21,10 +21,11 @@ import {Test} from "forge-std/Test.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
+import {IDatacapAssertion} from "test/v0.8/interfaces/assertions/module/IDatacapAssertion.sol";
 
 // assert carstore action
 // NOTE: view asserton functions must all be tested by the functions that will change state
-contract DatacapAssertion is DSTest, Test {
+contract DatacapAssertion is DSTest, Test, IDatacapAssertion {
     IDatacaps public datacaps;
 
     constructor(IDatacaps _datacaps) {

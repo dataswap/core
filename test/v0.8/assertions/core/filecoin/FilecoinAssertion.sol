@@ -20,10 +20,11 @@ import {DSTest} from "ds-test/test.sol";
 import {Test} from "forge-std/Test.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
+import {IFilecoinAssertion} from "test/v0.8/interfaces/assertions/core/IFilecoinAssertion.sol";
 
 // assert carstore action
 // NOTE: view asserton functions must all be tested by the functions that will change state
-contract FilecoinAssertion is DSTest, Test {
+contract FilecoinAssertion is DSTest, Test, IFilecoinAssertion {
     IFilecoin public filecoin;
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 

@@ -13,6 +13,13 @@
 /// limitations under the License.
 
 pragma solidity ^0.8.21;
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
+import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
+import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
+import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 
 /// @title IDatacap
 /// @dev Interface for managing the allocation of datacap for matched data storage.
@@ -55,4 +62,18 @@ interface IDatacaps {
     function isNextDatacapAllocationValid(
         uint64 _matchingId
     ) external view returns (bool);
+
+    function roles() external view returns (IRoles);
+
+    function filplus() external view returns (IFilplus);
+
+    function filecoin() external view returns (IFilecoin);
+
+    function carstore() external view returns (ICarstore);
+
+    function datasets() external view returns (IDatasets);
+
+    function matchings() external view returns (IMatchings);
+
+    function storages() external view returns (IStorages);
 }

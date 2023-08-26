@@ -19,10 +19,11 @@ pragma solidity ^0.8.21;
 import {DSTest} from "ds-test/test.sol";
 import {Test} from "forge-std/Test.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
+import {IFilplusAssertion} from "test/v0.8/interfaces/assertions/core/IFilplusAssertion.sol";
 
 // assert carstore action
 // NOTE: view asserton functions must all be tested by the functions that will change state
-contract FilplusAssertion is DSTest, Test {
+contract FilplusAssertion is DSTest, Test, IFilplusAssertion {
     IFilplus public filplus;
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 

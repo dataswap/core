@@ -17,15 +17,18 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {CarstoreTestBase} from "test/v0.8/testcases/core/carstore/abstract/CarstoreTestBase.sol";
+
+import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
+import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 
 /// @dev add car test suite
 abstract contract AddCarTestSuiteBase is CarstoreTestBase, Test {
     constructor(
-        ICarstore _carstore
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
     )
-        CarstoreTestBase(_carstore) // solhint-disable-next-line
+        CarstoreTestBase(_carstore, _assertion) // solhint-disable-next-line
     {}
 
     function before(
@@ -58,9 +61,10 @@ abstract contract AddCarTestSuiteBase is CarstoreTestBase, Test {
 /// @dev adds car test suite
 abstract contract AddCarsTestSuiteBase is CarstoreTestBase, Test {
     constructor(
-        ICarstore _carstore
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
     )
-        CarstoreTestBase(_carstore) // solhint-disable-next-line
+        CarstoreTestBase(_carstore, _assertion) // solhint-disable-next-line
     {}
 
     function before(
@@ -97,9 +101,10 @@ abstract contract AddCarsTestSuiteBase is CarstoreTestBase, Test {
 /// @dev adds car replica test suite
 abstract contract AddCarReplicaTestSuiteBase is CarstoreTestBase, Test {
     constructor(
-        ICarstore _carstore
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
     )
-        CarstoreTestBase(_carstore) // solhint-disable-next-line
+        CarstoreTestBase(_carstore, _assertion) // solhint-disable-next-line
     {}
 
     function before(bytes32 _cid, uint64 _matchingId) internal virtual;
@@ -125,9 +130,10 @@ abstract contract AddCarReplicaTestSuiteBase is CarstoreTestBase, Test {
 ///     all base FilecoinDealIdTestSuiteBase
 abstract contract FilecoinDealIdTestSuiteBase is CarstoreTestBase, Test {
     constructor(
-        ICarstore _carstore
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
     )
-        CarstoreTestBase(_carstore) // solhint-disable-next-line
+        CarstoreTestBase(_carstore, _assertion) // solhint-disable-next-line
     {}
 
     function before(
@@ -170,9 +176,10 @@ abstract contract ReportCarReplicaExpiredTestSuiteBase is
     FilecoinDealIdTestSuiteBase
 {
     constructor(
-        ICarstore _carstore
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
     )
-        FilecoinDealIdTestSuiteBase(_carstore) // solhint-disable-next-line
+        FilecoinDealIdTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
     {}
 
     function action(
@@ -193,9 +200,10 @@ abstract contract ReportCarReplicaSlashedTestSuiteBase is
     FilecoinDealIdTestSuiteBase
 {
     constructor(
-        ICarstore _carstore
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
     )
-        FilecoinDealIdTestSuiteBase(_carstore) // solhint-disable-next-line
+        FilecoinDealIdTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
     {}
 
     function action(
@@ -216,9 +224,10 @@ abstract contract SetCarReplicaFilecoinDealIdAssertionTestSuiteBase is
     FilecoinDealIdTestSuiteBase
 {
     constructor(
-        ICarstore _carstore
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
     )
-        FilecoinDealIdTestSuiteBase(_carstore) // solhint-disable-next-line
+        FilecoinDealIdTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
     {}
 
     function action(
