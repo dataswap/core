@@ -133,7 +133,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         );
     }
 
-    function submitDatasetProofBatchAssertion(
+    function submitDatasetProofAssertion(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         string calldata accessMethod,
@@ -156,7 +156,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         isDatasetContainsCarsAssertion(_datasetId, _leafHashes, false);
 
         // action
-        datasets.submitDatasetProofBatch(
+        datasets.submitDatasetProof(
             _datasetId,
             _dataType,
             accessMethod,

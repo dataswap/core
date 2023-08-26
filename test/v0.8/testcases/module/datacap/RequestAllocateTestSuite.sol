@@ -25,7 +25,7 @@ import {IDatacapsHelpers} from "test/v0.8/interfaces/helpers/module/IDatacapsHel
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
-contract RequestAllocateTestSuiteWithSuccess is DatacapTestSuiteBase {
+contract RequestAllocateTestCaseWithSuccess is DatacapTestSuiteBase {
     constructor(
         IDatacaps _datacaps,
         IDatacapsHelpers _datacapsHelpers,

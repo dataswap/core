@@ -40,7 +40,7 @@ interface IDatasetsAssertion {
         uint64 _version
     ) external;
 
-    function submitDatasetProofBatchAssertion(
+    function submitDatasetProofAssertion(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         string calldata accessMethod,

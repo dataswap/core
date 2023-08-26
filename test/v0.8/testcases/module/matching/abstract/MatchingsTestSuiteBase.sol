@@ -171,3 +171,94 @@ abstract contract BiddingTestSuiteBase is MatchingsTestBase, Test {
         after_(_matchingId, _amount);
     }
 }
+
+abstract contract ControlTestSuiteBase is MatchingsTestBase, Test {
+    constructor(
+        IMatchings _matchings,
+        IMatchingsHelpers _matchingsHelpers,
+        IMatchingsAssertion _matchingsAssertion
+    )
+        MatchingsTestBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+    {}
+
+    function before(uint64 _matchingId) internal virtual;
+
+    function action(uint64 _matchingId) internal virtual {}
+
+    function action(uint64 _matchingId, address _winner) internal virtual {}
+
+    function after_(
+        uint64 _matchingId // solhint-disable-next-line
+    ) internal virtual {}
+
+    function run(uint64 _matchingId) public {
+        before(_matchingId);
+        action(_matchingId);
+        after_(_matchingId);
+    }
+
+    function run(uint64 _matchingId, address _winner) public {
+        before(_matchingId);
+        action(_matchingId, _winner);
+        after_(_matchingId);
+    }
+}
+
+abstract contract PauseTestSuiteBase is ControlTestSuiteBase {
+    constructor(
+        IMatchings _matchings,
+        IMatchingsHelpers _matchingsHelpers,
+        IMatchingsAssertion _matchingsAssertion
+    )
+        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+    {}
+
+    function action(uint64 _matchingId) internal virtual override {
+        matchingsAssertion.pauseMatchingAssertion(_matchingId);
+    }
+}
+
+abstract contract ResumeTestSuiteBase is ControlTestSuiteBase {
+    constructor(
+        IMatchings _matchings,
+        IMatchingsHelpers _matchingsHelpers,
+        IMatchingsAssertion _matchingsAssertion
+    )
+        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+    {}
+
+    function action(uint64 _matchingId) internal virtual override {
+        matchingsAssertion.resumeMatchingAssertion(_matchingId);
+    }
+}
+
+abstract contract CancelTestSuiteBase is ControlTestSuiteBase {
+    constructor(
+        IMatchings _matchings,
+        IMatchingsHelpers _matchingsHelpers,
+        IMatchingsAssertion _matchingsAssertion
+    )
+        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+    {}
+
+    function action(uint64 _matchingId) internal virtual override {
+        matchingsAssertion.cancelMatchingAssertion(_matchingId);
+    }
+}
+
+abstract contract CloseTestSuiteBase is ControlTestSuiteBase {
+    constructor(
+        IMatchings _matchings,
+        IMatchingsHelpers _matchingsHelpers,
+        IMatchingsAssertion _matchingsAssertion
+    )
+        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+    {}
+
+    function action(
+        uint64 _matchingId,
+        address _winner
+    ) internal virtual override {
+        matchingsAssertion.closeMatchingAssertion(_matchingId, _winner);
+    }
+}

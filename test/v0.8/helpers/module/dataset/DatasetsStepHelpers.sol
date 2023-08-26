@@ -74,7 +74,7 @@ contract DatasetsStepHelpers is Test {
         if (DatasetType.DataType.MappingFiles == _dataType) {
             accessMethod = "mappingFilesAccessMethod";
         }
-        datasets.submitDatasetProofBatch(
+        datasets.submitDatasetProof(
             _datasetId,
             _dataType,
             accessMethod,

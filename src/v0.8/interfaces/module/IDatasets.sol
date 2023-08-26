@@ -54,7 +54,7 @@ interface IDatasets {
     ) external;
 
     ///@notice Submit proof for a dataset
-    function submitDatasetProofBatch(
+    function submitDatasetProof(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         string calldata accessMethod,
@@ -165,4 +165,6 @@ interface IDatasets {
     function datasetsCount() external view returns (uint64);
 
     function roles() external view returns (IRoles);
+
+    function governanceAddress() external view returns (address);
 }

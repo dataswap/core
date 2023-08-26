@@ -50,7 +50,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     uint64 public datasetsCount; // Total count of datasets
     mapping(uint64 => DatasetType.Dataset) private datasets; // Mapping of dataset ID to dataset details
 
-    address private governanceAddress;
+    address public governanceAddress;
     IRoles public roles;
     IFilplus private filplus;
     ICarstore private carstore;
@@ -167,7 +167,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     ///@notice Submit proof for a dataset
     /// Proof and verification functionality is provided here as a sample code structure.
     /// The actual functionality is pending completion.
-    function submitDatasetProofBatch(
+    function submitDatasetProof(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         string calldata _mappingFilesAccessMethod,

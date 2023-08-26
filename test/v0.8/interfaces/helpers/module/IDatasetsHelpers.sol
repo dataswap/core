@@ -22,20 +22,18 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
 /// @title IDatasetsHelpers
 interface IDatasetsHelpers {
-    ///@dev This function changes the state of the dataset to DatasetApproved.
-    function approveDataset(uint64 _datasetId) external;
-
-    ///@dev This function changes the state of the dataset to MetadataApproved.
-    function approveDatasetMetadata(uint64 _datasetId) external;
-
-    ///@dev This function changes the state of the dataset to DatasetRejected .
-    function rejectDataset(uint64 _datasetId) external;
-
-    ///@dev This function changes the state of the dataset to MetadataRejected .
-    function rejectDatasetMetadata(uint64 _datasetId) external;
+    function setup() external;
 
     ///@notice Submit metadata for a dataset
-    function submitDatasetMetadata(string memory _accessMethod) external;
+    function submitDatasetMetadata(
+        string memory _accessMethod
+    ) external returns (uint64 datasetId);
+
+    function generateRoot() external returns (bytes32);
+
+    function generateProof(
+        uint64 _leavesCount
+    ) external returns (bytes32[] memory, uint64[] memory);
 
     function submitDatasetProof(
         uint64 _datasetId,
@@ -49,6 +47,17 @@ interface IDatasetsHelpers {
             bytes32[] memory,
             uint64[] memory,
             uint64 totalSize
+        );
+
+    function generateVerification(
+        uint64 _pointCount,
+        uint64 _pointLeavesCount
+    )
+        external
+        returns (
+            uint64 _randomSeed,
+            bytes32[][] memory _siblings,
+            uint32[] memory _paths
         );
 
     function submitDatasetVerification(

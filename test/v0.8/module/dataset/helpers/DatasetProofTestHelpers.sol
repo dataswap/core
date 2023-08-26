@@ -73,7 +73,7 @@ contract DatasetProofTestHelpers is Test, DatasetMetadataAuditTestHelpers {
         } else {
             accessMethod = "mappingFilesAccessMethod";
         }
-        datasets.submitDatasetProofBatch(
+        datasets.submitDatasetProof(
             _datasetId,
             _dataType,
             accessMethod,
