@@ -16,57 +16,59 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {SubmitStorageDealIdsTestSuiteBase} from "test/v0.8/testcases/module/storage/abstract/StoragesTestSuiteBase.sol";
+import {BiddingTestSuiteBase} from "test/v0.8/testcases/module/matching/abstract/MatchingsTestSuiteBase.sol";
 
-import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
-import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
-import {IStoragesHeplers} from "test/v0.8/interfaces/helpers/module/IStoragesHeplers.sol";
-
+import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
+import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 
-contract SubmitStorageDealIdsTestCaseWithSuccess is
-    SubmitStorageDealIdsTestSuiteBase
-{
+contract BiddingTestCaseWithSuccess is BiddingTestSuiteBase {
     constructor(
-        IStorages _storages,
-        IStoragesHeplers _storagesHelpers,
-        IStoragesAssertion _storagesAssertion
+        IMatchings _matchings,
+        IMatchingsHelpers _matchingsHelpers,
+        IMatchingsAssertion _matchingsAssertion
     )
-        SubmitStorageDealIdsTestSuiteBase(
-            _storages,
-            _storagesHelpers,
-            _storagesAssertion
-        ) // solhint-disable-next-line
+        BiddingTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
     {}
 
     function before(
         uint64 _matchingId,
-        bytes32[] memory /*_cids*/,
-        uint64[] memory /*_filecoinDealIds*/
+        uint256 /*_amount*/
     ) internal virtual override {
-        (, _matchingId) = storagesHelpers.setup(
+        uint64 datasetId = matchingsHelpers.setup(
             "testAccessMethod",
+            100,
+            10,
+            10,
+            10
+        );
+        _matchingId = matchingsHelpers.publishMatching(
+            datasetId,
             DatasetType.DataType.MappingFiles,
             0,
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
             100,
-            100
+            100,
+            "TEST"
         );
     }
 
     function action(
         uint64 _matchingId,
-        bytes32[] memory _cids,
-        uint64[] memory _filecoinDealIds
+        uint256 _amount
     ) internal virtual override {
-        (, _cids /*uint64 size*/, , , ) = storages
-            .matchings()
-            .getMatchingTarget(_matchingId);
-        vm.startPrank(storages.matchings().getMatchingWinner(_matchingId));
-        super.action(_matchingId, _cids, _filecoinDealIds);
+        IRoles roles = matchings.datasets().roles();
+        roles.grantRole(RolesType.STORAGE_PROVIDER, address(99));
+        _amount = 10000;
+        vm.startPrank(address(99));
+        vm.startPrank(address(99));
+        super.action(_matchingId, _amount);
         vm.stopPrank();
     }
 }

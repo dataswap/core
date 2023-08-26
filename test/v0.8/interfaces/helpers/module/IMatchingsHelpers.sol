@@ -23,38 +23,25 @@ import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
 /// @title IMatchings
 interface IMatchingsHelpers {
+    function setup(
+        string memory _accessMethod,
+        uint64 _sourceLeavesCount,
+        uint64 _mappingFilesLeavesCount,
+        uint64 _challengeCount,
+        uint64 _challengeLeavesCount
+    ) external returns (uint64 datasetId);
+
     function publishMatching(
         uint64 _datasetId,
-        bytes32[] memory _cars,
-        uint64 _size,
         DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID,
         MatchingType.BidSelectionRule _bidSelectionRule,
         uint64 _biddingDelayBlockCount,
         uint64 _biddingPeriodBlockCount,
         uint64 _storageCompletionPeriodBlocks,
-        uint256 _biddingThreshold
+        uint256 _biddingThreshold,
+        string memory _additionalInfo
     ) external returns (uint64 matchingId);
-
-    /// @notice  Function for bidding on a matching
-    function bidding(
-        uint64 _matchingId,
-        address _bidder,
-        uint256 _amount,
-        uint64 _blocknumber
-    ) external;
-
-    /// @notice  Function for pausing a matching
-    function pauseMatching(uint64 _matchingId) external;
-
-    /// @notice  Function for resuming a paused matching
-    function resumeMatching(uint64 _matchingId) external;
-
-    /// @notice  Function for canceling a matching
-    function cancelMatching(uint64 _matchingId) external;
-
-    /// @notice  Function for closing a matching and choosing a winner
-    function closeMatching(uint64 _matchingId) external;
 
     function completeMatchingWorkflow(
         uint64 _datasetId,

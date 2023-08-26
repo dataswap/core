@@ -18,21 +18,21 @@ pragma solidity ^0.8.21;
 
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
-import {IStoragesSetupHeplers} from "test/v0.8/interfaces/helpers/setup/IStoragesSetupHeplers.sol";
+import {IStoragesHeplers} from "test/v0.8/interfaces/helpers/module/IStoragesHeplers.sol";
 
 /// @dev design CarstoreTestBase as all test suite must constructor the same parmas
 abstract contract StoragesTestBase {
     IStorages internal storages;
-    IStoragesSetupHeplers internal storagesSetupHelpers;
+    IStoragesHeplers internal storagesHelpers;
     IStoragesAssertion internal storagesAssertion;
 
     constructor(
         IStorages _storages,
-        IStoragesSetupHeplers _storagesSetupHelpers,
+        IStoragesHeplers _storagesHelpers,
         IStoragesAssertion _storagesAssertion
     ) {
         storages = _storages;
-        storagesSetupHelpers = _storagesSetupHelpers;
+        storagesHelpers = _storagesHelpers;
         storagesAssertion = _storagesAssertion;
     }
 }

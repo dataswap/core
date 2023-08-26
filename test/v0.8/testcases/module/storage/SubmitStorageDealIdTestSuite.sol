@@ -20,7 +20,7 @@ import {SubmitStorageDealIdTestSuiteBase} from "test/v0.8/testcases/module/stora
 
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
-import {IStoragesSetupHeplers} from "test/v0.8/interfaces/helpers/setup/IStoragesSetupHeplers.sol";
+import {IStoragesHeplers} from "test/v0.8/interfaces/helpers/module/IStoragesHeplers.sol";
 
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
@@ -30,12 +30,12 @@ contract SubmitStorageDealIdTestCaseWithSuccess is
 {
     constructor(
         IStorages _storages,
-        IStoragesSetupHeplers _storagesSetupHelpers,
+        IStoragesHeplers _storagesHelpers,
         IStoragesAssertion _storagesAssertion
     )
         SubmitStorageDealIdTestSuiteBase(
             _storages,
-            _storagesSetupHelpers,
+            _storagesHelpers,
             _storagesAssertion
         ) // solhint-disable-next-line
     {}
@@ -45,7 +45,7 @@ contract SubmitStorageDealIdTestCaseWithSuccess is
         bytes32 /*_cid*/,
         uint64 /*_filecoinDealId*/
     ) internal virtual override {
-        (, _matchingId) = storagesSetupHelpers.setup(
+        (, _matchingId) = storagesHelpers.setup(
             "testAccessMethod",
             DatasetType.DataType.MappingFiles,
             0,

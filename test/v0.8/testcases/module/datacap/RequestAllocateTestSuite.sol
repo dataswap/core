@@ -20,7 +20,7 @@ import {DatacapTestSuiteBase} from "test/v0.8/testcases/module/datacap/abstract/
 
 import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
 import {IDatacapsAssertion} from "test/v0.8/interfaces/assertions/module/IDatacapsAssertion.sol";
-import {IDatacapsSetupHelpers} from "test/v0.8/interfaces/helpers/setup/IDatacapsSetupHelpers.sol";
+import {IDatacapsHelpers} from "test/v0.8/interfaces/helpers/module/IDatacapsHelpers.sol";
 
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
@@ -28,18 +28,14 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 contract RequestAllocateTestSuiteWithSuccess is DatacapTestSuiteBase {
     constructor(
         IDatacaps _datacaps,
-        IDatacapsSetupHelpers _datacapsSetupHelpers,
+        IDatacapsHelpers _datacapsHelpers,
         IDatacapsAssertion _datacapsAssertion
     )
-        DatacapTestSuiteBase(
-            _datacaps,
-            _datacapsSetupHelpers,
-            _datacapsAssertion
-        ) // solhint-disable-next-line
+        DatacapTestSuiteBase(_datacaps, _datacapsHelpers, _datacapsAssertion) // solhint-disable-next-line
     {}
 
     function before(uint64 _matchingId) internal virtual override {
-        (, _matchingId) = datacapsSetupHelpers.setup(
+        (, _matchingId) = datacapsHelpers.setup(
             "testAccessMethod",
             DatasetType.DataType.MappingFiles,
             0,
@@ -63,14 +59,10 @@ contract RequestAllocateTestSuiteWithSuccess is DatacapTestSuiteBase {
 contract RequestAllocateTestSuiteWithInvalidMatchingId is DatacapTestSuiteBase {
     constructor(
         IDatacaps _datacaps,
-        IDatacapsSetupHelpers _datacapsSetupHelpers,
+        IDatacapsHelpers _datacapsHelpers,
         IDatacapsAssertion _datacapsAssertion
     )
-        DatacapTestSuiteBase(
-            _datacaps,
-            _datacapsSetupHelpers,
-            _datacapsAssertion
-        ) // solhint-disable-next-line
+        DatacapTestSuiteBase(_datacaps, _datacapsHelpers, _datacapsAssertion) // solhint-disable-next-line
     {}
 
     function before(uint64 _matchingId) internal virtual override {}
@@ -84,18 +76,14 @@ contract RequestAllocateTestSuiteWithInvalidMatchingId is DatacapTestSuiteBase {
 contract RequestAllocateTestSuiteWithInvalidCaller is DatacapTestSuiteBase {
     constructor(
         IDatacaps _datacaps,
-        IDatacapsSetupHelpers _datacapsSetupHelpers,
+        IDatacapsHelpers _datacapsHelpers,
         IDatacapsAssertion _datacapsAssertion
     )
-        DatacapTestSuiteBase(
-            _datacaps,
-            _datacapsSetupHelpers,
-            _datacapsAssertion
-        ) // solhint-disable-next-line
+        DatacapTestSuiteBase(_datacaps, _datacapsHelpers, _datacapsAssertion) // solhint-disable-next-line
     {}
 
     function before(uint64 _matchingId) internal virtual override {
-        (, _matchingId) = datacapsSetupHelpers.setup(
+        (, _matchingId) = datacapsHelpers.setup(
             "testAccessMethod",
             DatasetType.DataType.MappingFiles,
             0,
@@ -126,18 +114,14 @@ contract RequestAllocateTestSuiteWithInvalidNextRequest is
 {
     constructor(
         IDatacaps _datacaps,
-        IDatacapsSetupHelpers _datacapsSetupHelpers,
+        IDatacapsHelpers _datacapsHelpers,
         IDatacapsAssertion _datacapsAssertion
     )
-        DatacapTestSuiteBase(
-            _datacaps,
-            _datacapsSetupHelpers,
-            _datacapsAssertion
-        ) // solhint-disable-next-line
+        DatacapTestSuiteBase(_datacaps, _datacapsHelpers, _datacapsAssertion) // solhint-disable-next-line
     {}
 
     function before(uint64 _matchingId) internal virtual override {
-        (, _matchingId) = datacapsSetupHelpers.setup(
+        (, _matchingId) = datacapsHelpers.setup(
             "testAccessMethod",
             DatasetType.DataType.MappingFiles,
             0,

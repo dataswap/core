@@ -19,6 +19,7 @@
 pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 
 /// @title IDatasets
 interface IDatasets {
@@ -162,4 +163,6 @@ interface IDatasets {
 
     // Default getter functions for public variables
     function datasetsCount() external view returns (uint64);
+
+    function roles() external view returns (IRoles);
 }

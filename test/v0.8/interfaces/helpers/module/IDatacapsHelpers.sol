@@ -13,18 +13,20 @@
 /// limitations under the License.
 
 pragma solidity ^0.8.21;
-import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
-import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
-import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
-import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
-import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
-import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
+import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
 /// @title IDatacap
 /// @dev Interface for managing the allocation of datacap for matched data storage.
 interface IDatacapsHelpers {
-    function requestAllocateDatacap(
-        uint64 _matchingId
-    ) external returns (uint64);
+    function setup(
+        string memory _accessMethod,
+        DatasetType.DataType _dataType,
+        uint64 _associatedMappingFilesMatchingID,
+        MatchingType.BidSelectionRule _bidSelectionRule,
+        uint64 _biddingDelayBlockCount,
+        uint64 _biddingPeriodBlockCount,
+        uint64 _storageCompletionPeriodBlocks,
+        uint256 _biddingThreshold
+    ) external returns (uint64 datasetId, uint64 matchingId);
 }

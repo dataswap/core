@@ -21,16 +21,16 @@ import {DatacapTestBase} from "test/v0.8/testcases/module/datacap/abstract/Datac
 
 import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
 import {IDatacapsAssertion} from "test/v0.8/interfaces/assertions/module/IDatacapsAssertion.sol";
-import {IDatacapsSetupHelpers} from "test/v0.8/interfaces/helpers/setup/IDatacapsSetupHelpers.sol";
+import {IDatacapsHelpers} from "test/v0.8/interfaces/helpers/module/IDatacapsHelpers.sol";
 
 /// @dev add car test suite
 abstract contract DatacapTestSuiteBase is DatacapTestBase, Test {
     constructor(
         IDatacaps _datacaps,
-        IDatacapsSetupHelpers _datacapsSetupHelpers,
+        IDatacapsHelpers _datacapsHelpers,
         IDatacapsAssertion _datacapsAssertion
     )
-        DatacapTestBase(_datacaps, _datacapsSetupHelpers, _datacapsAssertion) // solhint-disable-next-line
+        DatacapTestBase(_datacaps, _datacapsHelpers, _datacapsAssertion) // solhint-disable-next-line
     {}
 
     function before(uint64 _matchingId) internal virtual;

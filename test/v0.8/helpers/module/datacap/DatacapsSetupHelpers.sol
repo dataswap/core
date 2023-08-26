@@ -13,7 +13,7 @@
 /// limitations under the License.
 
 pragma solidity ^0.8.21;
-import {IDatacapsSetupHelpers} from "test/v0.8/interfaces/helpers/setup/IDatacapsSetupHelpers.sol";
+import {IDatacapsHelpers} from "test/v0.8/interfaces/helpers/module/IDatacapsHelpers.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
@@ -24,12 +24,10 @@ import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStorag
 import {IDatacapsAssertion} from "test/v0.8/interfaces/assertions/module/IDatacapsAssertion.sol";
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
-import {IStoragesHeplers} from "test/v0.8/interfaces/helpers/module/IStoragesHeplers.sol";
-import {IDatacapsHelpers} from "test/v0.8/interfaces/helpers/module/IDatacapsHelpers.sol";
 
 /// @title IDatacap
 /// @dev Interface for managing the allocation of datacap for matched data storage.
-contract DatacapsSetupHelpers is IDatacapsSetupHelpers {
+contract DatacapsSetupHelpers is IDatacapsHelpers {
     IDatacaps internal datacaps;
     IDatasetsAssertion internal datasetAssertion;
     IMatchingsAssertion internal matchingAssertion;
@@ -37,8 +35,6 @@ contract DatacapsSetupHelpers is IDatacapsSetupHelpers {
     IDatacapsAssertion internal datacapAssertion;
     IDatasetsHelpers internal datasetHelpers;
     IMatchingsHelpers internal matchingsHelpers;
-    IStoragesHeplers internal storageHelpers;
-    IDatacapsHelpers internal datacapHelper;
 
     constructor(
         IDatacaps _datacaps,
@@ -47,9 +43,7 @@ contract DatacapsSetupHelpers is IDatacapsSetupHelpers {
         IStoragesAssertion _storageAssertion,
         IDatacapsAssertion _datacapAssertion,
         IDatasetsHelpers _datasetHelpers,
-        IMatchingsHelpers _matchingsHelpers,
-        IStoragesHeplers _storageHelpers,
-        IDatacapsHelpers _datacapHelpers
+        IMatchingsHelpers _matchingsHelpers
     ) {
         datacaps = _datacaps;
         datasetAssertion = _datasetAssertion;
@@ -58,8 +52,6 @@ contract DatacapsSetupHelpers is IDatacapsSetupHelpers {
         datacapAssertion = _datacapAssertion;
         datasetHelpers = _datasetHelpers;
         matchingsHelpers = _matchingsHelpers;
-        storageHelpers = _storageHelpers;
-        datacapHelper = _datacapHelpers;
     }
 
     function setup(

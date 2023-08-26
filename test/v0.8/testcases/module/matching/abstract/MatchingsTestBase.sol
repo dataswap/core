@@ -13,21 +13,26 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ********************************************************************************/
-
 // SPDX-License-Identifier: GPL-3.0-or-later
-
 pragma solidity ^0.8.21;
 
-import {DatasetType} from "src/v0.8/types/DatasetType.sol";
-import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
+import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
 
-/// @title IMatchings
-interface IMatchingsSetupHelpers {
-    function setup(
-        string memory _accessMethod,
-        uint64 _sourceLeavesCount,
-        uint64 _mappingFilesLeavesCount,
-        uint64 _challengeCount,
-        uint64 _challengeLeavesCount
-    ) external returns (uint64 datasetId);
+/// @dev design CarstoreTestBase as all test suite must constructor the same parmas
+abstract contract MatchingsTestBase {
+    IMatchings internal matchings;
+    IMatchingsHelpers internal matchingsHelpers;
+    IMatchingsAssertion internal matchingsAssertion;
+
+    constructor(
+        IMatchings _matchings,
+        IMatchingsHelpers _matchingsHelpers,
+        IMatchingsAssertion _matchingsAssertion
+    ) {
+        matchings = _matchings;
+        matchingsHelpers = _matchingsHelpers;
+        matchingsAssertion = _matchingsAssertion;
+    }
 }

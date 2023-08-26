@@ -21,15 +21,15 @@ import {StoragesTestBase} from "test/v0.8/testcases/module/storage/abstract/Stor
 
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
-import {IStoragesSetupHeplers} from "test/v0.8/interfaces/helpers/setup/IStoragesSetupHeplers.sol";
+import {IStoragesHeplers} from "test/v0.8/interfaces/helpers/module/IStoragesHeplers.sol";
 
 abstract contract SubmitStorageDealIdTestSuiteBase is StoragesTestBase, Test {
     constructor(
         IStorages _storages,
-        IStoragesSetupHeplers _storagesSetupHelpers,
+        IStoragesHeplers _storagesHelpers,
         IStoragesAssertion _storagesAssertion
     )
-        StoragesTestBase(_storages, _storagesSetupHelpers, _storagesAssertion) // solhint-disable-next-line
+        StoragesTestBase(_storages, _storagesHelpers, _storagesAssertion) // solhint-disable-next-line
     {}
 
     function before(
@@ -70,10 +70,10 @@ abstract contract SubmitStorageDealIdTestSuiteBase is StoragesTestBase, Test {
 abstract contract SubmitStorageDealIdsTestSuiteBase is StoragesTestBase, Test {
     constructor(
         IStorages _storages,
-        IStoragesSetupHeplers _storagesSetupHelpers,
+        IStoragesHeplers _storagesHelpers,
         IStoragesAssertion _datacapAssertion
     )
-        StoragesTestBase(_storages, _storagesSetupHelpers, _datacapAssertion) // solhint-disable-next-line
+        StoragesTestBase(_storages, _storagesHelpers, _datacapAssertion) // solhint-disable-next-line
     {}
 
     function before(

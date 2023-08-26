@@ -51,7 +51,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     mapping(uint64 => DatasetType.Dataset) private datasets; // Mapping of dataset ID to dataset details
 
     address private governanceAddress;
-    IRoles private roles;
+    IRoles public roles;
     IFilplus private filplus;
     ICarstore private carstore;
 

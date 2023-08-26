@@ -18,21 +18,21 @@ pragma solidity ^0.8.21;
 
 import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
 import {IDatacapsAssertion} from "test/v0.8/interfaces/assertions/module/IDatacapsAssertion.sol";
-import {IDatacapsSetupHelpers} from "test/v0.8/interfaces/helpers/setup/IDatacapsSetupHelpers.sol";
+import {IDatacapsHelpers} from "test/v0.8/interfaces/helpers/module/IDatacapsHelpers.sol";
 
 /// @dev design CarstoreTestBase as all test suite must constructor the same parmas
 abstract contract DatacapTestBase {
     IDatacaps internal datacaps;
-    IDatacapsSetupHelpers internal datacapsSetupHelpers;
+    IDatacapsHelpers internal datacapsHelpers;
     IDatacapsAssertion internal datacapsAssertion;
 
     constructor(
         IDatacaps _datacaps,
-        IDatacapsSetupHelpers _datacapsSetupHelpers,
+        IDatacapsHelpers _datacapsHelpers,
         IDatacapsAssertion _datacapsAssertion
     ) {
         datacaps = _datacaps;
-        datacapsSetupHelpers = _datacapsSetupHelpers;
+        datacapsHelpers = _datacapsHelpers;
         datacapsAssertion = _datacapsAssertion;
     }
 }
