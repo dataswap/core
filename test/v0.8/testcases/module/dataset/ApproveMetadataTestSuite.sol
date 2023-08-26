@@ -40,8 +40,9 @@ contract ApproveMetadataTestCaseWithSuccess is DatasetsTestBase {
     }
 
     function action(uint64 _id) internal virtual override {
-        vm.prank(datasets.governanceAddress());
-        datasets.approveDatasetMetadata(_id);
+        // vm.startPrank(datasets.governanceAddress());
+        // TODO: need pass caller to other contract
         datasetsAssertion.approveDatasetMetadataAssertion(_id);
+        // vm.stopPrank();
     }
 }

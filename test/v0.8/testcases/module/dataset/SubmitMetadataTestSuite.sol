@@ -35,6 +35,7 @@ contract SubmitMetadataTestCaseWithSuccess is DatasetsTestBase {
     {}
 
     function action(uint64 /*_id*/) internal virtual override {
+        vm.startPrank(address(1000));
         datasetsAssertion.submitDatasetMetadataAssertion(
             "a",
             "b",
@@ -46,6 +47,7 @@ contract SubmitMetadataTestCaseWithSuccess is DatasetsTestBase {
             true,
             0
         );
+        vm.stopPrank();
     }
 }
 

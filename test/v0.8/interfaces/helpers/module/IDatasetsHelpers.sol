@@ -22,8 +22,6 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
 /// @title IDatasetsHelpers
 interface IDatasetsHelpers {
-    function setup() external;
-
     ///@notice Submit metadata for a dataset
     function submitDatasetMetadata(
         string memory _accessMethod
@@ -33,21 +31,15 @@ interface IDatasetsHelpers {
 
     function generateProof(
         uint64 _leavesCount
-    ) external returns (bytes32[] memory, uint64[] memory);
+    ) external returns (bytes32[] memory, uint64[] memory, uint64);
 
     function submitDatasetProof(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
+        string memory _accessMethod,
         uint64 _leavesCount,
         bool _complete
-    )
-        external
-        returns (
-            bytes32 rootHash,
-            bytes32[] memory,
-            uint64[] memory,
-            uint64 totalSize
-        );
+    ) external;
 
     function generateVerification(
         uint64 _pointCount,

@@ -50,6 +50,8 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             DatasetType.State.MetadataSubmitted
         );
         //action
+        //TODO:need delete
+        vm.prank(datasets.governanceAddress());
         datasets.approveDatasetMetadata(_datasetId);
         //after action
         getDatasetStateAssertion(
@@ -128,7 +130,8 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         getDatasetMetadataAssertion(
             newDatasetsCount,
             _accessMethod,
-            msg.sender,
+            //TODO:check
+            address(this),
             uint64(block.number)
         );
     }

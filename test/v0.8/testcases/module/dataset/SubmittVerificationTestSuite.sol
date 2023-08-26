@@ -41,12 +41,14 @@ contract SubmittVerificationTestCaseWithSuccess is DatasetsTestBase {
         datasetsHelpers.submitDatasetProof(
             datasetId,
             DatasetType.DataType.Source,
+            "",
             100,
             true
         );
         datasetsHelpers.submitDatasetProof(
             datasetId,
             DatasetType.DataType.MappingFiles,
+            "accessmethod",
             10,
             true
         );

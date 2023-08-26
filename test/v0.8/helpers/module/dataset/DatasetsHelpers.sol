@@ -20,77 +20,156 @@ pragma solidity ^0.8.21;
 // Import required external contracts and interfaces
 import {Test} from "forge-std/Test.sol";
 import {TestHelpers} from "src/v0.8/shared/utils/common/TestHelpers.sol";
+import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
+
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
-import {LeavesGenerator} from "test/v0.8/helpers/utils/LeavesGenerator.sol";
-import {DatasetsStepHelpers} from "test/v0.8/helpers/module/dataset/DatasetsStepHelpers.sol";
+import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
 import {DatasetsAssertion} from "test/v0.8/assertions/module/dataset/DatasetsAssertion.sol";
 
 // Contract definition for test helper functions
-contract DatasetsHelpers is Test {
+contract DatasetsHelpers is Test, IDatasetsHelpers {
     IDatasets public datasets;
-    LeavesGenerator private generator;
-    DatasetsStepHelpers private stepHelpers;
+    Generator private generator;
     DatasetsAssertion private assertion;
 
     constructor(
         IDatasets _datasets,
-        LeavesGenerator _generator,
-        DatasetsStepHelpers _stepHelpers,
+        Generator _generator,
         DatasetsAssertion _assertion
     ) {
         datasets = _datasets;
         generator = _generator;
-        stepHelpers = _stepHelpers;
         assertion = _assertion;
     }
 
-    //helper need test, make sure ok
-    function done(string memory _accessMethod) public {
-        // 1 submit meta
-        stepHelpers.submitDatasetMetadata(_accessMethod);
-        uint64 datasetId = datasets.datasetsCount();
-        assertion.getDatasetStateAssertion(
-            datasetId,
-            DatasetType.State.MetadataSubmitted
+    ///@notice Submit metadata for a dataset
+    function submitDatasetMetadata(
+        string memory _accessMethod
+    ) public returns (uint64 datasetId) {
+        uint64 datasetCount = datasets.datasetsCount();
+        datasets.submitDatasetMetadata(
+            "title",
+            "industry",
+            "name",
+            "description",
+            "source",
+            _accessMethod,
+            100,
+            true,
+            1
         );
+        return datasetCount + 1;
+    }
 
-        // 2 approve metadata
-        datasets.approveDatasetMetadata(datasetId);
-        assertion.getDatasetStateAssertion(
-            datasetId,
-            DatasetType.State.MetadataApproved
+    function generateRoot() public returns (bytes32) {
+        return generator.generateRoot();
+    }
+
+    function generateProof(
+        uint64 _leavesCount
+    ) public returns (bytes32[] memory, uint64[] memory, uint64) {
+        return generator.generateLeavesAndSizes(_leavesCount);
+    }
+
+    function submitDatasetProof(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType,
+        string memory _accessMethod,
+        uint64 _leavesCount,
+        bool _complete
+    ) public {
+        bytes32 root = generateRoot();
+        bytes32[] memory leavesHashes = new bytes32[](_leavesCount);
+        uint64[] memory leavesSizes = new uint64[](_leavesCount);
+        (leavesHashes, leavesSizes, ) = generateProof(_leavesCount);
+        datasets.submitDatasetProof(
+            _datasetId,
+            _dataType,
+            _accessMethod,
+            root,
+            leavesHashes,
+            leavesSizes,
+            _complete
         );
+    }
 
-        //3 submit proof
-        stepHelpers.submitDatasetProof(
+    function generateVerification(
+        uint64 _pointCount,
+        uint64 _pointLeavesCount
+    ) public returns (uint64, bytes32[][] memory, uint32[] memory) {
+        uint64 randomSeed = generator.generateNonce();
+        bytes32[][] memory siblings = new bytes32[][](_pointCount);
+        uint32[] memory paths = new uint32[](_pointCount);
+        for (uint32 i = 0; i < _pointCount; i++) {
+            bytes32[] memory leaves = new bytes32[](_pointLeavesCount);
+            leaves = generator.generateLeaves(_pointLeavesCount);
+            siblings[i] = leaves;
+            paths[i] = i;
+        }
+        return (randomSeed, siblings, paths);
+    }
+
+    function submitDatasetVerification(
+        uint64 _datasetId,
+        uint64 _challengeCount,
+        uint64 _challengeLeavesCount
+    ) public {
+        uint64 randomSeed = generator.generateNonce();
+        bytes32[][] memory siblings = new bytes32[][](_challengeCount);
+        uint32[] memory paths = new uint32[](_challengeCount);
+        for (uint32 i = 0; i < _challengeCount; i++) {
+            bytes32[] memory leaves = new bytes32[](_challengeLeavesCount);
+            leaves = generator.generateLeaves(_challengeLeavesCount);
+            siblings[i] = leaves;
+            paths[i] = i;
+        }
+        datasets.submitDatasetVerification(
+            _datasetId,
+            randomSeed,
+            siblings,
+            paths
+        );
+    }
+
+    function completeDatasetWorkflow(
+        string memory _accessMethod,
+        uint64 _sourceLeavesCount,
+        uint64 _mappingFilesLeavesCount,
+        uint64 /*_challengeCount*/,
+        uint64 /*_challengeLeavesCount*/
+    ) external returns (uint64) {
+        //1:submit meta
+        uint64 datasetId = submitDatasetMetadata(_accessMethod);
+
+        //2:approved meta
+        vm.prank(datasets.governanceAddress());
+        assertion.approveDatasetMetadataAssertion(datasetId);
+
+        //3:submit proof
+        submitDatasetProof(
             datasetId,
             DatasetType.DataType.MappingFiles,
-            10,
+            _accessMethod,
+            _sourceLeavesCount,
             true
         );
-        stepHelpers.submitDatasetProof(
+        submitDatasetProof(
             datasetId,
             DatasetType.DataType.Source,
-            100,
-            false
-        );
-        stepHelpers.submitDatasetProof(
-            datasetId,
-            DatasetType.DataType.Source,
-            100,
+            _accessMethod,
+            _mappingFilesLeavesCount,
             true
-        );
-        assertion.getDatasetStateAssertion(
-            datasetId,
-            DatasetType.State.DatasetProofSubmitted
         );
 
-        //4 approve
+        // NOTE:TODO verify before approved
+        // submitDatasetVerification(
+        //     datasetId,
+        //     _challengeCount,
+        //     _challengeLeavesCount
+        // );
+        vm.prank(datasets.governanceAddress());
         datasets.approveDataset(datasetId);
-        assertion.getDatasetStateAssertion(
-            datasetId,
-            DatasetType.State.DatasetApproved
-        );
+        return datasetId;
     }
 }

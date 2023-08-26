@@ -24,7 +24,7 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 
 // Contract definition for test helper functions
-contract LeavesGenerator {
+contract Generator {
     uint64 private nonce = 0;
 
     function generateRoot() public returns (bytes32) {

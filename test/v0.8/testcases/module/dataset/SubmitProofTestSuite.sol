@@ -24,7 +24,6 @@ import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
-import {LeavesGenerator} from "test/v0.8/helpers/utils/LeavesGenerator.sol";
 
 contract SubmitProofTestCaseWithSuccess is DatasetsTestBase {
     constructor(
@@ -48,9 +47,8 @@ contract SubmitProofTestCaseWithSuccess is DatasetsTestBase {
         bytes32[] memory sourceLeavesHashes = new bytes32[](sourceLeavesCount);
         uint64[] memory sourceLeavesSizes = new uint64[](sourceLeavesCount);
         // firset submit
-        (sourceLeavesHashes, sourceLeavesSizes) = datasetsHelpers.generateProof(
-            sourceLeavesCount
-        );
+        (sourceLeavesHashes, sourceLeavesSizes, ) = datasetsHelpers
+            .generateProof(sourceLeavesCount);
         datasetsAssertion.submitDatasetProofAssertion(
             _datasetId,
             DatasetType.DataType.Source,
@@ -62,9 +60,8 @@ contract SubmitProofTestCaseWithSuccess is DatasetsTestBase {
         );
 
         // second submit
-        (sourceLeavesHashes, sourceLeavesSizes) = datasetsHelpers.generateProof(
-            sourceLeavesCount
-        );
+        (sourceLeavesHashes, sourceLeavesSizes, ) = datasetsHelpers
+            .generateProof(sourceLeavesCount);
         datasetsAssertion.submitDatasetProofAssertion(
             _datasetId,
             DatasetType.DataType.Source,
