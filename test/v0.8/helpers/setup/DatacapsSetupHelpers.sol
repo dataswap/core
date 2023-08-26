@@ -18,10 +18,10 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
 import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
-import {IDatasetAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetAssertion.sol";
-import {IMatchingAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingAssertion.sol";
-import {IStorageAssertion} from "test/v0.8/interfaces/assertions/module/IStorageAssertion.sol";
-import {IDatacapAssertion} from "test/v0.8/interfaces/assertions/module/IDatacapAssertion.sol";
+import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
+import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
+import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
+import {IDatacapsAssertion} from "test/v0.8/interfaces/assertions/module/IDatacapsAssertion.sol";
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
 import {IStoragesHeplers} from "test/v0.8/interfaces/helpers/module/IStoragesHeplers.sol";
@@ -31,10 +31,10 @@ import {IDatacapsHelpers} from "test/v0.8/interfaces/helpers/module/IDatacapsHel
 /// @dev Interface for managing the allocation of datacap for matched data storage.
 contract DatacapsSetupHelpers is IDatacapsSetupHelpers {
     IDatacaps internal datacaps;
-    IDatasetAssertion internal datasetAssertion;
-    IMatchingAssertion internal matchingAssertion;
-    IStorageAssertion internal storageAssertion;
-    IDatacapAssertion internal datacapAssertion;
+    IDatasetsAssertion internal datasetAssertion;
+    IMatchingsAssertion internal matchingAssertion;
+    IStoragesAssertion internal storageAssertion;
+    IDatacapsAssertion internal datacapAssertion;
     IDatasetsHelpers internal datasetHelpers;
     IMatchingsHelpers internal matchingsHelpers;
     IStoragesHeplers internal storageHelpers;
@@ -42,10 +42,10 @@ contract DatacapsSetupHelpers is IDatacapsSetupHelpers {
 
     constructor(
         IDatacaps _datacaps,
-        IDatasetAssertion _datasetAssertion,
-        IMatchingAssertion _matchingAssertion,
-        IStorageAssertion _storageAssertion,
-        IDatacapAssertion _datacapAssertion,
+        IDatasetsAssertion _datasetAssertion,
+        IMatchingsAssertion _matchingAssertion,
+        IStoragesAssertion _storageAssertion,
+        IDatacapsAssertion _datacapAssertion,
         IDatasetsHelpers _datasetHelpers,
         IMatchingsHelpers _matchingsHelpers,
         IStoragesHeplers _storageHelpers,
@@ -83,18 +83,18 @@ contract DatacapsSetupHelpers is IDatacapsSetupHelpers {
         datasetAssertion.approveDatasetAssertion(datasetId);
 
         //matching workflow
-        uint64 datasetSize = datacaps.datasets().getDatasetSize(
-            datasetId,
-            _dataType
-        );
+        uint64 datasetSize = datacaps
+            .storages()
+            .matchings()
+            .datasets()
+            .getDatasetSize(datasetId, _dataType);
         // TODO:dataset lack of getDatasetCarsSize method,so put all cars to matching
         bytes32[] memory mappingFilesCids = new bytes32[](datasetSize);
-        mappingFilesCids = datacaps.datasets().getDatasetCars(
-            datasetId,
-            _dataType,
-            0,
-            datasetSize
-        );
+        mappingFilesCids = datacaps
+            .storages()
+            .matchings()
+            .datasets()
+            .getDatasetCars(datasetId, _dataType, 0, datasetSize);
 
         matchingId = matchingsHelpers.completeMatchingWorkflow(
             datasetId,

@@ -23,21 +23,21 @@ import {TestHelpers} from "src/v0.8/shared/utils/common/TestHelpers.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {LeavesGenerator} from "test/v0.8/helpers/utils/LeavesGenerator.sol";
-import {DatasetStepHelpers} from "test/v0.8/helpers/module/dataset/DatasetStepHelpers.sol";
-import {DatasetAssertion} from "test/v0.8/assertions/module/dataset/DatasetAssertion.sol";
+import {DatasetsStepHelpers} from "test/v0.8/helpers/module/dataset/DatasetsStepHelpers.sol";
+import {DatasetsAssertion} from "test/v0.8/assertions/module/dataset/DatasetsAssertion.sol";
 
 // Contract definition for test helper functions
-contract DatasetHelpers is Test {
+contract DatasetsHelpers is Test {
     IDatasets public datasets;
     LeavesGenerator private generator;
-    DatasetStepHelpers private stepHelpers;
-    DatasetAssertion private assertion;
+    DatasetsStepHelpers private stepHelpers;
+    DatasetsAssertion private assertion;
 
     constructor(
         IDatasets _datasets,
         LeavesGenerator _generator,
-        DatasetStepHelpers _stepHelpers,
-        DatasetAssertion _assertion
+        DatasetsStepHelpers _stepHelpers,
+        DatasetsAssertion _assertion
     ) {
         datasets = _datasets;
         generator = _generator;
@@ -45,7 +45,7 @@ contract DatasetHelpers is Test {
         assertion = _assertion;
     }
 
-    //helper需要测试,确保帮助功能是ok的
+    //helper need test, make sure ok
     function done(string memory _accessMethod) public {
         // 1 submit meta
         stepHelpers.submitDatasetMetadata(_accessMethod);

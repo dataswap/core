@@ -41,7 +41,7 @@ contract Storages is IStorages, StoragesModifiers {
     IFilecoin private filecoin;
     ICarstore private carstore;
     IDatasets private datasets;
-    IMatchings private matchings;
+    IMatchings public matchings;
 
     // solhint-disable-next-line
     constructor(

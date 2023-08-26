@@ -21,11 +21,11 @@ import {Test} from "forge-std/Test.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
-import {IMatchingAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingAssertion.sol";
+import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 
 // assert carstore action
 // NOTE: view asserton functions must all be tested by the functions that will change state
-contract MatchingAssertion is DSTest, Test, IMatchingAssertion {
+contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     IMatchings public matchings;
 
     constructor(IMatchings _matchings) {

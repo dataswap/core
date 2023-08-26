@@ -19,7 +19,7 @@ pragma solidity ^0.8.21;
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
 // NOTE: view asserton functions must all be tested by the functions that will change state
-interface IDatasetAssertion {
+interface IDatasetsAssertion {
     function approveDatasetAssertion(uint64 _datasetId) external;
 
     function approveDatasetMetadataAssertion(uint64 _datasetId) external;

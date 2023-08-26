@@ -57,7 +57,7 @@ contract Matchings is IMatchings, MatchingsModifiers {
     IRoles private roles;
     IFilplus private filplus;
     ICarstore private carstore;
-    IDatasets private datasets;
+    IDatasets public datasets;
 
     // solhint-disable-next-line
     constructor(

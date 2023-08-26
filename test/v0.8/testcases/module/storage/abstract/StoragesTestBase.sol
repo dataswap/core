@@ -16,32 +16,23 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-// NOTE: view asserton functions must all be tested by the functions that will change state
-interface IDatacapAssertion {
-    function requestAllocateDatacapAssertion(uint64 _matchingId) external;
+import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
+import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
+import {IStoragesSetupHeplers} from "test/v0.8/interfaces/helpers/setup/IStoragesSetupHeplers.sol";
 
-    function getAvailableDatacapAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
-    ) external;
+/// @dev design CarstoreTestBase as all test suite must constructor the same parmas
+abstract contract StoragesTestBase {
+    IStorages internal storages;
+    IStoragesSetupHeplers internal storagesSetupHelpers;
+    IStoragesAssertion internal storagesAssertion;
 
-    function getAllocatedDatacapAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
-    ) external;
-
-    function getTotalDatacapAllocationRequirementAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
-    ) external;
-
-    function getRemainingUnallocatedDatacapAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
-    ) external;
-
-    function isNextDatacapAllocationValidAssertion(
-        uint64 _matchingId,
-        bool _expectOK
-    ) external;
+    constructor(
+        IStorages _storages,
+        IStoragesSetupHeplers _storagesSetupHelpers,
+        IStoragesAssertion _storagesAssertion
+    ) {
+        storages = _storages;
+        storagesSetupHelpers = _storagesSetupHelpers;
+        storagesAssertion = _storagesAssertion;
+    }
 }

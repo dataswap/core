@@ -25,7 +25,7 @@ import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {LeavesGenerator} from "test/v0.8/helpers/utils/LeavesGenerator.sol";
 
 // Contract definition for test helper functions
-contract DatasetStepHelpers is Test {
+contract DatasetsStepHelpers is Test {
     IDatasets public datasets;
     LeavesGenerator private generator;
 

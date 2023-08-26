@@ -47,12 +47,12 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
     //(matchingID => allocated datacap size)
     mapping(uint64 => uint64) private allocatedDatacaps;
     address private governanceAddress;
-    IRoles public roles;
-    IFilplus public filplus;
-    IFilecoin public filecoin;
-    ICarstore public carstore;
-    IDatasets public datasets;
-    IMatchings public matchings;
+    IRoles private roles;
+    IFilplus private filplus;
+    IFilecoin private filecoin;
+    ICarstore private carstore;
+    IDatasets private datasets;
+    IMatchings private matchings;
     IStorages public storages;
 
     // solhint-disable-next-line

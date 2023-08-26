@@ -16,23 +16,32 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
-import {IDatacapsAssertion} from "test/v0.8/interfaces/assertions/module/IDatacapsAssertion.sol";
-import {IDatacapsSetupHelpers} from "test/v0.8/interfaces/helpers/setup/IDatacapsSetupHelpers.sol";
+// NOTE: view asserton functions must all be tested by the functions that will change state
+interface IDatacapsAssertion {
+    function requestAllocateDatacapAssertion(uint64 _matchingId) external;
 
-/// @dev design CarstoreTestBase as all test suite must constructor the same parmas
-abstract contract DatacapTestBase {
-    IDatacaps internal datacaps;
-    IDatacapsSetupHelpers internal datacapsSetupHelpers;
-    IDatacapsAssertion internal datacapsAssertion;
+    function getAvailableDatacapAssertion(
+        uint64 _matchingId,
+        uint64 _expectSize
+    ) external;
 
-    constructor(
-        IDatacaps _datacaps,
-        IDatacapsSetupHelpers _datacapsSetupHelpers,
-        IDatacapsAssertion _datacapsAssertion
-    ) {
-        datacaps = _datacaps;
-        datacapsSetupHelpers = _datacapsSetupHelpers;
-        datacapsAssertion = _datacapsAssertion;
-    }
+    function getAllocatedDatacapAssertion(
+        uint64 _matchingId,
+        uint64 _expectSize
+    ) external;
+
+    function getTotalDatacapAllocationRequirementAssertion(
+        uint64 _matchingId,
+        uint64 _expectSize
+    ) external;
+
+    function getRemainingUnallocatedDatacapAssertion(
+        uint64 _matchingId,
+        uint64 _expectSize
+    ) external;
+
+    function isNextDatacapAllocationValidAssertion(
+        uint64 _matchingId,
+        bool _expectOK
+    ) external;
 }

@@ -20,6 +20,7 @@ pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 
 /// @title IMatchings
 interface IMatchings {
@@ -158,4 +159,6 @@ interface IMatchings {
 
     // Default getter functions for public variables
     function matchingsCount() external view returns (uint64);
+
+    function datasets() external view returns (IDatasets);
 }

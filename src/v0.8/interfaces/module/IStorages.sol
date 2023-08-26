@@ -18,6 +18,8 @@
 
 pragma solidity ^0.8.21;
 
+import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+
 /// @title Interface for Matchedstores contract
 interface IStorages {
     /// @dev Submits a Filecoin deal Id for a matchedstore after successful matching.
@@ -62,4 +64,6 @@ interface IStorages {
     /// @param _matchingId The ID of the matching.
     /// @return True if all cars are done in the matchedstore, otherwise false.
     function isAllStoredDone(uint64 _matchingId) external view returns (bool);
+
+    function matchings() external view returns (IMatchings);
 }

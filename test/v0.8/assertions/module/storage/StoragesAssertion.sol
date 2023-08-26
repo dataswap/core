@@ -21,11 +21,11 @@ import {Test} from "forge-std/Test.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
-import {IStorageAssertion} from "test/v0.8/interfaces/assertions/module/IStorageAssertion.sol";
+import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
 
 // assert carstore action
 // NOTE: view asserton functions must all be tested by the functions that will change state
-contract StorageAssertion is DSTest, Test, IStorageAssertion {
+contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
     IStorages public storages;
 
     constructor(IStorages _storages) {

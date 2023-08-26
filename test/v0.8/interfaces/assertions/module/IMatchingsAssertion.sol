@@ -20,7 +20,7 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
 // NOTE: view asserton functions must all be tested by the functions that will change state
-interface IMatchingAssertion {
+interface IMatchingsAssertion {
     function biddingAssertion(uint64 _matchingId, uint256 _amount) external;
 
     function publishMatchingAssertion(
