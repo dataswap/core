@@ -182,7 +182,7 @@ contract CarstoreTestHelpers is Test {
         addReplicaAndAssert(_cid, _matchingId);
 
         // Set mock deal state to Stored
-        carstore.getFilecoin().setMockDealState(_filecoinDealState);
+        carstore.filecoin().setMockDealState(_filecoinDealState);
         // Expect emit event
         vm.expectEmit(true, true, true, true);
         emit CarstoreEvents.CarReplicaFilecoinDealIdSet(

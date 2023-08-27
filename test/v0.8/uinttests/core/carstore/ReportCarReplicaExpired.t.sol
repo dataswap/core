@@ -17,14 +17,14 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {SetCarReplicaFilecoinDealIdTestCaseWithSuccess} from "test/v0.8/testcases/core/carstore/SetCarReplicaFilecoinDealIdTestSuite.sol";
+import {ReportCarReplicaExpiredTestCaseWithSuccess} from "test/v0.8/testcases/core/carstore/ReportCarReplicaExpiredTestSuite.sol";
 import {CarstoreTestSetup} from "test/v0.8/uinttests/core/carstore/setup/CarstoreTestSetup.sol";
 import {TestHelpers} from "src/v0.8/shared/utils/common/TestHelpers.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
-contract SetCarReplicaFilecoinDealIdTest is Test, CarstoreTestSetup {
+contract ReportCarReplicaExpiredTest is Test, CarstoreTestSetup {
     /// @dev test case with success when filecoin deal state is storage success
-    function testSetCarReplicaFilecoinDealAndStoredWithSuccess(
+    function testReportCarReplicaExpiredWithSuccess(
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size,
@@ -32,33 +32,10 @@ contract SetCarReplicaFilecoinDealIdTest is Test, CarstoreTestSetup {
         uint64 _filecoinDealId
     ) public {
         setup();
-        SetCarReplicaFilecoinDealIdTestCaseWithSuccess testCase = new SetCarReplicaFilecoinDealIdTestCaseWithSuccess(
+        ReportCarReplicaExpiredTestCaseWithSuccess testCase = new ReportCarReplicaExpiredTestCaseWithSuccess(
                 carstore,
                 assertion
             );
-        // set filecoin store is ok
-        carstore.filecoin().setMockDealState(FilecoinType.DealState.Stored);
-        // run testcase
-        testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
-    }
-
-    /// @dev test case with success when filecoin deal state is storage failed
-    function testSetCarReplicaFilecoinDealAndStorageFailedWithSuccess(
-        bytes32 _cid,
-        uint64 _datasetId,
-        uint64 _size,
-        uint64 _matchingId,
-        uint64 _filecoinDealId
-    ) public {
-        setup();
-        SetCarReplicaFilecoinDealIdTestCaseWithSuccess testCase = new SetCarReplicaFilecoinDealIdTestCaseWithSuccess(
-                carstore,
-                assertion
-            );
-        // set filecoin store is ok
-        carstore.filecoin().setMockDealState(
-            FilecoinType.DealState.StorageFailed
-        );
         // run testcase
         testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
     }

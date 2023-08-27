@@ -270,7 +270,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
             CarReplicaType.State.Stored
         );
 
-        carstore.getFilecoin().setMockDealState(FilecoinType.DealState.Expired);
+        carstore.filecoin().setMockDealState(FilecoinType.DealState.Expired);
         vm.expectEmit(true, true, false, true);
         emit CarstoreEvents.CarReplicaExpired(_cid, _matchingId);
         carstore.reportCarReplicaExpired(_cid, _matchingId, _filecoinDealId);
@@ -303,7 +303,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
                 uint8(FilecoinType.DealState.StorageFailed) ||
                 _filecoinDealState == uint8(FilecoinType.DealState.Slashed)
         );
-        carstore.getFilecoin().setMockDealState(
+        carstore.filecoin().setMockDealState(
             FilecoinType.DealState(_filecoinDealState)
         );
         vm.expectRevert(
@@ -373,7 +373,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
             CarReplicaType.State.Stored
         );
 
-        carstore.getFilecoin().setMockDealState(FilecoinType.DealState.Slashed);
+        carstore.filecoin().setMockDealState(FilecoinType.DealState.Slashed);
         vm.expectEmit(true, true, false, true);
         emit CarstoreEvents.CarReplicaSlashed(_cid, _matchingId);
         carstore.reportCarReplicaSlashed(_cid, _matchingId, _filecoinDealId);
@@ -406,7 +406,7 @@ contract CarstoreTest is Test, CarstoreTestHelpers {
                 uint8(FilecoinType.DealState.StorageFailed) ||
                 _filecoinDealState == uint8(FilecoinType.DealState.Expired)
         );
-        carstore.getFilecoin().setMockDealState(
+        carstore.filecoin().setMockDealState(
             FilecoinType.DealState(_filecoinDealState)
         );
         vm.expectRevert(

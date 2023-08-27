@@ -213,7 +213,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
 
         if (
             FilecoinType.DealState.Stored ==
-            carstore.getFilecoin().getReplicaDealState(_cid, _filecoinDealId)
+            carstore.filecoin().getReplicaDealState(_cid, _filecoinDealId)
         ) {
             getCarReplicaStateAssertion(
                 _cid,
@@ -222,7 +222,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
             );
         } else if (
             FilecoinType.DealState.StorageFailed ==
-            carstore.getFilecoin().getReplicaDealState(_cid, _filecoinDealId)
+            carstore.filecoin().getReplicaDealState(_cid, _filecoinDealId)
         ) {
             getCarReplicaStateAssertion(
                 _cid,

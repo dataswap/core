@@ -269,26 +269,10 @@ contract Carstore is CarstoreBase {
         view
         onlyCarExist(_cid)
         onlyNotZero(_matchingId)
-        onlyCarReplicaExist(_cid, _matchingId)
         returns (CarReplicaType.State)
     {
         CarReplicaType.Car storage car = cars[_cid];
         return car._getReplicaState(_matchingId);
-    }
-
-    /// @notice get filecoin object
-    function getFilecoin() public view returns (IFilecoin) {
-        return filecoin;
-    }
-
-    /// @notice get roles object
-    function getRoles() public view returns (IRoles) {
-        return roles;
-    }
-
-    /// @notice get filplus object
-    function getFilplus() public view returns (IFilplus) {
-        return filplus;
     }
 
     /// @notice Check if a car exists based on its CID.

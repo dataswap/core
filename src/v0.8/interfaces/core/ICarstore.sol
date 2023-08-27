@@ -146,11 +146,11 @@ interface ICarstore {
     function carsCount() external view returns (uint64);
 
     /// @notice get filecoin object
-    function getFilecoin() external view returns (IFilecoin);
+    function filecoin() external view returns (IFilecoin);
 
     /// @notice get roles object
-    function getRoles() external view returns (IRoles);
+    function roles() external view returns (IRoles);
 
     /// @notice get filplus object
-    function getFilplus() external view returns (IFilplus);
+    function filplus() external view returns (IFilplus);
 }

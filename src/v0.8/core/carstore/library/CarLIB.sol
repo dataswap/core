@@ -157,7 +157,6 @@ library CarLIB {
         uint64 _matchingId
     ) internal view returns (CarReplicaType.State) {
         require(_matchingId != 0, "Invalid matching id");
-        require(_hasReplica(self, _matchingId), "Replica is not exists");
         CarReplicaType.Replica storage replica = self.replicas[_matchingId];
         return replica.state;
     }
