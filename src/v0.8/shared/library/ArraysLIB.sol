@@ -71,16 +71,13 @@ library ArraysLIB {
 
         return output;
     }
-}
 
-/// @title Arrays Library
-library ArraysUINT16LIB {
     /// @notice Check if array contain an item.
     /// @param self The arrays.
     /// @param _item The bid amount.
     function isContains(
-        uint64[] memory self,
-        uint64 _item
+        uint16[] memory self,
+        uint16 _item
     ) internal pure returns (bool) {
         for (uint64 i = 0; i < self.length; i++) {
             if (self[i] == _item) {
@@ -126,10 +123,7 @@ library ArraysUINT16LIB {
 
         return output;
     }
-}
 
-/// @title Arrays Library
-library ArraysUINT32LIB {
     /// @notice Check if array contain an item.
     /// @param self The arrays.
     /// @param _item The bid amount.

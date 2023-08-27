@@ -30,7 +30,7 @@ import {CarstoreBase} from "src/v0.8/core/carstore/abstract/CarstoreBase.sol";
 ///type
 import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
-import {ArraysLIB, ArraysUINT32LIB, ArraysUINT16LIB} from "src/v0.8/shared/library/ArraysLIB.sol";
+import {ArraysLIB} from "src/v0.8/shared/library/ArraysLIB.sol";
 
 /// @title CarsStorageBase
 /// @notice This contract allows adding cars and managing their associated replicas.
@@ -38,8 +38,8 @@ import {ArraysLIB, ArraysUINT32LIB, ArraysUINT16LIB} from "src/v0.8/shared/libra
 contract Carstore is CarstoreBase {
     using CarLIB for CarReplicaType.Car;
     using ArraysLIB for uint64[];
-    using ArraysUINT32LIB for uint32[];
-    using ArraysUINT16LIB for uint16[];
+    using ArraysLIB for uint32[];
+    using ArraysLIB for uint16[];
 
     // solhint-disable-next-line
     constructor(
