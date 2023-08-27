@@ -99,5 +99,6 @@ contract DatacapTestSetup {
         );
 
         helpers = new DatacapsHelpers(datacaps, matchingsHelpers);
+        assertion = new DatacapsAssertion(datacaps);
     }
 }

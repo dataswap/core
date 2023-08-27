@@ -105,6 +105,9 @@ contract DatacapsAssertion is DSTest, Test, IDatacapsAssertion {
         uint64 _matchingId,
         bool _expectOK
     ) public {
+        if (!_expectOK) {
+            vm.expectRevert();
+        }
         assertEq(datacaps.isNextDatacapAllocationValid(_matchingId), _expectOK);
     }
 }

@@ -40,10 +40,10 @@ contract RequestAllocateTestCaseWithSuccess is DatacapTestBase {
             .matchings()
             .getMatchingInitiator(_matchingId);
 
-        // datacapsAssertion.requestAllocateDatacapAssertion(
-        //     initiator,
-        //     _matchingId
-        // );
+        datacapsAssertion.requestAllocateDatacapAssertion(
+            initiator,
+            _matchingId
+        );
     }
 }
 
