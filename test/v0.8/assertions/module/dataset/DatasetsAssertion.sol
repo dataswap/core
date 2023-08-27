@@ -219,7 +219,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         getDatasetSizeAssertion(_datasetId, _dataType, newDatasetSize);
         isDatasetContainsCarAssertion(_datasetId, _leafHashes[0], true);
         isDatasetContainsCarsAssertion(_datasetId, _leafHashes, true);
-        //TODO:check state after submit proof,need add method in dataset interface
+        //TODO:check state after submit proof,need add method in dataset interface:https://github.com/dataswap/core/issues/71
     }
 
     function submitDatasetVerificationAssertion(
@@ -384,7 +384,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             _datasetId,
             _auditor
         );
-        // TODO: get dataset verification assertion error
+        // TODO: get dataset verification assertion error:https://github.com/dataswap/core/issues/66
         // assertEq(siblings.length, _expectSiblings.length, "length not matched");
         // assertEq(paths.length, _expectPaths.length, "length not matched");
         // for (uint64 i = 0; i < paths.length; i++) {

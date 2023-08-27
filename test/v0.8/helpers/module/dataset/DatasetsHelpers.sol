@@ -181,7 +181,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         );
 
         //4:submit verification
-        // NOTE:TODO verify before approved
+        // NOTE:TODO verify before approved:https://github.com/dataswap/core/issues/49
         // submitDatasetVerification(
         //     datasetId,
         //     _challengeCount,

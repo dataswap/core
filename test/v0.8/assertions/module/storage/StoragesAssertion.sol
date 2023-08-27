@@ -48,7 +48,7 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
 
         //after action
         getStoredCarCountAssertion(_matchingId, oldDoneCount + 1);
-        //TODO: add car object
+        //TODO: add getCarSize method:https://github.com/dataswap/core/issues/72
         // getTotalStoredSizeAssertion(_matchingId, oldtotalStoredSize+);
     }
 
@@ -90,7 +90,7 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
         assertEq(storages.getTotalStoredSize(_matchingId), _expectSize);
     }
 
-    //TODO: need to be test
+    //TODO: need to be test:https://github.com/dataswap/core/issues/73
     function isAllStoredDoneAssertion(
         uint64 _matchingId,
         bool _expectIsAllStoredDone
