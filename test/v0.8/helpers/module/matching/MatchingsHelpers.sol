@@ -20,21 +20,65 @@ pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
+import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
+import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 
 /// @title IMatchings
-interface IMatchingsHelpers {
+contract MatchingsHelpers is IMatchingsHelpers {
+    IMatchings matchings;
+    IDatasetsHelpers datasetsHelpers;
+    IMatchingsAssertion assertion;
+
+    constructor(
+        IMatchings _matchings,
+        IDatasetsHelpers _datasetsHelpers,
+        IMatchingsAssertion _assertion
+    ) {
+        matchings = _matchings;
+        datasetsHelpers = _datasetsHelpers;
+        assertion = _assertion;
+    }
+
     function setup(
         string memory _accessMethod,
         uint64 _sourceLeavesCount,
         uint64 _mappingFilesLeavesCount,
         uint64 _challengeCount,
         uint64 _challengeLeavesCount
-    ) external returns (uint64 datasetId);
+    ) external returns (uint64 datasetId) {
+        return
+            datasetsHelpers.completeDatasetWorkflow(
+                _accessMethod,
+                _sourceLeavesCount,
+                _mappingFilesLeavesCount,
+                _challengeCount,
+                _challengeLeavesCount
+            );
+    }
 
     function getDatasetCarsAndCarsCount(
         uint64 _datasetId,
         DatasetType.DataType _dataType
-    ) external returns (bytes32[] memory, uint64);
+    ) external view returns (bytes32[] memory, uint64) {
+        uint64 size = matchings.datasets().getDatasetSize(
+            _datasetId,
+            _dataType
+        );
+        uint64 carsCount = matchings.datasets().getDatasetCarsCount(
+            _datasetId,
+            _dataType
+        );
+        bytes32[] memory cars = new bytes32[](carsCount);
+        cars = matchings.datasets().getDatasetCars(
+            _datasetId,
+            DatasetType.DataType.MappingFiles,
+            0,
+            carsCount
+        );
+        return (cars, size);
+    }
 
     function completeMatchingWorkflow(
         uint64 _datasetId,
@@ -47,5 +91,5 @@ interface IMatchingsHelpers {
         uint64 _biddingPeriodBlockCount,
         uint64 _storageCompletionPeriodBlocks,
         uint256 _biddingThreshold
-    ) external returns (uint64 matchingId);
+    ) external returns (uint64 matchingId) {}
 }

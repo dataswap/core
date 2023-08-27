@@ -26,18 +26,18 @@ import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
-import {DatasetsAssertion} from "test/v0.8/assertions/module/dataset/DatasetsAssertion.sol";
+import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
 
 // Contract definition for test helper functions
 contract DatasetsHelpers is Test, IDatasetsHelpers {
     IDatasets public datasets;
     Generator private generator;
-    DatasetsAssertion private assertion;
+    IDatasetsAssertion private assertion;
 
     constructor(
         IDatasets _datasets,
         Generator _generator,
-        DatasetsAssertion _assertion
+        IDatasetsAssertion _assertion
     ) {
         datasets = _datasets;
         generator = _generator;
@@ -147,7 +147,11 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         uint64 /*_challengeLeavesCount*/
     ) external returns (uint64) {
         //1:submit meta
-        uint64 datasetId = submitDatasetMetadata(address(this), _accessMethod);
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(9));
+        vm.stopPrank();
+        uint64 datasetId = submitDatasetMetadata(address(9), _accessMethod);
 
         //2:approved meta
         assertion.approveDatasetMetadataAssertion(
@@ -156,7 +160,9 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         );
 
         //3:submit proof
+        vm.startPrank(admin);
         datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
+        vm.stopPrank();
         submitDatasetProof(
             address(99),
             datasetId,
@@ -174,13 +180,15 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             true
         );
 
+        //4:submit verification
         // NOTE:TODO verify before approved
         // submitDatasetVerification(
         //     datasetId,
         //     _challengeCount,
         //     _challengeLeavesCount
         // );
-        vm.prank(datasets.governanceAddress());
+
+        //5:appvoed
         assertion.approveDatasetAssertion(
             datasets.governanceAddress(),
             datasetId

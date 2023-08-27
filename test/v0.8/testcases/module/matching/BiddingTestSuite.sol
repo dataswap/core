@@ -54,9 +54,17 @@ contract BiddingTestCaseWithSuccess is MatchingsTestBase {
             address(99)
         );
         vm.stopPrank();
-        uint64 matchingId = matchingsHelpers.publishMatching(
+
+        (bytes32[] memory cars, uint64 size) = matchingsHelpers
+            .getDatasetCarsAndCarsCount(
+                datasetId,
+                DatasetType.DataType.MappingFiles
+            );
+        matchingsAssertion.publishMatchingAssertion(
             address(99),
             datasetId,
+            cars,
+            size,
             DatasetType.DataType.MappingFiles,
             0,
             MatchingType.BidSelectionRule.HighestBid,
@@ -66,7 +74,8 @@ contract BiddingTestCaseWithSuccess is MatchingsTestBase {
             100,
             "TEST"
         );
-        return matchingId;
+        uint64 matchingCount = matchings.matchingsCount();
+        return matchingCount;
     }
 
     function action(uint64 _matchingId) internal virtual override {

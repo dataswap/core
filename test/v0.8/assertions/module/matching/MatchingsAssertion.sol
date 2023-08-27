@@ -52,7 +52,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         for (uint64 i = 0; i < newBidders.length - 1; i++) {
             newBidders[i] = bidders[i];
         }
-        newBidders[newBidders.length - 1] = msg.sender;
+        newBidders[newBidders.length - 1] = caller;
         uint256[] memory newAmounts = new uint256[](amounts.length + 1);
         for (uint64 i = 0; i < newAmounts.length - 1; i++) {
             newAmounts[i] = amounts[i];
@@ -60,11 +60,11 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         newAmounts[newAmounts.length - 1] = _amount;
         getMatchingBidsAssertion(_matchingId, newBidders, newAmounts);
         // assert new bid amount
-        getMatchingBidAmountAssertion(_matchingId, msg.sender, _amount);
+        getMatchingBidAmountAssertion(_matchingId, caller, _amount);
         // assert bids count
         getMatchingBidsCountAssertion(_matchingId, oldbidsCount + 1);
         // assert bidder has bid
-        hasMatchingBidAssertion(_matchingId, msg.sender, true);
+        hasMatchingBidAssertion(_matchingId, caller, true);
     }
 
     function publishMatchingAssertion(
@@ -130,7 +130,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         );
         getMatchingCarsAssertion(oldMatchingsCount + 1, _cars);
         getMatchingSizeAssertion(oldMatchingsCount + 1, _size);
-        getMatchingInitiatorAssertion(oldMatchingsCount + 1, msg.sender);
+        getMatchingInitiatorAssertion(oldMatchingsCount + 1, caller);
         isMatchingContainsCarAssertion(oldMatchingsCount + 1, _cars[0], true);
         isMatchingContainsCarsAssertion(oldMatchingsCount + 1, _cars, true);
     }

@@ -44,22 +44,23 @@ contract CloseTestCaseWithSuccess is ControlTestSuiteBase {
         );
         vm.startPrank(admin);
         matchings.datasets().roles().grantRole(
-            RolesType.DATASET_PROVIDER,
-            address(99)
+            RolesType.STORAGE_PROVIDER,
+            address(199)
         );
         vm.stopPrank();
         vm.roll(101);
-        vm.prank(address(99));
+        vm.prank(address(199));
         matchings.bidding(matchingId, 200);
         return matchingId;
     }
 
     function action(uint64 _matchingId) internal virtual override {
         address initiator = matchings.getMatchingInitiator(_matchingId);
+        vm.roll(201);
         matchingsAssertion.closeMatchingAssertion(
             initiator,
             _matchingId,
-            address(99)
+            address(199)
         );
     }
 }
