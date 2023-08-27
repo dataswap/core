@@ -41,16 +41,7 @@ abstract contract DatacapTestBase is TestCaseBase, Test {
     }
 
     function before() internal virtual override returns (uint64) {
-        (, uint64 matchingId) = datacapsHelpers.setup(
-            "testAccessMethod",
-            DatasetType.DataType.MappingFiles,
-            0,
-            MatchingType.BidSelectionRule.HighestBid,
-            100,
-            100,
-            100,
-            100
-        );
+        (, uint64 matchingId) = datacapsHelpers.setup();
         return matchingId;
     }
 }

@@ -36,16 +36,7 @@ interface IMatchingsHelpers {
         DatasetType.DataType _dataType
     ) external returns (bytes32[] memory, uint64);
 
-    function completeMatchingWorkflow(
-        uint64 _datasetId,
-        bytes32[] memory _cars,
-        uint64 _size,
-        DatasetType.DataType _dataType,
-        uint64 _associatedMappingFilesMatchingID,
-        MatchingType.BidSelectionRule _bidSelectionRule,
-        uint64 _biddingDelayBlockCount,
-        uint64 _biddingPeriodBlockCount,
-        uint64 _storageCompletionPeriodBlocks,
-        uint256 _biddingThreshold
-    ) external returns (uint64 matchingId);
+    function completeMatchingWorkflow()
+        external
+        returns (uint64 datasetId, uint64 matchingId);
 }

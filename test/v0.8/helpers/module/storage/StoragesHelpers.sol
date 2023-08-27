@@ -16,21 +16,40 @@ pragma solidity ^0.8.21;
 import {IDatacapsHelpers} from "test/v0.8/interfaces/helpers/module/IDatacapsHelpers.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
-import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
+
+import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
+import {IStoragesHelpers} from "test/v0.8/interfaces/helpers/module/IStoragesHelpers.sol";
+import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
 
 /// @title IDatacap
 /// @dev Interface for managing the allocation of datacap for matched data storage.
-contract DatacapsHelpers is IDatacapsHelpers {
-    IDatacaps internal datacaps;
+contract StoragesHelpers is IStoragesHelpers {
+    IStorages internal storages;
     IMatchingsHelpers internal matchingsHelpers;
+    Generator private generator;
 
-    constructor(IDatacaps _datacaps, IMatchingsHelpers _matchingsHelpers) {
-        datacaps = _datacaps;
+    constructor(
+        IStorages _storages,
+        Generator _generator,
+        IMatchingsHelpers _matchingsHelpers
+    ) {
+        storages = _storages;
+        generator = _generator;
         matchingsHelpers = _matchingsHelpers;
     }
 
     function setup() external returns (uint64 datasetId, uint64 matchingId) {
         return matchingsHelpers.completeMatchingWorkflow();
+    }
+
+    function generateFilecoinDealIds(
+        uint64 _count
+    ) external returns (uint64[] memory filecoinDealIds) {
+        return generator.generateFilecoinDealIds(_count);
+    }
+
+    function generateFilecoinDealId() external returns (uint64) {
+        return generator.generateFilecoinDealId();
     }
 }

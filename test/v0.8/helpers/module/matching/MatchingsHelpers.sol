@@ -18,6 +18,8 @@
 
 pragma solidity ^0.8.21;
 
+import {Test} from "forge-std/Test.sol";
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
@@ -26,7 +28,7 @@ import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHel
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 
 /// @title IMatchings
-contract MatchingsHelpers is IMatchingsHelpers {
+contract MatchingsHelpers is Test, IMatchingsHelpers {
     IMatchings matchings;
     IDatasetsHelpers datasetsHelpers;
     IMatchingsAssertion assertion;
@@ -47,7 +49,7 @@ contract MatchingsHelpers is IMatchingsHelpers {
         uint64 _mappingFilesLeavesCount,
         uint64 _challengeCount,
         uint64 _challengeLeavesCount
-    ) external returns (uint64 datasetId) {
+    ) public returns (uint64 datasetId) {
         return
             datasetsHelpers.completeDatasetWorkflow(
                 _accessMethod,
@@ -61,7 +63,7 @@ contract MatchingsHelpers is IMatchingsHelpers {
     function getDatasetCarsAndCarsCount(
         uint64 _datasetId,
         DatasetType.DataType _dataType
-    ) external view returns (bytes32[] memory, uint64) {
+    ) public view returns (bytes32[] memory, uint64) {
         uint64 size = matchings.datasets().getDatasetSize(
             _datasetId,
             _dataType
@@ -80,16 +82,54 @@ contract MatchingsHelpers is IMatchingsHelpers {
         return (cars, size);
     }
 
-    function completeMatchingWorkflow(
-        uint64 _datasetId,
-        bytes32[] memory _cars,
-        uint64 _size,
-        DatasetType.DataType _dataType,
-        uint64 _associatedMappingFilesMatchingID,
-        MatchingType.BidSelectionRule _bidSelectionRule,
-        uint64 _biddingDelayBlockCount,
-        uint64 _biddingPeriodBlockCount,
-        uint64 _storageCompletionPeriodBlocks,
-        uint256 _biddingThreshold
-    ) external returns (uint64 matchingId) {}
+    function completeMatchingWorkflow() external returns (uint64, uint64) {
+        uint64 datasetId = setup("testAccessMethod", 100, 10, 10, 10);
+
+        address admin = matchings.datasets().roles().getRoleMember(
+            bytes32(0x00),
+            0
+        );
+        vm.startPrank(admin);
+        matchings.datasets().roles().grantRole(
+            RolesType.DATASET_PROVIDER,
+            address(99)
+        );
+        vm.stopPrank();
+
+        (bytes32[] memory cars, uint64 size) = getDatasetCarsAndCarsCount(
+            datasetId,
+            DatasetType.DataType.MappingFiles
+        );
+        assertion.publishMatchingAssertion(
+            address(99),
+            datasetId,
+            cars,
+            size,
+            DatasetType.DataType.MappingFiles,
+            0,
+            MatchingType.BidSelectionRule.HighestBid,
+            100,
+            100,
+            100,
+            100,
+            "TEST"
+        );
+        uint64 matchingId = matchings.matchingsCount();
+
+        vm.startPrank(admin);
+        matchings.datasets().roles().grantRole(
+            RolesType.STORAGE_PROVIDER,
+            address(199)
+        );
+        vm.stopPrank();
+        vm.roll(101);
+        vm.prank(address(199));
+        matchings.bidding(matchingId, 200);
+
+        address initiator = matchings.getMatchingInitiator(matchingId);
+        vm.roll(201);
+        assertion.closeMatchingAssertion(initiator, matchingId, address(199));
+
+        return (datasetId, matchingId);
+    }
 }

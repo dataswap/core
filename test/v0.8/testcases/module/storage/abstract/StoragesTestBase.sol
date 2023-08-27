@@ -20,17 +20,17 @@ import {Test} from "forge-std/Test.sol";
 import {TestCaseBase} from "test/v0.8/testcases/module/abstract/TestCaseBase.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
-import {IStoragesHeplers} from "test/v0.8/interfaces/helpers/module/IStoragesHeplers.sol";
+import {IStoragesHelpers} from "test/v0.8/interfaces/helpers/module/IStoragesHelpers.sol";
 
 /// @dev design CarstoreTestBase as all test suite must constructor the same parmas
 abstract contract StoragesTestBase is TestCaseBase, Test {
     IStorages internal storages;
-    IStoragesHeplers internal storagesHelpers;
+    IStoragesHelpers internal storagesHelpers;
     IStoragesAssertion internal storagesAssertion;
 
     constructor(
         IStorages _storages,
-        IStoragesHeplers _storagesHelpers,
+        IStoragesHelpers _storagesHelpers,
         IStoragesAssertion _storagesAssertion
     ) {
         storages = _storages;

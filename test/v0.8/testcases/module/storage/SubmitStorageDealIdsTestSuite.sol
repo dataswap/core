@@ -20,7 +20,7 @@ import {StoragesTestBase} from "test/v0.8/testcases/module/storage/abstract/Stor
 
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
-import {IStoragesHeplers} from "test/v0.8/interfaces/helpers/module/IStoragesHeplers.sol";
+import {IStoragesHelpers} from "test/v0.8/interfaces/helpers/module/IStoragesHelpers.sol";
 
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
@@ -28,23 +28,14 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 contract SubmitStorageDealIdsTestCaseWithSuccess is StoragesTestBase {
     constructor(
         IStorages _storages,
-        IStoragesHeplers _storagesHelpers,
+        IStoragesHelpers _storagesHelpers,
         IStoragesAssertion _storagesAssertion
     )
         StoragesTestBase(_storages, _storagesHelpers, _storagesAssertion) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64) {
-        (, uint64 matchingId) = storagesHelpers.setup(
-            "testAccessMethod",
-            DatasetType.DataType.MappingFiles,
-            0,
-            MatchingType.BidSelectionRule.HighestBid,
-            100,
-            100,
-            100,
-            100
-        );
+        (, uint64 matchingId) = storagesHelpers.setup();
         return matchingId;
     }
 

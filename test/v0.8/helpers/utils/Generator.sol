@@ -67,4 +67,20 @@ contract Generator {
         nonce++;
         return nonce;
     }
+
+    function generateFilecoinDealIds(
+        uint64 _count
+    ) external returns (uint64[] memory filecoinDealIds) {
+        uint64[] memory ids = new uint64[](_count);
+        for (uint64 i = 0; i < _count; i++) {
+            nonce++;
+            ids[i] = nonce;
+        }
+        return ids;
+    }
+
+    function generateFilecoinDealId() external returns (uint64) {
+        nonce++;
+        return nonce;
+    }
 }

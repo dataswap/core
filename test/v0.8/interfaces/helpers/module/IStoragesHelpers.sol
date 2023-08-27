@@ -18,17 +18,8 @@ import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
 /// @title IDatacap
 /// @dev Interface for managing the allocation of datacap for matched data storage.
-interface IStoragesHeplers {
-    function setup(
-        string memory _accessMethod,
-        DatasetType.DataType _dataType,
-        uint64 _associatedMappingFilesMatchingID,
-        MatchingType.BidSelectionRule _bidSelectionRule,
-        uint64 _biddingDelayBlockCount,
-        uint64 _biddingPeriodBlockCount,
-        uint64 _storageCompletionPeriodBlocks,
-        uint256 _biddingThreshold
-    ) external returns (uint64 datasetId, uint64 matchingId);
+interface IStoragesHelpers {
+    function setup() external returns (uint64 datasetId, uint64 matchingId);
 
     function generateFilecoinDealIds(
         uint64 _count
