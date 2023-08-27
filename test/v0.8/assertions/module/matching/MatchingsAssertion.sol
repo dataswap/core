@@ -32,13 +32,18 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         matchings = _matchings;
     }
 
-    function biddingAssertion(uint64 _matchingId, uint256 _amount) external {
+    function biddingAssertion(
+        address caller,
+        uint64 _matchingId,
+        uint256 _amount
+    ) external {
         //before
         (address[] memory bidders, uint256[] memory amounts) = matchings
             .getMatchingBids(_matchingId);
         uint64 oldbidsCount = matchings.getMatchingBidsCount(_matchingId);
 
         // action
+        vm.prank(caller);
         matchings.bidding(_matchingId, _amount);
 
         //after bidding
@@ -63,6 +68,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     }
 
     function publishMatchingAssertion(
+        address caller,
         uint64 _datasetId,
         bytes32[] memory _cars,
         uint64 _size,
@@ -96,6 +102,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         isMatchingContainsCarsAssertion(oldMatchingsCount + 1, _cars, false);
 
         //action
+        vm.prank(caller);
         matchings.publishMatching(
             _datasetId,
             _cars,
@@ -128,33 +135,45 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         isMatchingContainsCarsAssertion(oldMatchingsCount + 1, _cars, true);
     }
 
-    function pauseMatchingAssertion(uint64 _matchingId) external {
+    function pauseMatchingAssertion(
+        address caller,
+        uint64 _matchingId
+    ) external {
         //before action
         getMatchingStateAssertion(_matchingId, MatchingType.State.InProgress);
 
         //action
+        vm.prank(caller);
         matchings.pauseMatching(_matchingId);
 
         //after action
         getMatchingStateAssertion(_matchingId, MatchingType.State.Paused);
     }
 
-    function resumeMatchingAssertion(uint64 _matchingId) external {
+    function resumeMatchingAssertion(
+        address caller,
+        uint64 _matchingId
+    ) external {
         //before action
         getMatchingStateAssertion(_matchingId, MatchingType.State.Paused);
 
         //action
+        vm.prank(caller);
         matchings.resumeMatching(_matchingId);
 
         //after action
         getMatchingStateAssertion(_matchingId, MatchingType.State.InProgress);
     }
 
-    function cancelMatchingAssertion(uint64 _matchingId) external {
+    function cancelMatchingAssertion(
+        address caller,
+        uint64 _matchingId
+    ) external {
         // before action
         // TODO: should limit cancel state
 
         // action
+        vm.prank(caller);
         matchings.cancelMatching(_matchingId);
 
         // after action
@@ -162,6 +181,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     }
 
     function closeMatchingAssertion(
+        address caller,
         uint64 _matchingId,
         address _winner
     ) external {
@@ -169,6 +189,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         getMatchingStateAssertion(_matchingId, MatchingType.State.InProgress);
 
         // action
+        vm.prank(caller);
         matchings.closeMatching(_matchingId);
 
         // after action

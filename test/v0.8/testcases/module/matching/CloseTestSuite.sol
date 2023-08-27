@@ -37,8 +37,17 @@ contract CloseTestCaseWithSuccess is ControlTestSuiteBase {
 
     function before() internal virtual override returns (uint64) {
         uint64 matchingId = super.before();
-        IRoles roles = matchings.datasets().roles();
-        roles.grantRole(RolesType.STORAGE_PROVIDER, address(99));
+
+        address admin = matchings.datasets().roles().getRoleMember(
+            bytes32(0x00),
+            0
+        );
+        vm.startPrank(admin);
+        matchings.datasets().roles().grantRole(
+            RolesType.DATASET_PROVIDER,
+            address(99)
+        );
+        vm.stopPrank();
         vm.roll(101);
         vm.prank(address(99));
         matchings.bidding(matchingId, 200);
@@ -47,8 +56,10 @@ contract CloseTestCaseWithSuccess is ControlTestSuiteBase {
 
     function action(uint64 _matchingId) internal virtual override {
         address initiator = matchings.getMatchingInitiator(_matchingId);
-        vm.startPrank(initiator);
-        matchingsAssertion.closeMatchingAssertion(_matchingId, address(99));
-        vm.stopPrank();
+        matchingsAssertion.closeMatchingAssertion(
+            initiator,
+            _matchingId,
+            address(99)
+        );
     }
 }

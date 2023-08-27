@@ -44,10 +44,18 @@ contract BiddingTestCaseWithSuccess is MatchingsTestBase {
             10
         );
 
-        IRoles roles = matchings.datasets().roles();
-        roles.grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.startPrank(address(99));
+        address admin = matchings.datasets().roles().getRoleMember(
+            bytes32(0x00),
+            0
+        );
+        vm.startPrank(admin);
+        matchings.datasets().roles().grantRole(
+            RolesType.DATASET_PROVIDER,
+            address(99)
+        );
+        vm.stopPrank();
         uint64 matchingId = matchingsHelpers.publishMatching(
+            address(99),
             datasetId,
             DatasetType.DataType.MappingFiles,
             0,
@@ -58,18 +66,23 @@ contract BiddingTestCaseWithSuccess is MatchingsTestBase {
             100,
             "TEST"
         );
-        vm.stopPrank();
         return matchingId;
     }
 
     function action(uint64 _matchingId) internal virtual override {
         uint64 amount = 10000;
 
-        IRoles roles = matchings.datasets().roles();
-        roles.grantRole(RolesType.STORAGE_PROVIDER, address(99));
-        vm.startPrank(address(99));
-        vm.roll(101);
-        matchingsAssertion.biddingAssertion(_matchingId, amount);
+        address admin = matchings.datasets().roles().getRoleMember(
+            bytes32(0x00),
+            0
+        );
+        vm.startPrank(admin);
+        matchings.datasets().roles().grantRole(
+            RolesType.STORAGE_PROVIDER,
+            address(100)
+        );
         vm.stopPrank();
+        vm.roll(101);
+        matchingsAssertion.biddingAssertion(address(100), _matchingId, amount);
     }
 }

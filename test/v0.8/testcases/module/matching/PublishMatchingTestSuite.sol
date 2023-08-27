@@ -63,10 +63,18 @@ contract PublishMatchingTestCaseWithSuccess is MatchingsTestBase {
             carsCount
         );
 
-        IRoles roles = matchings.datasets().roles();
-        roles.grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.startPrank(address(99));
+        address admin = matchings.datasets().roles().getRoleMember(
+            bytes32(0x00),
+            0
+        );
+        vm.startPrank(admin);
+        matchings.datasets().roles().grantRole(
+            RolesType.DATASET_PROVIDER,
+            address(99)
+        );
+        vm.stopPrank();
         matchingsAssertion.publishMatchingAssertion(
+            address(99),
             _datasetId,
             cars,
             size,
@@ -79,6 +87,5 @@ contract PublishMatchingTestCaseWithSuccess is MatchingsTestBase {
             100,
             "TEST"
         );
-        vm.stopPrank();
     }
 }

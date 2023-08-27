@@ -37,9 +37,7 @@ contract CancelTestCaseWithSuccess is ControlTestSuiteBase {
 
     function action(uint64 _matchingId) internal virtual override {
         address initiator = matchings.getMatchingInitiator(_matchingId);
-        vm.startPrank(initiator);
-        matchingsAssertion.cancelMatchingAssertion(_matchingId);
-        vm.stopPrank();
+        matchingsAssertion.cancelMatchingAssertion(initiator, _matchingId);
     }
 }
 
@@ -54,10 +52,8 @@ contract CancelTestCaseWithAtClosed is ControlTestSuiteBase {
 
     function action(uint64 _matchingId) internal virtual override {
         address initiator = matchings.getMatchingInitiator(_matchingId);
-        vm.startPrank(initiator);
         vm.roll(201);
         vm.expectRevert();
-        matchingsAssertion.cancelMatchingAssertion(_matchingId);
-        vm.stopPrank();
+        matchingsAssertion.cancelMatchingAssertion(initiator, _matchingId);
     }
 }

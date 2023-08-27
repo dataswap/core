@@ -37,11 +37,9 @@ contract ResumeTestCaseWithSuccess is ControlTestSuiteBase {
 
     function action(uint64 _matchingId) internal virtual override {
         address initiator = matchings.getMatchingInitiator(_matchingId);
-        vm.startPrank(initiator);
         vm.roll(99);
-        matchingsAssertion.pauseMatchingAssertion(_matchingId);
+        matchingsAssertion.pauseMatchingAssertion(initiator, _matchingId);
         vm.roll(1099);
-        matchingsAssertion.resumeMatchingAssertion(_matchingId);
-        vm.stopPrank();
+        matchingsAssertion.resumeMatchingAssertion(initiator, _matchingId);
     }
 }

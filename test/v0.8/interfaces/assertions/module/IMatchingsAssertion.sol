@@ -21,9 +21,14 @@ import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
 // NOTE: view asserton functions must all be tested by the functions that will change state
 interface IMatchingsAssertion {
-    function biddingAssertion(uint64 _matchingId, uint256 _amount) external;
+    function biddingAssertion(
+        address caller,
+        uint64 _matchingId,
+        uint256 _amount
+    ) external;
 
     function publishMatchingAssertion(
+        address caller,
         uint64 _datasetId,
         bytes32[] memory _cars,
         uint64 _size,
@@ -37,13 +42,23 @@ interface IMatchingsAssertion {
         string memory _additionalInfo
     ) external;
 
-    function pauseMatchingAssertion(uint64 _matchingId) external;
+    function pauseMatchingAssertion(
+        address caller,
+        uint64 _matchingId
+    ) external;
 
-    function resumeMatchingAssertion(uint64 _matchingId) external;
+    function resumeMatchingAssertion(
+        address caller,
+        uint64 _matchingId
+    ) external;
 
-    function cancelMatchingAssertion(uint64 _matchingId) external;
+    function cancelMatchingAssertion(
+        address caller,
+        uint64 _matchingId
+    ) external;
 
     function closeMatchingAssertion(
+        address caller,
         uint64 _matchingId,
         address _winner
     ) external;

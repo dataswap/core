@@ -44,10 +44,18 @@ abstract contract ControlTestSuiteBase is MatchingsTestBase {
             10
         );
 
-        IRoles roles = matchings.datasets().roles();
-        roles.grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.startPrank(address(99));
+        address admin = matchings.datasets().roles().getRoleMember(
+            bytes32(0x00),
+            0
+        );
+        vm.startPrank(admin);
+        matchings.datasets().roles().grantRole(
+            RolesType.DATASET_PROVIDER,
+            address(99)
+        );
+        vm.stopPrank();
         uint64 matchingId = matchingsHelpers.publishMatching(
+            address(99),
             datasetId,
             DatasetType.DataType.MappingFiles,
             0,
@@ -58,7 +66,6 @@ abstract contract ControlTestSuiteBase is MatchingsTestBase {
             100,
             "TEST"
         );
-        vm.stopPrank();
         return matchingId;
     }
 }

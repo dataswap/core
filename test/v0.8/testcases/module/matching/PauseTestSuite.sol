@@ -38,8 +38,6 @@ contract PauseTestCaseWithSuccess is ControlTestSuiteBase {
     function action(uint64 _matchingId) internal virtual override {
         vm.roll(99);
         address initiator = matchings.getMatchingInitiator(_matchingId);
-        vm.startPrank(initiator);
-        matchingsAssertion.pauseMatchingAssertion(_matchingId);
-        vm.stopPrank();
+        matchingsAssertion.pauseMatchingAssertion(initiator, _matchingId);
     }
 }
