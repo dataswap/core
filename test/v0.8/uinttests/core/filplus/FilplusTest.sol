@@ -80,7 +80,7 @@ contract FilplusTest is Test {
 
     // Test function for setting the maximum replicas per country rule
     function testSetDatasetRuleMaxReplicasInCountry(
-        uint64 _countryCode,
+        uint32 _countryCode,
         uint16 _newValue
     ) external {
         vm.assume(_newValue != 0);

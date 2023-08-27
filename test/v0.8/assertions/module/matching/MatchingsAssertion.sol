@@ -103,9 +103,8 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
 
         //action
         vm.prank(caller);
-        matchings.publishMatching(
+        uint64 matchingId = matchings.createMatching(
             _datasetId,
-            _cars,
             _size,
             _dataType,
             _associatedMappingFilesMatchingID,
@@ -116,6 +115,8 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
             _biddingThreshold,
             _additionalInfo
         );
+        vm.prank(caller);
+        matchings.publishMatching(matchingId, _datasetId, _cars, true);
 
         //after action
         matchingsCountAssertion(oldMatchingsCount + 1);
@@ -376,18 +377,16 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     function isMatchingTargetMeetsFilPlusRequirementsAssertion(
         uint64 _datasetId,
         bytes32[] memory _cars,
-        uint64 _size,
-        DatasetType.DataType _dataType,
-        uint64 _associatedMappingFilesMatchingID,
+        uint64 _region,
+        DatasetType.DataType /*_dataType*/,
+        uint64 /*_associatedMappingFilesMatchingID*/,
         bool _expectIsMatchingTargetMeetsFilPlusRequirements
     ) public {
         assertEq(
             matchings.isMatchingTargetMeetsFilPlusRequirements(
                 _datasetId,
                 _cars,
-                _size,
-                _dataType,
-                _associatedMappingFilesMatchingID
+                _region
             ),
             _expectIsMatchingTargetMeetsFilPlusRequirements
         );

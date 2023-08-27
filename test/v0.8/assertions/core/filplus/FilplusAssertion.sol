@@ -54,7 +54,7 @@ contract FilplusAssertion is DSTest, Test, IFilplusAssertion {
     }
 
     function setDatasetRuleMaxReplicasInCountryAssertion(
-        bytes32 _countryCode,
+        uint32 _countryCode,
         uint16 _newValue
     ) external {
         filplus.setDatasetRuleMaxReplicasInCountry(_countryCode, _newValue);
@@ -199,7 +199,7 @@ contract FilplusAssertion is DSTest, Test, IFilplusAssertion {
     }
 
     function getDatasetRuleMaxReplicasInCountryAssertion(
-        bytes32 _countryCode,
+        uint32 _countryCode,
         uint16 _expectCount
     ) public {
         assertEq(

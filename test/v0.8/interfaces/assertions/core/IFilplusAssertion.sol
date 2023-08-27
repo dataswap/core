@@ -31,7 +31,7 @@ interface IFilplusAssertion {
     ) external;
 
     function setDatasetRuleMaxReplicasInCountryAssertion(
-        bytes32 _countryCode,
+        uint32 _countryCode,
         uint16 _newValue
     ) external;
 
@@ -109,7 +109,7 @@ interface IFilplusAssertion {
     ) external;
 
     function getDatasetRuleMaxReplicasInCountryAssertion(
-        bytes32 _countryCode,
+        uint32 _countryCode,
         uint16 _expectCount
     ) external;
 }
