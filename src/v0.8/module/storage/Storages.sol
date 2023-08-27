@@ -72,7 +72,7 @@ contract Storages is IStorages, StoragesModifiers {
     }
 
     /// @dev Submits a Filecoin deal Id for a matchedstore after successful matching.
-    //TODO: verify filecoin deal id matched cid
+    //TODO: verify filecoin deal id matched cid:https://github.com/dataswap/core/issues/41
     function submitStorageDealId(
         uint64 _matchingId,
         bytes32 _cid,

@@ -34,7 +34,7 @@ library DatasetVerificationLIB {
         bytes32[][] memory _siblings,
         uint32[] memory _paths // solhint-disable-next-line
     ) private pure {
-        //TODO:_requireValidVerification
+        //TODO:_requireValidVerification:https://github.com/dataswap/core/issues/39
     }
 
     /// @notice Submit a verification for a dataset.
