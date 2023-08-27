@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {AddCarReplicaTestCaseWithSuccess} from "test/v0.8/testcases/core/carstore/AddCarReplicaTestSuite.sol";
+import {AddCarReplicaTestCaseWithSuccess, AddCarReplicaTestCaseWithInvalidId, AddCarReplicaTestCaseWithCarNotExist, AddCarReplicaTestCaseWithReplicaAlreadyExists} from "test/v0.8/testcases/core/carstore/AddCarReplicaTestSuite.sol";
 import {CarstoreTestSetup} from "test/v0.8/uinttests/core/carstore/setup/CarstoreTestSetup.sol";
 import {TestHelpers} from "src/v0.8/shared/utils/common/TestHelpers.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
@@ -30,6 +30,45 @@ contract AddCarReplicaTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         AddCarReplicaTestCaseWithSuccess testCase = new AddCarReplicaTestCaseWithSuccess(
+                carstore,
+                assertion
+            );
+        // run testcase
+        testCase.run(_cid, _matchingId);
+    }
+
+    function testAddCarReplicaWithInvalidId(
+        bytes32 _cid,
+        uint64 _matchingId
+    ) public {
+        setup();
+        AddCarReplicaTestCaseWithInvalidId testCase = new AddCarReplicaTestCaseWithInvalidId(
+                carstore,
+                assertion
+            );
+        // run testcase
+        testCase.run(_cid, _matchingId);
+    }
+
+    function testAddCarReplicaWithCarNotExis(
+        bytes32 _cid,
+        uint64 _matchingId
+    ) public {
+        setup();
+        AddCarReplicaTestCaseWithCarNotExist testCase = new AddCarReplicaTestCaseWithCarNotExist(
+                carstore,
+                assertion
+            );
+        // run testcase
+        testCase.run(_cid, _matchingId);
+    }
+
+    function testAddCarReplicaWithReplicaAlreadyExists(
+        bytes32 _cid,
+        uint64 _matchingId
+    ) public {
+        setup();
+        AddCarReplicaTestCaseWithReplicaAlreadyExists testCase = new AddCarReplicaTestCaseWithReplicaAlreadyExists(
                 carstore,
                 assertion
             );

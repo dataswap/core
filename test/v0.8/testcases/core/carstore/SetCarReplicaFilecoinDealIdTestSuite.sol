@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {SetCarReplicaFilecoinDealIdAssertionTestSuiteBase} from "test/v0.8/testcases/core/carstore/abstract/CarstoreTestSuiteBase.sol";
 
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
@@ -44,5 +45,123 @@ contract SetCarReplicaFilecoinDealIdTestCaseWithSuccess is
         vm.assume(_matchingId != 0 && _filecoinDealId != 0);
         carstore.addCar(_cid, _datasetId, _size);
         carstore.addCarReplica(_cid, _matchingId);
+    }
+}
+
+contract SetCarReplicaFilecoinDealIdTestCaseWithInvalidId is
+    SetCarReplicaFilecoinDealIdAssertionTestSuiteBase
+{
+    constructor(
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
+    )
+        SetCarReplicaFilecoinDealIdAssertionTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
+    {}
+
+    function before(
+        bytes32 _cid,
+        uint64 _datasetId,
+        uint64 _size,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) internal virtual override {
+        vm.assume(_datasetId != 0);
+        vm.assume(_size != 0);
+        vm.assume(_matchingId != 0 && _filecoinDealId == 0);
+        carstore.addCar(_cid, _datasetId, _size);
+        carstore.addCarReplica(_cid, _matchingId);
+    }
+
+    function action(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) internal virtual override {
+        vm.expectRevert();
+        super.action(_cid, _matchingId, _filecoinDealId);
+    }
+}
+
+contract SetCarReplicaFilecoinDealIdTestCaseWithReplicaNotExist is
+    SetCarReplicaFilecoinDealIdAssertionTestSuiteBase
+{
+    constructor(
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
+    )
+        SetCarReplicaFilecoinDealIdAssertionTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
+    {}
+
+    function before(
+        bytes32 _cid,
+        uint64 _datasetId,
+        uint64 _size,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) internal virtual override {
+        vm.assume(_datasetId != 0);
+        vm.assume(_size != 0);
+        vm.assume(_matchingId != 0 && _filecoinDealId != 0);
+        carstore.addCar(_cid, _datasetId, _size);
+    }
+
+    function action(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) internal virtual override {
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.ReplicaNotExist.selector,
+                _cid,
+                _matchingId
+            )
+        );
+        super.action(_cid, _matchingId, _filecoinDealId);
+    }
+}
+
+contract SetCarReplicaFilecoinDealIdTestCaseWithReplicaFilecoinDealIdExists is
+    SetCarReplicaFilecoinDealIdAssertionTestSuiteBase
+{
+    constructor(
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
+    )
+        SetCarReplicaFilecoinDealIdAssertionTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
+    {}
+
+    function before(
+        bytes32 _cid,
+        uint64 _datasetId,
+        uint64 _size,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) internal virtual override {
+        vm.assume(_datasetId != 0);
+        vm.assume(_size != 0);
+        vm.assume(_matchingId != 0 && _filecoinDealId != 0);
+        carstore.addCar(_cid, _datasetId, _size);
+        carstore.addCarReplica(_cid, _matchingId);
+        carstore.setCarReplicaFilecoinDealId(
+            _cid,
+            _matchingId,
+            _filecoinDealId
+        );
+    }
+
+    function action(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) internal virtual override {
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.InvalidReplicaState.selector,
+                _cid,
+                _matchingId
+            )
+        );
+        super.action(_cid, _matchingId, _filecoinDealId);
     }
 }

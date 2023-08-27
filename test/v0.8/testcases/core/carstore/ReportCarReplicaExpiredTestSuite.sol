@@ -19,6 +19,7 @@ pragma solidity ^0.8.21;
 import {ReportCarReplicaExpiredTestSuiteBase} from "test/v0.8/testcases/core/carstore/abstract/CarstoreTestSuiteBase.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
+import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 
@@ -51,5 +52,83 @@ contract ReportCarReplicaExpiredTestCaseWithSuccess is
             _filecoinDealId
         );
         carstore.filecoin().setMockDealState(FilecoinType.DealState.Expired);
+    }
+}
+
+contract ReportCarReplicaExpiredTestCaseWithInvalidDealState is
+    ReportCarReplicaExpiredTestSuiteBase
+{
+    constructor(
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
+    )
+        ReportCarReplicaExpiredTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
+    {}
+
+    function before(
+        bytes32 _cid,
+        uint64 _datasetId,
+        uint64 _size,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) internal virtual override {
+        vm.assume(_datasetId != 0);
+        vm.assume(_size != 0);
+        vm.assume(_matchingId != 0 && _filecoinDealId != 0);
+        carstore.addCar(_cid, _datasetId, _size);
+        carstore.addCarReplica(_cid, _matchingId);
+        carstore.setCarReplicaFilecoinDealId(
+            _cid,
+            _matchingId,
+            _filecoinDealId
+        );
+        carstore.filecoin().setMockDealState(FilecoinType.DealState.Stored);
+    }
+
+    function action(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) internal virtual override {
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.InvalidReplicaFilecoinDealState.selector,
+                _cid,
+                _filecoinDealId
+            )
+        );
+        super.action(_cid, _matchingId, _filecoinDealId);
+    }
+}
+
+contract ReportCarReplicaExpiredTestCaseWithInvalidId is
+    ReportCarReplicaExpiredTestSuiteBase
+{
+    constructor(
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
+    )
+        ReportCarReplicaExpiredTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
+    {}
+
+    function before(
+        bytes32 /*_cid*/,
+        uint64 _datasetId,
+        uint64 _size,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) internal virtual override {
+        vm.assume(_datasetId != 0);
+        vm.assume(_size != 0);
+        vm.assume(_matchingId == 0 || _filecoinDealId == 0);
+    }
+
+    function action(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) internal virtual override {
+        vm.expectRevert();
+        super.action(_cid, _matchingId, _filecoinDealId);
     }
 }

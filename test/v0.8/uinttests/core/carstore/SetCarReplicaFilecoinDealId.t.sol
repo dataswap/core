@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {SetCarReplicaFilecoinDealIdTestCaseWithSuccess} from "test/v0.8/testcases/core/carstore/SetCarReplicaFilecoinDealIdTestSuite.sol";
+import {SetCarReplicaFilecoinDealIdTestCaseWithSuccess, SetCarReplicaFilecoinDealIdTestCaseWithInvalidId, SetCarReplicaFilecoinDealIdTestCaseWithReplicaNotExist, SetCarReplicaFilecoinDealIdTestCaseWithReplicaFilecoinDealIdExists} from "test/v0.8/testcases/core/carstore/SetCarReplicaFilecoinDealIdTestSuite.sol";
 import {CarstoreTestSetup} from "test/v0.8/uinttests/core/carstore/setup/CarstoreTestSetup.sol";
 import {TestHelpers} from "src/v0.8/shared/utils/common/TestHelpers.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
@@ -52,6 +52,66 @@ contract SetCarReplicaFilecoinDealIdTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         SetCarReplicaFilecoinDealIdTestCaseWithSuccess testCase = new SetCarReplicaFilecoinDealIdTestCaseWithSuccess(
+                carstore,
+                assertion
+            );
+        // set filecoin store is ok
+        carstore.filecoin().setMockDealState(
+            FilecoinType.DealState.StorageFailed
+        );
+        // run testcase
+        testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
+    }
+
+    function testSetCarReplicaFilecoinDealIdWithInvalidId(
+        bytes32 _cid,
+        uint64 _datasetId,
+        uint64 _size,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) public {
+        setup();
+        SetCarReplicaFilecoinDealIdTestCaseWithInvalidId testCase = new SetCarReplicaFilecoinDealIdTestCaseWithInvalidId(
+                carstore,
+                assertion
+            );
+        // set filecoin store is ok
+        carstore.filecoin().setMockDealState(
+            FilecoinType.DealState.StorageFailed
+        );
+        // run testcase
+        testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
+    }
+
+    function testSetCarReplicaFilecoinDealIdWithReplicaNotExist(
+        bytes32 _cid,
+        uint64 _datasetId,
+        uint64 _size,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) public {
+        setup();
+        SetCarReplicaFilecoinDealIdTestCaseWithReplicaNotExist testCase = new SetCarReplicaFilecoinDealIdTestCaseWithReplicaNotExist(
+                carstore,
+                assertion
+            );
+        // set filecoin store is ok
+        carstore.filecoin().setMockDealState(
+            FilecoinType.DealState.StorageFailed
+        );
+        // run testcase
+        testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
+    }
+
+    function testSetCarReplicaFilecoinDealIdWithReplicaFilecoinDealIdExists(
+        bytes32 _cid,
+        uint64 _datasetId,
+        uint64 _size,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) public {
+        setup();
+        SetCarReplicaFilecoinDealIdTestCaseWithReplicaFilecoinDealIdExists testCase = new SetCarReplicaFilecoinDealIdTestCaseWithReplicaFilecoinDealIdExists(
                 carstore,
                 assertion
             );

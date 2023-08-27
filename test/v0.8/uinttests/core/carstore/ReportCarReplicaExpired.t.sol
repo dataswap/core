@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {ReportCarReplicaExpiredTestCaseWithSuccess} from "test/v0.8/testcases/core/carstore/ReportCarReplicaExpiredTestSuite.sol";
+import {ReportCarReplicaExpiredTestCaseWithSuccess, ReportCarReplicaExpiredTestCaseWithInvalidDealState, ReportCarReplicaExpiredTestCaseWithInvalidId} from "test/v0.8/testcases/core/carstore/ReportCarReplicaExpiredTestSuite.sol";
 import {CarstoreTestSetup} from "test/v0.8/uinttests/core/carstore/setup/CarstoreTestSetup.sol";
 import {TestHelpers} from "src/v0.8/shared/utils/common/TestHelpers.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
@@ -33,6 +33,38 @@ contract ReportCarReplicaExpiredTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         ReportCarReplicaExpiredTestCaseWithSuccess testCase = new ReportCarReplicaExpiredTestCaseWithSuccess(
+                carstore,
+                assertion
+            );
+        // run testcase
+        testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
+    }
+
+    function testReportCarReplicaExpiredWithInvalidDealState(
+        bytes32 _cid,
+        uint64 _datasetId,
+        uint64 _size,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) public {
+        setup();
+        ReportCarReplicaExpiredTestCaseWithInvalidDealState testCase = new ReportCarReplicaExpiredTestCaseWithInvalidDealState(
+                carstore,
+                assertion
+            );
+        // run testcase
+        testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
+    }
+
+    function testReportCarReplicaExpiredWithInvalidId(
+        bytes32 _cid,
+        uint64 _datasetId,
+        uint64 _size,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) public {
+        setup();
+        ReportCarReplicaExpiredTestCaseWithInvalidId testCase = new ReportCarReplicaExpiredTestCaseWithInvalidId(
                 carstore,
                 assertion
             );

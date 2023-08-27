@@ -21,6 +21,7 @@ import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
+import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 
 /// @dev set car replica filecoin deal id test case,it should be success
 contract AddCarReplicaTestCaseWithSuccess is AddCarReplicaTestSuiteBase {
@@ -37,5 +38,90 @@ contract AddCarReplicaTestCaseWithSuccess is AddCarReplicaTestSuiteBase {
     ) internal virtual override {
         vm.assume(_matchingId != 0);
         carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024);
+    }
+}
+
+contract AddCarReplicaTestCaseWithInvalidId is AddCarReplicaTestSuiteBase {
+    constructor(
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
+    )
+        AddCarReplicaTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
+    {}
+
+    function before(
+        bytes32 _cid,
+        uint64 _matchingId
+    ) internal virtual override {
+        vm.assume(_matchingId == 0);
+        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024);
+    }
+
+    function action(
+        bytes32 _cid,
+        uint64 _matchingId
+    ) internal virtual override {
+        vm.expectRevert();
+        super.action(_cid, _matchingId);
+    }
+}
+
+contract AddCarReplicaTestCaseWithCarNotExist is AddCarReplicaTestSuiteBase {
+    constructor(
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
+    )
+        AddCarReplicaTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
+    {}
+
+    function before(
+        bytes32 /*_cid*/,
+        uint64 _matchingId
+    ) internal virtual override {
+        vm.assume(_matchingId != 0);
+    }
+
+    function action(
+        bytes32 _cid,
+        uint64 _matchingId
+    ) internal virtual override {
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.CarNotExist.selector, _cid)
+        );
+        super.action(_cid, _matchingId);
+    }
+}
+
+contract AddCarReplicaTestCaseWithReplicaAlreadyExists is
+    AddCarReplicaTestSuiteBase
+{
+    constructor(
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
+    )
+        AddCarReplicaTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
+    {}
+
+    function before(
+        bytes32 _cid,
+        uint64 _matchingId
+    ) internal virtual override {
+        vm.assume(_matchingId != 0);
+        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024);
+        carstore.addCarReplica(_cid, _matchingId);
+    }
+
+    function action(
+        bytes32 _cid,
+        uint64 _matchingId
+    ) internal virtual override {
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.ReplicaAlreadyExists.selector,
+                _cid,
+                _matchingId
+            )
+        );
+        super.action(_cid, _matchingId);
     }
 }
