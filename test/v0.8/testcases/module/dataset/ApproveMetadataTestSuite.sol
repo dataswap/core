@@ -35,14 +35,17 @@ contract ApproveMetadataTestCaseWithSuccess is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64 id) {
-        uint64 datasetId = datasetsHelpers.submitDatasetMetadata("TEST");
+        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
+            address(9),
+            "TEST"
+        );
         return datasetId;
     }
 
     function action(uint64 _id) internal virtual override {
-        // vm.startPrank(datasets.governanceAddress());
-        // TODO: need pass caller to other contract
-        datasetsAssertion.approveDatasetMetadataAssertion(_id);
-        // vm.stopPrank();
+        datasetsAssertion.approveDatasetMetadataAssertion(
+            datasets.governanceAddress(),
+            _id
+        );
     }
 }

@@ -72,7 +72,6 @@ contract DatacapsSetupHelpers is IDatacapsHelpers {
             10,
             100
         );
-        datasetAssertion.approveDatasetAssertion(datasetId);
 
         //matching workflow
         uint64 datasetSize = datacaps

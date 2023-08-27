@@ -200,9 +200,7 @@ contract Carstore is CarstoreBase {
     /// @notice Get the dataset ID associated with a car.
     /// @param _cid Car CID to check.
     /// @return The dataset ID of the car.
-    function getCarDatasetId(
-        bytes32 _cid
-    ) public view onlyCarExist(_cid) returns (uint64) {
+    function getCarDatasetId(bytes32 _cid) public view returns (uint64) {
         CarReplicaType.Car storage car = cars[_cid];
         return car._getDatasetId();
     }

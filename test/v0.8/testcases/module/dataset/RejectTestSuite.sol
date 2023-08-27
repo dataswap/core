@@ -35,10 +35,18 @@ contract RejectTestCaseWithSuccess is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64 id) {
-        uint64 datasetId = datasetsHelpers.submitDatasetMetadata("TEST");
+        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
+            address(9),
+            "TEST"
+        );
         vm.prank(datasets.governanceAddress());
         datasets.approveDatasetMetadata(datasetId);
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
+        vm.stopPrank();
         datasetsHelpers.submitDatasetProof(
+            address(99),
             datasetId,
             DatasetType.DataType.Source,
             "",
@@ -46,6 +54,7 @@ contract RejectTestCaseWithSuccess is DatasetsTestBase {
             true
         );
         datasetsHelpers.submitDatasetProof(
+            address(99),
             datasetId,
             DatasetType.DataType.MappingFiles,
             "accessmethod",
@@ -57,8 +66,9 @@ contract RejectTestCaseWithSuccess is DatasetsTestBase {
     }
 
     function action(uint64 _id) internal virtual override {
-        vm.prank(datasets.governanceAddress());
-        datasets.approveDatasetMetadata(_id);
-        datasetsAssertion.rejectDatasetAssertion(_id);
+        datasetsAssertion.rejectDatasetAssertion(
+            datasets.governanceAddress(),
+            _id
+        );
     }
 }

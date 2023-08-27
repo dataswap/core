@@ -22,6 +22,7 @@ import {Test} from "forge-std/Test.sol";
 import {TestHelpers} from "src/v0.8/shared/utils/common/TestHelpers.sol";
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
 
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
@@ -45,9 +46,11 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
 
     ///@notice Submit metadata for a dataset
     function submitDatasetMetadata(
+        address caller,
         string memory _accessMethod
     ) public returns (uint64 datasetId) {
         uint64 datasetCount = datasets.datasetsCount();
+        vm.prank(caller);
         datasets.submitDatasetMetadata(
             "title",
             "industry",
@@ -73,6 +76,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
     }
 
     function submitDatasetProof(
+        address caller,
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         string memory _accessMethod,
@@ -83,6 +87,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         bytes32[] memory leavesHashes = new bytes32[](_leavesCount);
         uint64[] memory leavesSizes = new uint64[](_leavesCount);
         (leavesHashes, leavesSizes, ) = generateProof(_leavesCount);
+        vm.prank(caller);
         datasets.submitDatasetProof(
             _datasetId,
             _dataType,
@@ -111,6 +116,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
     }
 
     function submitDatasetVerification(
+        address caller,
         uint64 _datasetId,
         uint64 _challengeCount,
         uint64 _challengeLeavesCount
@@ -124,6 +130,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             siblings[i] = leaves;
             paths[i] = i;
         }
+        vm.prank(caller);
         datasets.submitDatasetVerification(
             _datasetId,
             randomSeed,
@@ -140,14 +147,18 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         uint64 /*_challengeLeavesCount*/
     ) external returns (uint64) {
         //1:submit meta
-        uint64 datasetId = submitDatasetMetadata(_accessMethod);
+        uint64 datasetId = submitDatasetMetadata(address(this), _accessMethod);
 
         //2:approved meta
-        vm.prank(datasets.governanceAddress());
-        assertion.approveDatasetMetadataAssertion(datasetId);
+        assertion.approveDatasetMetadataAssertion(
+            datasets.governanceAddress(),
+            datasetId
+        );
 
         //3:submit proof
+        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
         submitDatasetProof(
+            address(99),
             datasetId,
             DatasetType.DataType.MappingFiles,
             _accessMethod,
@@ -155,6 +166,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             true
         );
         submitDatasetProof(
+            address(99),
             datasetId,
             DatasetType.DataType.Source,
             _accessMethod,
@@ -169,7 +181,10 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         //     _challengeLeavesCount
         // );
         vm.prank(datasets.governanceAddress());
-        datasets.approveDataset(datasetId);
+        assertion.approveDatasetAssertion(
+            datasets.governanceAddress(),
+            datasetId
+        );
         return datasetId;
     }
 }

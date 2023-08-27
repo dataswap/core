@@ -20,15 +20,25 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
 // NOTE: view asserton functions must all be tested by the functions that will change state
 interface IDatasetsAssertion {
-    function approveDatasetAssertion(uint64 _datasetId) external;
+    function approveDatasetAssertion(
+        address caller,
+        uint64 _datasetId
+    ) external;
 
-    function approveDatasetMetadataAssertion(uint64 _datasetId) external;
+    function approveDatasetMetadataAssertion(
+        address caller,
+        uint64 _datasetId
+    ) external;
 
-    function rejectDatasetAssertion(uint64 _datasetId) external;
+    function rejectDatasetAssertion(address caller, uint64 _datasetId) external;
 
-    function rejectDatasetMetadataAssertion(uint64 _datasetId) external;
+    function rejectDatasetMetadataAssertion(
+        address caller,
+        uint64 _datasetId
+    ) external;
 
     function submitDatasetMetadataAssertion(
+        address caller,
         string memory _title,
         string memory _industry,
         string memory _name,
@@ -41,6 +51,7 @@ interface IDatasetsAssertion {
     ) external;
 
     function submitDatasetProofAssertion(
+        address caller,
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         string calldata accessMethod,
@@ -51,6 +62,7 @@ interface IDatasetsAssertion {
     ) external;
 
     function submitDatasetVerificationAssertion(
+        address caller,
         uint64 _datasetId,
         uint64 _randomSeed,
         bytes32[][] memory _siblings,

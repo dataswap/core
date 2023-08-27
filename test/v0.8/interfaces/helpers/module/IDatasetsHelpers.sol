@@ -24,6 +24,7 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 interface IDatasetsHelpers {
     ///@notice Submit metadata for a dataset
     function submitDatasetMetadata(
+        address caller,
         string memory _accessMethod
     ) external returns (uint64 datasetId);
 
@@ -34,6 +35,7 @@ interface IDatasetsHelpers {
     ) external returns (bytes32[] memory, uint64[] memory, uint64);
 
     function submitDatasetProof(
+        address caller,
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         string memory _accessMethod,
@@ -53,6 +55,7 @@ interface IDatasetsHelpers {
         );
 
     function submitDatasetVerification(
+        address caller,
         uint64 _datasetId,
         uint64 _challengeCount,
         uint64 _challengeLeavesCount

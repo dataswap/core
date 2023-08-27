@@ -35,7 +35,10 @@ contract SubmitProofTestCaseWithSuccess is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64) {
-        uint64 datasetId = datasetsHelpers.submitDatasetMetadata("TEST");
+        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
+            address(9),
+            "TEST"
+        );
         vm.prank(datasets.governanceAddress());
         datasets.approveDatasetMetadata(datasetId);
         return datasetId;
@@ -49,7 +52,13 @@ contract SubmitProofTestCaseWithSuccess is DatasetsTestBase {
         // firset submit
         (sourceLeavesHashes, sourceLeavesSizes, ) = datasetsHelpers
             .generateProof(sourceLeavesCount);
+        // vm.prank();
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
+        vm.stopPrank();
         datasetsAssertion.submitDatasetProofAssertion(
+            address(99),
             _datasetId,
             DatasetType.DataType.Source,
             "",
@@ -63,6 +72,7 @@ contract SubmitProofTestCaseWithSuccess is DatasetsTestBase {
         (sourceLeavesHashes, sourceLeavesSizes, ) = datasetsHelpers
             .generateProof(sourceLeavesCount);
         datasetsAssertion.submitDatasetProofAssertion(
+            address(99),
             _datasetId,
             DatasetType.DataType.Source,
             "",

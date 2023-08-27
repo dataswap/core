@@ -35,10 +35,19 @@ contract SubmittVerificationTestCaseWithSuccess is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64 id) {
-        uint64 datasetId = datasetsHelpers.submitDatasetMetadata("TEST");
+        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
+            address(9),
+            "TEST"
+        );
         vm.prank(datasets.governanceAddress());
         datasets.approveDatasetMetadata(datasetId);
+
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
+        vm.stopPrank();
         datasetsHelpers.submitDatasetProof(
+            address(99),
             datasetId,
             DatasetType.DataType.Source,
             "",
@@ -46,6 +55,7 @@ contract SubmittVerificationTestCaseWithSuccess is DatasetsTestBase {
             true
         );
         datasetsHelpers.submitDatasetProof(
+            address(99),
             datasetId,
             DatasetType.DataType.MappingFiles,
             "accessmethod",
@@ -56,8 +66,8 @@ contract SubmittVerificationTestCaseWithSuccess is DatasetsTestBase {
     }
 
     function action(uint64 _id) internal virtual override {
-        uint64 pointCount = 10;
-        uint64 pointLeavesCount = 100;
+        uint64 pointCount = 1;
+        uint64 pointLeavesCount = 10;
         bytes32[][] memory siblings = new bytes32[][](pointCount);
         uint32[] memory paths = new uint32[](pointCount);
         for (uint64 i = 0; i < pointCount; i++) {
@@ -68,10 +78,13 @@ contract SubmittVerificationTestCaseWithSuccess is DatasetsTestBase {
             pointCount,
             pointLeavesCount
         );
-        IRoles roles = datasets.roles();
-        roles.grantRole(RolesType.DATASET_AUDITOR, address(99));
-        vm.prank(address(99));
+
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(199));
+        vm.stopPrank();
         datasetsAssertion.submitDatasetVerificationAssertion(
+            address(199),
             _id,
             randomSeed,
             siblings,

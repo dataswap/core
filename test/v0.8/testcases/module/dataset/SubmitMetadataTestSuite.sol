@@ -35,8 +35,8 @@ contract SubmitMetadataTestCaseWithSuccess is DatasetsTestBase {
     {}
 
     function action(uint64 /*_id*/) internal virtual override {
-        vm.startPrank(address(1000));
         datasetsAssertion.submitDatasetMetadataAssertion(
+            address(9),
             "a",
             "b",
             "c",
@@ -47,7 +47,6 @@ contract SubmitMetadataTestCaseWithSuccess is DatasetsTestBase {
             true,
             0
         );
-        vm.stopPrank();
     }
 }
 
@@ -74,6 +73,7 @@ contract SubmitMetadataTestCaseWithCustom is DatasetsTestBase {
         uint64 _version
     ) public {
         datasetsAssertion.submitDatasetMetadataAssertion(
+            address(9),
             _title,
             _industry,
             _name,

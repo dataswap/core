@@ -35,13 +35,17 @@ contract RejectMetadataTestCaseWithSuccess is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64 id) {
-        uint64 datasetId = datasetsHelpers.submitDatasetMetadata("TEST");
+        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
+            address(9),
+            "TEST"
+        );
         return datasetId;
     }
 
     function action(uint64 _id) internal virtual override {
-        vm.prank(datasets.governanceAddress());
-        datasets.approveDatasetMetadata(_id);
-        datasetsAssertion.rejectDatasetMetadataAssertion(_id);
+        datasetsAssertion.rejectDatasetMetadataAssertion(
+            datasets.governanceAddress(),
+            _id
+        );
     }
 }
