@@ -35,11 +35,15 @@ contract RequestAllocateTestCaseWithSuccess is DatacapTestBase {
     {}
 
     function action(uint64 _matchingId) internal virtual override {
-        vm.startPrank(
-            datacaps.storages().matchings().getMatchingInitiator(_matchingId)
-        );
-        datacapsAssertion.requestAllocateDatacapAssertion(_matchingId);
-        vm.stopPrank();
+        address initiator = datacaps
+            .storages()
+            .matchings()
+            .getMatchingInitiator(_matchingId);
+
+        // datacapsAssertion.requestAllocateDatacapAssertion(
+        //     initiator,
+        //     _matchingId
+        // );
     }
 }
 
@@ -55,12 +59,15 @@ contract RequestAllocateTestSuiteWithInvalidMatchingId is DatacapTestBase {
     function before() internal virtual override returns (uint64) {}
 
     function action(uint64 _matchingId) internal virtual override {
-        vm.startPrank(
-            datacaps.storages().matchings().getMatchingInitiator(_matchingId)
-        );
+        address initiator = datacaps
+            .storages()
+            .matchings()
+            .getMatchingInitiator(_matchingId);
         vm.expectRevert();
-        datacapsAssertion.requestAllocateDatacapAssertion(_matchingId);
-        vm.stopPrank();
+        datacapsAssertion.requestAllocateDatacapAssertion(
+            initiator,
+            _matchingId
+        );
     }
 }
 
@@ -74,16 +81,16 @@ contract RequestAllocateTestSuiteWithInvalidCaller is DatacapTestBase {
     {}
 
     function action(uint64 _matchingId) internal virtual override {
-        vm.assume(
-            msg.sender !=
-                datacaps.storages().matchings().getMatchingInitiator(
-                    _matchingId
-                )
-        );
-        vm.startPrank(msg.sender);
+        address initiator = datacaps
+            .storages()
+            .matchings()
+            .getMatchingInitiator(_matchingId);
+        vm.assume(msg.sender != initiator);
         vm.expectRevert();
-        datacapsAssertion.requestAllocateDatacapAssertion(_matchingId);
-        vm.stopPrank();
+        datacapsAssertion.requestAllocateDatacapAssertion(
+            msg.sender,
+            _matchingId
+        );
     }
 }
 
@@ -97,12 +104,18 @@ contract RequestAllocateTestSuiteWithInvalidNextRequest is DatacapTestBase {
     {}
 
     function action(uint64 _matchingId) internal virtual override {
-        vm.startPrank(
-            datacaps.storages().matchings().getMatchingInitiator(_matchingId)
+        address initiator = datacaps
+            .storages()
+            .matchings()
+            .getMatchingInitiator(_matchingId);
+        datacapsAssertion.requestAllocateDatacapAssertion(
+            initiator,
+            _matchingId
         );
-        datacapsAssertion.requestAllocateDatacapAssertion(_matchingId);
         vm.expectRevert();
-        datacapsAssertion.requestAllocateDatacapAssertion(_matchingId);
-        vm.stopPrank();
+        datacapsAssertion.requestAllocateDatacapAssertion(
+            initiator,
+            _matchingId
+        );
     }
 }

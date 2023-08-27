@@ -32,7 +32,10 @@ contract DatacapsAssertion is DSTest, Test, IDatacapsAssertion {
         datacaps = _datacaps;
     }
 
-    function requestAllocateDatacapAssertion(uint64 _matchingId) external {
+    function requestAllocateDatacapAssertion(
+        address caller,
+        uint64 _matchingId
+    ) external {
         //before action
         uint64 oldAvailableDatacap = datacaps.getAvailableDatacap(_matchingId);
         isNextDatacapAllocationValidAssertion(_matchingId, true);
@@ -45,6 +48,7 @@ contract DatacapsAssertion is DSTest, Test, IDatacapsAssertion {
         );
 
         //action
+        vm.prank(caller);
         uint64 addDatacap = datacaps.requestAllocateDatacap(_matchingId);
 
         //after action

@@ -46,12 +46,12 @@ contract SubmitStorageDealIdTestCaseWithSuccess is StoragesTestBase {
             .getMatchingTarget(_matchingId);
         bytes32 cid = cars[0];
         uint64 filecoinDealId = storagesHelpers.generateFilecoinDealId();
-        vm.startPrank(storages.matchings().getMatchingWinner(_matchingId));
+        address winner = storages.matchings().getMatchingWinner(_matchingId);
         storagesAssertion.submitStorageDealIdAssertion(
+            winner,
             _matchingId,
             cid,
             filecoinDealId
         );
-        vm.stopPrank();
     }
 }

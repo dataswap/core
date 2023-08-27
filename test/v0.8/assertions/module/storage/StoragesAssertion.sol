@@ -33,6 +33,7 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
     }
 
     function submitStorageDealIdAssertion(
+        address caller,
         uint64 _matchingId,
         bytes32 _cid,
         uint64 _filecoinDealId
@@ -42,6 +43,7 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
         // uint64 oldtotalStoredSize = storages.getTotalStoredSize(_matchingId);
 
         //action
+        vm.prank(caller);
         storages.submitStorageDealId(_matchingId, _cid, _filecoinDealId);
 
         //after action
@@ -51,11 +53,13 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
     }
 
     function submitStorageDealIdsAssertion(
+        address caller,
         uint64 _matchingId,
         bytes32[] memory _cids,
         uint64[] memory _filecoinDealIds
     ) external {
         //action
+        vm.prank(caller);
         storages.submitStorageDealIds(_matchingId, _cids, _filecoinDealIds);
         // after action
         getStoredCarsAssertion(_matchingId, _cids);

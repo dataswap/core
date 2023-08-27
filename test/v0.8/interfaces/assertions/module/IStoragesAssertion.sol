@@ -19,12 +19,14 @@ pragma solidity ^0.8.21;
 // NOTE: view asserton functions must all be tested by the functions that will change state
 interface IStoragesAssertion {
     function submitStorageDealIdAssertion(
+        address caller,
         uint64 _matchingId,
         bytes32 _cid,
         uint64 _filecoinDealId
     ) external;
 
     function submitStorageDealIdsAssertion(
+        address caller,
         uint64 _matchingId,
         bytes32[] memory _cids,
         uint64[] memory _filecoinDealIds

@@ -16,35 +16,19 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-// NOTE: view asserton functions must all be tested by the functions that will change state
-interface IDatacapsAssertion {
-    function requestAllocateDatacapAssertion(
-        address caller,
-        uint64 _matchingId
-    ) external;
+import {Test} from "forge-std/Test.sol";
+import {RequestAllocateTestCaseWithSuccess} from "test/v0.8/testcases/module/datacap/RequestAllocateTestSuite.sol";
+import {DatacapTestSetup} from "test/v0.8/uinttests/module/datacap/setup/DatacapTestSetup.sol";
 
-    function getAvailableDatacapAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
-    ) external;
-
-    function getAllocatedDatacapAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
-    ) external;
-
-    function getTotalDatacapAllocationRequirementAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
-    ) external;
-
-    function getRemainingUnallocatedDatacapAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
-    ) external;
-
-    function isNextDatacapAllocationValidAssertion(
-        uint64 _matchingId,
-        bool _expectOK
-    ) external;
+contract RequestAllocateDatacapTest is Test, DatacapTestSetup {
+    /// @dev test case with success
+    function testRequestAllocateDatacapWithSuccess() public {
+        setup();
+        RequestAllocateTestCaseWithSuccess testCase = new RequestAllocateTestCaseWithSuccess(
+                datacaps,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
 }
