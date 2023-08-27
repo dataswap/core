@@ -20,25 +20,40 @@ pragma solidity ^0.8.21;
 // NOTE: view asserton functions must all be tested by the functions that will change state
 interface IRolesAssertion {
     /// @dev transfer ownership assertion
-    function transferOwnershipAssertion(address _newOwner) external;
+    function transferOwnershipAssertion(
+        address caller,
+        address _newOwner
+    ) external;
 
     /// @dev accept ownership assertion
-    function acceptOwnershipAssertion() external;
+    function acceptOwnershipAssertion(address caller) external;
 
     /// @dev renounce ownership assertion
-    function renounceOwnershipAssertion() external;
+    function renounceOwnershipAssertion(address caller) external;
 
     /// @dev grant role assertion
-    function grantRoleAssertion(bytes32 _role, address _account) external;
+    function grantRoleAssertion(
+        address caller,
+        bytes32 _role,
+        address _account
+    ) external;
 
     /// @dev revoke role assertion
-    function revokeRoleAssertion(bytes32 _role, address _account) external;
+    function revokeRoleAssertion(
+        address caller,
+        bytes32 _role,
+        address _account
+    ) external;
 
     /// @dev renounce role assertion
-    function renounceRoleAssertion(bytes32 _role, address _account) external;
+    function renounceRoleAssertion(
+        address caller,
+        bytes32 _role,
+        address _account
+    ) external;
 
     /// @dev check role assertion, check the msg.sender is owner
-    function checkRoleAssertion() external view;
+    function checkRoleAssertion(address caller) external;
 
     /// @dev owner assertion
     function ownerAssertion(address _expectOwner) external;

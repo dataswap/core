@@ -32,53 +32,64 @@ contract RolesAssertion is DSTest, Test, IRolesAssertion {
     }
 
     /// @dev transfer ownership assertion
-    function transferOwnershipAssertion(address _newOwner) external {
+    function transferOwnershipAssertion(
+        address caller,
+        address _newOwner
+    ) external {
         // before action
-        ownerAssertion(msg.sender);
+        ownerAssertion(caller);
 
         // action
+        vm.prank(caller);
         roles.transferOwnership(_newOwner);
 
         // after action
-        ownerAssertion(msg.sender);
+        ownerAssertion(caller);
         pendingOwnerAssertion(_newOwner);
     }
 
     /// @dev accept ownership assertion
-    function acceptOwnershipAssertion() external {
+    function acceptOwnershipAssertion(address caller) external {
         // berfore
-        pendingOwnerAssertion(msg.sender);
+        pendingOwnerAssertion(caller);
 
         // action
+        vm.prank(caller);
         roles.acceptOwnership();
 
         // after action
-        ownerAssertion(msg.sender);
+        ownerAssertion(caller);
     }
 
     /// @dev renounce ownership assertion
-    function renounceOwnershipAssertion() external {
+    function renounceOwnershipAssertion(address caller) external {
         // before action
-        ownerAssertion(msg.sender);
+        ownerAssertion(caller);
 
         // action
+        vm.prank(caller);
         roles.renounceOwnership();
 
         // after action
-        if (msg.sender != address(0)) {
-            assertNotEq(msg.sender, roles.owner());
+        if (caller != address(0)) {
+            assertNotEq(caller, roles.owner());
         } else {
-            ownerAssertion(msg.sender);
+            ownerAssertion(caller);
         }
     }
 
     /// @dev grant role assertion
-    function grantRoleAssertion(bytes32 _role, address _account) external {
+    function grantRoleAssertion(
+        address caller,
+        bytes32 _role,
+        address _account
+    ) external {
         // before action
         hasRoleAssertion(_role, _account, false);
         uint256 beforRoleMemberCount = roles.getRoleMemberCount(_role);
 
         // action
+        vm.prank(caller);
         roles.grantRole(_role, _account);
 
         // after action
@@ -89,11 +100,16 @@ contract RolesAssertion is DSTest, Test, IRolesAssertion {
     }
 
     /// @dev revoke role assertion
-    function revokeRoleAssertion(bytes32 _role, address _account) external {
+    function revokeRoleAssertion(
+        address caller,
+        bytes32 _role,
+        address _account
+    ) external {
         // before action
         hasRoleAssertion(_role, _account, true);
 
         // action
+        vm.prank(caller);
         roles.revokeRole(_role, _account);
 
         //after action
@@ -101,11 +117,16 @@ contract RolesAssertion is DSTest, Test, IRolesAssertion {
     }
 
     /// @dev renounce role assertion
-    function renounceRoleAssertion(bytes32 _role, address _account) external {
+    function renounceRoleAssertion(
+        address caller,
+        bytes32 _role,
+        address _account
+    ) external {
         // before action
         hasRoleAssertion(_role, _account, true);
 
         // action
+        vm.prank(caller);
         roles.renounceRole(_role, _account);
 
         //after action
@@ -113,7 +134,8 @@ contract RolesAssertion is DSTest, Test, IRolesAssertion {
     }
 
     /// @dev check role assertion, check the msg.sender is owner
-    function checkRoleAssertion() public view {
+    function checkRoleAssertion(address caller) public {
+        vm.prank(caller);
         roles.checkRole(DEFAULT_ADMIN_ROLE);
     }
 
