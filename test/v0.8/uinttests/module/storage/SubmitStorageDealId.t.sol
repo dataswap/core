@@ -21,7 +21,7 @@ import {SubmitStorageDealIdTestCaseWithSuccess} from "test/v0.8/testcases/module
 import {StorageTestSetup} from "test/v0.8/uinttests/module/storage/setup/StorageTestSetup.sol";
 
 contract SubmitStorageDealIdTest is Test, StorageTestSetup {
-    /// @dev test case with success
+    /// @notice test case with success
     function testSubmitStorageDealIdWithSuccess() public {
         setup();
         SubmitStorageDealIdTestCaseWithSuccess testCase = new SubmitStorageDealIdTestCaseWithSuccess(

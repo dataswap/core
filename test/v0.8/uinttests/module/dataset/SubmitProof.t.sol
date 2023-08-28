@@ -21,7 +21,7 @@ import {SubmitProofTestCaseWithSuccess} from "test/v0.8/testcases/module/dataset
 import {DatasetTestSetup} from "test/v0.8/uinttests/module/dataset/setup/DatasetTestSetup.sol";
 
 contract SubmitProofTest is Test, DatasetTestSetup {
-    /// @dev test case with success
+    /// @notice test case with success
     function testSubmitDatasetProofWithSuccess() public {
         setup();
         SubmitProofTestCaseWithSuccess testCase = new SubmitProofTestCaseWithSuccess(

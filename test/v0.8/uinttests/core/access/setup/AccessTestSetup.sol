@@ -19,10 +19,13 @@ pragma solidity ^0.8.21;
 import {Roles} from "src/v0.8/core/access/Roles.sol";
 import {RolesAssertion} from "test/v0.8/assertions/core/access/RolesAssertion.sol";
 
+/// @title AccessTestSetup
+/// @notice This contract is used for setting up access control testing.
 contract AccessTestSetup {
     Roles public roles;
     RolesAssertion assertion;
 
+    /// @dev Initialize the roles and assertion contracts.
     function setup() internal {
         roles = new Roles();
         assertion = new RolesAssertion(roles);

@@ -21,7 +21,7 @@ import {CloseTestCaseWithSuccess} from "test/v0.8/testcases/module/matching/Clos
 import {MatchingTestSetup} from "test/v0.8/uinttests/module/matching/setup/MatchingTestSetup.sol";
 
 contract CloseMatchingTest is Test, MatchingTestSetup {
-    /// @dev test case with success
+    /// @notice test case with success
     function testCloseMatchingWithSuccess() public {
         setup();
         CloseTestCaseWithSuccess testCase = new CloseTestCaseWithSuccess(

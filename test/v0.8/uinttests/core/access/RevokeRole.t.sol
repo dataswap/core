@@ -23,7 +23,7 @@ import {TestHelpers} from "src/v0.8/shared/utils/common/TestHelpers.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
 contract RevokeRoleTest is Test, AccessTestSetup {
-    /// @dev test case with success when filecoin deal state is storage success
+    /// @notice test case with success
     function testRevokeRoleWithSuccess(bytes32 _role, address _account) public {
         setup();
         RevokeRoleTestCaseWithSuccess testCase = new RevokeRoleTestCaseWithSuccess(

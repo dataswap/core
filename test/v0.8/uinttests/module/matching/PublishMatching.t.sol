@@ -21,7 +21,7 @@ import {PublishMatchingTestCaseWithSuccess} from "test/v0.8/testcases/module/mat
 import {MatchingTestSetup} from "test/v0.8/uinttests/module/matching/setup/MatchingTestSetup.sol";
 
 contract PublishMatchingTest is Test, MatchingTestSetup {
-    /// @dev test case with success
+    /// @notice test case with success
     function testPublishMatchingWithSuccess() public {
         setup();
         PublishMatchingTestCaseWithSuccess testCase = new PublishMatchingTestCaseWithSuccess(

@@ -23,7 +23,7 @@ import {TestHelpers} from "src/v0.8/shared/utils/common/TestHelpers.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
 contract AddCarReplicaTest is Test, CarstoreTestSetup {
-    /// @dev test case with success when filecoin deal state is storage success
+    /// @notice test case with success
     function testAddCarReplicaWithSuccess(
         bytes32 _cid,
         uint64 _matchingId
@@ -37,6 +37,7 @@ contract AddCarReplicaTest is Test, CarstoreTestSetup {
         testCase.run(_cid, _matchingId);
     }
 
+    /// @notice test case with invalid id
     function testAddCarReplicaWithInvalidId(
         bytes32 _cid,
         uint64 _matchingId
@@ -50,7 +51,8 @@ contract AddCarReplicaTest is Test, CarstoreTestSetup {
         testCase.run(_cid, _matchingId);
     }
 
-    function testAddCarReplicaWithCarNotExis(
+    /// @notice test case with car not exsit
+    function testAddCarReplicaWithCarNotExsit(
         bytes32 _cid,
         uint64 _matchingId
     ) public {
@@ -63,6 +65,7 @@ contract AddCarReplicaTest is Test, CarstoreTestSetup {
         testCase.run(_cid, _matchingId);
     }
 
+    /// @notice test case with replica alreay exsit
     function testAddCarReplicaWithReplicaAlreadyExists(
         bytes32 _cid,
         uint64 _matchingId

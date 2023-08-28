@@ -34,6 +34,8 @@ import {StoragesHelpers} from "test/v0.8/helpers/module/storage/StoragesHelpers.
 import {DatasetsAssertion} from "test/v0.8/assertions/module/dataset/DatasetsAssertion.sol";
 import {DatacapsHelpers} from "test/v0.8/helpers/module/datacap/DatacapsHelpers.sol";
 
+/// @title DatacapTestSetup
+/// @notice This contract is used for setting up the Datacaps contract for testing.
 contract DatacapTestSetup {
     address payable public governanceContractAddresss;
 
@@ -41,6 +43,7 @@ contract DatacapTestSetup {
     DatacapsAssertion assertion;
     DatacapsHelpers helpers;
 
+    /// @dev Initialize the Datacaps and assertion contracts.
     function setup() internal {
         Roles role = new Roles();
         Filplus filplus = new Filplus(governanceContractAddresss);

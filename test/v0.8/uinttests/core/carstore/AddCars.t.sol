@@ -22,7 +22,7 @@ import {CarstoreTestSetup} from "test/v0.8/uinttests/core/carstore/setup/Carstor
 import {TestHelpers} from "src/v0.8/shared/utils/common/TestHelpers.sol";
 
 contract AddCarsTest is Test, CarstoreTestSetup {
-    /// @dev test case with success
+    /// @notice test case with success
     function testAddCarsWithSuccess(uint64 _datasetId) public {
         setup();
         AddCarsTestCaseWithSuccess testCase = new AddCarsTestCaseWithSuccess(
@@ -41,7 +41,7 @@ contract AddCarsTest is Test, CarstoreTestSetup {
         testCase.run(cids, _datasetId, sizes);
     }
 
-    /// @dev test case with invalid params
+    /// @notice test case with invalid params
     function testAddCarsWithInvalidParams(
         bytes32[] memory _cids,
         uint64 _datasetId,

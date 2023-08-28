@@ -28,6 +28,8 @@ import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
 import {MatchingsHelpers} from "test/v0.8/helpers/module/matching/MatchingsHelpers.sol";
 import {DatasetsAssertion} from "test/v0.8/assertions/module/dataset/DatasetsAssertion.sol";
 
+/// @title MatchingTestSetup
+/// @notice This contract is used for setting up the matchings test setup contract for testing.
 contract MatchingTestSetup {
     address payable public governanceContractAddresss;
 
@@ -35,6 +37,7 @@ contract MatchingTestSetup {
     MatchingsAssertion assertion;
     MatchingsHelpers helpers;
 
+    /// @dev Initialize the matchings and helpers,assertion contracts.
     function setup() internal {
         Roles role = new Roles();
         Filplus filplus = new Filplus(governanceContractAddresss);

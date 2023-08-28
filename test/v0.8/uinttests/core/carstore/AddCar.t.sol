@@ -21,7 +21,7 @@ import {AddCarTestCaseWithSuccess, AddCarTestCaseWithInvalidId, AddCarTestCaseWi
 import {CarstoreTestSetup} from "test/v0.8/uinttests/core/carstore/setup/CarstoreTestSetup.sol";
 
 contract AddCarTest is Test, CarstoreTestSetup {
-    /// @dev test case with success
+    /// @notice test case with success
     function testAddCarWithSuccess(
         bytes32 _cid,
         uint64 _datasetId,
@@ -35,7 +35,7 @@ contract AddCarTest is Test, CarstoreTestSetup {
         testCase.run(_cid, _datasetId, _size);
     }
 
-    /// @dev test case with invalid id
+    /// @notice test case with invalid id
     function testAdWithdCarInvalidId(
         bytes32 _cid,
         uint64 _datasetId,
@@ -49,7 +49,7 @@ contract AddCarTest is Test, CarstoreTestSetup {
         testCase.run(_cid, _datasetId, _size);
     }
 
-    /// @dev test case with car already exsit
+    /// @notice test case with car already exsit
     function testAddCarWithrCarAlreadyExsit(
         bytes32 _cid,
         uint64 _datasetId,

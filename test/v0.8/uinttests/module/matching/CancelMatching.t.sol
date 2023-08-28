@@ -21,7 +21,7 @@ import {CancelTestCaseWithSuccess} from "test/v0.8/testcases/module/matching/Can
 import {MatchingTestSetup} from "test/v0.8/uinttests/module/matching/setup/MatchingTestSetup.sol";
 
 contract CancelMatchingTest is Test, MatchingTestSetup {
-    /// @dev test case with success
+    /// @notice test case with success
     function testCancelMatchingWithSuccess() public {
         setup();
         CancelTestCaseWithSuccess testCase = new CancelTestCaseWithSuccess(

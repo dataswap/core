@@ -21,7 +21,7 @@ import {BiddingTestCaseWithSuccess} from "test/v0.8/testcases/module/matching/Bi
 import {MatchingTestSetup} from "test/v0.8/uinttests/module/matching/setup/MatchingTestSetup.sol";
 
 contract BiddingMatchingTest is Test, MatchingTestSetup {
-    /// @dev test case with success
+    /// @notice test case with success
     function testBiddingMatchingWithSuccess() public {
         setup();
         BiddingTestCaseWithSuccess testCase = new BiddingTestCaseWithSuccess(

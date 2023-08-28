@@ -25,12 +25,15 @@ import {DatasetsAssertion} from "test/v0.8/assertions/module/dataset/DatasetsAss
 import {DatasetsHelpers} from "test/v0.8/helpers/module/dataset/DatasetsHelpers.sol";
 import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
 
+/// @title DatasetTestSetup
+/// @notice This contract is used for setting up the dataset contract for testing.
 contract DatasetTestSetup {
     address payable public governanceContractAddresss;
     Datasets datasets;
     DatasetsAssertion assertion;
     DatasetsHelpers helpers;
 
+    /// @dev Initialize the Datacaps and helpers,assertion contracts.
     function setup() internal {
         Roles role = new Roles();
         Filplus filplus = new Filplus(governanceContractAddresss);

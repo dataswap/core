@@ -22,11 +22,14 @@ import {MockFilecoin} from "src/v0.8/mocks/core/filecoin/MockFilecoin.sol";
 import {Carstore} from "src/v0.8/core/carstore/Carstore.sol";
 import {CarstoreAssertion} from "test/v0.8/assertions/core/carstore/CarstoreAssertion.sol";
 
+/// @title CarstoreTestSetup
+/// @notice This contract is used for setting up the Carstore contract for testing.
 contract CarstoreTestSetup {
     Carstore public carstore;
     CarstoreAssertion assertion;
     address payable public governanceContractAddresss;
 
+    /// @dev Initialize the Carstore and assertion contracts.
     function setup() internal {
         Roles role = new Roles();
         Filplus filplus = new Filplus(governanceContractAddresss);

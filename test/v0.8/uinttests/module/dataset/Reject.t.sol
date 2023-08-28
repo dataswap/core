@@ -21,7 +21,7 @@ import {RejectTestCaseWithSuccess} from "test/v0.8/testcases/module/dataset/Reje
 import {DatasetTestSetup} from "test/v0.8/uinttests/module/dataset/setup/DatasetTestSetup.sol";
 
 contract RejectTest is Test, DatasetTestSetup {
-    /// @dev test case with success
+    /// @notice test case with success
     function testRejectWithSuccess() public {
         setup();
         RejectTestCaseWithSuccess testCase = new RejectTestCaseWithSuccess(

@@ -20,7 +20,7 @@ import {Test} from "forge-std/Test.sol";
 import {CidUtilsTestCaseWithSuccess} from "test/v0.8/testcases/shared/utils/CidUtilsTestSuite.sol";
 
 contract CidUtilsTest is Test {
-    /// @dev test case with success
+    /// @notice test case with success
     function testCidUtilsTestCaseWithSuccess() public {
         CidUtilsTestCaseWithSuccess testCase = new CidUtilsTestCaseWithSuccess();
         testCase.run();

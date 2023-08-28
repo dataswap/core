@@ -21,7 +21,7 @@ import {RejectMetadataTestCaseWithSuccess} from "test/v0.8/testcases/module/data
 import {DatasetTestSetup} from "test/v0.8/uinttests/module/dataset/setup/DatasetTestSetup.sol";
 
 contract RejectMetadataTest is Test, DatasetTestSetup {
-    /// @dev test case with success
+    /// @notice test case with success
     function testRejectMetadataWithSuccess() public {
         setup();
         RejectMetadataTestCaseWithSuccess testCase = new RejectMetadataTestCaseWithSuccess(

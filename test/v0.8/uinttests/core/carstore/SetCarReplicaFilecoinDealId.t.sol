@@ -63,6 +63,7 @@ contract SetCarReplicaFilecoinDealIdTest is Test, CarstoreTestSetup {
         testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
     }
 
+    /// @notice test case with invalid id
     function testSetCarReplicaFilecoinDealIdWithInvalidId(
         bytes32 _cid,
         uint64 _datasetId,
@@ -83,6 +84,7 @@ contract SetCarReplicaFilecoinDealIdTest is Test, CarstoreTestSetup {
         testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
     }
 
+    /// @notice test case with replica not exsit
     function testSetCarReplicaFilecoinDealIdWithReplicaNotExist(
         bytes32 _cid,
         uint64 _datasetId,
@@ -103,6 +105,7 @@ contract SetCarReplicaFilecoinDealIdTest is Test, CarstoreTestSetup {
         testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
     }
 
+    /// @notice test case with filecoin deal id alreay exsit
     function testSetCarReplicaFilecoinDealIdWithReplicaFilecoinDealIdExists(
         bytes32 _cid,
         uint64 _datasetId,

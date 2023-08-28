@@ -21,7 +21,7 @@ import {SubmitMetadataTestCaseWithSuccess} from "test/v0.8/testcases/module/data
 import {DatasetTestSetup} from "test/v0.8/uinttests/module/dataset/setup/DatasetTestSetup.sol";
 
 contract SubmitMetadataTest is Test, DatasetTestSetup {
-    /// @dev test case with success
+    /// @notice test case with success
     function testSubmitMetadataWithSuccess() public {
         setup();
         SubmitMetadataTestCaseWithSuccess testCase = new SubmitMetadataTestCaseWithSuccess(

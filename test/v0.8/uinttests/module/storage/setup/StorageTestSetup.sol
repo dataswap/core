@@ -31,6 +31,8 @@ import {MatchingsHelpers} from "test/v0.8/helpers/module/matching/MatchingsHelpe
 import {StoragesHelpers} from "test/v0.8/helpers/module/storage/StoragesHelpers.sol";
 import {DatasetsAssertion} from "test/v0.8/assertions/module/dataset/DatasetsAssertion.sol";
 
+/// @title StorageTestSetup
+/// @notice This contract is used for setting up the storages test setup contract for testing.
 contract StorageTestSetup {
     address payable public governanceContractAddresss;
 
@@ -38,6 +40,7 @@ contract StorageTestSetup {
     StoragesAssertion assertion;
     StoragesHelpers helpers;
 
+    /// @dev Initialize the storages and helpers,assertion contracts.
     function setup() internal {
         Roles role = new Roles();
         Filplus filplus = new Filplus(governanceContractAddresss);

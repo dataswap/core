@@ -23,7 +23,7 @@ import {TestHelpers} from "src/v0.8/shared/utils/common/TestHelpers.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
 contract ReportCarReplicaExpiredTest is Test, CarstoreTestSetup {
-    /// @dev test case with success when filecoin deal state is storage success
+    /// @notice test case with success
     function testReportCarReplicaExpiredWithSuccess(
         bytes32 _cid,
         uint64 _datasetId,
@@ -40,6 +40,7 @@ contract ReportCarReplicaExpiredTest is Test, CarstoreTestSetup {
         testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
     }
 
+    /// @notice test case with invalid deal state
     function testReportCarReplicaExpiredWithInvalidDealState(
         bytes32 _cid,
         uint64 _datasetId,
@@ -56,6 +57,7 @@ contract ReportCarReplicaExpiredTest is Test, CarstoreTestSetup {
         testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
     }
 
+    /// @notice test case with invalid id
     function testReportCarReplicaExpiredWithInvalidId(
         bytes32 _cid,
         uint64 _datasetId,

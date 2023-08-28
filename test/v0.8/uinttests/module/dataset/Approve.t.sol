@@ -21,7 +21,7 @@ import {ApproveTestCaseWithSuccess} from "test/v0.8/testcases/module/dataset/App
 import {DatasetTestSetup} from "test/v0.8/uinttests/module/dataset/setup/DatasetTestSetup.sol";
 
 contract ApproveTest is Test, DatasetTestSetup {
-    /// @dev test case with success
+    /// @notice test case with success
     function testApproveWithSuccess() public {
         setup();
         ApproveTestCaseWithSuccess testCase = new ApproveTestCaseWithSuccess(
