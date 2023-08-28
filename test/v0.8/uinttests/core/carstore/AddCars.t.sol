@@ -19,7 +19,7 @@ pragma solidity ^0.8.21;
 import {Test} from "forge-std/Test.sol";
 import {AddCarsTestCaseWithSuccess, AddCarsTestCaseWithInvalidPrams} from "test/v0.8/testcases/core/carstore/AddCarsTestSuite.sol";
 import {CarstoreTestSetup} from "test/v0.8/uinttests/core/carstore/setup/CarstoreTestSetup.sol";
-import {TestHelpers} from "src/v0.8/shared/utils/common/TestHelpers.sol";
+import {CommonHelpers} from "test/v0.8/helpers/utils/CommonHelpers.sol";
 
 contract AddCarsTest is Test, CarstoreTestSetup {
     /// @notice test case with success
@@ -35,7 +35,7 @@ contract AddCarsTest is Test, CarstoreTestSetup {
         uint64[] memory sizes = new uint64[](carsCount);
         for (uint64 i = 0; i < carsCount; i++) {
             sizes[i] = i + 1;
-            cids[i] = TestHelpers.convertUint64ToBytes32(i);
+            cids[i] = CommonHelpers.convertUint64ToBytes32(i);
         }
         // run testcase
         testCase.run(cids, _datasetId, sizes);

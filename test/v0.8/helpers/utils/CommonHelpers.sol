@@ -17,7 +17,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-library TestHelpers {
+library CommonHelpers {
     // Helper function to convert uint64 to bytes32
     function convertUint64ToBytes32(
         uint64 value

@@ -19,7 +19,7 @@ pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
 import {Test} from "forge-std/Test.sol";
-import {TestHelpers} from "src/v0.8/shared/utils/common/TestHelpers.sol";
+import {CommonHelpers} from "test/v0.8/helpers/utils/CommonHelpers.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 
@@ -31,7 +31,7 @@ contract Generator {
     /// @return A bytes32 root hash.
     function generateRoot() public returns (bytes32) {
         nonce++;
-        return TestHelpers.convertUint64ToBytes32(nonce);
+        return CommonHelpers.convertUint64ToBytes32(nonce);
     }
 
     /// @notice Generate an array of leaves for testing.
@@ -41,7 +41,7 @@ contract Generator {
         bytes32[] memory leaves = new bytes32[](_count);
         for (uint64 i = 0; i < _count; i++) {
             nonce++;
-            leaves[i] = TestHelpers.convertUint64ToBytes32(nonce);
+            leaves[i] = CommonHelpers.convertUint64ToBytes32(nonce);
         }
         return leaves;
     }

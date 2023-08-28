@@ -19,7 +19,6 @@ pragma solidity ^0.8.21;
 import {Test} from "forge-std/Test.sol";
 import {GrantRoleTestCaseWithSuccess} from "test/v0.8/testcases/core/access/GrantRoleTestSuite.sol";
 import {AccessTestSetup} from "test/v0.8/uinttests/core/access/setup/AccessTestSetup.sol";
-import {TestHelpers} from "src/v0.8/shared/utils/common/TestHelpers.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
 contract GrantRoleTest is Test, AccessTestSetup {

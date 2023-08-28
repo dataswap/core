@@ -18,7 +18,6 @@ pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
 import {Test} from "forge-std/Test.sol";
-import {TestHelpers} from "src/v0.8/shared/utils/common/TestHelpers.sol";
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
 
 import {RolesType} from "src/v0.8/types/RolesType.sol";
