@@ -183,8 +183,9 @@ contract Datasets is IDatasets, DatasetsModifiers {
         //Note: params check in lib
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         if (_dataType == DatasetType.DataType.MappingFiles) {
-            //TODO: check  mappingFilesAccessMethod is not set:https://github.com/dataswap/core/issues/75
-            dataset.mappingFilesAccessMethod = _mappingFilesAccessMethod;
+            if (bytes(dataset.mappingFilesAccessMethod).length == 0) {
+                dataset.mappingFilesAccessMethod = _mappingFilesAccessMethod;
+            }
         }
         // If the Dataset proof has not been submitted before,
         // then set the current sender as the submitter.
