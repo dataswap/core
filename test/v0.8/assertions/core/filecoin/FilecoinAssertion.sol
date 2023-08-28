@@ -22,8 +22,9 @@ import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 import {IFilecoinAssertion} from "test/v0.8/interfaces/assertions/core/IFilecoinAssertion.sol";
 
-// assert carstore action
-// NOTE: view asserton functions must all be tested by the functions that will change state
+/// @title FilecoinAssertion
+/// @notice This contract provides assertion methods for Filecoin operations.
+/// @dev All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
 contract FilecoinAssertion is DSTest, Test, IFilecoinAssertion {
     IFilecoin public filecoin;
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
@@ -32,28 +33,35 @@ contract FilecoinAssertion is DSTest, Test, IFilecoinAssertion {
         filecoin = _filecoin;
     }
 
-    /// @dev get mock filecin deal state assertion
+    /// @notice Assertion function to get the mock Filecoin deal state for a given CID and Filecoin deal ID.
+    /// @param _cid The CID (Content Identifier) of the data.
+    /// @param _filecoinDealId The ID of the Filecoin deal.
+    /// @param _state The expected Filecoin deal state to compare with.
     function getReplicaDealStateAssertion(
         bytes32 _cid,
         uint64 _filecoinDealId,
         FilecoinType.DealState _state
     ) public {
+        // Ensure that the returned Filecoin deal state matches the expected state.
         assertEq(
             uint8(filecoin.getReplicaDealState(_cid, _filecoinDealId)),
             uint8(_state)
         );
     }
 
-    /// @dev set mock filecin deal state assertion
+    /// @notice Assertion function to set the mock Filecoin deal state for a given CID and Filecoin deal ID.
+    /// @param _cid The CID (Content Identifier) of the data.
+    /// @param _filecoinDealId The ID of the Filecoin deal.
+    /// @param _state The new Filecoin deal state to set.
     function setMockDealStateAssertion(
         bytes32 _cid,
         uint64 _filecoinDealId,
         FilecoinType.DealState _state
     ) external {
-        //action
+        // Perform the action: set the mock Filecoin deal state.
         filecoin.setMockDealState(_state);
 
-        //before action
+        // Before and after the action, verify that the deal state is as expected.
         getReplicaDealStateAssertion(_cid, _filecoinDealId, _state);
     }
 }

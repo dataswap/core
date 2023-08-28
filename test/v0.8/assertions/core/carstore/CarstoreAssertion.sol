@@ -23,8 +23,10 @@ import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 
-// assert carstore action
-// NOTE: view asserton functions must all be tested by the functions that will change state
+/// @title CarstoreAssertion
+/// @notice This contract provides assertion methods for Carstore actions.
+/// @dev All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
+
 contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
     ICarstore public carstore;
 
@@ -32,43 +34,53 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         carstore = _carstore;
     }
 
-    /// @dev assert addCar
+    /// @notice Assertion for the `addCar` function.
+    /// @param _cid The CID (Content Identifier) of the car.
+    /// @param _datasetId The dataset ID associated with the car.
+    /// @param _size The size of the car.
     function addCarAssertion(
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size
     ) public {
-        // before add
+        // Before adding, check car count and car existence.
         uint64 beforeCount = carstore.carsCount();
         hasCarAssertion(_cid, false);
 
-        // action
+        // Perform the action: add the car.
         carstore.addCar(_cid, _datasetId, _size);
 
-        // after add
+        // After adding, check car attributes and existence.
         getCarDatasetIdAssertion(_cid, _datasetId);
         getCarSizeAssertion(_cid, _size);
         hasCarAssertion(_cid, true);
         carsCounAssertiont(beforeCount + 1);
     }
 
-    /// @dev assert addCars
+    /// @notice Assertion for the `addCars` function.
+    /// @param _cids An array of CIDs (Content Identifiers) for the cars.
+    /// @param _datasetId The dataset ID associated with all the cars.
+    /// @param _sizes An array of sizes corresponding to the cars.
     function addCarsAssertion(
         bytes32[] memory _cids,
         uint64 _datasetId,
         uint64[] memory _sizes
     ) external {
-        // before add
+        // Before adding, check car existence.
         hasCarsAssertion(_cids, false);
-        // action
+
+        // Perform the action: add multiple cars.
         carstore.addCars(_cids, _datasetId, _sizes);
-        // after add
+
+        // After adding, check car existence.
         hasCarsAssertion(_cids, true);
     }
 
-    /// @dev assert addCarReplica
+    /// @notice Assertion for the `addCarReplica` function.
+    /// @param _cid The CID (Content Identifier) of the car.
+    /// @param _matchingId The matching ID associated with the car replica.
     function addCarReplicaAssertion(bytes32 _cid, uint64 _matchingId) external {
-        // before add
+        // Before adding, check replica count, replica existence, and replica state.
         uint16 beforeReplicasCount = carstore.getCarReplicasCount(_cid);
         hasCarReplicaAssertion(_cid, _matchingId, false);
         getCarReplicaStateAssertion(
@@ -77,10 +89,10 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
             CarReplicaType.State.None
         );
 
-        // action
+        // Perform the action: add a car replica.
         carstore.addCarReplica(_cid, _matchingId);
 
-        // after add
+        // After adding, check replica count, replica state, and replica existence.
         getCarReplicasCountAssertion(_cid, beforeReplicasCount + 1);
         getCarReplicaStateAssertion(
             _cid,
@@ -97,13 +109,16 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         hasCarReplicaAssertion(_cid, _matchingId, true);
     }
 
-    /// @dev assert reportCarReplicaExpired
+    /// @notice Assertion for the `reportCarReplicaExpired` function.
+    /// @param _cid The CID (Content Identifier) of the car.
+    /// @param _matchingId The matching ID associated with the car replica.
+    /// @param _filecoinDealId The Filecoin deal ID associated with the car replica.
     function reportCarReplicaExpiredAssertion(
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
     ) external {
-        // before report
+        // Before reporting, check replica count, replica state, and filecoin deal state.
         uint16 beforeReplicasCount = carstore.getCarReplicasCount(_cid);
         getCarReplicaAssertion(
             _cid,
@@ -117,10 +132,10 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
             CarReplicaType.State.Stored
         );
 
-        // action
+        // Perform the action: report an expired car replica.
         carstore.reportCarReplicaExpired(_cid, _matchingId, _filecoinDealId);
 
-        // after report
+        // After reporting, check replica count, replica state, and filecoin deal state.
         getCarReplicasCountAssertion(_cid, beforeReplicasCount);
         hasCarReplicaAssertion(_cid, _matchingId, true);
         getCarReplicaAssertion(
@@ -141,13 +156,16 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         );
     }
 
-    /// @dev assert reportCarReplicaSlashed
+    /// @notice Assertion for the `reportCarReplicaSlashed` function.
+    /// @param _cid The CID (Content Identifier) of the car.
+    /// @param _matchingId The matching ID associated with the car replica.
+    /// @param _filecoinDealId The Filecoin deal ID associated with the car replica.
     function reportCarReplicaSlashedAssertion(
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
     ) external {
-        // before report
+        // Before reporting, check replica count, replica state, and filecoin deal state.
         uint16 beforeReplicasCount = carstore.getCarReplicasCount(_cid);
         getCarReplicaAssertion(
             _cid,
@@ -161,10 +179,10 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
             CarReplicaType.State.Stored
         );
 
-        // action
+        // Perform the action: report a slashed car replica.
         carstore.reportCarReplicaSlashed(_cid, _matchingId, _filecoinDealId);
 
-        // after report
+        // After reporting, check replica count, replica state, and filecoin deal state.
         getCarReplicasCountAssertion(_cid, beforeReplicasCount);
         hasCarReplicaAssertion(_cid, _matchingId, true);
         getCarReplicaAssertion(
@@ -185,24 +203,27 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         );
     }
 
-    /// @dev assert setCarReplicaFilecoinDealId
+    /// @notice Assertion for the `setCarReplicaFilecoinDealId` function.
+    /// @param _cid The CID (Content Identifier) of the car.
+    /// @param _matchingId The matching ID associated with the car replica.
+    /// @param _filecoinDealId The new Filecoin deal ID to set for the car replica.
     function setCarReplicaFilecoinDealIdAssertion(
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
     ) external {
-        // before set
+        // Before setting, check replica count and the existing filecoin deal ID.
         uint16 beforeReplicasCount = carstore.getCarReplicasCount(_cid);
         getCarReplicaFilecoinDealIdAssertion(_cid, _matchingId, 0);
 
-        // action
+        // Perform the action: set the filecoin deal ID of a car replica.
         carstore.setCarReplicaFilecoinDealId(
             _cid,
             _matchingId,
             _filecoinDealId
         );
 
-        // after set
+        // After setting, check replica count, the new filecoin deal ID, and replica state.
         getCarReplicasCountAssertion(_cid, beforeReplicasCount);
         getCarReplicaFilecoinDealIdAssertion(
             _cid,
@@ -234,7 +255,9 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         }
     }
 
-    /// @dev assert getCarSize
+    /// @notice Assertion for getting the size of a car.
+    /// @param _inputCid The CID (Content Identifier) of the car.
+    /// @param _expectSize The expected size of the car.
     function getCarSizeAssertion(bytes32 _inputCid, uint64 _expectSize) public {
         assertEq(
             carstore.getCarSize(_inputCid),
@@ -243,7 +266,9 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         );
     }
 
-    /// @dev assert getCarDatasetId
+    /// @notice Assertion for getting the dataset ID of a car.
+    /// @param _inputCid The CID (Content Identifier) of the car.
+    /// @param _expectDatasetId The expected dataset ID of the car.
     function getCarDatasetIdAssertion(
         bytes32 _inputCid,
         uint64 _expectDatasetId
@@ -255,7 +280,11 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         );
     }
 
-    /// @dev assert getCarReplica
+    /// @notice Assertion for getting information about a car replica.
+    /// @param _inputCid The CID (Content Identifier) of the car.
+    /// @param _inputmatchingId The matching ID associated with the car replica.
+    /// @param _expectState The expected state of the car replica.
+    /// @param _expectFilecoinDealId The expected Filecoin deal ID of the car replica.
     function getCarReplicaAssertion(
         bytes32 _inputCid,
         uint64 _inputmatchingId,
@@ -276,7 +305,9 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         );
     }
 
-    /// @dev assert getCarReplicasCount
+    /// @notice Assertion for getting the count of car replicas for a car.
+    /// @param _inputCid The CID (Content Identifier) of the car.
+    /// @param _expectCount The expected count of car replicas.
     function getCarReplicasCountAssertion(
         bytes32 _inputCid,
         uint16 _expectCount
@@ -288,7 +319,10 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         );
     }
 
-    /// @dev assert getCarReplicaFilecoinDealId
+    /// @notice Assertion for getting the Filecoin deal ID of a car replica.
+    /// @param _inputCid The CID (Content Identifier) of the car.
+    /// @param _inputMatchingId The matching ID associated with the car replica.
+    /// @param _expectFilecoinDealId The expected Filecoin deal ID of the car replica.
     function getCarReplicaFilecoinDealIdAssertion(
         bytes32 _inputCid,
         uint64 _inputMatchingId,
@@ -301,7 +335,10 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         );
     }
 
-    /// @dev assert getCarReplicaState
+    /// @notice Assertion for getting the state of a car replica.
+    /// @param _inputCid The CID (Content Identifier) of the car.
+    /// @param _inputMatchingId The matching ID associated with the car replica.
+    /// @param _expectState The expected state of the car replica.
     function getCarReplicaStateAssertion(
         bytes32 _inputCid,
         uint64 _inputMatchingId,
@@ -314,7 +351,9 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         );
     }
 
-    /// @dev assert hasCar
+    /// @notice Assertion for checking if a car exists.
+    /// @param _inputCid The CID (Content Identifier) of the car.
+    /// @param _expectIfExist A boolean indicating whether the car is expected to exist or not.
     function hasCarAssertion(bytes32 _inputCid, bool _expectIfExist) public {
         assertEq(
             carstore.hasCar(_inputCid),
@@ -323,7 +362,10 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         );
     }
 
-    /// @dev assert hasCarReplica
+    /// @notice Assertion for checking if a car replica exists.
+    /// @param _inputCid The CID (Content Identifier) of the car.
+    /// @param _inputMatchingId The matching ID associated with the car replica.
+    /// @param _expectIfExist A boolean indicating whether the car replica is expected to exist or not.
     function hasCarReplicaAssertion(
         bytes32 _inputCid,
         uint64 _inputMatchingId,
@@ -336,7 +378,9 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         );
     }
 
-    /// @dev assert hasCars
+    /// @notice Assertion for checking if multiple cars exist.
+    /// @param _inputCids An array of CIDs (Content Identifiers) for the cars.
+    /// @param _expectIfExist A boolean indicating whether the cars are expected to exist or not.
     function hasCarsAssertion(
         bytes32[] memory _inputCids,
         bool _expectIfExist
@@ -348,8 +392,9 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         );
     }
 
-    /// @dev assert carsCount
-    function carsCounAssertiont(uint64 _expectCout) public {
-        assertEq(carstore.carsCount(), _expectCout, "cars count not matched");
+    /// @notice Assertion for getting the count of cars.
+    /// @param _expectCount The expected count of cars.
+    function carsCounAssertiont(uint64 _expectCount) public {
+        assertEq(carstore.carsCount(), _expectCount, "cars count not matched");
     }
 }

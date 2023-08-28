@@ -16,94 +16,128 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+// Importing Solidity libraries and contracts
 import {DSTest} from "ds-test/test.sol";
 import {Test} from "forge-std/Test.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
 
-// assert carstore action
-// NOTE: view asserton functions must all be tested by the functions that will change state
+/// @notice This contract defines assertion functions for testing an IDatasets contract.
+/// @dev NOTE: All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
 contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
     IDatasets public datasets;
 
+    /// @notice Constructor that sets the address of the IDatasets contract.
+    /// @param _datasets The address of the IDatasets contract.
     constructor(IDatasets _datasets) {
         datasets = _datasets;
     }
 
+    /// @notice Assertion function for approving a dataset.
+    /// @param caller The address of the caller.
+    /// @param _datasetId The ID of the dataset to approve.
     function approveDatasetAssertion(
         address caller,
         uint64 _datasetId
     ) external {
-        //before action
+        // Before the action, check the initial dataset state.
         getDatasetStateAssertion(
             _datasetId,
             DatasetType.State.DatasetProofSubmitted
         );
-        //action
+
+        // Perform the action.
         vm.prank(caller);
         datasets.approveDataset(_datasetId);
-        //after action
+
+        // After the action, check the updated dataset state.
         getDatasetStateAssertion(_datasetId, DatasetType.State.DatasetApproved);
     }
 
+    /// @notice Assertion function for approving dataset metadata.
+    /// @param caller The address of the caller.
+    /// @param _datasetId The ID of the dataset for which to approve metadata.
     function approveDatasetMetadataAssertion(
         address caller,
         uint64 _datasetId
     ) external {
-        //before action
+        // Before the action, check the initial dataset state.
         getDatasetStateAssertion(
             _datasetId,
             DatasetType.State.MetadataSubmitted
         );
-        //action
+
+        // Perform the action.
         vm.prank(caller);
         datasets.approveDatasetMetadata(_datasetId);
-        //after action
+
+        // After the action, check the updated dataset state.
         getDatasetStateAssertion(
             _datasetId,
             DatasetType.State.MetadataApproved
         );
     }
 
+    /// @notice Assertion function for rejecting a dataset.
+    /// @param caller The address of the caller.
+    /// @param _datasetId The ID of the dataset to reject.
     function rejectDatasetAssertion(
         address caller,
         uint64 _datasetId
     ) external {
-        //before action
+        // Before the action, check the initial dataset state.
         getDatasetStateAssertion(
             _datasetId,
             DatasetType.State.DatasetProofSubmitted
         );
-        //action
+
+        // Perform the action.
         vm.prank(caller);
         datasets.rejectDataset(_datasetId);
-        //after action
+
+        // After the action, check the updated dataset state.
         getDatasetStateAssertion(
             _datasetId,
             DatasetType.State.MetadataApproved
         );
     }
 
+    /// @notice Assertion function for rejecting dataset metadata.
+    /// @param caller The address of the caller.
+    /// @param _datasetId The ID of the dataset for which to reject metadata.
     function rejectDatasetMetadataAssertion(
         address caller,
         uint64 _datasetId
     ) external {
-        //before action
+        // Before the action, check the initial dataset state.
         getDatasetStateAssertion(
             _datasetId,
             DatasetType.State.MetadataSubmitted
         );
-        //action
+
+        // Perform the action.
         vm.prank(caller);
         datasets.rejectDatasetMetadata(_datasetId);
-        //after action
+
+        // After the action, check the updated dataset state.
         getDatasetStateAssertion(
             _datasetId,
             DatasetType.State.MetadataRejected
         );
     }
 
+    /// @notice Assertion function for submitting dataset metadata.
+    /// @param caller The address of the caller.
+    /// @param _title The title of the dataset.
+    /// @param _industry The industry of the dataset.
+    /// @param _name The name of the dataset.
+    /// @param _description The description of the dataset.
+    /// @param _source The source of the dataset.
+    /// @param _accessMethod The access method of the dataset.
+    /// @param _sizeInBytes The size of the dataset in bytes.
+    /// @param _isPublic A boolean indicating if the dataset is public.
+    /// @param _version The version of the dataset.
     function submitDatasetMetadataAssertion(
         address caller,
         string memory _title,
@@ -116,12 +150,12 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         bool _isPublic,
         uint64 _version
     ) external {
-        // before action
+        // Before the action, capture the initial state.
         uint64 oldDatasetsCount = datasets.datasetsCount();
         getDatasetStateAssertion(oldDatasetsCount + 1, DatasetType.State.None);
         hasDatasetMetadataAssertion(_accessMethod, false);
 
-        // action
+        // Perform the action.
         vm.prank(caller);
         datasets.submitDatasetMetadata(
             _title,
@@ -135,7 +169,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             _version
         );
 
-        // after action
+        // After the action, check the updated state.
         hasDatasetMetadataAssertion(_accessMethod, true);
         uint64 newDatasetsCount = datasets.datasetsCount();
         getDatasetStateAssertion(
@@ -151,6 +185,15 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         );
     }
 
+    /// @notice Assertion function for submitting dataset proof.
+    /// @param caller The address of the caller.
+    /// @param _datasetId The ID of the dataset for which to submit proof.
+    /// @param _dataType The data type of the proof.
+    /// @param accessMethod The access method of the dataset.
+    /// @param _rootHash The root hash of the proof.
+    /// @param _leafHashes The leaf hashes of the proof.
+    /// @param _leafSizes The sizes of the leaf hashes.
+    /// @param _completed A boolean indicating if the proof is completed.
     function submitDatasetProofAssertion(
         address caller,
         uint64 _datasetId,
@@ -161,7 +204,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         uint64[] calldata _leafSizes,
         bool _completed
     ) external {
-        // before action
+        // Before the action, capture the initial state.
         getDatasetStateAssertion(
             _datasetId,
             DatasetType.State.MetadataApproved
@@ -174,7 +217,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         isDatasetContainsCarAssertion(_datasetId, _leafHashes[0], false);
         isDatasetContainsCarsAssertion(_datasetId, _leafHashes, false);
 
-        // action
+        // Perform the action.
         vm.prank(caller);
         datasets.submitDatasetProof(
             _datasetId,
@@ -186,14 +229,16 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             _completed
         );
 
-        //after action
-        // assert count
+        // After the action, check the updated state.
+
+        // Check proof count.
         uint64 newProofCount = datasets.getDatasetProofCount(
             _datasetId,
             _dataType
         );
         assertEq(newProofCount, oldProofCount + uint64(_leafHashes.length));
-        // assert leves
+
+        // Check leaf hashes and sizes.
         getDatasetProofCountAssertion(_datasetId, _dataType, newProofCount);
         getDatasetCarsCountAssertion(_datasetId, _dataType, newProofCount);
         getDatasetProofAssertion(
@@ -211,17 +256,25 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             _leafHashes
         );
 
-        //assert size
+        // Check dataset size.
         uint64 newDatasetSize = oldDatasetSize;
         for (uint64 i = 0; i < _leafSizes.length; i++) {
             newDatasetSize += _leafSizes[i];
         }
         getDatasetSizeAssertion(_datasetId, _dataType, newDatasetSize);
+
+        // Check if dataset contains car(s).
         isDatasetContainsCarAssertion(_datasetId, _leafHashes[0], true);
         isDatasetContainsCarsAssertion(_datasetId, _leafHashes, true);
-        //TODO:check state after submit proof,need add method in dataset interface:https://github.com/dataswap/core/issues/71
+        /// @dev TODO:check state after submit proof,need add method in dataset interface:https://github.com/dataswap/core/issues/71
     }
 
+    /// @notice Assertion function for submitting dataset verification.
+    /// @param caller The address of the caller.
+    /// @param _datasetId The ID of the dataset for which to submit verification.
+    /// @param _randomSeed The random seed for verification.
+    /// @param _siblings The Merkle tree siblings for verification.
+    /// @param _paths The Merkle tree paths for verification.
     function submitDatasetVerificationAssertion(
         address caller,
         uint64 _datasetId,
@@ -229,9 +282,10 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         bytes32[][] memory _siblings,
         uint32[] memory _paths
     ) external {
-        //before action
+        // Before the action, capture the initial state.
         uint16 oldCount = datasets.getDatasetVerificationsCount(_datasetId);
-        // action
+
+        // Perform the action.
         vm.prank(caller);
         datasets.submitDatasetVerification(
             _datasetId,
@@ -240,7 +294,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             _paths
         );
 
-        //after action
+        // After the action, check the updated state.
         getDatasetVerificationsCountAssertion(_datasetId, oldCount + 1);
         getDatasetVerificationAssertion(
             _datasetId,
@@ -250,6 +304,11 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         );
     }
 
+    /// @notice Assertion function for getting dataset metadata.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _expectAccessMethod The expected access method.
+    /// @param _expectSubmitter The expected submitter address.
+    /// @param _expectCreatedBlockNumber The expected block number when metadata was created.
     function getDatasetMetadataAssertion(
         uint64 _datasetId,
         string memory _expectAccessMethod,
@@ -282,6 +341,12 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         );
     }
 
+    /// @notice Assertion function for getting dataset proof.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _dataType The data type of the proof.
+    /// @param _index The index of the proof.
+    /// @param _len The length of the proof.
+    /// @param _expectProof The expected proof.
     function getDatasetProofAssertion(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
@@ -302,6 +367,12 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         }
     }
 
+    /// @notice Assertion function for getting dataset cars (leaf hashes).
+    /// @param _datasetId The ID of the dataset.
+    /// @param _dataType The data type of the proof.
+    /// @param _index The index of the proof.
+    /// @param _len The length of the proof.
+    /// @param _expectCars The expected cars (leaf hashes).
     function getDatasetCarsAssertion(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
@@ -322,6 +393,10 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         }
     }
 
+    /// @notice Assertion function for getting dataset proof count.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _dataType The data type of the proof.
+    /// @param _expectCount The expected proof count.
     function getDatasetProofCountAssertion(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
@@ -334,6 +409,10 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         );
     }
 
+    /// @notice Assertion function for getting dataset cars (leaf hashes) count.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _dataType The data type of the proof.
+    /// @param _expectCount The expected cars count.
     function getDatasetCarsCountAssertion(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
@@ -346,6 +425,10 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         );
     }
 
+    /// @notice Assertion function for getting dataset size.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _dataType The data type of the proof.
+    /// @param _expectSize The expected dataset size.
     function getDatasetSizeAssertion(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
@@ -358,6 +441,9 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         );
     }
 
+    /// @notice Assertion function for getting dataset state.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _expectState The expected dataset state.
     function getDatasetStateAssertion(
         uint64 _datasetId,
         DatasetType.State _expectState
@@ -369,6 +455,11 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         );
     }
 
+    /// @notice Assertion function for getting dataset verification.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _auditor The auditor address.
+    /// @param _expectSiblings The expected Merkle tree siblings.
+    /// @param _expectPaths The expected Merkle tree paths.
     function getDatasetVerificationAssertion(
         uint64 _datasetId,
         address _auditor,
@@ -384,7 +475,9 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             _datasetId,
             _auditor
         );
-        // TODO: get dataset verification assertion error:https://github.com/dataswap/core/issues/66
+
+        /// @dev TODO: get dataset verification assertion error:https://github.com/dataswap/core/issues/66
+
         // assertEq(siblings.length, _expectSiblings.length, "length not matched");
         // assertEq(paths.length, _expectPaths.length, "length not matched");
         // for (uint64 i = 0; i < paths.length; i++) {
@@ -406,6 +499,9 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         // }
     }
 
+    /// @notice Assertion function for getting dataset verification count.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _expectCount The expected verification count.
     function getDatasetVerificationsCountAssertion(
         uint64 _datasetId,
         uint16 _expectCount
@@ -417,6 +513,9 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         );
     }
 
+    /// @notice Assertion function for checking if dataset metadata exists for a given access method.
+    /// @param _accessMethod The access method to check.
+    /// @param _expecthasDatasetMetadata The expected result, true if metadata exists, false otherwise.
     function hasDatasetMetadataAssertion(
         string memory _accessMethod,
         bool _expecthasDatasetMetadata
@@ -428,6 +527,10 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         );
     }
 
+    /// @notice Assertion function for checking if a dataset contains a specific car (leaf hash).
+    /// @param _datasetId The ID of the dataset.
+    /// @param _cid The car (leaf hash) to check.
+    /// @param _expectIsDatasetContainsCar The expected result, true if the car exists in the dataset, false otherwise.
     function isDatasetContainsCarAssertion(
         uint64 _datasetId,
         bytes32 _cid,
@@ -440,6 +543,10 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         );
     }
 
+    /// @notice Assertion function for checking if a dataset contains multiple cars (leaf hashes).
+    /// @param _datasetId The ID of the dataset.
+    /// @param _cids The cars (leaf hashes) to check.
+    /// @param _expectIsDatasetContainsCars The expected result, true if all the cars exist in the dataset, false otherwise.
     function isDatasetContainsCarsAssertion(
         uint64 _datasetId,
         bytes32[] memory _cids,
@@ -452,7 +559,13 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         );
     }
 
+    /// @notice Assertion function for checking dataset count.
+    /// @param _expectCount The expected dataset count.
     function datasetsCountAssertion(uint64 _expectCount) public {
-        assertEq(datasets.datasetsCount(), _expectCount, "count not matched");
+        assertEq(
+            datasets.datasetsCount(),
+            _expectCount,
+            "datasets count not matched"
+        );
     }
 }
