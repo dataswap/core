@@ -22,12 +22,24 @@ import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatase
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
 import {TestCaseBase} from "test/v0.8/testcases/module/abstract/TestCaseBase.sol";
 
-/// @dev design CarstoreTestBase as all test suite must constructor the same parmas
+/// @title DatasetsTestBase
+/// @dev Base contract for datasets test cases. Datasets test cases consist of three steps: before, action, and after.
+/// The `before` function is used for test case setup, and the `action` function performs the main action of the test case.
+/// The `after_` function can be used for cleanup or post-action code.
 abstract contract DatasetsTestBase is TestCaseBase, Test {
+    /// @dev The address of the IDatasets contract being tested.
     IDatasets internal datasets;
+
+    /// @dev The address of the IDatasetsHelpers contract being used for test setup.
     IDatasetsHelpers internal datasetsHelpers;
+
+    /// @dev The address of the IDatasetsAssertion contract containing test assertions.
     IDatasetsAssertion internal datasetsAssertion;
 
+    /// @dev Constructor to initialize the DatasetsTestBase with the required contracts.
+    /// @param _datasets The address of the IDatasets contract.
+    /// @param _datasetsHelpers The address of the IDatasetsHelpers contract.
+    /// @param _datasetsAssertion The address of the IDatasetsAssertion contract.
     constructor(
         IDatasets _datasets,
         IDatasetsHelpers _datasetsHelpers,

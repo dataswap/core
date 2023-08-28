@@ -22,7 +22,7 @@ import {SetCarReplicaFilecoinDealIdAssertionTestSuiteBase} from "test/v0.8/testc
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 
-/// @dev set car replica filecoin deal id test case,it should be success
+/// @notice set car replica filecoin deal id test case,it should be success
 contract SetCarReplicaFilecoinDealIdTestCaseWithSuccess is
     SetCarReplicaFilecoinDealIdAssertionTestSuiteBase
 {
@@ -48,6 +48,7 @@ contract SetCarReplicaFilecoinDealIdTestCaseWithSuccess is
     }
 }
 
+/// @notice set car replica filecoin deal id test case,it should be reverted due to invalid id.
 contract SetCarReplicaFilecoinDealIdTestCaseWithInvalidId is
     SetCarReplicaFilecoinDealIdAssertionTestSuiteBase
 {
@@ -82,6 +83,7 @@ contract SetCarReplicaFilecoinDealIdTestCaseWithInvalidId is
     }
 }
 
+/// @notice set car replica filecoin deal id test case,it should be reverted due to replica not exsit.
 contract SetCarReplicaFilecoinDealIdTestCaseWithReplicaNotExist is
     SetCarReplicaFilecoinDealIdAssertionTestSuiteBase
 {
@@ -121,6 +123,7 @@ contract SetCarReplicaFilecoinDealIdTestCaseWithReplicaNotExist is
     }
 }
 
+/// @notice set car replica filecoin deal id test case,it should be reverted due to deal id already exsit.
 contract SetCarReplicaFilecoinDealIdTestCaseWithReplicaFilecoinDealIdExists is
     SetCarReplicaFilecoinDealIdAssertionTestSuiteBase
 {

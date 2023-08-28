@@ -22,12 +22,19 @@ import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
 
-/// @dev design CarstoreTestBase as all test suite must constructor the same parmas
+/// @title MatchingsTestBase
+/// @dev Base contract for matchings test suites. Matchings test suites consist of three steps: before, action, and after.
+/// The `before` function is used for test case setup, and the `action` function performs the main action of the test case.
+/// The `after_` function can be used for cleanup or post-action code.
 abstract contract MatchingsTestBase is TestCaseBase, Test {
     IMatchings internal matchings;
     IMatchingsHelpers internal matchingsHelpers;
     IMatchingsAssertion internal matchingsAssertion;
 
+    /// @dev Constructor to initialize the MatchingsTestBase with the required contracts.
+    /// @param _matchings The address of the IMatchings contract.
+    /// @param _matchingsHelpers The address of the IMatchingsHelpers contract.
+    /// @param _matchingsAssertion The address of the IMatchingsAssertion contract.
     constructor(
         IMatchings _matchings,
         IMatchingsHelpers _matchingsHelpers,

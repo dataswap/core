@@ -23,7 +23,7 @@ import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstore
 
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 
-/// @dev add car test case,it should be success
+/// @notice add car test case,it should be success
 contract AddCarTestCaseWithSuccess is AddCarTestSuiteBase {
     constructor(
         ICarstore _carstore,
@@ -42,7 +42,7 @@ contract AddCarTestCaseWithSuccess is AddCarTestSuiteBase {
     }
 }
 
-/// @dev add car test case with invalid id,it should be capture revert
+/// @notice add car test case with invalid id,it should be capture revert
 contract AddCarTestCaseWithInvalidId is AddCarTestSuiteBase {
     constructor(
         ICarstore _carstore,
@@ -69,7 +69,7 @@ contract AddCarTestCaseWithInvalidId is AddCarTestSuiteBase {
     }
 }
 
-/// @dev add car test case with car alreay exsit,it should be capture revert
+/// @notice add car test case with car alreay exsit,it should be capture revert
 contract AddCarTestCaseWithCarAlreayExsit is AddCarTestSuiteBase {
     constructor(
         ICarstore _carstore,

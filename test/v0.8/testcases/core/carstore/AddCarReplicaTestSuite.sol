@@ -23,7 +23,7 @@ import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 
-/// @dev set car replica filecoin deal id test case,it should be success
+/// @notice set car replica filecoin deal id test case,it should be success
 contract AddCarReplicaTestCaseWithSuccess is AddCarReplicaTestSuiteBase {
     constructor(
         ICarstore _carstore,
@@ -41,6 +41,7 @@ contract AddCarReplicaTestCaseWithSuccess is AddCarReplicaTestSuiteBase {
     }
 }
 
+/// @notice set car replica filecoin deal id test case, it should revert due to an invalid ID
 contract AddCarReplicaTestCaseWithInvalidId is AddCarReplicaTestSuiteBase {
     constructor(
         ICarstore _carstore,
@@ -66,6 +67,7 @@ contract AddCarReplicaTestCaseWithInvalidId is AddCarReplicaTestSuiteBase {
     }
 }
 
+/// @notice set car replica filecoin deal id test case, it should revert due to the car not existing
 contract AddCarReplicaTestCaseWithCarNotExist is AddCarReplicaTestSuiteBase {
     constructor(
         ICarstore _carstore,
@@ -92,6 +94,7 @@ contract AddCarReplicaTestCaseWithCarNotExist is AddCarReplicaTestSuiteBase {
     }
 }
 
+/// @notice set car replica filecoin deal id test case, it should revert due to replica already existing
 contract AddCarReplicaTestCaseWithReplicaAlreadyExists is
     AddCarReplicaTestSuiteBase
 {

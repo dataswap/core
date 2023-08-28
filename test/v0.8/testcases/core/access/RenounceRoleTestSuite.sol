@@ -20,7 +20,7 @@ import {RoleManageBase} from "test/v0.8/testcases/core/access/abstract/AccessTes
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IRolesAssertion} from "test/v0.8/interfaces/assertions/core/IRolesAssertion.sol";
 
-/// @dev set car replica filecoin deal id test case,it should be success
+/// @notice renounce role test case with success
 contract RenounceRoleTestCaseWithSuccess is RoleManageBase {
     constructor(
         IRoles _roles,

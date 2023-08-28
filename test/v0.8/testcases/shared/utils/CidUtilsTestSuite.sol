@@ -22,6 +22,7 @@ import {Test} from "forge-std/Test.sol";
 import {CidUtils} from "src/v0.8/shared/utils/cid/CidUtils.sol";
 import {TestCaseBase} from "test/v0.8/testcases/module/abstract/TestCaseBase.sol";
 
+///@notice cid utils test with success.
 contract CidUtilsTestCaseWithSuccess is TestCaseBase, Test {
     function action(uint64) internal virtual override {
         bytes32 hash = 0x03b2ed13af20471b3eea52c329c29bba17568ecf0190f50c9e675cf5a453b813;

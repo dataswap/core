@@ -19,11 +19,15 @@ pragma solidity ^0.8.21;
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IRolesAssertion} from "test/v0.8/interfaces/assertions/core/IRolesAssertion.sol";
 
-/// @dev design CarstoreTestBase as all test suite must constructor the same parmas
+/// @title AccessTestBase
+/// @dev Base contract for access control test cases.
 abstract contract AccessTestBase {
-    IRoles internal roles;
-    IRolesAssertion internal assertion;
+    IRoles internal roles; // The roles contract for managing access control.
+    IRolesAssertion internal assertion; // The assertion contract for verifying access control.
 
+    /// @dev Constructor to initialize the roles and assertion contracts.
+    /// @param _roles The roles contract for managing access control.
+    /// @param _assertion The assertion contract for verifying access control.
     constructor(IRoles _roles, IRolesAssertion _assertion) {
         roles = _roles;
         assertion = _assertion;

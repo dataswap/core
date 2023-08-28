@@ -20,7 +20,7 @@ import {TransferOwnershipBase} from "test/v0.8/testcases/core/access/abstract/Ac
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IRolesAssertion} from "test/v0.8/interfaces/assertions/core/IRolesAssertion.sol";
 
-/// @dev set car replica filecoin deal id test case,it should be success
+/// @dev transfer Ownership test case with success
 contract TransferOwnershipTestCaseWithSuccess is TransferOwnershipBase {
     constructor(
         IRoles _roles,

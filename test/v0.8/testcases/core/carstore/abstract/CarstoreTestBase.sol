@@ -19,11 +19,15 @@ pragma solidity ^0.8.21;
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 
-/// @dev design CarstoreTestBase as all test suite must constructor the same parmas
+/// @title CarstoreTestBase
+/// @dev Base contract for carstore test cases with a common constructor.
 abstract contract CarstoreTestBase {
-    ICarstore internal carstore;
-    ICarstoreAssertion internal assertion;
+    ICarstore internal carstore; // The carstore contract for managing cars.
+    ICarstoreAssertion internal assertion; // The assertion contract for verifying carstore operations.
 
+    /// @dev Constructor to initialize the carstore and assertion contracts.
+    /// @param _carstore The carstore contract for managing cars.
+    /// @param _assertion The assertion contract for verifying carstore operations.
     constructor(ICarstore _carstore, ICarstoreAssertion _assertion) {
         carstore = _carstore;
         assertion = _assertion;

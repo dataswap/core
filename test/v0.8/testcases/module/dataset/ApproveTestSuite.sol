@@ -25,6 +25,7 @@ import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
 
+///@notice approve dataset test caset with success.
 contract ApproveTestCaseWithSuccess is DatasetsTestBase {
     constructor(
         IDatasets _datasets,

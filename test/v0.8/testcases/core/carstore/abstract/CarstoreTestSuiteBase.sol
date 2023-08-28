@@ -22,21 +22,28 @@ import {CarstoreTestBase} from "test/v0.8/testcases/core/carstore/abstract/Carst
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 
-/// @dev add car test suite
+/// @title AddCarTestSuiteBase
+/// @dev Base contract for test suites related to adding a single car to the carstore.
 abstract contract AddCarTestSuiteBase is CarstoreTestBase, Test {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
-    )
-        CarstoreTestBase(_carstore, _assertion) // solhint-disable-next-line
-    {}
+    ) CarstoreTestBase(_carstore, _assertion) {}
 
+    /// @dev Called before running the test to set up the test scenario.
+    /// @param _cid The content ID of the car to be added.
+    /// @param _datasetId The dataset ID for the car.
+    /// @param _size The size of the car.
     function before(
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size
     ) internal virtual;
 
+    /// @dev The main action of the test, where the car is added to the carstore.
+    /// @param _cid The content ID of the car to be added.
+    /// @param _datasetId The dataset ID for the car.
+    /// @param _size The size of the car.
     function action(
         bytes32 _cid,
         uint64 _datasetId,
@@ -45,12 +52,20 @@ abstract contract AddCarTestSuiteBase is CarstoreTestBase, Test {
         assertion.addCarAssertion(_cid, _datasetId, _size);
     }
 
+    /// @dev Called after running the test to perform any necessary cleanup or validation.
+    /// @param _cid The content ID of the car that was added.
+    /// @param _datasetId The dataset ID for the car.
+    /// @param _size The size of the car.
     function after_(
         bytes32 _cid,
         uint64 _datasetId,
-        uint64 _size // solhint-disable-next-line
+        uint64 _size
     ) internal virtual {}
 
+    /// @dev Runs the test to add a car to the carstore.
+    /// @param _cid The content ID of the car to be added.
+    /// @param _datasetId The dataset ID for the car.
+    /// @param _size The size of the car.
     function run(bytes32 _cid, uint64 _datasetId, uint64 _size) public {
         before(_cid, _datasetId, _size);
         action(_cid, _datasetId, _size);
@@ -58,21 +73,28 @@ abstract contract AddCarTestSuiteBase is CarstoreTestBase, Test {
     }
 }
 
-/// @dev adds car test suite
+/// @title AddCarsTestSuiteBase
+/// @dev Base contract for test suites related to adding multiple cars to the carstore.
 abstract contract AddCarsTestSuiteBase is CarstoreTestBase, Test {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
-    )
-        CarstoreTestBase(_carstore, _assertion) // solhint-disable-next-line
-    {}
+    ) CarstoreTestBase(_carstore, _assertion) {}
 
+    /// @dev Called before running the test to set up the test scenario.
+    /// @param _cids The content IDs of the cars to be added.
+    /// @param _datasetId The dataset ID for the cars.
+    /// @param _sizes The sizes of the cars.
     function before(
         bytes32[] memory _cids,
         uint64 _datasetId,
         uint64[] memory _sizes
     ) internal virtual;
 
+    /// @dev The main action of the test, where the cars are added to the carstore.
+    /// @param _cids The content IDs of the cars to be added.
+    /// @param _datasetId The dataset ID for the cars.
+    /// @param _sizes The sizes of the cars.
     function action(
         bytes32[] memory _cids,
         uint64 _datasetId,
@@ -81,12 +103,20 @@ abstract contract AddCarsTestSuiteBase is CarstoreTestBase, Test {
         assertion.addCarsAssertion(_cids, _datasetId, _sizes);
     }
 
+    /// @dev Called after running the test to perform any necessary cleanup or validation.
+    /// @param _cids The content IDs of the cars that were added.
+    /// @param _datasetId The dataset ID for the cars.
+    /// @param _sizes The sizes of the cars.
     function after_(
         bytes32[] memory _cids,
         uint64 _datasetId,
-        uint64[] memory _sizes // solhint-disable-next-line
+        uint64[] memory _sizes
     ) internal virtual {}
 
+    /// @dev Runs the test to add multiple cars to the carstore.
+    /// @param _cids The content IDs of the cars to be added.
+    /// @param _datasetId The dataset ID for the cars.
+    /// @param _sizes The sizes of the cars.
     function run(
         bytes32[] memory _cids,
         uint64 _datasetId,
@@ -98,26 +128,37 @@ abstract contract AddCarsTestSuiteBase is CarstoreTestBase, Test {
     }
 }
 
-/// @dev adds car replica test suite
+/// @title AddCarReplicaTestSuiteBase
+/// @dev Base contract for test suites related to adding a car replica to the carstore.
 abstract contract AddCarReplicaTestSuiteBase is CarstoreTestBase, Test {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
-    )
-        CarstoreTestBase(_carstore, _assertion) // solhint-disable-next-line
-    {}
+    ) CarstoreTestBase(_carstore, _assertion) {}
 
+    /// @dev Called before running the test to set up the test scenario.
+    /// @param _cid The content ID of the car replica to be added.
+    /// @param _matchingId The matching ID of the car replica.
     function before(bytes32 _cid, uint64 _matchingId) internal virtual;
 
+    /// @dev The main action of the test, where the car replica is added to the carstore.
+    /// @param _cid The content ID of the car replica to be added.
+    /// @param _matchingId The matching ID of the car replica.
     function action(bytes32 _cid, uint64 _matchingId) internal virtual {
         assertion.addCarReplicaAssertion(_cid, _matchingId);
     }
 
+    /// @dev Called after running the test to perform any necessary cleanup or validation.
+    /// @param _cid The content ID of the car replica that was added.
+    /// @param _matchingId The matching ID of the car replica.
     function after_(
         bytes32 _cid,
         uint64 _matchingId // solhint-disable-next-line
     ) internal virtual {}
 
+    /// @dev Runs the test to add a car replica to the carstore.
+    /// @param _cid The content ID of the car replica to be added.
+    /// @param _matchingId The matching ID of the car replica.
     function run(bytes32 _cid, uint64 _matchingId) public {
         before(_cid, _matchingId);
         action(_cid, _matchingId);
@@ -125,17 +166,20 @@ abstract contract AddCarReplicaTestSuiteBase is CarstoreTestBase, Test {
     }
 }
 
-/// @dev filecoin deal id process test suite,
-/// and ReportCarReplicaExpiredTestSuiteBase,ReportCarReplicaSlashedTestSuiteBase, SetCarReplicaFilecoinDealIdAssertionTestSuiteBase
-///     all base FilecoinDealIdTestSuiteBase
+/// @title FilecoinDealIdTestSuiteBase
+/// @dev Base contract for test suites related to Filecoin deal IDs in the carstore.
 abstract contract FilecoinDealIdTestSuiteBase is CarstoreTestBase, Test {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
-    )
-        CarstoreTestBase(_carstore, _assertion) // solhint-disable-next-line
-    {}
+    ) CarstoreTestBase(_carstore, _assertion) {}
 
+    /// @dev Called before running the test to set up the test scenario.
+    /// @param _cid The content ID of the car replica.
+    /// @param _datasetId The dataset ID of the car replica.
+    /// @param _size The size of the car replica.
+    /// @param _matchingId The matching ID of the car replica.
+    /// @param _filecoinDealId The Filecoin deal ID associated with the car replica.
     function before(
         bytes32 _cid,
         uint64 _datasetId,
@@ -144,12 +188,22 @@ abstract contract FilecoinDealIdTestSuiteBase is CarstoreTestBase, Test {
         uint64 _filecoinDealId
     ) internal virtual;
 
+    /// @dev The main action of the test, where a Filecoin deal ID is processed.
+    /// @param _cid The content ID of the car replica.
+    /// @param _matchingId The matching ID of the car replica.
+    /// @param _filecoinDealId The Filecoin deal ID to be processed.
     function action(
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
     ) internal virtual;
 
+    /// @dev Called after running the test to perform any necessary cleanup or validation.
+    /// @param _cid The content ID of the car replica.
+    /// @param _datasetId The dataset ID of the car replica.
+    /// @param _size The size of the car replica.
+    /// @param _matchingId The matching ID of the car replica.
+    /// @param _filecoinDealId The Filecoin deal ID associated with the car replica.
     function after_(
         bytes32 _cid,
         uint64 _datasetId,
@@ -158,6 +212,12 @@ abstract contract FilecoinDealIdTestSuiteBase is CarstoreTestBase, Test {
         uint64 _filecoinDealId // solhint-disable-next-line
     ) internal virtual {}
 
+    /// @dev Runs the test to process a Filecoin deal ID in the carstore.
+    /// @param _cid The content ID of the car replica.
+    /// @param _datasetId The dataset ID of the car replica.
+    /// @param _size The size of the car replica.
+    /// @param _matchingId The matching ID of the car replica.
+    /// @param _filecoinDealId The Filecoin deal ID to be processed.
     function run(
         bytes32 _cid,
         uint64 _datasetId,
@@ -171,17 +231,20 @@ abstract contract FilecoinDealIdTestSuiteBase is CarstoreTestBase, Test {
     }
 }
 
-/// @dev report car replica expired test suite,
+/// @title ReportCarReplicaExpiredTestSuiteBase
+/// @dev Base contract for test suites related to reporting an expired car replica in the carstore.
 abstract contract ReportCarReplicaExpiredTestSuiteBase is
     FilecoinDealIdTestSuiteBase
 {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
-    )
-        FilecoinDealIdTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
-    {}
+    ) FilecoinDealIdTestSuiteBase(_carstore, _assertion) {}
 
+    /// @dev The main action of the test, where a car replica is reported as expired.
+    /// @param _cid The content ID of the car replica.
+    /// @param _matchingId The matching ID of the car replica.
+    /// @param _filecoinDealId The Filecoin deal ID associated with the car replica.
     function action(
         bytes32 _cid,
         uint64 _matchingId,
@@ -195,17 +258,20 @@ abstract contract ReportCarReplicaExpiredTestSuiteBase is
     }
 }
 
-/// @dev report car replica slashed test suite,
+/// @title ReportCarReplicaSlashedTestSuiteBase
+/// @dev Base contract for test suites related to reporting a slashed car replica in the carstore.
 abstract contract ReportCarReplicaSlashedTestSuiteBase is
     FilecoinDealIdTestSuiteBase
 {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
-    )
-        FilecoinDealIdTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
-    {}
+    ) FilecoinDealIdTestSuiteBase(_carstore, _assertion) {}
 
+    /// @dev The main action of the test, where a car replica is reported as slashed.
+    /// @param _cid The content ID of the car replica.
+    /// @param _matchingId The matching ID of the car replica.
+    /// @param _filecoinDealId The Filecoin deal ID associated with the car replica.
     function action(
         bytes32 _cid,
         uint64 _matchingId,
@@ -219,17 +285,20 @@ abstract contract ReportCarReplicaSlashedTestSuiteBase is
     }
 }
 
-/// @dev set car replica filecoin deal Id test suite,
+/// @title SetCarReplicaFilecoinDealIdAssertionTestSuiteBase
+/// @dev Base contract for test suites related to setting a Filecoin deal ID for a car replica in the carstore.
 abstract contract SetCarReplicaFilecoinDealIdAssertionTestSuiteBase is
     FilecoinDealIdTestSuiteBase
 {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
-    )
-        FilecoinDealIdTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
-    {}
+    ) FilecoinDealIdTestSuiteBase(_carstore, _assertion) {}
 
+    /// @dev The main action of the test, where a Filecoin deal ID is set for a car replica.
+    /// @param _cid The content ID of the car replica.
+    /// @param _matchingId The matching ID of the car replica.
+    /// @param _filecoinDealId The Filecoin deal ID to be set for the car replica.
     function action(
         bytes32 _cid,
         uint64 _matchingId,

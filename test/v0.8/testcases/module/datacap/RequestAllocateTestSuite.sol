@@ -25,6 +25,7 @@ import {IDatacapsHelpers} from "test/v0.8/interfaces/helpers/module/IDatacapsHel
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
+///@notice request allocate datacap test case with success.
 contract RequestAllocateTestCaseWithSuccess is DatacapTestBase {
     constructor(
         IDatacaps _datacaps,
@@ -47,6 +48,7 @@ contract RequestAllocateTestCaseWithSuccess is DatacapTestBase {
     }
 }
 
+///@notice request allocate datacap test case ,it should be reverted due to invalid matching id.
 contract RequestAllocateTestSuiteWithInvalidMatchingId is DatacapTestBase {
     constructor(
         IDatacaps _datacaps,
@@ -71,6 +73,7 @@ contract RequestAllocateTestSuiteWithInvalidMatchingId is DatacapTestBase {
     }
 }
 
+///@notice request allocate datacap test case ,it should be reverted due to invalid caller.
 contract RequestAllocateTestSuiteWithInvalidCaller is DatacapTestBase {
     constructor(
         IDatacaps _datacaps,
@@ -94,6 +97,7 @@ contract RequestAllocateTestSuiteWithInvalidCaller is DatacapTestBase {
     }
 }
 
+///@notice request allocate datacap test case ,it should be reverted due to invalid next allocate request.
 contract RequestAllocateTestSuiteWithInvalidNextRequest is DatacapTestBase {
     constructor(
         IDatacaps _datacaps,

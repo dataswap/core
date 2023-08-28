@@ -22,28 +22,31 @@ import {AccessTestBase} from "test/v0.8/testcases/core/access/abstract/AccessTes
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IRolesAssertion} from "test/v0.8/interfaces/assertions/core/IRolesAssertion.sol";
 
-// function transferOwnershipAssertion(address _newOwner)
-// function acceptOwnershipAssertion() external {
-// function renounceOwnershipAssertion()
-// function checkRoleAssertion() public view {
-/// @dev add car test suite
+/// @title Abstract contract for testing role management.
 abstract contract RoleManageBase is AccessTestBase, Test {
     constructor(
         IRoles _roles,
         IRolesAssertion _assertion
-    )
-        AccessTestBase(_roles, _assertion) // solhint-disable-next-line
-    {}
+    ) AccessTestBase(_roles, _assertion) {}
 
+    /// @dev Called before the role management action.
+    /// @param _role The role to be managed.
+    /// @param _account The account for which the role is managed.
     function before(bytes32 _role, address _account) internal virtual;
 
+    /// @dev The role management action.
+    /// @param _role The role to be managed.
+    /// @param _account The account for which the role is managed.
     function action(bytes32 _role, address _account) internal virtual;
 
-    function after_(
-        bytes32 _role,
-        address _account // solhint-disable-next-line
-    ) internal virtual {}
+    /// @dev Called after the role management action.
+    /// @param _role The role to be managed.
+    /// @param _account The account for which the role is managed.
+    function after_(bytes32 _role, address _account) internal virtual {}
 
+    /// @dev Runs the role management test case.
+    /// @param _role The role to be managed.
+    /// @param _account The account for which the role is managed.
     function run(bytes32 _role, address _account) public {
         before(_role, _account);
         action(_role, _account);
@@ -55,18 +58,22 @@ abstract contract TransferOwnershipBase is AccessTestBase, Test {
     constructor(
         IRoles _roles,
         IRolesAssertion _assertion
-    )
-        AccessTestBase(_roles, _assertion) // solhint-disable-next-line
-    {}
+    ) AccessTestBase(_roles, _assertion) {}
 
+    /// @dev Called before the transfer ownership action.
+    /// @param _account The account to which ownership is transferred.
     function before(address _account) internal virtual;
 
+    /// @dev The transfer ownership action.
+    /// @param _account The account to which ownership is transferred.
     function action(address _account) internal virtual;
 
-    function after_(
-        address _account // solhint-disable-next-line
-    ) internal virtual {}
+    /// @dev Called after the transfer ownership action.
+    /// @param _account The account to which ownership is transferred.
+    function after_(address _account) internal virtual {}
 
+    /// @dev Runs the transfer ownership test case.
+    /// @param _account The account to which ownership is transferred.
     function run(address _account) public {
         before(_account);
         action(_account);
@@ -78,19 +85,18 @@ abstract contract CommonBase is AccessTestBase, Test {
     constructor(
         IRoles _roles,
         IRolesAssertion _assertion
-    )
-        AccessTestBase(_roles, _assertion) // solhint-disable-next-line
-    {}
+    ) AccessTestBase(_roles, _assertion) {}
 
+    /// @dev Called before the common action.
     function before() internal virtual;
 
+    /// @dev The common action.
     function action() internal virtual;
 
-    function after_() internal virtual // solhint-disable-next-line
-    {
+    /// @dev Called after the common action.
+    function after_() internal virtual {}
 
-    }
-
+    /// @dev Runs the common test case.
     function run() public {
         before();
         action();

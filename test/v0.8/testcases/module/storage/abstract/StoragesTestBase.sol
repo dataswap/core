@@ -22,12 +22,19 @@ import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
 import {IStoragesHelpers} from "test/v0.8/interfaces/helpers/module/IStoragesHelpers.sol";
 
-/// @dev design CarstoreTestBase as all test suite must constructor the same parmas
+/// @title StoragesTestBase
+/// @dev Base contract for storages test suites. Storages test suites consist of three steps: before, action, and after.
+/// The `before` function is used for test case setup, and the `action` function performs the main action of the test case.
+/// The `after_` function can be used for cleanup or post-action code.
 abstract contract StoragesTestBase is TestCaseBase, Test {
     IStorages internal storages;
     IStoragesHelpers internal storagesHelpers;
     IStoragesAssertion internal storagesAssertion;
 
+    /// @dev Constructor to initialize the StoragesTestBase with the required contracts.
+    /// @param _storages The address of the IStorages contract.
+    /// @param _storagesHelpers The address of the IStoragesHelpers contract.
+    /// @param _storagesAssertion The address of the IStoragesAssertion contract.
     constructor(
         IStorages _storages,
         IStoragesHelpers _storagesHelpers,

@@ -20,7 +20,7 @@ import {CommonBase} from "test/v0.8/testcases/core/access/abstract/AccessTestSui
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IRolesAssertion} from "test/v0.8/interfaces/assertions/core/IRolesAssertion.sol";
 
-/// @dev set car replica filecoin deal id test case,it should be success
+/// @notice accept ownership test case with success
 contract AcceptOwnershipTestCaseWithSuccess is CommonBase {
     constructor(
         IRoles _roles,

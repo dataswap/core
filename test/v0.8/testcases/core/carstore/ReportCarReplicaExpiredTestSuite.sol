@@ -23,7 +23,7 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 
-/// @dev set car replica filecoin deal id test case,it should be success
+/// @notice report car replica filecoin deal id  expired test case,it should be success
 contract ReportCarReplicaExpiredTestCaseWithSuccess is
     ReportCarReplicaExpiredTestSuiteBase
 {
@@ -55,6 +55,7 @@ contract ReportCarReplicaExpiredTestCaseWithSuccess is
     }
 }
 
+/// @notice report car replica filecoin deal id  expired test case,it should be reverted due to invalid state
 contract ReportCarReplicaExpiredTestCaseWithInvalidDealState is
     ReportCarReplicaExpiredTestSuiteBase
 {
@@ -101,6 +102,7 @@ contract ReportCarReplicaExpiredTestCaseWithInvalidDealState is
     }
 }
 
+/// @notice report car replica filecoin deal id  expired test case,it should be reverted due to invalid id
 contract ReportCarReplicaExpiredTestCaseWithInvalidId is
     ReportCarReplicaExpiredTestSuiteBase
 {

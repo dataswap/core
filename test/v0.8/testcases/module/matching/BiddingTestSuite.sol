@@ -26,6 +26,7 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 
+///@notice bidding matching test case with success
 contract BiddingTestCaseWithSuccess is MatchingsTestBase {
     constructor(
         IMatchings _matchings,

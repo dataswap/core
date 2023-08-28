@@ -24,12 +24,24 @@ import {IDatacapsHelpers} from "test/v0.8/interfaces/helpers/module/IDatacapsHel
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
-/// @dev design CarstoreTestBase as all test suite must constructor the same parmas
+/// @title DatacapTestBase
+/// @dev Base contract for datacaps test cases. Datacaps test cases consist of three steps: before, action, and after.
+/// The `before` function is used for test case setup, and the `action` function performs the main action of the test case.
+/// The `after_` function can be used for cleanup or post-action code.
 abstract contract DatacapTestBase is TestCaseBase, Test {
+    /// @dev The address of the IDatacaps contract being tested.
     IDatacaps internal datacaps;
+
+    /// @dev The address of the IDatacapsHelpers contract being used for test setup.
     IDatacapsHelpers internal datacapsHelpers;
+
+    /// @dev The address of the IDatacapsAssertion contract containing test assertions.
     IDatacapsAssertion internal datacapsAssertion;
 
+    /// @dev Constructor to initialize the DatacapTestBase with the required contracts.
+    /// @param _datacaps The address of the IDatacaps contract.
+    /// @param _datacapsHelpers The address of the IDatacapsHelpers contract.
+    /// @param _datacapsAssertion The address of the IDatacapsAssertion contract.
     constructor(
         IDatacaps _datacaps,
         IDatacapsHelpers _datacapsHelpers,
@@ -40,6 +52,9 @@ abstract contract DatacapTestBase is TestCaseBase, Test {
         datacapsAssertion = _datacapsAssertion;
     }
 
+    /// @dev Executes the setup code before the main action of the datacaps test case.
+    /// This function sets up the test environment and returns a unique identifier.
+    /// @return id A unique identifier for the datacaps test case.
     function before() internal virtual override returns (uint64) {
         (, uint64 matchingId) = datacapsHelpers.setup();
         return matchingId;

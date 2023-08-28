@@ -26,6 +26,7 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 
+///@notice pause matching test case with success
 contract PauseTestCaseWithSuccess is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
