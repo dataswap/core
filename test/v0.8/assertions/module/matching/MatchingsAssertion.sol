@@ -125,13 +125,10 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
 
         // Check if the matching already contains the cars.
         isMatchingContainsCarsAssertion(oldMatchingsCount + 1, _cars, false);
-
         // Perform the action
         vm.prank(caller);
-        matchings.publishMatching(
+        uint64 _machingId = matchings.createMatching(
             _datasetId,
-            _cars,
-            _size,
             _dataType,
             _associatedMappingFilesMatchingID,
             _bidSelectionRule,
@@ -140,6 +137,21 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
             _storageCompletionPeriodBlocks,
             _biddingThreshold,
             _additionalInfo
+        );
+
+        vm.prank(caller);
+        matchings.publishMatching(
+            _machingId,
+            _datasetId,
+            _cars,
+            //_associatedMappingFilesMatchingID,
+            //_bidSelectionRule,
+            //_biddingDelayBlockCount,
+            //_biddingPeriodBlockCount,
+            //_storageCompletionPeriodBlocks,
+            //_biddingThreshold,
+            //_additionalInfo,
+            true
         );
 
         // After the action:

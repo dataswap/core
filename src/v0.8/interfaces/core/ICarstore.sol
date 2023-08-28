@@ -85,6 +85,11 @@ interface ICarstore {
     /// @return The car size of the car.
     function getCarSize(bytes32 _cid) external view returns (uint64);
 
+    /// @notice Get the total size of cars based on an array of car IDs.
+    /// @param _cids An array of car IDs for which to calculate the size.
+    /// @return The total size of cars.
+    function getCarsSize(bytes32[] memory _cids) external view returns (uint64);
+
     /// @notice Get the dataset ID associated with a car.
     /// @param _cid Car CID to check.
     /// @return The dataset ID of the car.

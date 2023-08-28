@@ -115,11 +115,19 @@ contract Matchings is IMatchings, MatchingsModifiers {
         }
     }
 
-    /// @notice  Function for publishing a new matching
-    function publishMatching(
+    /// @notice Function for create a new matching.
+    /// @param _datasetId The dataset id to create matching.
+    /// @param _dataType Identify the data type of "cars", which can be either "Source" or "MappingFiles".
+    /// @param _associatedMappingFilesMatchingID The matching ID that associated with mapping files of dataset of _datasetId
+    /// @param _bidSelectionRule The rules for determining the winning bid.
+    /// @param _biddingDelayBlockCount The number of blocks to delay bidding.
+    /// @param _biddingPeriodBlockCount The number of blocks for bidding period.
+    /// @param _storageCompletionPeriodBlocks The number of blocks for storage period.
+    /// @param _biddingThreshold The threshold for bidding.
+    /// @param _additionalInfo The additional information about the matching.
+    /// @return The matchingId.
+    function createMatching(
         uint64 _datasetId,
-        bytes32[] memory _cars,
-        uint64 _size,
         DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID,
         MatchingType.BidSelectionRule _bidSelectionRule,
@@ -128,23 +136,13 @@ contract Matchings is IMatchings, MatchingsModifiers {
         uint64 _storageCompletionPeriodBlocks,
         uint256 _biddingThreshold,
         string memory _additionalInfo
-    ) external onlyRole(RolesType.DATASET_PROVIDER) {
-        require(
-            isMatchingTargetMeetsFilPlusRequirements(
-                _datasetId,
-                _cars,
-                _size,
-                _dataType,
-                _associatedMappingFilesMatchingID
-            ),
-            "Target invalid"
-        );
+    ) external onlyRole(RolesType.DATASET_PROVIDER) returns (uint64) {
         matchingsCount++;
         MatchingType.Matching storage matching = matchings[matchingsCount];
         matching.target = MatchingType.Target({
             datasetId: _datasetId,
-            cars: _cars,
-            size: _size,
+            cars: new bytes32[](0),
+            size: 0,
             dataType: _dataType,
             associatedMappingFilesMatchingID: _associatedMappingFilesMatchingID
         });
@@ -156,9 +154,42 @@ contract Matchings is IMatchings, MatchingsModifiers {
         matching.additionalInfo = _additionalInfo;
         matching.initiator = msg.sender;
         matching.createdBlockNumber = uint64(block.number);
+        return matchingsCount;
+    }
 
-        matching._publishMatching();
-        emit MatchingsEvents.MatchingPublished(matchingsCount, msg.sender);
+    /// @notice  Function for publishing a matching
+    /// @param _matchingId The matching id to publish cars.
+    /// @param _datasetId The dataset id of matching.
+    /// @param _cars The cars to publish.
+    /// @param complete If the publish is complete.
+    function publishMatching(
+        uint64 _matchingId,
+        uint64 _datasetId,
+        bytes32[] memory _cars,
+        bool complete
+    ) external onlyRole(RolesType.DATASET_PROVIDER) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        uint64 _size = carstore.getCarsSize(_cars);
+        require(matching.initiator == msg.sender, "invalid sender");
+        (uint64 datasetId, , , , ) = getMatchingTarget(_matchingId);
+        require(datasetId == _datasetId, "invalid dataset id");
+        require(
+            isMatchingTargetMeetsFilPlusRequirements(
+                _datasetId,
+                _cars,
+                _size,
+                matching.target.dataType,
+                matching.target.associatedMappingFilesMatchingID
+            ),
+            "Target invalid"
+        );
+
+        matching._updateTargetCars(_cars, _size);
+
+        if (complete) {
+            matching._publishMatching();
+            emit MatchingsEvents.MatchingPublished(_matchingId, msg.sender);
+        }
     }
 
     /// @notice  Function for pausing a matching
