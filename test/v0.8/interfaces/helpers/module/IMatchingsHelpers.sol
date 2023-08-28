@@ -21,8 +21,16 @@ pragma solidity ^0.8.21;
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
-/// @title IMatchings
+/// @title IMatchingsHelpers
+/// @dev Interface for managing matching-related operations.
 interface IMatchingsHelpers {
+    /// @notice Initialize a dataset with the provided parameters.
+    /// @param _accessMethod The access method for the dataset.
+    /// @param _sourceLeavesCount The number of leaves in the source data Merkle tree.
+    /// @param _mappingFilesLeavesCount The number of leaves in the mapping files Merkle tree.
+    /// @param _challengeCount The number of verification challenges.
+    /// @param _challengeLeavesCount The number of leaves in the challenge Merkle tree.
+    /// @return datasetId The ID of the created dataset.
     function setup(
         string memory _accessMethod,
         uint64 _sourceLeavesCount,
@@ -31,11 +39,18 @@ interface IMatchingsHelpers {
         uint64 _challengeLeavesCount
     ) external returns (uint64 datasetId);
 
+    /// @notice Get the cars and the count of cars associated with a dataset and data type.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _dataType The data type of the cars to retrieve.
+    /// @return An array of car IDs and the count of cars.
     function getDatasetCarsAndCarsCount(
         uint64 _datasetId,
         DatasetType.DataType _dataType
     ) external returns (bytes32[] memory, uint64);
 
+    /// @notice Complete the workflow for a matching.
+    /// @return datasetId The ID of the dataset associated with the completed matching.
+    /// @return matchingId The ID of the completed matching.
     function completeMatchingWorkflow()
         external
         returns (uint64 datasetId, uint64 matchingId);

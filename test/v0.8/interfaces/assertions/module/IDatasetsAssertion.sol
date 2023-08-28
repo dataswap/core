@@ -13,30 +13,56 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ********************************************************************************/
+
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
-// NOTE: view asserton functions must all be tested by the functions that will change state
+/// @title IDatasetsAssertion
+/// @dev This interface defines assertion methods for testing dataset-related functionality.
+/// All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
 interface IDatasetsAssertion {
+    /// @notice Asserts the approval of a dataset.
+    /// @param caller The caller's address.
+    /// @param _datasetId The ID of the dataset being approved.
     function approveDatasetAssertion(
         address caller,
         uint64 _datasetId
     ) external;
 
+    /// @notice Asserts the approval of dataset metadata.
+    /// @param caller The caller's address.
+    /// @param _datasetId The ID of the dataset for which metadata is approved.
     function approveDatasetMetadataAssertion(
         address caller,
         uint64 _datasetId
     ) external;
 
+    /// @notice Asserts the rejection of a dataset.
+    /// @param caller The caller's address.
+    /// @param _datasetId The ID of the dataset being rejected.
     function rejectDatasetAssertion(address caller, uint64 _datasetId) external;
 
+    /// @notice Asserts the rejection of dataset metadata.
+    /// @param caller The caller's address.
+    /// @param _datasetId The ID of the dataset for which metadata is rejected.
     function rejectDatasetMetadataAssertion(
         address caller,
         uint64 _datasetId
     ) external;
 
+    /// @notice Asserts the submission of dataset metadata.
+    /// @param caller The caller's address.
+    /// @param _title The title of the dataset.
+    /// @param _industry The industry category of the dataset.
+    /// @param _name The name of the dataset.
+    /// @param _description The description of the dataset.
+    /// @param _source The source of the dataset.
+    /// @param _accessMethod The access method for the dataset.
+    /// @param _sizeInBytes The size of the dataset in bytes.
+    /// @param _isexternal Indicates if the dataset is external.
+    /// @param _version The version of the dataset.
     function submitDatasetMetadataAssertion(
         address caller,
         string memory _title,
@@ -50,6 +76,15 @@ interface IDatasetsAssertion {
         uint64 _version
     ) external;
 
+    /// @notice Asserts the submission of dataset proof.
+    /// @param caller The caller's address.
+    /// @param _datasetId The ID of the dataset for which proof is submitted.
+    /// @param _dataType The data type of the proof.
+    /// @param accessMethod The access method for the proof.
+    /// @param _rootHash The root hash of the proof.
+    /// @param _leafHashes The leaf hashes of the proof.
+    /// @param _leafSizes The sizes of the leaf hashes.
+    /// @param _completed Indicates if the proof is completed.
     function submitDatasetProofAssertion(
         address caller,
         uint64 _datasetId,
@@ -61,6 +96,12 @@ interface IDatasetsAssertion {
         bool _completed
     ) external;
 
+    /// @notice Asserts the submission of dataset verification.
+    /// @param caller The caller's address.
+    /// @param _datasetId The ID of the dataset for which verification is submitted.
+    /// @param _randomSeed The random seed used for verification.
+    /// @param _siblings The Merkle proof siblings.
+    /// @param _paths The Merkle proof paths.
     function submitDatasetVerificationAssertion(
         address caller,
         uint64 _datasetId,
@@ -69,6 +110,11 @@ interface IDatasetsAssertion {
         uint32[] memory _paths
     ) external;
 
+    /// @notice Asserts the retrieval of dataset metadata.
+    /// @param _datasetId The ID of the dataset for which metadata is retrieved.
+    /// @param _expectAccessMethod The expected access method in the retrieved metadata.
+    /// @param _expectSubmitter The expected submitter address in the retrieved metadata.
+    /// @param _expectCreatedBlockNumber The expected block number when the dataset was created.
     function getDatasetMetadataAssertion(
         uint64 _datasetId,
         string memory _expectAccessMethod,
@@ -76,6 +122,12 @@ interface IDatasetsAssertion {
         uint64 _expectCreatedBlockNumber
     ) external;
 
+    /// @notice Asserts the retrieval of dataset proof.
+    /// @param _datasetId The ID of the dataset for which proof is retrieved.
+    /// @param _dataType The data type of the proof being retrieved.
+    /// @param _index The index of the proof.
+    /// @param _len The length of the proof.
+    /// @param _expectProof The expected proof data.
     function getDatasetProofAssertion(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
@@ -84,6 +136,12 @@ interface IDatasetsAssertion {
         bytes32[] memory _expectProof
     ) external;
 
+    /// @notice Asserts the retrieval of dataset cars.
+    /// @param _datasetId The ID of the dataset for which cars are retrieved.
+    /// @param _dataType The data type of the cars being retrieved.
+    /// @param _index The index of the cars.
+    /// @param _len The length of the cars.
+    /// @param _expectCars The expected car data.
     function getDatasetCarsAssertion(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
@@ -92,29 +150,49 @@ interface IDatasetsAssertion {
         bytes32[] memory _expectCars
     ) external;
 
+    /// @notice Asserts the retrieval of the count of dataset proofs.
+    /// @param _datasetId The ID of the dataset for which the count of proofs is retrieved.
+    /// @param _dataType The data type of the proofs.
+    /// @param _expectCount The expected count of proofs.
     function getDatasetProofCountAssertion(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         uint64 _expectCount
     ) external;
 
+    /// @notice Asserts the retrieval of the count of dataset cars.
+    /// @param _datasetId The ID of the dataset for which the count of cars is retrieved.
+    /// @param _dataType The data type of the cars.
+    /// @param _expectCount The expected count of cars.
     function getDatasetCarsCountAssertion(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         uint64 _expectCount
     ) external;
 
+    /// @notice Asserts the retrieval of dataset size.
+    /// @param _datasetId The ID of the dataset for which the size is retrieved.
+    /// @param _dataType The data type of the dataset.
+    /// @param _expectSize The expected size of the dataset.
     function getDatasetSizeAssertion(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         uint64 _expectSize
     ) external;
 
+    /// @notice Asserts the retrieval of dataset state.
+    /// @param _datasetId The ID of the dataset for which the state is retrieved.
+    /// @param _expectState The expected state of the dataset.
     function getDatasetStateAssertion(
         uint64 _datasetId,
         DatasetType.State _expectState
     ) external;
 
+    /// @notice Asserts the retrieval of dataset verification.
+    /// @param _datasetId The ID of the dataset for which verification is retrieved.
+    /// @param _auditor The auditor address for which verification is retrieved.
+    /// @param _expectSiblings The expected Merkle proof siblings.
+    /// @param _expectPaths The expected Merkle proof paths.
     function getDatasetVerificationAssertion(
         uint64 _datasetId,
         address _auditor,
@@ -122,27 +200,43 @@ interface IDatasetsAssertion {
         uint32[] memory _expectPaths
     ) external;
 
+    /// @notice Asserts the retrieval of the count of dataset verifications.
+    /// @param _datasetId The ID of the dataset for which the count of verifications is retrieved.
+    /// @param _expectCount The expected count of verifications.
     function getDatasetVerificationsCountAssertion(
         uint64 _datasetId,
         uint16 _expectCount
     ) external;
 
+    /// @notice Asserts whether dataset metadata exists for a given access method.
+    /// @param _accessMethod The access method to check for dataset metadata.
+    /// @param _expecthasDatasetMetadata The expected result (true if metadata exists, false otherwise).
     function hasDatasetMetadataAssertion(
         string memory _accessMethod,
         bool _expecthasDatasetMetadata
     ) external;
 
+    /// @notice Asserts whether a dataset contains a specific car.
+    /// @param _datasetId The ID of the dataset to check.
+    /// @param _cid The CID of the car to check.
+    /// @param _expectIsDatasetContainsCar The expected result (true if the dataset contains the car, false otherwise).
     function isDatasetContainsCarAssertion(
         uint64 _datasetId,
         bytes32 _cid,
         bool _expectIsDatasetContainsCar
     ) external;
 
+    /// @notice Asserts whether a dataset contains a list of cars.
+    /// @param _datasetId The ID of the dataset to check.
+    /// @param _cids The list of CIDs to check.
+    /// @param _expectIsDatasetContainsCars The expected result (true if the dataset contains all the cars, false otherwise).
     function isDatasetContainsCarsAssertion(
         uint64 _datasetId,
         bytes32[] memory _cids,
         bool _expectIsDatasetContainsCars
     ) external;
 
+    /// @notice Asserts the count of datasets.
+    /// @param _expectCount The expected count of datasets.
     function datasetsCountAssertion(uint64 _expectCount) external;
 }

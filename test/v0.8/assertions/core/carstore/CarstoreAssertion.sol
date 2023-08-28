@@ -54,7 +54,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         getCarDatasetIdAssertion(_cid, _datasetId);
         getCarSizeAssertion(_cid, _size);
         hasCarAssertion(_cid, true);
-        carsCounAssertiont(beforeCount + 1);
+        carsCountAssertion(beforeCount + 1);
     }
 
     /// @notice Assertion for the `addCars` function.
@@ -394,7 +394,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
 
     /// @notice Assertion for getting the count of cars.
     /// @param _expectCount The expected count of cars.
-    function carsCounAssertiont(uint64 _expectCount) public {
+    function carsCountAssertion(uint64 _expectCount) public {
         assertEq(carstore.carsCount(), _expectCount, "cars count not matched");
     }
 }

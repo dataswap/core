@@ -13,65 +13,91 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ********************************************************************************/
+
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
 import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
 
-// assert carstore action
-// NOTE: view asserton functions must all be tested by the functions that will change state
+// Interface for assert carstore action
+/// @dev All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
 interface ICarstoreAssertion {
-    /// @dev assert addCar
+    /// @dev Asserts the addition of a car to the carstore.
+    /// @param _cid The CID (Content Identifier) of the car.
+    /// @param _datasetId The ID of the dataset to which the car is added.
+    /// @param _size The size of the car in bytes.
     function addCarAssertion(
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size
     ) external;
 
-    /// @dev assert addCars
+    /// @dev Asserts the addition of multiple cars to the carstore.
+    /// @param _cids An array of CIDs (Content Identifiers) of the cars.
+    /// @param _datasetId The ID of the dataset to which the cars are added.
+    /// @param _sizes An array of sizes of the cars in bytes.
     function addCarsAssertion(
         bytes32[] memory _cids,
         uint64 _datasetId,
         uint64[] memory _sizes
     ) external;
 
-    /// @dev assert addCarReplica
+    /// @dev Asserts the addition of a car replica to a matching.
+    /// @param _cid The CID (Content Identifier) of the car replica.
+    /// @param _matchingId The ID of the matching to which the car replica is added.
     function addCarReplicaAssertion(bytes32 _cid, uint64 _matchingId) external;
 
-    /// @dev assert reportCarReplicaExpired
+    /// @dev Asserts the reporting of a car replica as expired.
+    /// @param _cid The CID (Content Identifier) of the car replica.
+    /// @param _matchingId The ID of the matching to which the car replica belongs.
+    /// @param _filecoinDealId The ID of the Filecoin deal associated with the car replica.
     function reportCarReplicaExpiredAssertion(
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
     ) external;
 
-    /// @dev assert reportCarReplicaSlashed
+    /// @dev Asserts the reporting of a car replica as slashed.
+    /// @param _cid The CID (Content Identifier) of the car replica.
+    /// @param _matchingId The ID of the matching to which the car replica belongs.
+    /// @param _filecoinDealId The ID of the Filecoin deal associated with the car replica.
     function reportCarReplicaSlashedAssertion(
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
     ) external;
 
-    /// @dev assert setCarReplicaFilecoinDealId
+    /// @dev Asserts the setting of a Filecoin deal ID for a car replica.
+    /// @param _cid The CID (Content Identifier) of the car replica.
+    /// @param _matchingId The ID of the matching to which the car replica belongs.
+    /// @param _filecoinDealId The ID of the Filecoin deal to set.
     function setCarReplicaFilecoinDealIdAssertion(
         bytes32 _cid,
         uint64 _matchingId,
         uint64 _filecoinDealId
     ) external;
 
-    /// @dev assert getCarSize
+    /// @dev Asserts getting the size of a car.
+    /// @param _inputCid The CID (Content Identifier) of the car.
+    /// @param _expectSize The expected size of the car in bytes.
     function getCarSizeAssertion(
         bytes32 _inputCid,
         uint64 _expectSize
     ) external;
 
-    /// @dev assert getCarDatasetId
+    /// @dev Asserts getting the dataset ID of a car.
+    /// @param _inputCid The CID (Content Identifier) of the car.
+    /// @param _expectDatasetId The expected dataset ID to which the car belongs.
     function getCarDatasetIdAssertion(
         bytes32 _inputCid,
         uint64 _expectDatasetId
     ) external;
 
-    /// @dev assert getCarReplica
+    /// @dev Asserts getting information about a car replica.
+    /// @param _inputCid The CID (Content Identifier) of the car replica.
+    /// @param _inputmatchingId The ID of the matching to which the car replica belongs.
+    /// @param _expectState The expected state of the car replica.
+    /// @param _expectFilecoinDealId The expected Filecoin deal ID associated with the car replica.
     function getCarReplicaAssertion(
         bytes32 _inputCid,
         uint64 _inputmatchingId,
@@ -79,42 +105,58 @@ interface ICarstoreAssertion {
         uint64 _expectFilecoinDealId
     ) external;
 
-    /// @dev assert getCarReplicasCount
+    /// @dev Asserts getting the count of car replicas for a given car.
+    /// @param _inputCid The CID (Content Identifier) of the car.
+    /// @param _expectCount The expected count of car replicas.
     function getCarReplicasCountAssertion(
         bytes32 _inputCid,
         uint16 _expectCount
     ) external;
 
-    /// @dev assert getCarReplicaFilecoinDealId
+    /// @dev Asserts getting the Filecoin deal ID of a car replica.
+    /// @param _inputCid The CID (Content Identifier) of the car replica.
+    /// @param _inputMatchingId The ID of the matching to which the car replica belongs.
+    /// @param _expectFilecoinDealId The expected Filecoin deal ID associated with the car replica.
     function getCarReplicaFilecoinDealIdAssertion(
         bytes32 _inputCid,
         uint64 _inputMatchingId,
         uint64 _expectFilecoinDealId
     ) external;
 
-    /// @dev assert getCarReplicaState
+    /// @dev Asserts getting the state of a car replica.
+    /// @param _inputCid The CID (Content Identifier) of the car replica.
+    /// @param _inputMatchingId The ID of the matching to which the car replica belongs.
+    /// @param _expectState The expected state of the car replica.
     function getCarReplicaStateAssertion(
         bytes32 _inputCid,
         uint64 _inputMatchingId,
         CarReplicaType.State _expectState
     ) external;
 
-    /// @dev assert hasCar
+    /// @dev Asserts whether a car with a given CID exists in the carstore.
+    /// @param _inputCid The CID (Content Identifier) of the car.
+    /// @param _expectIfExist True if the car is expected to exist, false otherwise.
     function hasCarAssertion(bytes32 _inputCid, bool _expectIfExist) external;
 
-    /// @dev assert hasCarReplica
+    /// @dev Asserts whether a car replica with a given CID and matching ID exists.
+    /// @param _inputCid The CID (Content Identifier) of the car replica.
+    /// @param _inputMatchingId The ID of the matching to which the car replica belongs.
+    /// @param _expectIfExist True if the car replica is expected to exist, false otherwise.
     function hasCarReplicaAssertion(
         bytes32 _inputCid,
         uint64 _inputMatchingId,
         bool _expectIfExist
     ) external;
 
-    /// @dev assert hasCars
+    /// @dev Asserts whether cars with given CIDs exist in the carstore.
+    /// @param _inputCids An array of CIDs (Content Identifiers) of the cars.
+    /// @param _expectIfExist True if the cars are expected to exist, false otherwise.
     function hasCarsAssertion(
         bytes32[] memory _inputCids,
         bool _expectIfExist
     ) external;
 
-    /// @dev assert carsCount
-    function carsCounAssertiont(uint64 _expectCout) external;
+    /// @dev Asserts the total count of cars in the carstore.
+    /// @param _expectCount The expected total count of cars.
+    function carsCountAssertion(uint64 _expectCount) external;
 }
