@@ -14,7 +14,6 @@
  *  limitations under the License.
  ********************************************************************************/
 // SPDX-License-Identifier: GPL-3.0-or-later
-
 pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
@@ -44,7 +43,10 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         assertion = _assertion;
     }
 
-    ///@notice Submit metadata for a dataset
+    ///  @notice Submit metadata for a dataset.
+    ///  @param caller The address of the caller.
+    ///  @param _accessMethod The access method for the dataset.
+    ///  @return datasetId The ID of the created dataset.
     function submitDatasetMetadata(
         address caller,
         string memory _accessMethod
@@ -65,16 +67,37 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         return datasetCount + 1;
     }
 
+    /// @notice Generate a Merkle root hash.
+    /// @return The generated Merkle root hash.
     function generateRoot() public returns (bytes32) {
         return generator.generateRoot();
     }
 
+    ///  @notice Generate Merkle proof data.
+    ///  @param _leavesCount The number of leaves in the Merkle tree.
+    ///  @return leavesHashes The hashes of Merkle tree leaves.
+    ///  @return leavesSizes The sizes of Merkle tree leaves.
+    ///  @return The total size of the Merkle tree.
     function generateProof(
         uint64 _leavesCount
-    ) public returns (bytes32[] memory, uint64[] memory, uint64) {
+    )
+        public
+        returns (
+            bytes32[] memory leavesHashes,
+            uint64[] memory leavesSizes,
+            uint64
+        )
+    {
         return generator.generateLeavesAndSizes(_leavesCount);
     }
 
+    /// @notice Submit a proof for a dataset.
+    /// @param caller The address of the caller.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _dataType The data type of the dataset.
+    /// @param _accessMethod The access method for the dataset.
+    /// @param _leavesCount The number of leaves in the Merkle tree.
+    /// @param _complete A flag indicating if the proof is complete.
     function submitDatasetProof(
         address caller,
         uint64 _datasetId,
@@ -99,22 +122,39 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         );
     }
 
+    /// @notice Generate Merkle verification data.
+    /// @param _pointCount The number of points to generate.
+    /// @param _pointLeavesCount The number of leaves for each point.
+    /// @return randomSeed The random seed used for generation.
+    /// @return siblings The sibling hashes for each point.
+    /// @return paths The paths for each point.
     function generateVerification(
         uint64 _pointCount,
         uint64 _pointLeavesCount
-    ) public returns (uint64, bytes32[][] memory, uint32[] memory) {
-        uint64 randomSeed = generator.generateNonce();
-        bytes32[][] memory siblings = new bytes32[][](_pointCount);
-        uint32[] memory paths = new uint32[](_pointCount);
+    )
+        public
+        returns (
+            uint64 randomSeed,
+            bytes32[][] memory siblings,
+            uint32[] memory paths
+        )
+    {
+        randomSeed = generator.generateNonce();
+        siblings = new bytes32[][](_pointCount);
+        paths = new uint32[](_pointCount);
         for (uint32 i = 0; i < _pointCount; i++) {
             bytes32[] memory leaves = new bytes32[](_pointLeavesCount);
             leaves = generator.generateLeaves(_pointLeavesCount);
             siblings[i] = leaves;
             paths[i] = i;
         }
-        return (randomSeed, siblings, paths);
     }
 
+    ///  @notice Submit verification data for a dataset.
+    ///  @param caller The address of the caller.
+    ///  @param _datasetId The ID of the dataset.
+    ///  @param _challengeCount The number of challenges.
+    ///  @param _challengeLeavesCount The number of leaves for each challenge.
     function submitDatasetVerification(
         address caller,
         uint64 _datasetId,
@@ -139,27 +179,32 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         );
     }
 
+    /// @notice Complete the dataset workflow.
+    /// @param _accessMethod The access method for the dataset.
+    /// @param _sourceLeavesCount The number of leaves for the source data.
+    /// @param _mappingFilesLeavesCount The number of leaves for the mapping files data.
+    /// @return datasetId The ID of the created dataset.
     function completeDatasetWorkflow(
         string memory _accessMethod,
         uint64 _sourceLeavesCount,
         uint64 _mappingFilesLeavesCount,
         uint64 /*_challengeCount*/,
         uint64 /*_challengeLeavesCount*/
-    ) external returns (uint64) {
-        //1:submit meta
+    ) external returns (uint64 datasetId) {
+        // 1: Submit metadata
         address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
         vm.startPrank(admin);
         datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(9));
         vm.stopPrank();
-        uint64 datasetId = submitDatasetMetadata(address(9), _accessMethod);
+        datasetId = submitDatasetMetadata(address(9), _accessMethod);
 
-        //2:approved meta
+        // 2: Approve metadata
         assertion.approveDatasetMetadataAssertion(
             datasets.governanceAddress(),
             datasetId
         );
 
-        //3:submit proof
+        // 3: Submit proof
         vm.startPrank(admin);
         datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
         vm.stopPrank();
@@ -180,19 +225,18 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             true
         );
 
-        //4:submit verification
-        // NOTE:TODO verify before approved:https://github.com/dataswap/core/issues/49
+        // 4: Submit verification
+        // NOTE: TODO verify before approved: https://github.com/dataswap/core/issues/49
         // submitDatasetVerification(
         //     datasetId,
         //     _challengeCount,
         //     _challengeLeavesCount
         // );
 
-        //5:appvoed
+        // 5: Approve dataset
         assertion.approveDatasetAssertion(
             datasets.governanceAddress(),
             datasetId
         );
-        return datasetId;
     }
 }

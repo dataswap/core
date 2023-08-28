@@ -27,11 +27,16 @@ import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 contract Generator {
     uint64 private nonce = 0;
 
+    /// @notice Generate a root hash for testing.
+    /// @return A bytes32 root hash.
     function generateRoot() public returns (bytes32) {
         nonce++;
         return TestHelpers.convertUint64ToBytes32(nonce);
     }
 
+    /// @notice Generate an array of leaves for testing.
+    /// @param _count The number of leaves to generate.
+    /// @return An array of bytes32 leaves.
     function generateLeaves(uint64 _count) public returns (bytes32[] memory) {
         bytes32[] memory leaves = new bytes32[](_count);
         for (uint64 i = 0; i < _count; i++) {
@@ -41,6 +46,9 @@ contract Generator {
         return leaves;
     }
 
+    /// @notice Generate an array of sizes for testing.
+    /// @param _count The number of sizes to generate.
+    /// @return An array of uint64 sizes and the total size.
     function generateSizes(
         uint64 _count
     ) public returns (uint64[] memory, uint64 totalSize) {
@@ -53,6 +61,9 @@ contract Generator {
         return (sizes, totalSize);
     }
 
+    /// @notice Generate an array of leaves and sizes for testing.
+    /// @param _count The number of leaves and sizes to generate.
+    /// @return An array of bytes32 leaves, an array of uint64 sizes, and the total size.
     function generateLeavesAndSizes(
         uint64 _count
     ) public returns (bytes32[] memory, uint64[] memory, uint64 totalSize) {
@@ -63,11 +74,16 @@ contract Generator {
         return (leaves, sizes, totalSize);
     }
 
+    /// @notice Generate a nonce for testing.
+    /// @return A uint64 nonce.
     function generateNonce() public returns (uint64) {
         nonce++;
         return nonce;
     }
 
+    /// @notice Generate an array of Filecoin deal IDs for testing.
+    /// @param _count The number of deal IDs to generate.
+    /// @return filecoinDealIds  An array of uint64 deal IDs.
     function generateFilecoinDealIds(
         uint64 _count
     ) external returns (uint64[] memory filecoinDealIds) {
@@ -79,6 +95,8 @@ contract Generator {
         return ids;
     }
 
+    /// @notice Generate a Filecoin deal ID for testing.
+    /// @return A uint64 deal ID.
     function generateFilecoinDealId() external returns (uint64) {
         nonce++;
         return nonce;

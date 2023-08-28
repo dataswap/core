@@ -15,9 +15,9 @@
  ********************************************************************************/
 
 // SPDX-License-Identifier: GPL-3.0-or-later
-
 pragma solidity ^0.8.21;
 
+// Import required external contracts and interfaces
 import {Test} from "forge-std/Test.sol";
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
@@ -27,7 +27,7 @@ import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsH
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 
-/// @title IMatchings
+/// @title MatchingsHelpers contract for testing
 contract MatchingsHelpers is Test, IMatchingsHelpers {
     IMatchings matchings;
     IDatasetsHelpers datasetsHelpers;
@@ -43,6 +43,13 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
         assertion = _assertion;
     }
 
+    /// @notice Setup a dataset and complete the dataset workflow.
+    /// @param _accessMethod The access method for the dataset.
+    /// @param _sourceLeavesCount The number of leaves for the source data.
+    /// @param _mappingFilesLeavesCount The number of leaves for the mapping files data.
+    /// @param _challengeCount The number of challenges.
+    /// @param _challengeLeavesCount The number of leaves for each challenge.
+    /// @return datasetId The ID of the created dataset.
     function setup(
         string memory _accessMethod,
         uint64 _sourceLeavesCount,
@@ -60,19 +67,21 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
             );
     }
 
+    /// @notice Get the cars and car count for a dataset of a specific data type.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _dataType The data type of the dataset.
+    /// @return cars An array of car hashes.
+    /// @return size The size of the dataset.
     function getDatasetCarsAndCarsCount(
         uint64 _datasetId,
         DatasetType.DataType _dataType
-    ) public view returns (bytes32[] memory, uint64) {
-        uint64 size = matchings.datasets().getDatasetSize(
-            _datasetId,
-            _dataType
-        );
+    ) public view returns (bytes32[] memory cars, uint64 size) {
+        size = matchings.datasets().getDatasetSize(_datasetId, _dataType);
         uint64 carsCount = matchings.datasets().getDatasetCarsCount(
             _datasetId,
             _dataType
         );
-        bytes32[] memory cars = new bytes32[](carsCount);
+        cars = new bytes32[](carsCount);
         cars = matchings.datasets().getDatasetCars(
             _datasetId,
             DatasetType.DataType.MappingFiles,
@@ -82,8 +91,14 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
         return (cars, size);
     }
 
-    function completeMatchingWorkflow() external returns (uint64, uint64) {
-        uint64 datasetId = setup("testAccessMethod", 100, 10, 10, 10);
+    /// @notice Complete the matching workflow for testing.
+    /// @return datasetId The ID of the created dataset.
+    /// @return matchingId The ID of the created matching.
+    function completeMatchingWorkflow()
+        external
+        returns (uint64 datasetId, uint64 matchingId)
+    {
+        datasetId = setup("testAccessMethod", 100, 10, 10, 10);
 
         address admin = matchings.datasets().roles().getRoleMember(
             bytes32(0x00),
@@ -114,7 +129,7 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
             100,
             "TEST"
         );
-        uint64 matchingId = matchings.matchingsCount();
+        matchingId = matchings.matchingsCount();
 
         vm.startPrank(admin);
         matchings.datasets().roles().grantRole(
