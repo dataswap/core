@@ -37,6 +37,7 @@ contract Roles is IRoles, Ownable, Ownable2Step, AccessControlEnumerable {
         return super.acceptOwnership();
     }
 
+    ///@dev check msg.sender is admin role.
     function checkRole(bytes32 _role) public view {
         return super._checkRole(_role);
     }
@@ -77,6 +78,7 @@ contract Roles is IRoles, Ownable, Ownable2Step, AccessControlEnumerable {
         super.transferOwnership(_newOwner);
     }
 
+    /// @dev start the ownership transfer
     function _transferOwnership(
         address _newOwner
     ) internal override(Ownable, Ownable2Step) {

@@ -26,6 +26,7 @@ library FilecoinType {
         Expired // The filecoin deal has expired.
     }
 
+    /// @notice filecoin network type
     enum Network {
         Mainnet,
         CalibrationTestnet

@@ -20,6 +20,7 @@ pragma solidity ^0.8.21;
 
 /// @notice This library defines enums and structs related to storage deals and their states.
 library FilplusType {
+    /// @notice the macthing rule: MatchingRuleCommissionType
     enum MatchingRuleCommissionType {
         BuyerPays,
         SellerPays,

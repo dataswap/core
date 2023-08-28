@@ -23,10 +23,12 @@ import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 contract MockFilecoin is IFilecoin {
     FilecoinType.DealState private mockDealState;
 
+    /// @dev mock the filecoin deal state
     function setMockDealState(FilecoinType.DealState _state) external {
         mockDealState = _state;
     }
 
+    /// @dev get replica filecoin deal state
     function getReplicaDealState(
         bytes32,
         uint64

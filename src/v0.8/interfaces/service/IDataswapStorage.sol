@@ -25,6 +25,7 @@ import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
 
+/// @dev storage service interface
 // solhint-disable-next-line
 interface IDataswapStorage is
     IRoles,
