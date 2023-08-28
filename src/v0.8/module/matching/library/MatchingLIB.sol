@@ -29,6 +29,14 @@ library MatchingLIB {
     using MatchingStateMachineLIB for MatchingType.Matching;
     using MatchingBidsLIB for MatchingType.Matching;
 
+    /// @notice Get datasetId of matching.
+    /// @dev This function is used to get dataset id of matching.
+    function _getDatasetId(
+        MatchingType.Matching storage self
+    ) internal view returns (uint64) {
+        return self.target.datasetId;
+    }
+
     /// @notice Publish a matching.
     /// @dev This function is used to publish a matching and initiate the matching process.
     function _publishMatching(MatchingType.Matching storage self) internal {
@@ -46,6 +54,29 @@ library MatchingLIB {
         //@dev:NOTE: here set pausedBlockNumber as pausedBlockCount,will correct in resume
         self.pausedBlockCount = uint64(block.number);
         self._emitMatchingEvent(MatchingType.Event.Pause);
+    }
+
+    /// @notice Push a car to matching.
+    /// @dev This function is used to push a car to target of matching.
+    function _pushCar(
+        MatchingType.Matching storage self,
+        bytes32 _car
+    ) internal {
+        require(self.state == MatchingType.State.None, "Invalid state");
+        self.target.cars.push(_car);
+    }
+
+    /// @notice Update cars and size of a matching target.
+    /// @dev This function is used to update cars and size of target of matching.
+    function _updateTargetCars(
+        MatchingType.Matching storage self,
+        bytes32[] memory _cars,
+        uint64 _size
+    ) internal {
+        for (uint64 i = 0; i < _cars.length; i++) {
+            _pushCar(self, _cars[i]);
+        }
+        self.target.size += _size;
     }
 
     /// @notice Report that a pause has expired.

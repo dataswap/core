@@ -27,10 +27,19 @@ interface IMatchings {
     /// @notice  Function for bidding on a matching
     function bidding(uint64 _matchingId, uint256 _amount) external;
 
-    function publishMatching(
+    /// @notice Function for create a new matching.
+    /// @param _datasetId The dataset id to create matching.
+    /// @param _dataType Identify the data type of "cars", which can be either "Source" or "MappingFiles".
+    /// @param _associatedMappingFilesMatchingID The matching ID that associated with mapping files of dataset of _datasetId
+    /// @param _bidSelectionRule The rules for determining the winning bid.
+    /// @param _biddingDelayBlockCount The number of blocks to delay bidding.
+    /// @param _biddingPeriodBlockCount The number of blocks for bidding period.
+    /// @param _storageCompletionPeriodBlocks The number of blocks for storage period.
+    /// @param _biddingThreshold The threshold for bidding.
+    /// @param _additionalInfo The additional information about the matching.
+    /// @return The matchingId.
+    function createMatching(
         uint64 _datasetId,
-        bytes32[] memory _cars,
-        uint64 _size,
         DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID,
         MatchingType.BidSelectionRule _bidSelectionRule,
@@ -39,6 +48,18 @@ interface IMatchings {
         uint64 _storageCompletionPeriodBlocks,
         uint256 _biddingThreshold,
         string memory _additionalInfo
+    ) external returns (uint64);
+
+    /// @notice  Function for publishing a matching
+    /// @param _matchingId The matching id to publish cars.
+    /// @param _datasetId The dataset id of matching.
+    /// @param _cars The cars to publish.
+    /// @param complete If the publish is complete.
+    function publishMatching(
+        uint64 _matchingId,
+        uint64 _datasetId,
+        bytes32[] memory _cars,
+        bool complete
     ) external;
 
     /// @notice  Function for pausing a matching

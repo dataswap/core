@@ -74,6 +74,11 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
 
         // After adding, check car existence.
         hasCarsAssertion(_cids, true);
+        uint64 size = 0;
+        for (uint64 i = 0; i < _sizes.length; i++) {
+            size += _sizes[i];
+        }
+        getCarsSizeAssertion(_cids, size);
     }
 
     /// @notice Assertion for the `addCarReplica` function.
@@ -263,6 +268,20 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
             carstore.getCarSize(_inputCid),
             _expectSize,
             "car size not matched"
+        );
+    }
+
+    /// @notice Assertion for getting the size of cars.
+    /// @param _inputCids The CIDs (Content Identifier) of the cars.
+    /// @param _expectSize The expected size of the car.
+    function getCarsSizeAssertion(
+        bytes32[] memory _inputCids,
+        uint256 _expectSize
+    ) public {
+        assertEq(
+            carstore.getCarsSize(_inputCids),
+            _expectSize,
+            "cars size not matched"
         );
     }
 
