@@ -100,6 +100,7 @@ Dataswap is a universally open project and welcomes contributions of all kinds: 
 When implementing a change:
 
 * Adhere to the standard [Solidity Style Guide](https://docs.soliditylang.org/en/develop/style-guide.html)
+  * Note:Function parameters and internal functions should begin with an underscore.
 
 * Stick to the idioms and patterns used in the codebase. Familiar-looking code has a higher chance of being accepted than eerie code. Pay attention to commonly used variable and parameter names, avoidance of naked returns, error handling patterns, etc.
 
@@ -107,7 +108,11 @@ When implementing a change:
 
 * Lint your code with [CI check](https://github.com/dataswap/core/blob/main/.github/workflows/test.yml) (CI will reject your PR if unlinted).
 
-* Add tests.
+* **Add [tests](./test/v0.8/Readme.md),It's very important.**
+  * If you have added a new feature or changed interface，you need add [assertions](./test/v0.8/assertions).
+  * If your tests are complex and require reuse, you may need to add [helpers](./test/v0.8/helpers/).
+  * Ensure your [testcases](./test/v0.8/testcases/) provide comprehensive coverage, considering both normal and exceptional scenarios.
+  * Add [uinttest](./test/v0.8/uinttests/) or [integrationtest](./test/v0.8/integrationtest/) instance.
 
 * Title the PR in a meaningful way and describe the rationale and the thought process in the PR description.
 
