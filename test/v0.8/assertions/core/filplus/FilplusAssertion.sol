@@ -37,125 +37,171 @@ contract FilplusAssertion is DSTest, Test, IFilplusAssertion {
     // Assertion functions for setting values
 
     /// @notice Sets the maximum number of car replicas allowed and asserts the value.
+    /// @param _caller The address of the caller.
     /// @param _newValue The new maximum car replicas value.
-    function setCarRuleMaxCarReplicasAssertion(uint16 _newValue) external {
+    function setCarRuleMaxCarReplicasAssertion(
+        address _caller,
+        uint16 _newValue
+    ) external {
+        vm.prank(_caller);
         filplus.setCarRuleMaxCarReplicas(_newValue);
         carRuleMaxCarReplicasAssertion(_newValue);
     }
 
     /// @notice Sets the minimum number of regions per dataset and asserts the value.
+    /// @param _caller The address of the caller.
     /// @param _newValue The new minimum regions per dataset value.
     function setDatasetRuleMinRegionsPerDatasetAssertion(
+        address _caller,
         uint16 _newValue
     ) external {
+        vm.prank(_caller);
         filplus.setDatasetRuleMinRegionsPerDataset(_newValue);
         datasetRuleMinRegionsPerDatasetAssertion(_newValue);
     }
 
     /// @notice Sets the default maximum replicas per country for datasets and asserts the value.
+    /// @param _caller The address of the caller.
     /// @param _newValue The new default maximum replicas per country value.
     function setDatasetRuleDefaultMaxReplicasPerCountryAssertion(
+        address _caller,
         uint16 _newValue
     ) external {
+        vm.prank(_caller);
         filplus.setDatasetRuleDefaultMaxReplicasPerCountry(_newValue);
         datasetRuleDefaultMaxReplicasPerCountryAssertion(_newValue);
     }
 
     /// @notice Sets the maximum replicas allowed in a specific country for datasets and asserts the value.
+    /// @param _caller The address of the caller.
     /// @param _countryCode The country code.
     /// @param _newValue The new maximum replicas value for the country.
     function setDatasetRuleMaxReplicasInCountryAssertion(
+        address _caller,
         bytes32 _countryCode,
         uint16 _newValue
     ) external {
+        vm.prank(_caller);
         filplus.setDatasetRuleMaxReplicasInCountry(_countryCode, _newValue);
         getDatasetRuleMaxReplicasInCountryAssertion(_countryCode, _newValue);
     }
 
     /// @notice Sets the maximum replicas allowed per city for datasets and asserts the value.
+    /// @param _caller The address of the caller.
     /// @param _newValue The new maximum replicas per city value.
     function setDatasetRuleMaxReplicasPerCityAssertion(
+        address _caller,
         uint16 _newValue
     ) external {
+        vm.prank(_caller);
         filplus.setDatasetRuleMaxReplicasPerCity(_newValue);
         datasetRuleMaxReplicasPerCityAssertion(_newValue);
     }
 
     /// @notice Sets the maximum proportion of dataset mapping files and asserts the value.
+    /// @param _caller The address of the caller.
     /// @param _newValue The new max proportion of mapping files to dataset value.
     function setDatasetRuleMaxProportionOfMappingFilesToDatasetAssertion(
+        address _caller,
         uint8 _newValue
     ) external {
+        vm.prank(_caller);
         filplus.setDatasetRuleMaxProportionOfMappingFilesToDataset(_newValue);
         datasetRuleMaxProportionOfMappingFilesToDatasetAssertion(_newValue);
     }
 
     /// @notice Sets the minimum number of storage providers (SPs) per dataset and asserts the value.
+    /// @param _caller The address of the caller.
     /// @param _newValue The new minimum SPs per dataset value.
     function setDatasetRuleMinSPsPerDatasetAssertion(
+        address _caller,
         uint16 _newValue
     ) external {
+        vm.prank(_caller);
         filplus.setDatasetRuleMinSPsPerDataset(_newValue);
         datasetRuleMinSPsPerDatasetAssertion(_newValue);
     }
 
     /// @notice Sets the maximum replicas allowed per storage provider (SP) for datasets and asserts the value.
+    /// @param _caller The address of the caller.
     /// @param _newValue The new maximum replicas per SP value.
     function setDatasetRuleMaxReplicasPerSPAssertion(
+        address _caller,
         uint16 _newValue
     ) external {
+        vm.prank(_caller);
         filplus.setDatasetRuleMaxReplicasPerSP(_newValue);
         datasetRuleMaxReplicasPerSPAssertion(_newValue);
     }
 
     /// @notice Sets the minimum total replicas per dataset and asserts the value.
+    /// @param _caller The address of the caller.
     /// @param _newValue The new minimum total replicas per dataset value.
     function setDatasetRuleMinTotalReplicasPerDatasetAssertion(
+        address _caller,
         uint16 _newValue
     ) external {
+        vm.prank(_caller);
         filplus.setDatasetRuleMinTotalReplicasPerDataset(_newValue);
         datasetRuleMinTotalReplicasPerDatasetAssertion(_newValue);
     }
 
     /// @notice Sets the maximum total replicas per dataset and asserts the value.
+    /// @param _caller The address of the caller.
     /// @param _newValue The new maximum total replicas per dataset value.
     function setDatasetRuleMaxTotalReplicasPerDatasetAssertion(
+        address _caller,
         uint16 _newValue
     ) external {
+        vm.prank(_caller);
         filplus.setDatasetRuleMaxTotalReplicasPerDataset(_newValue);
         datasetRuleMaxTotalReplicasPerDatasetAssertion(_newValue);
     }
 
     /// @notice Sets the maximum allocated size per time period for datacap rules and asserts the value.
+    /// @param _caller The address of the caller.
     /// @param _newValue The new maximum allocated size per time value.
     function setDatacapRulesMaxAllocatedSizePerTimeAssertion(
+        address _caller,
         uint64 _newValue
     ) external {
+        vm.prank(_caller);
         filplus.setDatacapRulesMaxAllocatedSizePerTime(_newValue);
         datacapRulesMaxAllocatedSizePerTimeAssertion(_newValue);
     }
 
     /// @notice Sets the maximum remaining percentage for the next data allocation for datacap rules and asserts the value.
+    /// @param _caller The address of the caller.
     /// @param _newValue The new maximum remaining percentage value.
     function setDatacapRulesMaxRemainingPercentageForNextAssertion(
+        address _caller,
         uint8 _newValue
     ) external {
+        vm.prank(_caller);
         filplus.setDatacapRulesMaxRemainingPercentageForNext(_newValue);
         datacapRulesMaxRemainingPercentageForNextAssertion(_newValue);
     }
 
     /// @notice Sets the dataswap commission percentage for matching rules and asserts the value.
+    /// @param _caller The address of the caller.
     /// @param _newValue The new dataswap commission percentage value.
     function setMatchingRulesDataswapCommissionPercentageAssertion(
+        address _caller,
         uint8 _newValue
     ) external {
+        vm.prank(_caller);
         filplus.setMatchingRulesDataswapCommissionPercentage(_newValue);
         matchingRulesDataswapCommissionPercentageAssertion(_newValue);
     }
 
     /// @notice Sets the commission type for matching rules and asserts the value.
+    /// @param _caller The address of the caller.
     /// @param _newType The new commission type value.
-    function setMatchingRulesCommissionTypeAssertion(uint8 _newType) external {
+    function setMatchingRulesCommissionTypeAssertion(
+        address _caller,
+        uint8 _newType
+    ) external {
+        vm.prank(_caller);
         filplus.setMatchingRulesCommissionType(_newType);
         getMatchingRulesCommissionTypeAssertion(_newType);
     }

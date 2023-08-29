@@ -36,7 +36,7 @@ contract AddCarTest is Test, CarstoreTestSetup {
     }
 
     /// @notice test case with invalid id
-    function testAdWithdCarInvalidId(
+    function testAddCarWithInvalidId(
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size
@@ -50,7 +50,7 @@ contract AddCarTest is Test, CarstoreTestSetup {
     }
 
     /// @notice test case with car already exsit
-    function testAddCarWithrCarAlreadyExsit(
+    function testAddCarWithCarAlreadyExsit(
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size

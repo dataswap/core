@@ -23,76 +23,118 @@ interface IFilplusAssertion {
     // Setter assertions
 
     /// @notice Asserts the setting of the maximum number of car replicas allowed.
+    /// @param _caller The address of the caller.
     /// @param _newValue The expected new maximum number of car replicas.
-    function setCarRuleMaxCarReplicasAssertion(uint16 _newValue) external;
+    function setCarRuleMaxCarReplicasAssertion(
+        address _caller,
+        uint16 _newValue
+    ) external;
 
     /// @notice Asserts the setting of the minimum number of regions per dataset.
+    /// @param _caller The address of the caller.
     /// @param _newValue The expected new minimum number of regions per dataset.
     function setDatasetRuleMinRegionsPerDatasetAssertion(
+        address _caller,
         uint16 _newValue
     ) external;
 
     /// @notice Asserts the setting of the default maximum replicas per country for datasets.
+    /// @param _caller The address of the caller.
     /// @param _newValue The expected new default maximum replicas per country.
     function setDatasetRuleDefaultMaxReplicasPerCountryAssertion(
+        address _caller,
         uint16 _newValue
     ) external;
 
     /// @notice Asserts the setting of the maximum replicas per country for a specific country code.
+    /// @param _caller The address of the caller.
     /// @param _countryCode The country code for which the maximum replicas are being set.
     /// @param _newValue The expected new maximum replicas for the specified country.
     function setDatasetRuleMaxReplicasInCountryAssertion(
+        address _caller,
         bytes32 _countryCode,
         uint16 _newValue
     ) external;
 
     /// @notice Asserts the setting of the maximum replicas per city for datasets.
+    /// @param _caller The address of the caller.
     /// @param _newValue The expected new maximum replicas per city.
     function setDatasetRuleMaxReplicasPerCityAssertion(
+        address _caller,
         uint16 _newValue
     ) external;
 
+    /// @notice Sets the maximum proportion of dataset mapping files and asserts the value.
+    /// @param _caller The address of the caller.
+    /// @param _newValue The new max proportion of mapping files to dataset value.
+    function setDatasetRuleMaxProportionOfMappingFilesToDatasetAssertion(
+        address _caller,
+        uint8 _newValue
+    ) external;
+
     /// @notice Asserts the setting of the minimum number of storage providers (SPs) per dataset.
+    /// @param _caller The address of the caller.
     /// @param _newValue The expected new minimum number of SPs per dataset.
-    function setDatasetRuleMinSPsPerDatasetAssertion(uint16 _newValue) external;
+    function setDatasetRuleMinSPsPerDatasetAssertion(
+        address _caller,
+        uint16 _newValue
+    ) external;
 
     /// @notice Asserts the setting of the maximum replicas per storage provider (SP) for datasets.
+    /// @param _caller The address of the caller.
     /// @param _newValue The expected new maximum replicas per SP.
-    function setDatasetRuleMaxReplicasPerSPAssertion(uint16 _newValue) external;
+    function setDatasetRuleMaxReplicasPerSPAssertion(
+        address _caller,
+        uint16 _newValue
+    ) external;
 
     /// @notice Asserts the setting of the minimum total replicas per dataset.
+    /// @param _caller The address of the caller.
     /// @param _newValue The expected new minimum total replicas per dataset.
     function setDatasetRuleMinTotalReplicasPerDatasetAssertion(
+        address _caller,
         uint16 _newValue
     ) external;
 
     /// @notice Asserts the setting of the maximum total replicas per dataset.
+    /// @param _caller The address of the caller.
     /// @param _newValue The expected new maximum total replicas per dataset.
     function setDatasetRuleMaxTotalReplicasPerDatasetAssertion(
+        address _caller,
         uint16 _newValue
     ) external;
 
     /// @notice Asserts the setting of the maximum allocated size per time period for datacap rules.
+    /// @param _caller The address of the caller.
     /// @param _newValue The expected new maximum allocated size per time period.
     function setDatacapRulesMaxAllocatedSizePerTimeAssertion(
+        address _caller,
         uint64 _newValue
     ) external;
 
     /// @notice Asserts the setting of the maximum remaining percentage for the next allocation in datacap rules.
+    /// @param _caller The address of the caller.
     /// @param _newValue The expected new maximum remaining percentage for the next allocation.
     function setDatacapRulesMaxRemainingPercentageForNextAssertion(
+        address _caller,
         uint8 _newValue
     ) external;
 
     /// @notice Asserts the setting of the Dataswap commission percentage in matching rules.
+    /// @param _caller The address of the caller.
     /// @param _newValue The expected new Dataswap commission percentage.
     function setMatchingRulesDataswapCommissionPercentageAssertion(
+        address _caller,
         uint8 _newValue
     ) external;
 
     /// @notice Asserts the setting of the commission type in matching rules.
+    /// @param _caller The address of the caller.
     /// @param _newType The expected new commission type.
-    function setMatchingRulesCommissionTypeAssertion(uint8 _newType) external;
+    function setMatchingRulesCommissionTypeAssertion(
+        address _caller,
+        uint8 _newType
+    ) external;
 
     // Getter assertions
 
