@@ -27,7 +27,9 @@ interface IDatacaps {
     /// @dev Gets the allocated matched datacap for a storage.
     /// @param _matchingId The ID of the matching process.
     /// @return The allocated datacap size.
-    function getAvailableDatacap(uint64 _matchingId) external returns (uint64);
+    function getAvailableDatacap(
+        uint64 _matchingId
+    ) external view returns (uint64);
 
     /// @dev Gets the allocated matched datacap for a matching process.
     /// @param _matchingId The ID of the matching process.
