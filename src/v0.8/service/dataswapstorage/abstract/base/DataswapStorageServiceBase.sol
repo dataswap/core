@@ -29,57 +29,62 @@ import {Datacaps} from "src/v0.8/module/datacap/Datacaps.sol";
 import {Storages} from "src/v0.8/module/storage/Storages.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
-/// @title Dataswap
-/// TODO:https://github.com/dataswap/core/issues/33
-abstract contract DataswapStorage is IDataswapStorage {
-    address private governanceAddress;
-    Roles private roles = new Roles();
-    Carstore private carstore;
-    Filplus private filplus;
-    Filecoin private filecoin;
-    Datasets private datasets;
-    Matchings private matchings;
-    Storages private storages;
-    Datacaps private datacaps;
+/// @title DataswapStorageServiceBase
+abstract contract DataswapStorageServiceBase is IDataswapStorage {
+    address internal governanceContractAddress;
+    Roles internal rolesInstance = new Roles();
+    Carstore private carstoreInstance;
+    Filplus internal filplusInstance;
+    Filecoin internal filecoinInstance;
+    Datasets internal datasetsInstance;
+    Matchings internal matchingsInstance;
+    Storages internal storagesInstance;
+    Datacaps internal datacapsInstance;
 
-    // solhint-disable-next-line
     constructor(address payable _governanceContractAddress) {
-        filplus = new Filplus(_governanceContractAddress);
-        filecoin = new Filecoin(FilecoinType.Network.CalibrationTestnet);
-        carstore = new Carstore(roles, filplus, filecoin);
-        datasets = new Datasets(
-            _governanceContractAddress,
-            roles,
-            filplus,
-            filecoin,
-            carstore
+        governanceContractAddress = _governanceContractAddress;
+        filplusInstance = new Filplus(_governanceContractAddress);
+        filecoinInstance = new Filecoin(
+            FilecoinType.Network.CalibrationTestnet
         );
-        matchings = new Matchings(
-            _governanceContractAddress,
-            roles,
-            filplus,
-            filecoin,
-            carstore,
-            datasets
+        carstoreInstance = new Carstore(
+            rolesInstance,
+            filplusInstance,
+            filecoinInstance
         );
-        storages = new Storages(
+        datasetsInstance = new Datasets(
             _governanceContractAddress,
-            roles,
-            filplus,
-            filecoin,
-            carstore,
-            datasets,
-            matchings
+            rolesInstance,
+            filplusInstance,
+            filecoinInstance,
+            carstoreInstance
         );
-        datacaps = new Datacaps(
+        matchingsInstance = new Matchings(
             _governanceContractAddress,
-            roles,
-            filplus,
-            filecoin,
-            carstore,
-            datasets,
-            matchings,
-            storages
+            rolesInstance,
+            filplusInstance,
+            filecoinInstance,
+            carstoreInstance,
+            datasetsInstance
+        );
+        storagesInstance = new Storages(
+            _governanceContractAddress,
+            rolesInstance,
+            filplusInstance,
+            filecoinInstance,
+            carstoreInstance,
+            datasetsInstance,
+            matchingsInstance
+        );
+        datacapsInstance = new Datacaps(
+            _governanceContractAddress,
+            rolesInstance,
+            filplusInstance,
+            filecoinInstance,
+            carstoreInstance,
+            datasetsInstance,
+            matchingsInstance,
+            storagesInstance
         );
     }
 }

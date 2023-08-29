@@ -18,14 +18,17 @@
 
 pragma solidity ^0.8.21;
 
+import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
-import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {DataswapStorageServiceBase} from "src/v0.8/service/dataswapstorage/abstract/base/DataswapStorageServiceBase.sol";
 
-/// @title IMatchings
-interface IMatchings {
+/// @title MatchingsService
+abstract contract MatchingsService is DataswapStorageServiceBase {
     /// @notice  Function for bidding on a matching
-    function bidding(uint64 _matchingId, uint256 _amount) external;
+    function bidding(uint64 _matchingId, uint256 _amount) external {
+        matchingsInstance.bidding(_matchingId, _amount);
+    }
 
     /// @notice Function for create a new matching.
     /// @param _datasetId The dataset id to create matching.
@@ -48,7 +51,20 @@ interface IMatchings {
         uint64 _storageCompletionPeriodBlocks,
         uint256 _biddingThreshold,
         string memory _additionalInfo
-    ) external returns (uint64);
+    ) external returns (uint64) {
+        return
+            matchingsInstance.createMatching(
+                _datasetId,
+                _dataType,
+                _associatedMappingFilesMatchingID,
+                _bidSelectionRule,
+                _biddingDelayBlockCount,
+                _biddingPeriodBlockCount,
+                _storageCompletionPeriodBlocks,
+                _biddingThreshold,
+                _additionalInfo
+            );
+    }
 
     /// @notice  Function for publishing a matching
     /// @param _matchingId The matching id to publish cars.
@@ -60,53 +76,84 @@ interface IMatchings {
         uint64 _datasetId,
         bytes32[] memory _cars,
         bool complete
-    ) external;
+    ) external {
+        matchingsInstance.publishMatching(
+            _matchingId,
+            _datasetId,
+            _cars,
+            complete
+        );
+    }
 
     /// @notice  Function for pausing a matching
-    function pauseMatching(uint64 _matchingId) external;
+    function pauseMatching(uint64 _matchingId) external {
+        matchingsInstance.pauseMatching(_matchingId);
+    }
 
     /// @notice  Function for resuming a paused matching
-    function resumeMatching(uint64 _matchingId) external;
+    function resumeMatching(uint64 _matchingId) external {
+        matchingsInstance.resumeMatching(_matchingId);
+    }
 
     /// @notice  Function for canceling a matching
-    function cancelMatching(uint64 _matchingId) external;
+    function cancelMatching(uint64 _matchingId) external {
+        matchingsInstance.cancelMatching(_matchingId);
+    }
 
     /// @notice  Function for closing a matching and choosing a winner
-    function closeMatching(uint64 _matchingId) external;
+    function closeMatching(uint64 _matchingId) external {
+        matchingsInstance.closeMatching(_matchingId);
+    }
 
     /// @notice  Function for getting bids in a matching
     function getMatchingBids(
         uint64 _matchingId
-    ) external view returns (address[] memory, uint256[] memory);
+    ) external view returns (address[] memory, uint256[] memory) {
+        return matchingsInstance.getMatchingBids(_matchingId);
+    }
 
     /// @notice  Function for getting bid amount of a bidder in a matching
     function getMatchingBidAmount(
         uint64 _matchingId,
         address _bidder
-    ) external view returns (uint256);
+    ) external view returns (uint256) {
+        return matchingsInstance.getMatchingBidAmount(_matchingId, _bidder);
+    }
 
     /// @notice  Function for getting the count of bids in a matching
     function getMatchingBidsCount(
         uint64 _matchingId
-    ) external view returns (uint64);
+    ) external view returns (uint64) {
+        return matchingsInstance.getMatchingBidsCount(_matchingId);
+    }
 
     /// @notice  Function for getting the count of bids in a matching
     function getMatchingCars(
         uint64 _matchingId
-    ) external view returns (bytes32[] memory);
+    ) external view returns (bytes32[] memory) {
+        return matchingsInstance.getMatchingCars(_matchingId);
+    }
 
-    /// @notice get matchings size
-    function getMatchingSize(uint64 _matchingId) external view returns (uint64);
+    /// @notice get matching size
+    function getMatchingSize(
+        uint64 _matchingId
+    ) external view returns (uint64) {
+        return matchingsInstance.getMatchingSize(_matchingId);
+    }
 
-    /// @notice get matchings initiator
+    /// @notice get matching initiator
     function getMatchingInitiator(
         uint64 _matchingId
-    ) external view returns (address);
+    ) external view returns (address) {
+        return matchingsInstance.getMatchingInitiator(_matchingId);
+    }
 
     /// @notice  Function for getting the state of a matching
     function getMatchingState(
         uint64 _matchingId
-    ) external view returns (MatchingType.State);
+    ) external view returns (MatchingType.State) {
+        return matchingsInstance.getMatchingState(_matchingId);
+    }
 
     /// @notice Get the target information of a matching.
     /// @param _matchingId The ID of the matching.
@@ -126,18 +173,25 @@ interface IMatchings {
             uint64 size,
             DatasetType.DataType dataType,
             uint64 associatedMappingFilesMatchingID
-        );
+        )
+    {
+        return matchingsInstance.getMatchingTarget(_matchingId);
+    }
 
     /// @notice  Function for getting winner of a matching
     function getMatchingWinner(
         uint64 _matchingId
-    ) external view returns (address);
+    ) external view returns (address) {
+        return matchingsInstance.getMatchingWinner(_matchingId);
+    }
 
     /// @notice  Function for checking if a bidder has a bid in a matching
     function hasMatchingBid(
         uint64 _matchingId,
         address _bidder
-    ) external view returns (bool);
+    ) external view returns (bool) {
+        return matchingsInstance.hasMatchingBid(_matchingId, _bidder);
+    }
 
     /// @notice Check if a matching with the given matching ID contains a specific CID.
     /// @param _matchingId The ID of the matching to check.
@@ -146,7 +200,9 @@ interface IMatchings {
     function isMatchingContainsCar(
         uint64 _matchingId,
         bytes32 _cid
-    ) external view returns (bool);
+    ) external view returns (bool) {
+        return matchingsInstance.isMatchingContainsCar(_matchingId, _cid);
+    }
 
     /// @notice Check if a matching with the given matching ID contains multiple CIDs.
     /// @param _matchingId The ID of the matching to check.
@@ -155,7 +211,9 @@ interface IMatchings {
     function isMatchingContainsCars(
         uint64 _matchingId,
         bytes32[] memory _cids
-    ) external view returns (bool);
+    ) external view returns (bool) {
+        return matchingsInstance.isMatchingContainsCars(_matchingId, _cids);
+    }
 
     /// @notice check is matching targe valid
     function isMatchingTargetValid(
@@ -164,12 +222,26 @@ interface IMatchings {
         uint64 _size,
         DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID
-    ) external view returns (bool);
+    ) external view returns (bool) {
+        return
+            matchingsInstance.isMatchingTargetValid(
+                _datasetId,
+                _cars,
+                _size,
+                _dataType,
+                _associatedMappingFilesMatchingID
+            );
+    }
 
     /// @notice Check if a matching meets the requirements of Fil+.
     function isMatchingTargetMeetsFilPlusRequirements(
         uint64 _matchingId
-    ) external view returns (bool);
+    ) external view returns (bool) {
+        return
+            matchingsInstance.isMatchingTargetMeetsFilPlusRequirements(
+                _matchingId
+            );
+    }
 
     /// @notice Check if a matching meets the requirements of Fil+.
     function isMatchingTargetMeetsFilPlusRequirements(
@@ -178,11 +250,24 @@ interface IMatchings {
         uint64 _size,
         DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID
-    ) external view returns (bool);
+    ) external view returns (bool) {
+        return
+            matchingsInstance.isMatchingTargetMeetsFilPlusRequirements(
+                _datasetId,
+                _cars,
+                _size,
+                _dataType,
+                _associatedMappingFilesMatchingID
+            );
+    }
 
-    // Default getter functions for public variables
-    function matchingsCount() external view returns (uint64);
+    /// @notice Default getter functions for public variables
+    function matchingsCount() external view returns (uint64) {
+        return matchingsInstance.matchingsCount();
+    }
 
-    /// @notice get datasets instrance
-    function datasets() external view returns (IDatasets);
+    /// @notice get datasets instance
+    function datasets() external view returns (IDatasets) {
+        return matchingsInstance.datasets();
+    }
 }
