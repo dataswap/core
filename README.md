@@ -6,19 +6,24 @@ Dataswap is a blockchain-based Layer 2 project built on [IPFS](https://ipfs.tech
 
 Aggregating open big data from various global regions and industries, encompassing economic, financial, medical, and health data types. This creates efficient and valuable gateways to datasets.
 
-Implementing a decentralized matching mechanism to attract more suppliers of open datasets, storage providers, and users, fostering worldwide data sharing and innovation.
+Implement a decentralized matching mechanism to attract more open dataset suppliers, storage providers, retrieval providers, compute providers, and users, fostering global data sharing and innovation.
 
 * `Dataswap storage`
 
-  * [Dataswap storage](https://github.com/dataswap/specs/tree/main/systems#22-trustless-notary)  fully satisfies the specific design requirements of [Ideation: Trustless Notary Design Space + Guidelines](https://medium.com/filecoin-plus/ideation-trustless-notary-design-space-guidelines-bc21f6d9d5f2).
+  * about [Discussion on Trustless Notary](https://docs.google.com/document/d/1KLR6nZ8ic4ARj3J46XsxSE_b1RpDP_z3JBKL4alHGGw/edit?pli=1) and [Trustless Notary Design Space + Guidelines](https://medium.com/filecoin-plus/ideation-trustless-notary-design-space-guidelines-bc21f6d9d5f2), [Dataswap storage](https://github.com/dataswap/specs/tree/main/systems#22-trustless-notary) has undertaken a more in-depth implementation in this regard.
+    * Enabling proof and verification of stored [Valid Data Consistency](https://github.com/dataswap/specs/blob/main/algorithms/README.md#2-dataset-consistency-algorithm).
+    * Monitoring client's valid data storage and verification with finer granularity.
+    * Simplifying notary work through code.
+    * Decoupling data cap and notary signatures to prevent malicious behavior.
 
   * Utilizing a data authentication mechanism (including data submit, verification, and auditing) to ensure the genuine value of platform data.
-
-  * Leveraging blockchain technology for permanent storage ([using Filecoin](https://filecoin.io/)) and distribution of datasets, establishing a transparent and publicly accessible distributed data index.
+  * Utilizing the decentralized automated matching mechanism of DataSwap storage for the permanent storage ([using Filecoin](https://filecoin.io/)) and distribution of datasets, establishing a transparent and publicly accessible distributed data index.
 
 * `Dataswap retrieve`
 
-  * Offering open retrieval and download services, enabling users to effortlessly search for and obtain the datasets they need. This encompasses diverse access methods, such as web interfaces, API integrations, and file downloads.
+  * Provide open retrieval and download services. This includes various access methods such as web interfaces, API integration, and file downloads.
+    * Customers pay funds into smart contracts to easily search for and access the required datasets.
+    * Retrieval service providers receive incentives by offering retrieval services.
 
 * `Dataswap compute`
 
@@ -112,7 +117,7 @@ When implementing a change:
   * If you have added a new feature or changed interface，you need add [assertions](./test/v0.8/assertions).
   * If your tests are complex and require reuse, you may need to add [helpers](./test/v0.8/helpers/).
   * Ensure your [testcases](./test/v0.8/testcases/) provide comprehensive coverage, considering both normal and exceptional scenarios.
-  * Add [uinttest](./test/v0.8/uinttests/) or [integrationtest](./test/v0.8/integrationtest/) instance.
+  * Add [unittest](./test/v0.8/uinttests/) or [integrationtest](./test/v0.8/integrationtest/) instance.
 
 * Title the PR in a meaningful way and describe the rationale and the thought process in the PR description.
 
