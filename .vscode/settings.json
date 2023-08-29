@@ -1,30 +1,9 @@
 {
-    "workbench.editor.enablePreview": false,
-    "[javascript]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
     "standard.autoFixOnSave": true,
-    "standard.nodePath": "",
-    "eslint.options": {},
-    "previewServer.ui": {},
-    "prettier.semi": false,
     "editor.formatOnSave": true,
     "editor.formatOnType": true,
-    "eslint.format.enable": true,
-    "markdown-mermaid.languages": ["mermaid"],
-    "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": true
-    },
-    "prettier.tabWidth": 4,
-    "[typescriptreact]": {
-        "editor.defaultFormatter": "esbenp.prettier-vscode"
-    },
     "solidity.compileUsingRemoteVersion": "v0.8.21+commit.d9974bed",
     "[solidity]": {
         "editor.defaultFormatter": "JuanBlanco.solidity"
-    },
-    "window.zoomLevel": 1,
-    "solidity.packageDefaultDependenciesContractsDirectory": "src",
-    "solidity.packageDefaultDependenciesDirectory": ["node_modules", "lib"],
-    "solidity.enabledAsYouTypeCompilationErrorCheck": true,
+    }
 }
