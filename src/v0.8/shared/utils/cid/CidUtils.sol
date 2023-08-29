@@ -21,7 +21,6 @@ pragma solidity ^0.8.21;
 library CidUtils {
     /// @notice Convert a bytes32 hash to a CID.
     /// @dev This function converts a bytes32 hash to a CID using the specified encoding.
-    ///      TODO:https://github.com/dataswap/core/issues/32
     /// @return The CID corresponding to the input hash.
     function hashToCID(bytes32 _hash) internal pure returns (bytes memory) {
         // Hardcoded, to be refined for full implementation.
@@ -57,6 +56,10 @@ library CidUtils {
         return cids;
     }
 
+    /// @notice Function to encode an unsigned integer as a Uvarint byte array
+    /// @dev Encode an unsigned integer as a Uvarint byte array
+    /// @param _x input parameter an unsigned integer
+    /// @return the return of Uvarint byte array
     function putUvarint(uint64 _x) public pure returns (bytes memory) {
         uint8 i = 0;
         uint8[] memory buffer = new uint8[](10); // Requires up to 10 bytes
