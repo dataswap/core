@@ -19,6 +19,7 @@ pragma solidity ^0.8.21;
 import {Roles} from "src/v0.8/core/access/Roles.sol";
 import {Filplus} from "src/v0.8/core/filplus/Filplus.sol";
 import {MockFilecoin} from "src/v0.8/mocks/core/filecoin/MockFilecoin.sol";
+import {MockMerkleUtils} from "src/v0.8/mocks/utils/merkle/MockMerkleUtils.sol";
 import {Carstore} from "src/v0.8/core/carstore/Carstore.sol";
 import {Datasets} from "src/v0.8/module/dataset/Datasets.sol";
 import {Matchings} from "src/v0.8/module/matching/Matchings.sol";
@@ -45,13 +46,15 @@ contract StorageTestSetup {
         Roles role = new Roles();
         Filplus filplus = new Filplus(governanceContractAddresss);
         MockFilecoin filecoin = new MockFilecoin();
+        MockMerkleUtils merkleUtils = new MockMerkleUtils();
         Carstore carstore = new Carstore(role, filplus, filecoin);
         Datasets datasets = new Datasets(
             governanceContractAddresss,
             role,
             filplus,
             filecoin,
-            carstore
+            carstore,
+            merkleUtils
         );
         Matchings matchings = new Matchings(
             governanceContractAddresss,

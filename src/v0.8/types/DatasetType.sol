@@ -73,6 +73,7 @@ library DatasetType {
 
     /// @notice Struct representing proofs associated with a dataset challenge submitted by reviewers.
     struct DatasetChallengeProof {
+        bytes32 leaf;
         bytes32[] siblings;
         uint32 path;
     }

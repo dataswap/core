@@ -332,6 +332,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         address caller,
         uint64 _datasetId,
         uint64 _randomSeed,
+        bytes32[] memory _leaves,
         bytes32[][] memory _siblings,
         uint32[] memory _paths
     ) external {
@@ -350,6 +351,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         datasets.submitDatasetVerification(
             _datasetId,
             _randomSeed,
+            _leaves,
             _siblings,
             _paths
         );
@@ -537,12 +539,13 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         bytes32[][] memory _expectSiblings,
         uint32[] memory _expectPaths
     ) public view {
+        bytes32[] memory leaves = new bytes32[](_expectPaths.length);
         bytes32[][] memory siblings = new bytes32[][](_expectPaths.length);
         uint32[] memory paths = new uint32[](_expectPaths.length);
         for (uint64 i = 0; i < _expectPaths.length; i++) {
             siblings[i] = new bytes32[](_expectSiblings[i].length);
         }
-        (siblings, paths) = datasets.getDatasetVerification(
+        (leaves, siblings, paths) = datasets.getDatasetVerification(
             _datasetId,
             _auditor
         );
@@ -675,6 +678,20 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             datasets.datasetsCount(),
             _expectCount,
             "datasets count not matched"
+        );
+    }
+
+    /// @notice Assertion function for checking challenge count.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _expectCount The expected challenge count.
+    function getChallengeCountAssertion(
+        uint64 _datasetId,
+        uint64 _expectCount
+    ) external {
+        assertEq(
+            datasets.getChallengeCount(_datasetId),
+            _expectCount,
+            "challenge count not matched"
         );
     }
 }

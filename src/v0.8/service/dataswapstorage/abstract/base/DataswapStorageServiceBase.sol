@@ -28,6 +28,7 @@ import {Matchings} from "src/v0.8/module/matching/Matchings.sol";
 import {Datacaps} from "src/v0.8/module/datacap/Datacaps.sol";
 import {Storages} from "src/v0.8/module/storage/Storages.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
+import {MerkleUtils} from "src/v0.8/shared/utils/merkle/MerkleUtils.sol";
 
 /// @title DataswapStorageServiceBase
 abstract contract DataswapStorageServiceBase is IDataswapStorage {
@@ -40,6 +41,7 @@ abstract contract DataswapStorageServiceBase is IDataswapStorage {
     Matchings internal matchingsInstance;
     Storages internal storagesInstance;
     Datacaps internal datacapsInstance;
+    MerkleUtils internal merkleUtilsInstance;
 
     constructor(address payable _governanceContractAddress) {
         governanceContractAddress = _governanceContractAddress;
@@ -47,6 +49,7 @@ abstract contract DataswapStorageServiceBase is IDataswapStorage {
         filecoinInstance = new Filecoin(
             FilecoinType.Network.CalibrationTestnet
         );
+        merkleUtilsInstance = new MerkleUtils();
         carstoreInstance = new Carstore(
             rolesInstance,
             filplusInstance,
@@ -57,7 +60,8 @@ abstract contract DataswapStorageServiceBase is IDataswapStorage {
             rolesInstance,
             filplusInstance,
             filecoinInstance,
-            carstoreInstance
+            carstoreInstance,
+            merkleUtilsInstance
         );
         matchingsInstance = new Matchings(
             _governanceContractAddress,

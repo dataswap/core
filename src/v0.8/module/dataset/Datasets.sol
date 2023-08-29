@@ -24,6 +24,7 @@ import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
 ///shared
 import {DatasetsEvents} from "src/v0.8/shared/events/DatasetsEvents.sol";
 import {DatasetsModifiers} from "src/v0.8/shared/modifiers/DatasetsModifiers.sol";
@@ -54,18 +55,21 @@ contract Datasets is IDatasets, DatasetsModifiers {
     IRoles public roles;
     IFilplus private filplus;
     ICarstore private carstore;
+    IMerkleUtils public merkleUtils;
 
     constructor(
         address _governanceAddress,
         IRoles _roles,
         IFilplus _filplus,
         IFilecoin _filecoin,
-        ICarstore _carstore
+        ICarstore _carstore,
+        IMerkleUtils _merkleUtils
     ) DatasetsModifiers(_roles, _filplus, _filecoin, _carstore, this) {
         governanceAddress = _governanceAddress;
         roles = _roles;
         filplus = _filplus;
         carstore = _carstore;
+        merkleUtils = _merkleUtils;
     }
 
     ///@notice Approve a dataset.
@@ -226,11 +230,18 @@ contract Datasets is IDatasets, DatasetsModifiers {
     function submitDatasetVerification(
         uint64 _datasetId,
         uint64 _randomSeed,
+        bytes32[] memory _leaves,
         bytes32[][] memory _siblings,
         uint32[] memory _paths
     ) external onlyRole(RolesType.DATASET_AUDITOR) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        dataset._submitDatasetVerification(_randomSeed, _siblings, _paths);
+        dataset._submitDatasetVerification(
+            _randomSeed,
+            _leaves,
+            _siblings,
+            _paths,
+            merkleUtils
+        );
         emit DatasetsEvents.DatasetVerificationSubmitted(
             _datasetId,
             msg.sender
@@ -333,7 +344,11 @@ contract Datasets is IDatasets, DatasetsModifiers {
         public
         view
         onlyNotZero(_datasetId)
-        returns (bytes32[][] memory _siblings, uint32[] memory _paths)
+        returns (
+            bytes32[] memory,
+            bytes32[][] memory _siblings,
+            uint32[] memory _paths
+        )
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetVerification(_auditor);
@@ -394,5 +409,13 @@ contract Datasets is IDatasets, DatasetsModifiers {
     ) public view returns (bool) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.isDatasetVerificationDuplicate(_auditor, _randomSeed);
+    }
+
+    ///@notice Get a dataset challenge count
+    function getChallengeCount(
+        uint64 _datasetId
+    ) external view returns (uint64) {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        return dataset.getChallengeCount();
     }
 }

@@ -47,23 +47,17 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
     /// @param _accessMethod The access method for the dataset.
     /// @param _sourceLeavesCount The number of leaves for the source data.
     /// @param _mappingFilesLeavesCount The number of leaves for the mapping files data.
-    /// @param _challengeCount The number of challenges.
-    /// @param _challengeLeavesCount The number of leaves for each challenge.
     /// @return datasetId The ID of the created dataset.
     function setup(
         string memory _accessMethod,
         uint64 _sourceLeavesCount,
-        uint64 _mappingFilesLeavesCount,
-        uint64 _challengeCount,
-        uint64 _challengeLeavesCount
+        uint64 _mappingFilesLeavesCount
     ) public returns (uint64 datasetId) {
         return
             datasetsHelpers.completeDatasetWorkflow(
                 _accessMethod,
                 _sourceLeavesCount,
-                _mappingFilesLeavesCount,
-                _challengeCount,
-                _challengeLeavesCount
+                _mappingFilesLeavesCount
             );
     }
 
@@ -98,7 +92,7 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
         external
         returns (uint64 datasetId, uint64 matchingId)
     {
-        datasetId = setup("testAccessMethod", 100, 10, 10, 10);
+        datasetId = setup("testAccessMethod", 100, 10);
 
         address admin = matchings.datasets().roles().getRoleMember(
             bytes32(0x00),

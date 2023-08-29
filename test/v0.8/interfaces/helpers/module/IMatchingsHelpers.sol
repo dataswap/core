@@ -28,15 +28,11 @@ interface IMatchingsHelpers {
     /// @param _accessMethod The access method for the dataset.
     /// @param _sourceLeavesCount The number of leaves in the source data Merkle tree.
     /// @param _mappingFilesLeavesCount The number of leaves in the mapping files Merkle tree.
-    /// @param _challengeCount The number of verification challenges.
-    /// @param _challengeLeavesCount The number of leaves in the challenge Merkle tree.
     /// @return datasetId The ID of the created dataset.
     function setup(
         string memory _accessMethod,
         uint64 _sourceLeavesCount,
-        uint64 _mappingFilesLeavesCount,
-        uint64 _challengeCount,
-        uint64 _challengeLeavesCount
+        uint64 _mappingFilesLeavesCount
     ) external returns (uint64 datasetId);
 
     /// @notice Get the cars and the count of cars associated with a dataset and data type.

@@ -106,6 +106,7 @@ interface IDatasetsAssertion {
         address caller,
         uint64 _datasetId,
         uint64 _randomSeed,
+        bytes32[] memory _leaves,
         bytes32[][] memory _siblings,
         uint32[] memory _paths
     ) external;
@@ -239,4 +240,12 @@ interface IDatasetsAssertion {
     /// @notice Asserts the count of datasets.
     /// @param _expectCount The expected count of datasets.
     function datasetsCountAssertion(uint64 _expectCount) external;
+
+    /// @notice Assertion function for checking challenge count.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _expectCount The expected challenge count.
+    function getChallengeCountAssertion(
+        uint64 _datasetId,
+        uint64 _expectCount
+    ) external;
 }

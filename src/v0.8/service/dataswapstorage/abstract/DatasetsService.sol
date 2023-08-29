@@ -21,6 +21,7 @@ pragma solidity ^0.8.21;
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {DataswapStorageServiceBase} from "src/v0.8/service/dataswapstorage/abstract/base/DataswapStorageServiceBase.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
 
 /// @title DatasetsService
 abstract contract DatasetsService is DataswapStorageServiceBase {
@@ -99,12 +100,14 @@ abstract contract DatasetsService is DataswapStorageServiceBase {
     function submitDatasetVerification(
         uint64 _datasetId,
         uint64 _randomSeed,
+        bytes32[] memory _leaves,
         bytes32[][] memory _siblings,
         uint32[] memory _paths
     ) external {
         datasetsInstance.submitDatasetVerification(
             _datasetId,
             _randomSeed,
+            _leaves,
             _siblings,
             _paths
         );
@@ -209,7 +212,11 @@ abstract contract DatasetsService is DataswapStorageServiceBase {
     )
         external
         view
-        returns (bytes32[][] memory _siblings, uint32[] memory _paths)
+        returns (
+            bytes32[] memory,
+            bytes32[][] memory _siblings,
+            uint32[] memory _paths
+        )
     {
         return datasetsInstance.getDatasetVerification(_datasetId, _auditor);
     }
@@ -283,5 +290,17 @@ abstract contract DatasetsService is DataswapStorageServiceBase {
         returns (address governanceAddress_)
     {
         return datasetsInstance.governanceAddress();
+    }
+
+    /// @notice get  merkle utils
+    function merkleUtils() external view returns (IMerkleUtils) {
+        return datasetsInstance.merkleUtils();
+    }
+
+    ///@notice Get a dataset challenge count
+    function getChallengeCount(
+        uint64 _datasetId
+    ) external view returns (uint64) {
+        return datasetsInstance.getChallengeCount(_datasetId);
     }
 }

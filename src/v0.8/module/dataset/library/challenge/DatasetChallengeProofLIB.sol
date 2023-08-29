@@ -22,24 +22,32 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 library DatasetChallengeProofLIB {
     function setChallengeProof(
         DatasetType.DatasetChallengeProof memory self,
+        bytes32 _leaf,
         bytes32[] memory _siblings,
         uint32 _path
     ) internal pure {
         for (uint256 i = 0; i < _siblings.length; i++) {
             self.siblings[i] = _siblings[i];
         }
+        self.leaf = _leaf;
         self.path = _path;
     }
 
     function getChallengeProof(
         DatasetType.DatasetChallengeProof storage self
-    ) internal view returns (bytes32[] memory _siblings, uint32 _path) {
+    )
+        internal
+        view
+        returns (bytes32 _leaf, bytes32[] memory _siblings, uint32 _path)
+    {
         bytes32[] memory result = new bytes32[](self.siblings.length);
+        bytes32 leaf;
         uint32 path;
         for (uint256 i = 0; i < self.siblings.length; i++) {
             result[i] = self.siblings[i];
         }
+        leaf = self.leaf;
         path = self.path;
-        return (result, path);
+        return (leaf, result, path);
     }
 }
