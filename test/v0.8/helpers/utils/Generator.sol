@@ -101,4 +101,11 @@ contract Generator {
         nonce++;
         return nonce;
     }
+
+    /// @notice Generate a address for testing.
+    /// @return An address.
+    function generateAddress(uint64 random) external returns (address) {
+        nonce++;
+        return address(uint160(nonce + random));
+    }
 }
