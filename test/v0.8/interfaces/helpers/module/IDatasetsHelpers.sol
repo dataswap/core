@@ -61,17 +61,17 @@ interface IDatasetsHelpers {
 
     /// @notice Generate data verification parameters.
     /// @param _pointCount The number of data verification points.
-    /// @param _pointLeavesCount The number of leaves in the point Merkle tree.
     /// @return _randomSeed The random seed for verification.
+    /// @return leaves The Merkle tree leaves for the verification points.
     /// @return _siblings The Merkle tree siblings for the verification points.
     /// @return _paths The Merkle tree paths for the verification points.
     function generateVerification(
-        uint64 _pointCount,
-        uint64 _pointLeavesCount
+        uint64 _pointCount
     )
         external
         returns (
             uint64 _randomSeed,
+            bytes32[] memory leaves,
             bytes32[][] memory _siblings,
             uint32[] memory _paths
         );
@@ -79,27 +79,19 @@ interface IDatasetsHelpers {
     /// @notice Submit a dataset verification.
     /// @param caller The address of the caller.
     /// @param _datasetId The ID of the dataset.
-    /// @param _challengeCount The number of verification challenges.
-    /// @param _challengeLeavesCount The number of leaves in the challenge Merkle tree.
     function submitDatasetVerification(
         address caller,
-        uint64 _datasetId,
-        uint64 _challengeCount,
-        uint64 _challengeLeavesCount
+        uint64 _datasetId
     ) external;
 
     /// @notice Complete the dataset workflow.
     /// @param _accessMethod The access method for the dataset.
     /// @param _sourceLeavesCount The number of leaves in the source data Merkle tree.
     /// @param _mappingFilesLeavesCount The number of leaves in the mapping files Merkle tree.
-    /// @param _challengeCount The number of verification challenges.
-    /// @param _challengeLeavesCount The number of leaves in the challenge Merkle tree.
     /// @return datasetId The ID of the completed dataset.
     function completeDatasetWorkflow(
         string memory _accessMethod,
         uint64 _sourceLeavesCount,
-        uint64 _mappingFilesLeavesCount,
-        uint64 _challengeCount,
-        uint64 _challengeLeavesCount
+        uint64 _mappingFilesLeavesCount
     ) external returns (uint64 datasetId);
 }

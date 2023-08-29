@@ -46,13 +46,7 @@ abstract contract ControlTestSuiteBase is MatchingsTestBase {
     /// @return The number of matchings available after setup.
     function before() internal virtual override returns (uint64) {
         // Set up a dataset with specific parameters
-        uint64 datasetId = matchingsHelpers.setup(
-            "testAccessMethod",
-            100,
-            10,
-            10,
-            10
-        );
+        uint64 datasetId = matchingsHelpers.setup("testAccessMethod", 100, 10);
 
         // Get the admin address for dataset roles
         address admin = matchings.datasets().roles().getRoleMember(

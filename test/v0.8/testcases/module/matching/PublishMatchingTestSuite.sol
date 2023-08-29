@@ -37,13 +37,7 @@ contract PublishMatchingTestCaseWithSuccess is MatchingsTestBase {
     {}
 
     function before() internal virtual override returns (uint64) {
-        uint64 datasetId = matchingsHelpers.setup(
-            "testAccessMethod",
-            100,
-            10,
-            10,
-            10
-        );
+        uint64 datasetId = matchingsHelpers.setup("testAccessMethod", 100, 10);
         return datasetId;
     }
 

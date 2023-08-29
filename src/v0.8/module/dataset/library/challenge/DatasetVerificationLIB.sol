@@ -18,24 +18,16 @@
 pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
+import {DatasetProofLIB} from "src/v0.8/module/dataset/library/proof/DatasetProofLIB.sol";
 import {DatasetChallengeProofLIB} from "src/v0.8/module/dataset/library/challenge/DatasetChallengeProofLIB.sol";
 
 /// @title DatasetVerificationLIB Library,include add,get,verify.
 /// @notice This library provides functions for managing verification associated with datasets.
 /// @dev Note:Need to check carefully,Need rewrite verification logic.
 library DatasetVerificationLIB {
+    using DatasetProofLIB for DatasetType.Dataset;
     using DatasetChallengeProofLIB for DatasetType.DatasetChallengeProof;
-
-    /// @notice Validates the submitted verification proofs.
-    /// @dev This function checks the validity of the submitted Merkle proofs for both the source dataset and mapping files.
-    // solhint-disable-next-line
-    function _requireValidVerification(
-        uint64 _randomSeed,
-        bytes32[][] memory _siblings,
-        uint32[] memory _paths // solhint-disable-next-line
-    ) private pure {
-        //TODO:_requireValidVerification:https://github.com/dataswap/core/issues/39
-    }
 
     /// @notice Submit a verification for a dataset.
     /// @dev This function allows submitting a verification for a dataset and triggers appropriate actions based on verification results.
@@ -43,8 +35,10 @@ library DatasetVerificationLIB {
     function _submitDatasetVerification(
         DatasetType.Dataset storage self,
         uint64 _randomSeed,
+        bytes32[] memory _leaves,
         bytes32[][] memory _siblings,
-        uint32[] memory _paths
+        uint32[] memory _paths,
+        IMerkleUtils _merkle
     ) internal returns (bool) {
         //For each verification submitted by an auditor, the random seed must be different.
         require(
@@ -52,7 +46,19 @@ library DatasetVerificationLIB {
             "Verification is duplicate"
         );
         require(_randomSeed > 0, "Invalid random seed");
-        _requireValidVerification(_randomSeed, _siblings, _paths);
+
+        if (
+            !_requireValidVerification(
+                self,
+                _randomSeed,
+                _leaves,
+                _siblings,
+                _paths,
+                _merkle
+            )
+        ) {
+            return false;
+        }
 
         // Update the dataset state here
         self.verificationsCount++;
@@ -62,12 +68,60 @@ library DatasetVerificationLIB {
         for (uint32 i = 0; i < _paths.length; i++) {
             DatasetType.DatasetChallengeProof memory challengeProof;
             challengeProof.siblings = new bytes32[](_siblings[i].length);
-            challengeProof.setChallengeProof(_siblings[i], _paths[i]);
+            challengeProof.setChallengeProof(
+                _leaves[i],
+                _siblings[i],
+                _paths[i]
+            );
             verification.challengeProof.push(challengeProof);
         }
         // Recording the auditor
         self.auditors.push(msg.sender);
 
+        return true;
+    }
+
+    /// @notice Validates the submitted verification proofs.
+    /// @dev This function checks the validity of the submitted Merkle proofs for both the source dataset and mapping files.
+    // solhint-disable-next-line
+    function _requireValidVerification(
+        DatasetType.Dataset storage self,
+        uint64 _randomSeed,
+        bytes32[] memory _leaves,
+        bytes32[][] memory _siblings,
+        uint32[] memory _paths,
+        IMerkleUtils _merkle
+    ) private view returns (bool) {
+        uint64 carChallengesCount = getChallengeCount(self);
+
+        bytes32[] memory roots = generateCarChallenge(
+            self,
+            _randomSeed,
+            carChallengesCount
+        );
+
+        require(
+            roots.length == _leaves.length,
+            "roots.length != _leaves.length"
+        );
+        require(
+            roots.length == _siblings.length,
+            "roots.length != _siblings.length"
+        );
+        require(roots.length == _paths.length, "roots.length != _paths.length");
+
+        for (uint32 i = 0; i < roots.length; i++) {
+            if (
+                !_merkle.isValidMerkleProof(
+                    roots[i],
+                    _leaves[i],
+                    _siblings[i],
+                    _paths[i]
+                )
+            ) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -78,7 +132,11 @@ library DatasetVerificationLIB {
     function getDatasetVerification(
         DatasetType.Dataset storage self,
         address _auditor
-    ) public view returns (bytes32[][] memory, uint32[] memory) {
+    )
+        public
+        view
+        returns (bytes32[] memory, bytes32[][] memory, uint32[] memory)
+    {
         DatasetType.Verification storage verification = self.verifications[
             _auditor
         ];
@@ -88,15 +146,22 @@ library DatasetVerificationLIB {
         uint32[] memory paths = new uint32[](
             verification.challengeProof.length
         );
+        bytes32[] memory leaves = new bytes32[](
+            verification.challengeProof.length
+        );
         for (uint256 i = 0; i < verification.challengeProof.length; i++) {
             DatasetType.DatasetChallengeProof
                 storage challengeProof = verification.challengeProof[i];
-            (bytes32[] memory siblings, uint32 path) = challengeProof
-                .getChallengeProof();
+            (
+                bytes32 leaf,
+                bytes32[] memory siblings,
+                uint32 path
+            ) = challengeProof.getChallengeProof();
+            leaves[i] = leaf;
             siblingss[i] = siblings;
             paths[i] = path;
         }
-        return (siblingss, paths);
+        return (leaves, siblingss, paths);
     }
 
     /// @notice Get the count of verifications for a dataset.
@@ -125,5 +190,96 @@ library DatasetVerificationLIB {
             if (verification.randomSeed == _randomSeed) return true;
         }
         return false;
+    }
+
+    /// @notice Get Challenge count.
+    /// @dev This function returns the cars Challenge count for a specific dataset.
+    /// @param self The dataset for which to challenge details.
+    function getChallengeCount(
+        DatasetType.Dataset storage self
+    ) internal view returns (uint64) {
+        uint32 smallDataSet = 1000;
+        uint64 carCount = self.getDatasetCount(DatasetType.DataType.Source);
+        if (carCount < smallDataSet) {
+            return 1;
+        } else {
+            return carCount / smallDataSet + 1;
+        }
+    }
+
+    /// @notice generate cars challenge.
+    /// @dev This function returns the cars Challenge information for a specific dataset.
+    /// @param self The dataset for which to challenge details.
+    /// @param _randomSeed The cars challenge random seed.
+    /// @param _carChallengesCount the cars Challenge count for specific dataset.
+    function generateCarChallenge(
+        DatasetType.Dataset storage self,
+        uint64 _randomSeed,
+        uint64 _carChallengesCount
+    ) internal view returns (bytes32[] memory) {
+        bytes32[] memory carChallenges = new bytes32[](_carChallengesCount);
+        for (uint64 i = 0; i < _carChallengesCount; i++) {
+            carChallenges[i] = generateChallenge(
+                self,
+                _randomSeed,
+                i,
+                _carChallengesCount
+            );
+        }
+        return carChallenges;
+    }
+
+    /// @notice generate a car challenge.
+    /// @dev This function returns a car Challenge information for a specific dataset.
+    /// @param self The dataset for which to challenge details.
+    /// @param _randomSeed The cars challenge random seed.
+    /// @param _index The car index of challenge.
+    /// @param _carChallengesCount the cars Challenge count for specific dataset.
+    function generateChallenge(
+        DatasetType.Dataset storage self,
+        uint64 _randomSeed,
+        uint64 _index,
+        uint64 _carChallengesCount
+    ) internal view returns (bytes32) {
+        uint64 index = generateChallengeIndex(
+            _randomSeed,
+            _index,
+            _carChallengesCount
+        );
+
+        return self.getDatasetProof(DatasetType.DataType.Source, index, 1)[0];
+    }
+
+    /// @notice generate a car challenge index.
+    /// @dev This function returns a car Challenge information for a specific dataset.
+    /// @param _randomSeed The cars challenge random seed.
+    /// @param _index The car index of challenge.
+    /// @param _carChallengesCount the cars Challenge count for specific dataset.
+    function generateChallengeIndex(
+        uint64 _randomSeed,
+        uint64 _index,
+        uint64 _carChallengesCount
+    ) internal pure returns (uint64) {
+        // Convert randomness and index to bytes
+        bytes memory input = new bytes(16);
+
+        bytes8 randomSeedBytes = bytes8(_randomSeed);
+        bytes8 indexBytes = bytes8(_index);
+
+        // LittleEndian encode
+        for (uint256 i = 0; i < 8; i++) {
+            input[i] = randomSeedBytes[7 - i];
+            input[i + 8] = indexBytes[7 - i];
+        }
+        // Calculate SHA-256 hash
+        bytes32 hash = sha256(input);
+
+        uint64 carChallenge;
+        // from golang binary.LittleEndian.Uint64
+        for (uint256 i = 0; i < 8; i++) {
+            carChallenge |= uint64(uint8(hash[i])) << uint64(i * 8);
+        }
+
+        return carChallenge % _carChallengesCount;
     }
 }

@@ -68,17 +68,12 @@ contract SubmittVerificationTestCaseWithSuccess is DatasetsTestBase {
 
     function action(uint64 _id) internal virtual override {
         uint64 pointCount = 1;
-        uint64 pointLeavesCount = 10;
+        bytes32[] memory leaves = new bytes32[](pointCount);
         bytes32[][] memory siblings = new bytes32[][](pointCount);
         uint32[] memory paths = new uint32[](pointCount);
-        for (uint64 i = 0; i < pointCount; i++) {
-            siblings[i] = new bytes32[](pointLeavesCount);
-        }
         uint64 randomSeed;
-        (randomSeed, siblings, paths) = datasetsHelpers.generateVerification(
-            pointCount,
-            pointLeavesCount
-        );
+        (randomSeed, leaves, siblings, paths) = datasetsHelpers
+            .generateVerification(pointCount);
 
         address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
         vm.startPrank(admin);
@@ -88,6 +83,75 @@ contract SubmittVerificationTestCaseWithSuccess is DatasetsTestBase {
             address(199),
             _id,
             randomSeed,
+            leaves,
+            siblings,
+            paths
+        );
+    }
+}
+
+///@notice submit dataset verification test case with fail.
+contract SubmittVerificationTestCaseWithFail is DatasetsTestBase {
+    constructor(
+        IDatasets _datasets,
+        IDatasetsHelpers _datasetsHelpers,
+        IDatasetsAssertion _datasetsAssertion
+    )
+        DatasetsTestBase(_datasets, _datasetsHelpers, _datasetsAssertion) // solhint-disable-next-line
+    {}
+
+    function before() internal virtual override returns (uint64 id) {
+        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
+            address(9),
+            "TEST"
+        );
+        vm.prank(datasets.governanceAddress());
+        datasets.approveDatasetMetadata(datasetId);
+
+        datasets.merkleUtils().setMockValidState(false);
+
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
+        vm.stopPrank();
+        datasetsHelpers.submitDatasetProof(
+            address(99),
+            datasetId,
+            DatasetType.DataType.Source,
+            "",
+            100,
+            true
+        );
+        datasetsHelpers.submitDatasetProof(
+            address(99),
+            datasetId,
+            DatasetType.DataType.MappingFiles,
+            "accessmethod",
+            10,
+            true
+        );
+        return datasetId;
+    }
+
+    function action(uint64 _id) internal virtual override {
+        uint64 pointCount = 1;
+        bytes32[] memory leaves = new bytes32[](pointCount);
+        bytes32[][] memory siblings = new bytes32[][](pointCount);
+        uint32[] memory paths = new uint32[](pointCount);
+        uint64 randomSeed;
+        (randomSeed, leaves, siblings, paths) = datasetsHelpers
+            .generateVerification(pointCount);
+
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(200));
+        vm.stopPrank();
+        vm.expectRevert(bytes("mockValidState must is true"));
+        datasetsAssertion.submitDatasetVerificationAssertion(
+            address(200),
+            _id,
+            randomSeed,
+            leaves,
             siblings,
             paths
         );

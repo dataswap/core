@@ -109,6 +109,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         bytes32[] memory leavesHashes = new bytes32[](_leavesCount);
         uint64[] memory leavesSizes = new uint64[](_leavesCount);
         (leavesHashes, leavesSizes, ) = generateProof(_leavesCount);
+
         vm.prank(caller);
         datasets.submitDatasetProof(
             _datasetId,
@@ -123,28 +124,28 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
 
     /// @notice Generate Merkle verification data.
     /// @param _pointCount The number of points to generate.
-    /// @param _pointLeavesCount The number of leaves for each point.
     /// @return randomSeed The random seed used for generation.
+    /// @return leaves The leaves hashes for each point.
     /// @return siblings The sibling hashes for each point.
     /// @return paths The paths for each point.
     function generateVerification(
-        uint64 _pointCount,
-        uint64 _pointLeavesCount
+        uint64 _pointCount
     )
         public
         returns (
             uint64 randomSeed,
+            bytes32[] memory leaves,
             bytes32[][] memory siblings,
             uint32[] memory paths
         )
     {
         randomSeed = generator.generateNonce();
+        leaves = new bytes32[](_pointCount);
         siblings = new bytes32[][](_pointCount);
         paths = new uint32[](_pointCount);
         for (uint32 i = 0; i < _pointCount; i++) {
-            bytes32[] memory leaves = new bytes32[](_pointLeavesCount);
-            leaves = generator.generateLeaves(_pointLeavesCount);
-            siblings[i] = leaves;
+            leaves[i] = generator.generateLeaves(1)[0];
+            siblings[i] = generator.generateLeaves(_pointCount);
             paths[i] = i;
         }
     }
@@ -152,27 +153,26 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
     ///  @notice Submit verification data for a dataset.
     ///  @param caller The address of the caller.
     ///  @param _datasetId The ID of the dataset.
-    ///  @param _challengeCount The number of challenges.
-    ///  @param _challengeLeavesCount The number of leaves for each challenge.
     function submitDatasetVerification(
         address caller,
-        uint64 _datasetId,
-        uint64 _challengeCount,
-        uint64 _challengeLeavesCount
+        uint64 _datasetId
     ) public {
         uint64 randomSeed = generator.generateNonce();
-        bytes32[][] memory siblings = new bytes32[][](_challengeCount);
-        uint32[] memory paths = new uint32[](_challengeCount);
-        for (uint32 i = 0; i < _challengeCount; i++) {
-            bytes32[] memory leaves = new bytes32[](_challengeLeavesCount);
-            leaves = generator.generateLeaves(_challengeLeavesCount);
-            siblings[i] = leaves;
+        uint64 challengeCount = datasets.getChallengeCount(_datasetId);
+        assertion.getChallengeCountAssertion(_datasetId, challengeCount);
+        bytes32[][] memory siblings = new bytes32[][](challengeCount);
+        uint32[] memory paths = new uint32[](challengeCount);
+        bytes32[] memory leaves = new bytes32[](challengeCount);
+        for (uint32 i = 0; i < challengeCount; i++) {
+            leaves[i] = generator.generateLeaves(1)[0];
+            siblings[i] = generator.generateLeaves(challengeCount);
             paths[i] = i;
         }
         vm.prank(caller);
         datasets.submitDatasetVerification(
             _datasetId,
             randomSeed,
+            leaves,
             siblings,
             paths
         );
@@ -186,9 +186,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
     function completeDatasetWorkflow(
         string memory _accessMethod,
         uint64 _sourceLeavesCount,
-        uint64 _mappingFilesLeavesCount,
-        uint64 /*_challengeCount*/,
-        uint64 /*_challengeLeavesCount*/
+        uint64 _mappingFilesLeavesCount
     ) external returns (uint64 datasetId) {
         // 1: Submit metadata
         address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
@@ -224,13 +222,12 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             true
         );
 
+        vm.startPrank(admin);
+        datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(199));
+        vm.stopPrank();
         // 4: Submit verification
         // NOTE: TODO verify before approved: https://github.com/dataswap/core/issues/49
-        // submitDatasetVerification(
-        //     datasetId,
-        //     _challengeCount,
-        //     _challengeLeavesCount
-        // );
+        submitDatasetVerification(address(199), datasetId);
 
         // 5: Approve dataset
         assertion.approveDatasetAssertion(

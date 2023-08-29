@@ -20,6 +20,7 @@ pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
 
 /// @title IDatasets
 interface IDatasets {
@@ -68,6 +69,7 @@ interface IDatasets {
     function submitDatasetVerification(
         uint64 _datasetId,
         uint64 _randomSeed,
+        bytes32[] memory _leaves,
         bytes32[][] memory _siblings,
         uint32[] memory _paths
     ) external;
@@ -142,7 +144,11 @@ interface IDatasets {
     )
         external
         view
-        returns (bytes32[][] memory _siblings, uint32[] memory _paths);
+        returns (
+            bytes32[] memory,
+            bytes32[][] memory _siblings,
+            uint32[] memory _paths
+        );
 
     ///@notice Get count of dataset verifications
     function getDatasetVerificationsCount(
@@ -187,4 +193,12 @@ interface IDatasets {
 
     /// @notice get  governance address
     function governanceAddress() external view returns (address);
+
+    /// @notice get  merkle utils
+    function merkleUtils() external view returns (IMerkleUtils);
+
+    /// @notice Get a dataset challenge count
+    function getChallengeCount(
+        uint64 _datasetId
+    ) external view returns (uint64);
 }
