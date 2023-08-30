@@ -29,6 +29,7 @@ library FilecoinType {
     /// @notice filecoin network type
     enum Network {
         Mainnet,
-        CalibrationTestnet
+        CalibrationTestnet,
+        EndIdentifier
     }
 }

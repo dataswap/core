@@ -18,24 +18,15 @@
 
 pragma solidity ^0.8.21;
 
-import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
-import {ICarstoreReadOnly} from "src/v0.8/interfaces/core/ICarstore.sol";
-import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
-import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
-import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
-import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
-
-/// @dev storage service interface
-// solhint-disable-next-line
-interface IDataswapStorage is
-    IRoles,
-    IFilplus,
-    ICarstoreReadOnly,
-    IDatasets,
-    IMatchings,
-    IStorages,
-    IDatacaps
-{
-
+/// @title Dataswap Storage Types Library
+/// @notice This library defines enums and structs related to dataswap storage service.
+library DataswapStorageType {
+    /// @notice Enum representing dataswap storage environments.
+    enum Environment {
+        Normal,
+        MockFilecoinAndMerkle,
+        MockFilecoin,
+        MockMerkle,
+        EndIdentifier
+    }
 }
