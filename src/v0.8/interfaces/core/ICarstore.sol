@@ -21,65 +21,9 @@ import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 
-/// @title ICarStore
-/// @notice This interface defines the functions for managing car data and associated replicas.
-interface ICarstore {
-    /// @dev Internal function to add a car based on its CID.
-    ///      tips: diffent dataset has the same car is dones't matter,maybe need limit replicas count for a car.
-    ///      filplus requires dataset replicas,but not limit for car replicas
-    /// @param _cid Car CID to be added.
-    /// @param _datasetId dataset index of approved dataset
-    /// @param _size car size
-    function addCar(bytes32 _cid, uint64 _datasetId, uint64 _size) external;
-
-    /// @notice Add multiple cars to the storage.
-    /// @dev This function allows the addition of multiple cars at once.
-    /// @param _cids Array of car CIDs to be added.
-    /// @param _datasetId dataset index of approved dataset
-    /// @param _sizes car size array
-    function addCars(
-        bytes32[] memory _cids,
-        uint64 _datasetId,
-        uint64[] memory _sizes
-    ) external;
-
-    /// @notice Add a replica to a car.
-    /// @dev This function allows adding a replica to an existing car.
-    /// @param _cid Car CID to which the replica will be added.
-    /// @param _matchingId Matching ID for the new replica.
-    function addCarReplica(bytes32 _cid, uint64 _matchingId) external;
-
-    /// @notice Report that storage deal for a replica has expired.
-    /// @dev This function allows reporting that the storage deal for a replica has expired.
-    /// @param _cid Car CID associated with the replica.
-    /// @param _matchingId Matching ID of the replica.
-    function reportCarReplicaExpired(
-        bytes32 _cid,
-        uint64 _matchingId,
-        uint64 _filecoinDealId
-    ) external;
-
-    /// @notice Report that storage of a replica has been slashed.
-    /// @dev This function allows reporting that the storage of a replica has been slashed.
-    /// @param _cid Car CID associated with the replica.
-    /// @param _matchingId Matching ID of the replica.
-    function reportCarReplicaSlashed(
-        bytes32 _cid,
-        uint64 _matchingId,
-        uint64 _filecoinDealId
-    ) external;
-
-    /// @notice Set the Filecoin deal ID for a replica's storage.
-    /// @dev This function allows setting the Filecoin deal ID for a specific replica's storage.
-    /// @param _cid Car CID associated with the replica.
-    /// @param _matchingId Matching ID of the replica.
-    /// @param _filecoinDealId New Filecoin deal ID to set for the replica's storage.
-    function setCarReplicaFilecoinDealId(
-        bytes32 _cid,
-        uint64 _matchingId,
-        uint64 _filecoinDealId
-    ) external;
-
+/// @title ICarstoreReadOnly
+/// @notice This interface defines the functions for get car status.
+interface ICarstoreReadOnly {
     /// @notice Get the dataset ID associated with a car.
     /// @param _cid Car CID to check.
     /// @return The car size of the car.
@@ -153,9 +97,66 @@ interface ICarstore {
     /// @notice get filecoin object
     function filecoin() external view returns (IFilecoin);
 
-    /// @notice get roles object
-    function roles() external view returns (IRoles);
-
     /// @notice get filplus object
     function filplus() external view returns (IFilplus);
+}
+
+/// @title ICarStore
+/// @notice This interface defines the functions for managing car data and associated replicas.
+interface ICarstore is ICarstoreReadOnly {
+    /// @dev Internal function to add a car based on its CID.
+    ///      tips: diffent dataset has the same car is dones't matter,maybe need limit replicas count for a car.
+    ///      filplus requires dataset replicas,but not limit for car replicas
+    /// @param _cid Car CID to be added.
+    /// @param _datasetId dataset index of approved dataset
+    /// @param _size car size
+    function addCar(bytes32 _cid, uint64 _datasetId, uint64 _size) external;
+
+    /// @notice Add multiple cars to the storage.
+    /// @dev This function allows the addition of multiple cars at once.
+    /// @param _cids Array of car CIDs to be added.
+    /// @param _datasetId dataset index of approved dataset
+    /// @param _sizes car size array
+    function addCars(
+        bytes32[] memory _cids,
+        uint64 _datasetId,
+        uint64[] memory _sizes
+    ) external;
+
+    /// @notice Add a replica to a car.
+    /// @dev This function allows adding a replica to an existing car.
+    /// @param _cid Car CID to which the replica will be added.
+    /// @param _matchingId Matching ID for the new replica.
+    function addCarReplica(bytes32 _cid, uint64 _matchingId) external;
+
+    /// @notice Report that storage deal for a replica has expired.
+    /// @dev This function allows reporting that the storage deal for a replica has expired.
+    /// @param _cid Car CID associated with the replica.
+    /// @param _matchingId Matching ID of the replica.
+    function reportCarReplicaExpired(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) external;
+
+    /// @notice Report that storage of a replica has been slashed.
+    /// @dev This function allows reporting that the storage of a replica has been slashed.
+    /// @param _cid Car CID associated with the replica.
+    /// @param _matchingId Matching ID of the replica.
+    function reportCarReplicaSlashed(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) external;
+
+    /// @notice Set the Filecoin deal ID for a replica's storage.
+    /// @dev This function allows setting the Filecoin deal ID for a specific replica's storage.
+    /// @param _cid Car CID associated with the replica.
+    /// @param _matchingId Matching ID of the replica.
+    /// @param _filecoinDealId New Filecoin deal ID to set for the replica's storage.
+    function setCarReplicaFilecoinDealId(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) external;
 }

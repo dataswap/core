@@ -39,7 +39,7 @@ abstract contract CarstoreBase is ICarstore, CarstoreModifiers {
     ///Car CID=> Car
     mapping(bytes32 => CarReplicaType.Car) internal cars;
 
-    IRoles public roles;
+    IRoles internal roles;
     IFilplus public filplus;
     IFilecoin public filecoin;
 
