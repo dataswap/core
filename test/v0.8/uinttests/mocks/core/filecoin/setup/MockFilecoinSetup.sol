@@ -13,36 +13,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ********************************************************************************/
-
 // SPDX-License-Identifier: GPL-3.0-or-later
-
 pragma solidity ^0.8.21;
 
-// Import required external contracts and interfaces
-import {Test} from "forge-std/Test.sol";
 import {MockFilecoin} from "src/v0.8/mocks/core/filecoin/MockFilecoin.sol";
-import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
+import {FilecoinAssertion} from "test/v0.8/assertions/core/filecoin/FilecoinAssertion.sol";
 
-// Contract definition for test helper functions
-contract MockFilecoinTest is Test {
-    MockFilecoin public filecoin;
+/// @title MockFilecoinSetup
+/// @notice This contract is used for setting up the mockfilecoin contract for testing.
+contract MockFilecoinSetup {
+    MockFilecoin private filecoin;
+    FilecoinAssertion public assertion;
 
-    // Setting up the test environment
-    function setUp() public {
+    /// @dev Initialize the mockfilecoin, assertion contracts.
+    function setup() internal {
         filecoin = new MockFilecoin();
-    }
-
-    //test function for setMockDealState
-    function testSetMockDealState(
-        uint8 _state,
-        bytes32 _cid,
-        uint64 _filecoinDealId
-    ) external {
-        vm.assume(_state <= uint8(FilecoinType.DealState.Expired));
-        filecoin.setMockDealState(FilecoinType.DealState(_state));
-        assertEq(
-            _state,
-            uint8(filecoin.getReplicaDealState(_cid, _filecoinDealId))
-        );
+        assertion = new FilecoinAssertion(filecoin);
     }
 }
