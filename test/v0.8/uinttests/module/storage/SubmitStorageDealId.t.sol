@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {SubmitStorageDealIdTestCaseWithSuccess} from "test/v0.8/testcases/module/storage/SubmitStorageDealIdTestSuite.sol";
+import "test/v0.8/testcases/module/storage/SubmitStorageDealIdTestSuite.sol";
 import {StorageTestSetup} from "test/v0.8/uinttests/module/storage/setup/StorageTestSetup.sol";
 
 contract SubmitStorageDealIdTest is Test, StorageTestSetup {
@@ -26,6 +26,43 @@ contract SubmitStorageDealIdTest is Test, StorageTestSetup {
         setup();
         SubmitStorageDealIdTestCaseWithSuccess testCase = new SubmitStorageDealIdTestCaseWithSuccess(
                 storages,
+                generator,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    /// @notice test case with invalid address
+    function testSubmitStorageDealIdWithInvalidAddress() public {
+        setup();
+        SubmitStorageDealIdTestCaseWithInvalidAddress testCase = new SubmitStorageDealIdTestCaseWithInvalidAddress(
+                storages,
+                generator,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    /// @notice test case with invalid cid
+    function testSubmitStorageDealIdWithInvalidCid() public {
+        setup();
+        SubmitStorageDealIdTestCaseWithInvalidCid testCase = new SubmitStorageDealIdTestCaseWithInvalidCid(
+                storages,
+                generator,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    /// @notice test case with duplicate cid
+    function testSubmitStorageDealIdWithDuplicateCid() public {
+        setup();
+        SubmitStorageDealIdTestCaseWithDuplicateCid testCase = new SubmitStorageDealIdTestCaseWithDuplicateCid(
+                storages,
+                generator,
                 helpers,
                 assertion
             );

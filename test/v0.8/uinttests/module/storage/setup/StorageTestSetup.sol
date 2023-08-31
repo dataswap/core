@@ -40,6 +40,7 @@ contract StorageTestSetup {
     Storages storages;
     StoragesAssertion assertion;
     StoragesHelpers helpers;
+    Generator generator = new Generator();
 
     /// @dev Initialize the storages and helpers,assertion contracts.
     function setup() internal {
@@ -79,7 +80,6 @@ contract StorageTestSetup {
         );
         assertion = new StoragesAssertion(storages);
 
-        Generator generator = new Generator();
         DatasetsAssertion datasetAssertion = new DatasetsAssertion(datasets);
         DatasetsHelpers datasetsHelpers = new DatasetsHelpers(
             datasets,

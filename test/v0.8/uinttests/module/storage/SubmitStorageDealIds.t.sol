@@ -26,6 +26,7 @@ contract SubmitStorageDealIdTest is Test, StorageTestSetup {
         setup();
         SubmitStorageDealIdsTestCaseWithSuccess testCase = new SubmitStorageDealIdsTestCaseWithSuccess(
                 storages,
+                generator,
                 helpers,
                 assertion
             );

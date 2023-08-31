@@ -18,6 +18,8 @@ pragma solidity ^0.8.21;
 
 import {StoragesTestBase} from "test/v0.8/testcases/module/storage/abstract/StoragesTestBase.sol";
 
+import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
+
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
 import {IStoragesHelpers} from "test/v0.8/interfaces/helpers/module/IStoragesHelpers.sol";
@@ -25,14 +27,22 @@ import {IStoragesHelpers} from "test/v0.8/interfaces/helpers/module/IStoragesHel
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
-///@notice submit storage filecoin deal id test case with success
+/// NOTE: Exception test cases submit storage deal id already covered
+
+///@notice submit storage filecoin deal ids test case with success
 contract SubmitStorageDealIdsTestCaseWithSuccess is StoragesTestBase {
     constructor(
         IStorages _storages,
+        Generator _generator,
         IStoragesHelpers _storagesHelpers,
         IStoragesAssertion _storagesAssertion
     )
-        StoragesTestBase(_storages, _storagesHelpers, _storagesAssertion) // solhint-disable-next-line
+        StoragesTestBase(
+            _storages,
+            _generator,
+            _storagesHelpers,
+            _storagesAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64) {
