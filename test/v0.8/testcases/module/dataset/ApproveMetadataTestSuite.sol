@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {DatasetsTestBase} from "test/v0.8/testcases/module/dataset/abstract/DatasetsTestBase.sol";
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
@@ -48,5 +49,84 @@ contract ApproveMetadataTestCaseWithSuccess is DatasetsTestBase {
             datasets.governanceAddress(),
             _id
         );
+    }
+}
+
+///@notice approve metadata of dataset test caset with invalid address.
+contract ApproveMetadataTestCaseWithInvalidAddress is DatasetsTestBase {
+    constructor(
+        IDatasets _datasets,
+        IDatasetsHelpers _datasetsHelpers,
+        IDatasetsAssertion _datasetsAssertion
+    )
+        DatasetsTestBase(_datasets, _datasetsHelpers, _datasetsAssertion) // solhint-disable-next-line
+    {}
+
+    function before() internal virtual override returns (uint64 id) {
+        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
+            address(9),
+            "TEST"
+        );
+        return datasetId;
+    }
+
+    function action(uint64 _id) internal virtual override {
+        vm.expectRevert(bytes("Only allowed address can call"));
+        datasetsAssertion.approveDatasetMetadataAssertion(address(8), _id);
+    }
+}
+
+///@notice approve metadata of dataset test caset with zero dataset id.
+contract ApproveMetadataTestCaseWithZeroID is DatasetsTestBase {
+    constructor(
+        IDatasets _datasets,
+        IDatasetsHelpers _datasetsHelpers,
+        IDatasetsAssertion _datasetsAssertion
+    )
+        DatasetsTestBase(_datasets, _datasetsHelpers, _datasetsAssertion) // solhint-disable-next-line
+    {}
+
+    function before() internal virtual override returns (uint64 id) {
+        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
+            address(9),
+            "TEST"
+        );
+        return datasetId;
+    }
+
+    function action(uint64) internal virtual override {
+        // Perform the action.
+        vm.prank(datasets.governanceAddress());
+        vm.expectRevert(bytes("Value must not be zero"));
+        datasets.approveDatasetMetadata(0);
+    }
+}
+
+///@notice approve metadata of dataset test caset with invalid state.
+contract ApproveMetadataTestCaseWithInvalidState is DatasetsTestBase {
+    constructor(
+        IDatasets _datasets,
+        IDatasetsHelpers _datasetsHelpers,
+        IDatasetsAssertion _datasetsAssertion
+    )
+        DatasetsTestBase(_datasets, _datasetsHelpers, _datasetsAssertion) // solhint-disable-next-line
+    {}
+
+    function before() internal virtual override returns (uint64 id) {
+        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
+            address(9),
+            "TEST"
+        );
+        return datasetId;
+    }
+
+    function action(uint64 _id) internal virtual override {
+        // Perform the action.
+        vm.prank(datasets.governanceAddress());
+        datasets.rejectDatasetMetadata(_id);
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.InvalidDatasetState.selector, _id)
+        );
+        datasets.approveDatasetMetadata(_id);
     }
 }

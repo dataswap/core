@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {SubmitMetadataTestCaseWithSuccess} from "test/v0.8/testcases/module/dataset/SubmitMetadataTestSuite.sol";
+import "test/v0.8/testcases/module/dataset/SubmitMetadataTestSuite.sol";
 import {DatasetTestSetup} from "test/v0.8/uinttests/module/dataset/setup/DatasetTestSetup.sol";
 
 contract SubmitMetadataTest is Test, DatasetTestSetup {
@@ -25,6 +25,17 @@ contract SubmitMetadataTest is Test, DatasetTestSetup {
     function testSubmitMetadataWithSuccess() public {
         setup();
         SubmitMetadataTestCaseWithSuccess testCase = new SubmitMetadataTestCaseWithSuccess(
+                datasets,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    /// @notice test case with duplicate
+    function testSubmitMetadataWithDuplicate() public {
+        setup();
+        SubmitMetadataTestCaseWithDuplicate testCase = new SubmitMetadataTestCaseWithDuplicate(
                 datasets,
                 helpers,
                 assertion

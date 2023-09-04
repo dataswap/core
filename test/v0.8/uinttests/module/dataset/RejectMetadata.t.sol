@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {RejectMetadataTestCaseWithSuccess} from "test/v0.8/testcases/module/dataset/RejectMetadataTestSuite.sol";
+import "test/v0.8/testcases/module/dataset/RejectMetadataTestSuite.sol";
 import {DatasetTestSetup} from "test/v0.8/uinttests/module/dataset/setup/DatasetTestSetup.sol";
 
 contract RejectMetadataTest is Test, DatasetTestSetup {
@@ -25,6 +25,39 @@ contract RejectMetadataTest is Test, DatasetTestSetup {
     function testRejectMetadataWithSuccess() public {
         setup();
         RejectMetadataTestCaseWithSuccess testCase = new RejectMetadataTestCaseWithSuccess(
+                datasets,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    /// @notice test case with invalid address
+    function testRejectMetadataWithInvalidAddress() public {
+        setup();
+        RejectMetadataTestCaseWithInvalidAddress testCase = new RejectMetadataTestCaseWithInvalidAddress(
+                datasets,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    /// @notice test case with zero dataset id
+    function testRejectMetadataWithZeroID() public {
+        setup();
+        RejectMetadataTestCaseWithZeroID testCase = new RejectMetadataTestCaseWithZeroID(
+                datasets,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    /// @notice test case with invalid state
+    function testRejectMetadataWithInvalidState() public {
+        setup();
+        RejectMetadataTestCaseWithInvalidState testCase = new RejectMetadataTestCaseWithInvalidState(
                 datasets,
                 helpers,
                 assertion

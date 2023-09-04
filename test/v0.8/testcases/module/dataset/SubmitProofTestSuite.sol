@@ -84,3 +84,64 @@ contract SubmitProofTestCaseWithSuccess is DatasetsTestBase {
         );
     }
 }
+
+///@notice submit dataset proof test case with invalid submitter.
+contract SubmitProofTestCaseWithInvalidSubmitter is DatasetsTestBase {
+    constructor(
+        IDatasets _datasets,
+        IDatasetsHelpers _datasetsHelpers,
+        IDatasetsAssertion _datasetsAssertion
+    )
+        DatasetsTestBase(_datasets, _datasetsHelpers, _datasetsAssertion) // solhint-disable-next-line
+    {}
+
+    function before() internal virtual override returns (uint64) {
+        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
+            address(9),
+            "TEST"
+        );
+        vm.prank(datasets.governanceAddress());
+        datasets.approveDatasetMetadata(datasetId);
+        return datasetId;
+    }
+
+    function action(uint64 _datasetId) internal virtual override {
+        bytes32 sourceRoot = datasetsHelpers.generateRoot();
+        uint64 sourceLeavesCount = 100;
+        bytes32[] memory sourceLeavesHashes = new bytes32[](sourceLeavesCount);
+        uint64[] memory sourceLeavesSizes = new uint64[](sourceLeavesCount);
+        // firset submit
+        (sourceLeavesHashes, sourceLeavesSizes, ) = datasetsHelpers
+            .generateProof(sourceLeavesCount);
+        // vm.prank();
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
+        vm.stopPrank();
+        datasetsAssertion.submitDatasetProofAssertion(
+            address(99),
+            _datasetId,
+            DatasetType.DataType.Source,
+            "",
+            sourceRoot,
+            sourceLeavesHashes,
+            sourceLeavesSizes,
+            false
+        );
+
+        // second submit
+        (sourceLeavesHashes, sourceLeavesSizes, ) = datasetsHelpers
+            .generateProof(sourceLeavesCount);
+        vm.expectRevert(bytes("Invalid Dataset submitter"));
+        datasetsAssertion.submitDatasetProofAssertion(
+            address(199),
+            _datasetId,
+            DatasetType.DataType.Source,
+            "",
+            sourceRoot,
+            sourceLeavesHashes,
+            sourceLeavesSizes,
+            true
+        );
+    }
+}
