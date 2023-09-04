@@ -157,3 +157,65 @@ contract SubmittVerificationTestCaseWithFail is DatasetsTestBase {
         );
     }
 }
+
+///@notice submit dataset verification test case with illegal role.
+contract SubmittVerificationTestCaseWithIllegalRole is DatasetsTestBase {
+    constructor(
+        IDatasets _datasets,
+        IDatasetsHelpers _datasetsHelpers,
+        IDatasetsAssertion _datasetsAssertion
+    )
+        DatasetsTestBase(_datasets, _datasetsHelpers, _datasetsAssertion) // solhint-disable-next-line
+    {}
+
+    function before() internal virtual override returns (uint64 id) {
+        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
+            address(9),
+            "TEST"
+        );
+        vm.prank(datasets.governanceAddress());
+        datasets.approveDatasetMetadata(datasetId);
+
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
+        vm.stopPrank();
+        datasetsHelpers.submitDatasetProof(
+            address(99),
+            datasetId,
+            DatasetType.DataType.Source,
+            "",
+            100,
+            true
+        );
+        datasetsHelpers.submitDatasetProof(
+            address(99),
+            datasetId,
+            DatasetType.DataType.MappingFiles,
+            "accessmethod",
+            10,
+            true
+        );
+        return datasetId;
+    }
+
+    function action(uint64 _id) internal virtual override {
+        uint64 pointCount = 1;
+        bytes32[] memory leaves = new bytes32[](pointCount);
+        bytes32[][] memory siblings = new bytes32[][](pointCount);
+        uint32[] memory paths = new uint32[](pointCount);
+        uint64 randomSeed;
+        (randomSeed, leaves, siblings, paths) = datasetsHelpers
+            .generateVerification(pointCount);
+
+        vm.expectRevert(bytes("Only allowed role can call"));
+        datasetsAssertion.submitDatasetVerificationAssertion(
+            address(199),
+            _id,
+            randomSeed,
+            leaves,
+            siblings,
+            paths
+        );
+    }
+}

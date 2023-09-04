@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {RejectTestCaseWithSuccess} from "test/v0.8/testcases/module/dataset/RejectTestSuite.sol";
+import "test/v0.8/testcases/module/dataset/RejectTestSuite.sol";
 import {DatasetTestSetup} from "test/v0.8/uinttests/module/dataset/setup/DatasetTestSetup.sol";
 
 contract RejectTest is Test, DatasetTestSetup {
@@ -29,6 +29,39 @@ contract RejectTest is Test, DatasetTestSetup {
             helpers,
             assertion
         );
+        testCase.run();
+    }
+
+    /// @notice test case with invalid address
+    function testRejectWithInvalidAddress() public {
+        setup();
+        RejectTestCaseWithInvalidAddress testCase = new RejectTestCaseWithInvalidAddress(
+                datasets,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    /// @notice test case with zero dataset id
+    function testRejectWithZeroID() public {
+        setup();
+        RejectTestCaseWithZeroID testCase = new RejectTestCaseWithZeroID(
+            datasets,
+            helpers,
+            assertion
+        );
+        testCase.run();
+    }
+
+    /// @notice test case with invalid state
+    function testRejectWithInvalidState() public {
+        setup();
+        RejectTestCaseWithInvalidState testCase = new RejectTestCaseWithInvalidState(
+                datasets,
+                helpers,
+                assertion
+            );
         testCase.run();
     }
 }

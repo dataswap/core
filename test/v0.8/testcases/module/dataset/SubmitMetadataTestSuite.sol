@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {DatasetsTestBase} from "test/v0.8/testcases/module/dataset/abstract/DatasetsTestBase.sol";
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
@@ -51,7 +52,8 @@ contract SubmitMetadataTestCaseWithSuccess is DatasetsTestBase {
     }
 }
 
-contract SubmitMetadataTestCaseWithCustom is DatasetsTestBase {
+///@notice submit metadata of dataset test case with duplicate.
+contract SubmitMetadataTestCaseWithDuplicate is DatasetsTestBase {
     constructor(
         IDatasets _datasets,
         IDatasetsHelpers _datasetsHelpers,
@@ -60,30 +62,36 @@ contract SubmitMetadataTestCaseWithCustom is DatasetsTestBase {
         DatasetsTestBase(_datasets, _datasetsHelpers, _datasetsAssertion) // solhint-disable-next-line
     {}
 
-    function action(uint64 _id) internal virtual override {}
-
-    function run(
-        string memory _title,
-        string memory _industry,
-        string memory _name,
-        string memory _description,
-        string memory _source,
-        string memory _accessMethod,
-        uint64 _sizeInBytes,
-        bool _isPublic,
-        uint64 _version
-    ) public {
+    function action(uint64 /*_id*/) internal virtual override {
         datasetsAssertion.submitDatasetMetadataAssertion(
             address(9),
-            _title,
-            _industry,
-            _name,
-            _description,
-            _source,
-            _accessMethod,
-            _sizeInBytes,
-            _isPublic,
-            _version
+            "a",
+            "b",
+            "c",
+            "d",
+            "e",
+            "accessMethod",
+            10000,
+            true,
+            0
+        );
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.DatasetMetadataAlreadyExist.selector,
+                "accessMethod"
+            )
+        );
+        datasetsAssertion.submitDatasetMetadataAssertion(
+            address(9),
+            "a",
+            "b",
+            "c",
+            "d",
+            "e",
+            "accessMethod",
+            10000,
+            true,
+            0
         );
     }
 }

@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {SubmittVerificationTestCaseWithSuccess, SubmittVerificationTestCaseWithFail} from "test/v0.8/testcases/module/dataset/SubmittVerificationTestSuite.sol";
+import "test/v0.8/testcases/module/dataset/SubmittVerificationTestSuite.sol";
 import {DatasetTestSetup} from "test/v0.8/uinttests/module/dataset/setup/DatasetTestSetup.sol";
 
 contract VerificationTest is Test, DatasetTestSetup {
@@ -36,6 +36,17 @@ contract VerificationTest is Test, DatasetTestSetup {
     function testSubmitDatasetVerificationWithFail() public {
         setup();
         SubmittVerificationTestCaseWithFail testCase = new SubmittVerificationTestCaseWithFail(
+                datasets,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    /// @notice test case with illegal role
+    function testSubmitDatasetVerificationWithIllegalRole() public {
+        setup();
+        SubmittVerificationTestCaseWithIllegalRole testCase = new SubmittVerificationTestCaseWithIllegalRole(
                 datasets,
                 helpers,
                 assertion

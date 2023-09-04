@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {SubmitProofTestCaseWithSuccess} from "test/v0.8/testcases/module/dataset/SubmitProofTestSuite.sol";
+import "test/v0.8/testcases/module/dataset/SubmitProofTestSuite.sol";
 import {DatasetTestSetup} from "test/v0.8/uinttests/module/dataset/setup/DatasetTestSetup.sol";
 
 contract SubmitProofTest is Test, DatasetTestSetup {
@@ -25,6 +25,17 @@ contract SubmitProofTest is Test, DatasetTestSetup {
     function testSubmitDatasetProofWithSuccess() public {
         setup();
         SubmitProofTestCaseWithSuccess testCase = new SubmitProofTestCaseWithSuccess(
+                datasets,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    /// @notice test case with invalid submitter
+    function testSubmitDatasetProofWithInvalidSubmitter() public {
+        setup();
+        SubmitProofTestCaseWithInvalidSubmitter testCase = new SubmitProofTestCaseWithInvalidSubmitter(
                 datasets,
                 helpers,
                 assertion
