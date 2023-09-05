@@ -455,6 +455,9 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         }
     }
 
+    /// @notice Assertion function for getting  submitter of dataset.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _submitter The expected submitter address.
     function getDatasetProofSubmitterAssertion(
         uint64 _datasetId,
         address _submitter

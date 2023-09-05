@@ -13,24 +13,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ********************************************************************************/
+
 // SPDX-License-Identifier: GPL-3.0-or-later
+
 pragma solidity ^0.8.21;
 
-// Importing Solidity libraries and contracts
-import {DSTest} from "ds-test/test.sol";
-import {Test} from "forge-std/Test.sol";
-import {DatasetType} from "src/v0.8/types/DatasetType.sol";
-import {IDataswapStorage} from "src/v0.8/interfaces/service/IDataswapStorage.sol";
 import {IDataswapStorageAssertion} from "test/v0.8/interfaces/assertions/service/IDataswapStorageAssertion.sol";
-import {CarstoreServiceAssertion} from "test/v0.8/assertions/service/abstract/CarstoreServiceAssertion.sol";
-import {FilecoinServiceAssertion} from "test/v0.8/assertions/service/abstract/FilecoinServiceAssertion.sol";
-import {FilplusServiceAssertion} from "test/v0.8/assertions/service/abstract/FilplusServiceAssertion.sol";
-import {RoleServiceAssertion} from "test/v0.8/assertions/service/abstract/RoleServiceAssertion.sol";
-import {DatacapServiceAssertion} from "test/v0.8/assertions/service/abstract/DatacapServiceAssertion.sol";
-import {DatasetServiceAssertion} from "test/v0.8/assertions/service/abstract/DatasetServiceAssertion.sol";
-import {MatchingServiceAssertion} from "test/v0.8/assertions/service/abstract/MatchingServiceAssertion.sol";
-import {StorageServiceAssertion} from "test/v0.8/assertions/service/abstract/StorageServiceAssertion.sol";
-import {ServiceAssertionBase} from "test/v0.8/assertions/service/abstract/base/ServiceAssertionBase.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
@@ -40,16 +28,21 @@ import {IFilplusAssertion} from "test/v0.8/interfaces/assertions/core/IFilplusAs
 import {IFilecoinAssertion} from "test/v0.8/interfaces/assertions/core/IFilecoinAssertion.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 
-contract DataswapStorageAssertion is
-    CarstoreServiceAssertion,
-    FilecoinServiceAssertion,
-    FilplusServiceAssertion,
-    RoleServiceAssertion,
-    DatacapServiceAssertion,
-    DatasetServiceAssertion,
-    MatchingServiceAssertion,
-    StorageServiceAssertion
-{
+/// @title ServiceAssertionBase
+/// @notice Abstract contract that defines the base for Dataswap storage service assertion base.
+abstract contract ServiceAssertionBase is IDataswapStorageAssertion {
+    address internal governanceContractAddress; // solhint-disable-next-line
+    ICarstoreAssertion carstoreAssertion; // solhint-disable-next-line
+    IFilecoinAssertion filecoinAssertion; // solhint-disable-next-line
+    IFilplusAssertion filplusAssertion; // solhint-disable-next-line
+    IRolesAssertion rolesAssertion; // solhint-disable-next-line
+    IDatacapsAssertion datacapsAssertion; // solhint-disable-next-line
+    IDatasetsAssertion datasetsAssertion; // solhint-disable-next-line
+    IStoragesAssertion storagesAssertion; // solhint-disable-next-line
+    IMatchingsAssertion matchingsAssertion; // solhint-disable-next-line
+
+    /// @notice Constructor to initialize contract instances and setup environment
+    /// @param _governanceContractAddress Address of the governance contract
     constructor(
         address _governanceContractAddress,
         ICarstoreAssertion _carstoreAssertion,
@@ -59,18 +52,16 @@ contract DataswapStorageAssertion is
         IDatacapsAssertion _datacapsAssertion,
         IDatasetsAssertion _datasetsAssertion,
         IMatchingsAssertion _matchingsAssertion,
-        IStoragesAssertion _storageAssertion
-    )
-        ServiceAssertionBase(
-            _governanceContractAddress,
-            _carstoreAssertion,
-            _filecoinAssertion,
-            _filplusAssertion,
-            _rolesAssertion,
-            _datacapsAssertion,
-            _datasetsAssertion,
-            _matchingsAssertion,
-            _storageAssertion
-        )
-    {}
+        IStoragesAssertion _storagesAssertion
+    ) {
+        governanceContractAddress = _governanceContractAddress;
+        carstoreAssertion = _carstoreAssertion;
+        filecoinAssertion = _filecoinAssertion;
+        filplusAssertion = _filplusAssertion;
+        rolesAssertion = _rolesAssertion;
+        datacapsAssertion = _datacapsAssertion;
+        datasetsAssertion = _datasetsAssertion;
+        matchingsAssertion = _matchingsAssertion;
+        storagesAssertion = _storagesAssertion;
+    }
 }

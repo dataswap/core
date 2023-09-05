@@ -19,15 +19,12 @@ pragma solidity ^0.8.21;
 import {DataswapStorage} from "src/v0.8/service/dataswapstorage/DataswapStorage.sol";
 import {DataswapStorageAssertion} from "test/v0.8/assertions/service/DataswapStorageAssertion.sol";
 
-/// @title AccessTestSetup
+/// @title DataswapStorageTestSetup
 /// @notice This contract is used for setting up access control testing.
-contract AccessTestSetup {
+contract DataswapStorageTestSetup {
     DataswapStorage public dataswapStorage;
     DataswapStorageAssertion assertion;
 
-    /// @dev Initialize the roles and assertion contracts.
-    function setup() internal {
-        roles = new Roles();
-        assertion = new RolesAssertion(roles);
-    }
+    /// @dev Initialize the dataswapstorage and assertion contracts.
+    function setup() internal {}
 }

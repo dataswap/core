@@ -85,6 +85,14 @@ interface ICarstoreAssertion {
         uint64 _expectSize
     ) external;
 
+    /// @notice Assertion for getting the size of cars.
+    /// @param _inputCids The CIDs (Content Identifier) of the cars.
+    /// @param _expectSize The expected size of the car.
+    function getCarsSizeAssertion(
+        bytes32[] memory _inputCids,
+        uint256 _expectSize
+    ) external;
+
     /// @dev Asserts getting the dataset ID of a car.
     /// @param _inputCid The CID (Content Identifier) of the car.
     /// @param _expectDatasetId The expected dataset ID to which the car belongs.

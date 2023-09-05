@@ -151,6 +151,14 @@ interface IDatasetsAssertion {
         bytes32[] memory _expectCars
     ) external;
 
+    /// @notice Assertion function for getting  submitter of dataset.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _submitter The expected submitter address.
+    function getDatasetProofSubmitterAssertion(
+        uint64 _datasetId,
+        address _submitter
+    ) external;
+
     /// @notice Asserts the retrieval of the count of dataset proofs.
     /// @param _datasetId The ID of the dataset for which the count of proofs is retrieved.
     /// @param _dataType The data type of the proofs.
@@ -235,6 +243,28 @@ interface IDatasetsAssertion {
         uint64 _datasetId,
         bytes32[] memory _cids,
         bool _expectIsDatasetContainsCars
+    ) external;
+
+    /// @notice Assertion function for checking if a _submitter of the dataset proof is the submitter of the dataset proof.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _submitter The submitter to check.
+    /// @param _expectIsDatasetProofSubmitter The expected result, true if _submitter is the submitter of the dataset proof.
+    function isDatasetProofSubmitterAssertion(
+        uint64 _datasetId,
+        address _submitter,
+        bool _expectIsDatasetProofSubmitter
+    ) external;
+
+    /// @notice Assertion function for checking if a _randomSeed is duplicate in dataset or the _auditor is submitted.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _auditor The _auditor to check.
+    /// @param _randomSeed The _randomSeed to check.
+    /// @param _expectIsDatasetVerificationDuplicate The expected result, true if dupulicated of the dataset varification.
+    function isDatasetVerificationDuplicateAssertion(
+        uint64 _datasetId,
+        address _auditor,
+        uint64 _randomSeed,
+        bool _expectIsDatasetVerificationDuplicate
     ) external;
 
     /// @notice Asserts the count of datasets.

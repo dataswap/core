@@ -160,6 +160,12 @@ interface IFilplusAssertion {
         uint16 _expectCount
     ) external;
 
+    /// @notice Asserts the maximum proportion of mapping files to dataset.
+    /// @param _expectCount The expected maximum proportion of mapping files to dataset value.
+    function datasetRuleMaxProportionOfMappingFilesToDatasetAssertion(
+        uint8 _expectCount
+    ) external;
+
     /// @notice Asserts the minimum number of storage providers (SPs) per dataset.
     /// @param _expectCount The expected minimum number of SPs per dataset.
     function datasetRuleMinSPsPerDatasetAssertion(uint16 _expectCount) external;
