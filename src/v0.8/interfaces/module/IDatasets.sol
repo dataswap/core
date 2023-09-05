@@ -52,7 +52,7 @@ interface IDatasets {
         uint64 _sizeInBytes,
         bool _isPublic,
         uint64 _version
-    ) external;
+    ) external payable;
 
     ///@notice Submit proof for a dataset
     function submitDatasetProof(

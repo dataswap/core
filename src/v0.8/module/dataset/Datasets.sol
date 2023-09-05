@@ -148,7 +148,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
         uint64 _sizeInBytes,
         bool _isPublic,
         uint64 _version
-    ) external onlyDatasetMetadataNotExsits(_accessMethod) {
+    ) external payable onlyDatasetMetadataNotExsits(_accessMethod) {
         //Note: params check in lib
         datasetsCount++;
         DatasetType.Dataset storage dataset = datasets[datasetsCount];

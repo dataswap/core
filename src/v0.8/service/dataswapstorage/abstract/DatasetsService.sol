@@ -61,8 +61,24 @@ abstract contract DatasetsService is DataswapStorageServiceBase {
         uint64 _sizeInBytes,
         bool _isPublic,
         uint64 _version
-    ) external {
-        datasetsInstance.submitDatasetMetadata(
+    ) external payable {
+        //(bool success, ) = address(datasetsInstance).delegatecall(
+        //    abi.encodeWithSignature(
+        //        "submitDatasetMetadata(string,string,string,string,string,string,uint64,bool,uint64)",
+        //        _title,
+        //        _industry,
+        //        _name,
+        //        _description,
+        //        _source,
+        //        _accessMethod,
+        //        _sizeInBytes,
+        //        _isPublic,
+        //        _version
+        //    )
+        //);
+        //require(success, "Call to submitDatasetMetadata failed");
+
+        datasetsInstance.submitDatasetMetadata{value: msg.value}(
             _title,
             _industry,
             _name,

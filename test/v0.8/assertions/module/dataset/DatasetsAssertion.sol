@@ -19,6 +19,7 @@ pragma solidity ^0.8.21;
 // Importing Solidity libraries and contracts
 import {DSTest} from "ds-test/test.sol";
 import {Test} from "forge-std/Test.sol";
+import {console} from "forge-std/console.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";

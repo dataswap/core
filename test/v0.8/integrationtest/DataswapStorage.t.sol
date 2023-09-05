@@ -17,3 +17,18 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
+import {SubmitMetadataTestCaseWithSuccess} from "test/v0.8/testcases/service/SubmitMetadataTestSuite.sol";
+import {DataswapStorageTestSetup} from "test/v0.8/integrationtest/setup/DataswapStorageTestSetup.sol";
+
+contract FunctionSubmitMetadataTest is Test, DataswapStorageTestSetup {
+    /// @notice test case with success
+    function testSubmitMetadataWithSuccess() public {
+        setup();
+        SubmitMetadataTestCaseWithSuccess testCase = new SubmitMetadataTestCaseWithSuccess(
+                dataswapStorage,
+                helper,
+                assertion
+            );
+        testCase.run();
+    }
+}
