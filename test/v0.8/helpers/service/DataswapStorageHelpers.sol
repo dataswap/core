@@ -20,24 +20,23 @@ pragma solidity ^0.8.21;
 import {Test} from "forge-std/Test.sol";
 import {IDataswapStorageHelpers} from "test/v0.8/interfaces/helpers/service/IDataswapStorageHelpers.sol";
 import {IDataswapStorage} from "src/v0.8/interfaces/service/IDataswapStorage.sol";
-
 import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
-import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
+import {IDataswapStorageAssertion} from "test/v0.8/interfaces/assertions/service/IDataswapStorageAssertion.sol";
 
 // Contract definition for test helper functions
 contract DataswapStorageHelpers is Test, IDataswapStorageHelpers {
-    IDataswapStorage public datasets;
+    IDataswapStorage public dataswapStorage;
     Generator private generator;
-    IDatasetsAssertion private datasetsAssertion;
+    IDataswapStorageAssertion private dataswapStorageAssertion;
 
     constructor(
         IDataswapStorage _dataswapStorage,
         Generator _generator,
-        IDatasetsAssertion _datasetsAssertion
+        IDataswapStorageAssertion _dataswapStorageAssertion
     ) {
-        datasets = _dataswapStorage;
+        dataswapStorage = _dataswapStorage;
         generator = _generator;
-        datasetsAssertion = _datasetsAssertion;
+        dataswapStorageAssertion = _dataswapStorageAssertion;
     }
 
     /// @notice Generate a Merkle root hash.

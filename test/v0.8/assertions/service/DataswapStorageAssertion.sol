@@ -20,10 +20,7 @@ pragma solidity ^0.8.21;
 import {DSTest} from "ds-test/test.sol";
 import {Test} from "forge-std/Test.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
-import {IDataswapStorage} from "src/v0.8/interfaces/service/IDataswapStorage.sol";
-import {IDataswapStorageAssertion} from "test/v0.8/interfaces/assertions/service/IDataswapStorageAssertion.sol";
 import {CarstoreServiceAssertion} from "test/v0.8/assertions/service/abstract/CarstoreServiceAssertion.sol";
-import {FilecoinServiceAssertion} from "test/v0.8/assertions/service/abstract/FilecoinServiceAssertion.sol";
 import {FilplusServiceAssertion} from "test/v0.8/assertions/service/abstract/FilplusServiceAssertion.sol";
 import {RoleServiceAssertion} from "test/v0.8/assertions/service/abstract/RoleServiceAssertion.sol";
 import {DatacapServiceAssertion} from "test/v0.8/assertions/service/abstract/DatacapServiceAssertion.sol";
@@ -37,12 +34,10 @@ import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatase
 import {IDatacapsAssertion} from "test/v0.8/interfaces/assertions/module/IDatacapsAssertion.sol";
 import {IRolesAssertion} from "test/v0.8/interfaces/assertions/core/IRolesAssertion.sol";
 import {IFilplusAssertion} from "test/v0.8/interfaces/assertions/core/IFilplusAssertion.sol";
-import {IFilecoinAssertion} from "test/v0.8/interfaces/assertions/core/IFilecoinAssertion.sol";
-import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
+import {ICarstoreReadOnlyAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 
 contract DataswapStorageAssertion is
     CarstoreServiceAssertion,
-    FilecoinServiceAssertion,
     FilplusServiceAssertion,
     RoleServiceAssertion,
     DatacapServiceAssertion,
@@ -52,8 +47,7 @@ contract DataswapStorageAssertion is
 {
     constructor(
         address _governanceContractAddress,
-        ICarstoreAssertion _carstoreAssertion,
-        IFilecoinAssertion _filecoinAssertion,
+        ICarstoreReadOnlyAssertion _carstoreAssertion,
         IFilplusAssertion _filplusAssertion,
         IRolesAssertion _rolesAssertion,
         IDatacapsAssertion _datacapsAssertion,
@@ -64,7 +58,6 @@ contract DataswapStorageAssertion is
         ServiceAssertionBase(
             _governanceContractAddress,
             _carstoreAssertion,
-            _filecoinAssertion,
             _filplusAssertion,
             _rolesAssertion,
             _datacapsAssertion,

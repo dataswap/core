@@ -18,8 +18,7 @@
 
 pragma solidity ^0.8.21;
 
-import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
-import {IFilecoinAssertion} from "test/v0.8/interfaces/assertions/core/IFilecoinAssertion.sol";
+import {ICarstoreReadOnlyAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 import {IFilplusAssertion} from "test/v0.8/interfaces/assertions/core/IFilplusAssertion.sol";
 import {IRolesAssertion} from "test/v0.8/interfaces/assertions/core/IRolesAssertion.sol";
 import {IDatacapsAssertion} from "test/v0.8/interfaces/assertions/module/IDatacapsAssertion.sol";
@@ -30,8 +29,7 @@ import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStorag
 /// @dev DataswapStorage assertion interface
 // solhint-disable-next-line
 interface IDataswapStorageAssertion is
-    ICarstoreAssertion,
-    IFilecoinAssertion,
+    ICarstoreReadOnlyAssertion,
     IFilplusAssertion,
     IRolesAssertion,
     IDatacapsAssertion,

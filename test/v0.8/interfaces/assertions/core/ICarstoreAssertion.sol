@@ -19,64 +19,9 @@ pragma solidity ^0.8.21;
 
 import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
 
-// Interface for assert carstore action
-/// @dev All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
-interface ICarstoreAssertion {
-    /// @dev Asserts the addition of a car to the carstore.
-    /// @param _cid The CID (Content Identifier) of the car.
-    /// @param _datasetId The ID of the dataset to which the car is added.
-    /// @param _size The size of the car in bytes.
-    function addCarAssertion(
-        bytes32 _cid,
-        uint64 _datasetId,
-        uint64 _size
-    ) external;
-
-    /// @dev Asserts the addition of multiple cars to the carstore.
-    /// @param _cids An array of CIDs (Content Identifiers) of the cars.
-    /// @param _datasetId The ID of the dataset to which the cars are added.
-    /// @param _sizes An array of sizes of the cars in bytes.
-    function addCarsAssertion(
-        bytes32[] memory _cids,
-        uint64 _datasetId,
-        uint64[] memory _sizes
-    ) external;
-
-    /// @dev Asserts the addition of a car replica to a matching.
-    /// @param _cid The CID (Content Identifier) of the car replica.
-    /// @param _matchingId The ID of the matching to which the car replica is added.
-    function addCarReplicaAssertion(bytes32 _cid, uint64 _matchingId) external;
-
-    /// @dev Asserts the reporting of a car replica as expired.
-    /// @param _cid The CID (Content Identifier) of the car replica.
-    /// @param _matchingId The ID of the matching to which the car replica belongs.
-    /// @param _filecoinDealId The ID of the Filecoin deal associated with the car replica.
-    function reportCarReplicaExpiredAssertion(
-        bytes32 _cid,
-        uint64 _matchingId,
-        uint64 _filecoinDealId
-    ) external;
-
-    /// @dev Asserts the reporting of a car replica as slashed.
-    /// @param _cid The CID (Content Identifier) of the car replica.
-    /// @param _matchingId The ID of the matching to which the car replica belongs.
-    /// @param _filecoinDealId The ID of the Filecoin deal associated with the car replica.
-    function reportCarReplicaSlashedAssertion(
-        bytes32 _cid,
-        uint64 _matchingId,
-        uint64 _filecoinDealId
-    ) external;
-
-    /// @dev Asserts the setting of a Filecoin deal ID for a car replica.
-    /// @param _cid The CID (Content Identifier) of the car replica.
-    /// @param _matchingId The ID of the matching to which the car replica belongs.
-    /// @param _filecoinDealId The ID of the Filecoin deal to set.
-    function setCarReplicaFilecoinDealIdAssertion(
-        bytes32 _cid,
-        uint64 _matchingId,
-        uint64 _filecoinDealId
-    ) external;
-
+/// @title ICarstoreReadOnlyAssertion
+/// @notice This interface defines the functions for get car status.
+interface ICarstoreReadOnlyAssertion {
     /// @dev Asserts getting the size of a car.
     /// @param _inputCid The CID (Content Identifier) of the car.
     /// @param _expectSize The expected size of the car in bytes.
@@ -167,4 +112,63 @@ interface ICarstoreAssertion {
     /// @dev Asserts the total count of cars in the carstore.
     /// @param _expectCount The expected total count of cars.
     function carsCountAssertion(uint64 _expectCount) external;
+}
+
+// Interface for assert carstore action
+/// @dev All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
+interface ICarstoreAssertion is ICarstoreReadOnlyAssertion {
+    /// @dev Asserts the addition of a car to the carstore.
+    /// @param _cid The CID (Content Identifier) of the car.
+    /// @param _datasetId The ID of the dataset to which the car is added.
+    /// @param _size The size of the car in bytes.
+    function addCarAssertion(
+        bytes32 _cid,
+        uint64 _datasetId,
+        uint64 _size
+    ) external;
+
+    /// @dev Asserts the addition of multiple cars to the carstore.
+    /// @param _cids An array of CIDs (Content Identifiers) of the cars.
+    /// @param _datasetId The ID of the dataset to which the cars are added.
+    /// @param _sizes An array of sizes of the cars in bytes.
+    function addCarsAssertion(
+        bytes32[] memory _cids,
+        uint64 _datasetId,
+        uint64[] memory _sizes
+    ) external;
+
+    /// @dev Asserts the addition of a car replica to a matching.
+    /// @param _cid The CID (Content Identifier) of the car replica.
+    /// @param _matchingId The ID of the matching to which the car replica is added.
+    function addCarReplicaAssertion(bytes32 _cid, uint64 _matchingId) external;
+
+    /// @dev Asserts the reporting of a car replica as expired.
+    /// @param _cid The CID (Content Identifier) of the car replica.
+    /// @param _matchingId The ID of the matching to which the car replica belongs.
+    /// @param _filecoinDealId The ID of the Filecoin deal associated with the car replica.
+    function reportCarReplicaExpiredAssertion(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) external;
+
+    /// @dev Asserts the reporting of a car replica as slashed.
+    /// @param _cid The CID (Content Identifier) of the car replica.
+    /// @param _matchingId The ID of the matching to which the car replica belongs.
+    /// @param _filecoinDealId The ID of the Filecoin deal associated with the car replica.
+    function reportCarReplicaSlashedAssertion(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) external;
+
+    /// @dev Asserts the setting of a Filecoin deal ID for a car replica.
+    /// @param _cid The CID (Content Identifier) of the car replica.
+    /// @param _matchingId The ID of the matching to which the car replica belongs.
+    /// @param _filecoinDealId The ID of the Filecoin deal to set.
+    function setCarReplicaFilecoinDealIdAssertion(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint64 _filecoinDealId
+    ) external;
 }

@@ -26,14 +26,13 @@ import {IDatacapsAssertion} from "test/v0.8/interfaces/assertions/module/IDataca
 import {IRolesAssertion} from "test/v0.8/interfaces/assertions/core/IRolesAssertion.sol";
 import {IFilplusAssertion} from "test/v0.8/interfaces/assertions/core/IFilplusAssertion.sol";
 import {IFilecoinAssertion} from "test/v0.8/interfaces/assertions/core/IFilecoinAssertion.sol";
-import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
+import {ICarstoreReadOnlyAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 
 /// @title ServiceAssertionBase
 /// @notice Abstract contract that defines the base for Dataswap storage service assertion base.
 abstract contract ServiceAssertionBase is IDataswapStorageAssertion {
     address internal governanceContractAddress; // solhint-disable-next-line
-    ICarstoreAssertion carstoreAssertion; // solhint-disable-next-line
-    IFilecoinAssertion filecoinAssertion; // solhint-disable-next-line
+    ICarstoreReadOnlyAssertion carstoreAssertion; // solhint-disable-next-line
     IFilplusAssertion filplusAssertion; // solhint-disable-next-line
     IRolesAssertion rolesAssertion; // solhint-disable-next-line
     IDatacapsAssertion datacapsAssertion; // solhint-disable-next-line
@@ -45,8 +44,7 @@ abstract contract ServiceAssertionBase is IDataswapStorageAssertion {
     /// @param _governanceContractAddress Address of the governance contract
     constructor(
         address _governanceContractAddress,
-        ICarstoreAssertion _carstoreAssertion,
-        IFilecoinAssertion _filecoinAssertion,
+        ICarstoreReadOnlyAssertion _carstoreAssertion,
         IFilplusAssertion _filplusAssertion,
         IRolesAssertion _rolesAssertion,
         IDatacapsAssertion _datacapsAssertion,
@@ -56,7 +54,6 @@ abstract contract ServiceAssertionBase is IDataswapStorageAssertion {
     ) {
         governanceContractAddress = _governanceContractAddress;
         carstoreAssertion = _carstoreAssertion;
-        filecoinAssertion = _filecoinAssertion;
         filplusAssertion = _filplusAssertion;
         rolesAssertion = _rolesAssertion;
         datacapsAssertion = _datacapsAssertion;

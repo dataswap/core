@@ -32,7 +32,6 @@ import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
 import {Filecoin} from "src/v0.8/core/filecoin/Filecoin.sol";
 import {MerkleUtils} from "src/v0.8/shared/utils/merkle/MerkleUtils.sol";
-import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 import {MockMerkleUtils} from "src/v0.8/mocks/utils/merkle/MockMerkleUtils.sol";
 import {MockFilecoin} from "src/v0.8/mocks/core/filecoin/MockFilecoin.sol";
 
