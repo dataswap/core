@@ -41,10 +41,9 @@ contract SubmitStorageDealIdTestCaseWithSuccess is StoragesTestBase {
     }
 
     function action(uint64 _matchingId) internal virtual override {
-        //TODO: add getCars in matching:https://github.com/dataswap/core/issues/74
-        (, bytes32[] memory cars /*uint64 size*/, , , ) = storages
-            .matchings()
-            .getMatchingTarget(_matchingId);
+        bytes32[] memory cars = storages.matchings().getMatchingCars(
+            _matchingId
+        );
         bytes32 cid = cars[0];
         uint64 filecoinDealId = storagesHelpers.generateFilecoinDealId();
         address winner = storages.matchings().getMatchingWinner(_matchingId);

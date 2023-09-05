@@ -41,9 +41,9 @@ contract SubmitStorageDealIdsTestCaseWithSuccess is StoragesTestBase {
     }
 
     function action(uint64 _matchingId) internal virtual override {
-        (, bytes32[] memory cars /*uint64 size*/, , , ) = storages
-            .matchings()
-            .getMatchingTarget(_matchingId);
+        bytes32[] memory cars = storages.matchings().getMatchingCars(
+            _matchingId
+        );
         uint64[] memory filecoinDealIds = storagesHelpers
             .generateFilecoinDealIds(uint64(cars.length));
         address winner = storages.matchings().getMatchingWinner(_matchingId);
