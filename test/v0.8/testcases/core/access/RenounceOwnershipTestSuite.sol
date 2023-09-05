@@ -36,3 +36,20 @@ contract RenounceOwnershipTestCaseWithSuccess is CommonBase {
         assertion.renounceOwnershipAssertion(admin);
     }
 }
+
+/// @notice renounce ownership test case with unauthorized fail
+contract RenounceOwnershipTestCaseWithUnauthorizedFail is CommonBase {
+    constructor(
+        IRoles _roles,
+        IRolesAssertion _assertion
+    )
+        CommonBase(_roles, _assertion) // solhint-disable-next-line
+    {}
+
+    function before() internal virtual override {}
+
+    function action() internal virtual override {
+        vm.expectRevert(bytes("Ownable: caller is not the owner"));
+        roles.renounceOwnership();
+    }
+}

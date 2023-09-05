@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {AcceptOwnershipTestCaseWithSuccess} from "test/v0.8/testcases/core/access/AcceptOwnershipTestSuite.sol";
+import "test/v0.8/testcases/core/access/AcceptOwnershipTestSuite.sol";
 import {AccessTestSetup} from "test/v0.8/uinttests/core/access/setup/AccessTestSetup.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
@@ -26,6 +26,17 @@ contract AcceptOwnershipOwnershipTest is Test, AccessTestSetup {
     function testAcceptOwnershipWithSuccess() public {
         setup();
         AcceptOwnershipTestCaseWithSuccess testCase = new AcceptOwnershipTestCaseWithSuccess(
+                roles,
+                assertion
+            );
+        // run testcase
+        testCase.run();
+    }
+
+    /// @notice test case with unauthorized fail
+    function testAcceptOwnershipWithUnauthorizedFail() public {
+        setup();
+        AcceptOwnershipTestCaseWithUnauthorizedFail testCase = new AcceptOwnershipTestCaseWithUnauthorizedFail(
                 roles,
                 assertion
             );

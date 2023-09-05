@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {GrantRoleTestCaseWithSuccess} from "test/v0.8/testcases/core/access/GrantRoleTestSuite.sol";
+import "test/v0.8/testcases/core/access/GrantRoleTestSuite.sol";
 import {AccessTestSetup} from "test/v0.8/uinttests/core/access/setup/AccessTestSetup.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
@@ -26,6 +26,20 @@ contract GrantRoleTest is Test, AccessTestSetup {
     function testGrantRoleWithSuccess(bytes32 _role, address _account) public {
         setup();
         GrantRoleTestCaseWithSuccess testCase = new GrantRoleTestCaseWithSuccess(
+                roles,
+                assertion
+            );
+        // run testcase
+        testCase.run(_role, _account);
+    }
+
+    /// @notice test case with unauthorized fail
+    function testGrantRoleWithUnauthorizedFail(
+        bytes32 _role,
+        address _account
+    ) public {
+        setup();
+        GrantRoleTestCaseWithUnauthorizedFail testCase = new GrantRoleTestCaseWithUnauthorizedFail(
                 roles,
                 assertion
             );
