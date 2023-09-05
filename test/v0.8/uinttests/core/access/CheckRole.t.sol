@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {CheckRoleTestCaseWithSuccess} from "test/v0.8/testcases/core/access/CheckRoleTestSuite.sol";
+import "test/v0.8/testcases/core/access/CheckRoleTestSuite.sol";
 import {AccessTestSetup} from "test/v0.8/uinttests/core/access/setup/AccessTestSetup.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
@@ -26,6 +26,17 @@ contract CheckRoleTest is Test, AccessTestSetup {
     function testCheckRoleWithSuccess() public {
         setup();
         CheckRoleTestCaseWithSuccess testCase = new CheckRoleTestCaseWithSuccess(
+                roles,
+                assertion
+            );
+        // run testcase
+        testCase.run();
+    }
+
+    /// @notice test case with unauthorized fail
+    function testCheckRoleWithUnauthorizedFail() public {
+        setup();
+        CheckRoleTestCaseWithUnauthorizedFail testCase = new CheckRoleTestCaseWithUnauthorizedFail(
                 roles,
                 assertion
             );

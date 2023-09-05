@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {RenounceRoleTestCaseWithSuccess} from "test/v0.8/testcases/core/access/RenounceRoleTestSuite.sol";
+import "test/v0.8/testcases/core/access/RenounceRoleTestSuite.sol";
 import {AccessTestSetup} from "test/v0.8/uinttests/core/access/setup/AccessTestSetup.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
@@ -29,6 +29,20 @@ contract RenounceRoleTest is Test, AccessTestSetup {
     ) public {
         setup();
         RenounceRoleTestCaseWithSuccess testCase = new RenounceRoleTestCaseWithSuccess(
+                roles,
+                assertion
+            );
+        // run testcase
+        testCase.run(_role, _account);
+    }
+
+    /// @notice test case with unauthorized fail
+    function testRenounceRoleWithUnauthorizedFail(
+        bytes32 _role,
+        address _account
+    ) public {
+        setup();
+        RenounceRoleTestCaseWithUnauthorizedFail testCase = new RenounceRoleTestCaseWithUnauthorizedFail(
                 roles,
                 assertion
             );

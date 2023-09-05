@@ -39,3 +39,21 @@ contract AcceptOwnershipTestCaseWithSuccess is CommonBase {
         assertion.acceptOwnershipAssertion(address(7));
     }
 }
+
+/// @notice accept ownership test case with unauthorized fail
+contract AcceptOwnershipTestCaseWithUnauthorizedFail is CommonBase {
+    constructor(
+        IRoles _roles,
+        IRolesAssertion _assertion
+    )
+        CommonBase(_roles, _assertion) // solhint-disable-next-line
+    {}
+
+    // solhint-disable-next-line
+    function before() internal virtual override {}
+
+    function action() internal virtual override {
+        vm.expectRevert(bytes("Ownable2Step: caller is not the new owner"));
+        assertion.acceptOwnershipAssertion(address(8));
+    }
+}

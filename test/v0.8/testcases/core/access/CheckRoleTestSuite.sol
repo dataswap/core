@@ -36,3 +36,25 @@ contract CheckRoleTestCaseWithSuccess is CommonBase {
         assertion.checkRoleAssertion(admin);
     }
 }
+
+/// @notice check role test case with unauthorized fail
+contract CheckRoleTestCaseWithUnauthorizedFail is CommonBase {
+    constructor(
+        IRoles _roles,
+        IRolesAssertion _assertion
+    )
+        CommonBase(_roles, _assertion) // solhint-disable-next-line
+    {}
+
+    function before() internal virtual override {}
+
+    function action() internal virtual override {
+        address invalidRole = address(1);
+        vm.expectRevert(
+            bytes(
+                "AccessControl: account 0x0000000000000000000000000000000000000001 is missing role 0x0000000000000000000000000000000000000000000000000000000000000000"
+            )
+        );
+        assertion.checkRoleAssertion(invalidRole);
+    }
+}

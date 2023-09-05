@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {RenounceOwnershipTestCaseWithSuccess} from "test/v0.8/testcases/core/access/RenounceOwnershipTestSuite.sol";
+import "test/v0.8/testcases/core/access/RenounceOwnershipTestSuite.sol";
 import {AccessTestSetup} from "test/v0.8/uinttests/core/access/setup/AccessTestSetup.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
@@ -26,6 +26,17 @@ contract RenounceOwnershipTest is Test, AccessTestSetup {
     function testRenounceOwnershipWithSuccess() public {
         setup();
         RenounceOwnershipTestCaseWithSuccess testCase = new RenounceOwnershipTestCaseWithSuccess(
+                roles,
+                assertion
+            );
+        // run testcase
+        testCase.run();
+    }
+
+    /// @notice test case with unauthorized fail
+    function testRenounceOwnershipWithUnauthorizedFail() public {
+        setup();
+        RenounceOwnershipTestCaseWithUnauthorizedFail testCase = new RenounceOwnershipTestCaseWithUnauthorizedFail(
                 roles,
                 assertion
             );

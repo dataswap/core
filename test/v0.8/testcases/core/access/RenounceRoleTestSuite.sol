@@ -39,3 +39,26 @@ contract RenounceRoleTestCaseWithSuccess is RoleManageBase {
         assertion.renounceRoleAssertion(_account, _role, _account);
     }
 }
+
+/// @notice renounce role test case with unauthorized fail
+contract RenounceRoleTestCaseWithUnauthorizedFail is RoleManageBase {
+    constructor(
+        IRoles _roles,
+        IRolesAssertion _assertion
+    )
+        RoleManageBase(_roles, _assertion) // solhint-disable-next-line
+    {}
+
+    function before(bytes32 _role, address _account) internal virtual override {
+        address admin = roles.getRoleMember(bytes32(0x00), 0);
+        vm.prank(admin);
+        roles.grantRole(_role, _account);
+    }
+
+    function action(bytes32 _role, address _account) internal virtual override {
+        vm.expectRevert(
+            bytes("AccessControl: can only renounce roles for self")
+        );
+        roles.renounceRole(_role, _account);
+    }
+}

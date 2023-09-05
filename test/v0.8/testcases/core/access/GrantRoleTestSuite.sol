@@ -39,3 +39,27 @@ contract GrantRoleTestCaseWithSuccess is RoleManageBase {
         assertion.grantRoleAssertion(admin, _role, _account);
     }
 }
+
+/// @notice grant role test case with unauthorized fail
+contract GrantRoleTestCaseWithUnauthorizedFail is RoleManageBase {
+    constructor(
+        IRoles _roles,
+        IRolesAssertion _assertion
+    )
+        RoleManageBase(_roles, _assertion) // solhint-disable-next-line
+    {}
+
+    function before(
+        bytes32 _role,
+        address _account
+    ) internal virtual override {}
+
+    function action(bytes32 _role, address _account) internal virtual override {
+        vm.expectRevert(
+            bytes(
+                "AccessControl: account 0xf62849f9a0b5bf2913b396098f7c7019b51a820a is missing role 0x0000000000000000000000000000000000000000000000000000000000000000"
+            )
+        );
+        roles.grantRole(_role, _account);
+    }
+}

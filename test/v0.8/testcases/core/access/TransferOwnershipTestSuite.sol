@@ -36,3 +36,22 @@ contract TransferOwnershipTestCaseWithSuccess is TransferOwnershipBase {
         assertion.transferOwnershipAssertion(admin, _account);
     }
 }
+
+/// @dev transfer Ownership test case with unauthorized fail
+contract TransferOwnershipTestCaseWithUnauthorizedFail is
+    TransferOwnershipBase
+{
+    constructor(
+        IRoles _roles,
+        IRolesAssertion _assertion
+    )
+        TransferOwnershipBase(_roles, _assertion) // solhint-disable-next-line
+    {}
+
+    function before(address _account) internal virtual override {}
+
+    function action(address _account) internal virtual override {
+        vm.expectRevert(bytes("Ownable: caller is not the owner"));
+        roles.transferOwnership(_account);
+    }
+}
