@@ -112,7 +112,6 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
         assertEq(storages.getTotalStoredSize(_matchingId), _expectSize);
     }
 
-    // TODO: To be tested once available: https://github.com/dataswap/core/issues/73
     /// @notice Assertion function to check if all storage is done for a matching.
     /// @param _matchingId The matching ID to check.
     /// @param _expectIsAllStoredDone The expected result indicating if all storage is done.
