@@ -299,7 +299,9 @@ contract Matchings is IMatchings, MatchingsModifiers {
         return matching._getMatchingBidsCount();
     }
 
-    /// @notice  Function for getting the count of bids in a matching
+    /// @notice Get the cars of a matching.
+    /// @param _matchingId The ID of the matching.
+    /// @return cars An array of CIDs representing the cars in the matching.
     function getMatchingCars(
         uint64 _matchingId
     ) public view returns (bytes32[] memory) {
