@@ -46,7 +46,7 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
     ) external {
         // Record the count of stored cars before the action.
         uint64 oldDoneCount = storages.getStoredCarCount(_matchingId);
-        // uint64 oldtotalStoredSize = storages.getTotalStoredSize(_matchingId);
+        uint64 oldtotalStoredSize = storages.getTotalStoredSize(_matchingId);
 
         // Perform the action (submitting a storage deal ID).
         vm.prank(caller);
@@ -54,9 +54,8 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
 
         // Assert that the count of stored cars has increased by one after the action.
         getStoredCarCountAssertion(_matchingId, oldDoneCount + 1);
-        //TODO: add getCarSize method:https://github.com/dataswap/core/issues/72
-        // getTotalStoredSizeAssertion(_matchingId, oldtotalStoredSize+);
-        // TODO: Add an assertion for total stored size once the method is available.
+        uint64 carSize = storages.getStoredCarSize(_matchingId, _cid);
+        getTotalStoredSizeAssertion(_matchingId, oldtotalStoredSize + carSize);
     }
 
     /// @notice Assertion function to test the submission of multiple storage deal IDs.

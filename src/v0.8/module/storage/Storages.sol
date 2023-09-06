@@ -146,6 +146,20 @@ contract Storages is IStorages, StoragesModifiers {
         return size;
     }
 
+    /// @dev Gets the car size in the matchedstore.
+    function getStoredCarSize(
+        uint64 _matchingId,
+        bytes32 _cid
+    ) public view returns (uint64) {
+        StorageType.Storage storage storage_ = storages[_matchingId];
+        for (uint64 i = 0; i < storage_.doneCars.length; i++) {
+            if (storage_.doneCars[i] == _cid) {
+                return carstore.getCarSize(_cid);
+            }
+        }
+        return 0;
+    }
+
     /// @dev Checks if all cars are done in the matchedstore.
     function isAllStoredDone(uint64 _matchingId) public view returns (bool) {
         StorageType.Storage storage storage_ = storages[_matchingId];
