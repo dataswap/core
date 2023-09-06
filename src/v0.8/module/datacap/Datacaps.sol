@@ -108,6 +108,7 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
     )
         external
         onlyAddress(matchings.getMatchingInitiator(_matchingId))
+        onlyNotZeroAddress(matchings.getMatchingInitiator(_matchingId))
         validNextDatacapAllocation(_matchingId)
         returns (uint64)
     {
