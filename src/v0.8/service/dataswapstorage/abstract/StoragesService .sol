@@ -80,6 +80,14 @@ abstract contract StoragesService is DataswapStorageServiceBase {
         return storagesInstance.getTotalStoredSize(_matchingId);
     }
 
+    /// @dev Gets the car size
+    function getStoredCarSize(
+        uint64 _matchingId,
+        bytes32 _cid
+    ) public view returns (uint64) {
+        return storagesInstance.getStoredCarSize(_matchingId, _cid);
+    }
+
     /// @dev Checks if all cars are done in the matchedstore.
     /// @param _matchingId The ID of the matching.
     /// @return True if all cars are done in the matchedstore, otherwise false.

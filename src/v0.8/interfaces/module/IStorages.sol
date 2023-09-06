@@ -61,6 +61,12 @@ interface IStorages {
         uint64 _matchingId
     ) external view returns (uint64);
 
+    ///@notice get car size
+    function getStoredCarSize(
+        uint64 _matchingId,
+        bytes32 _cid
+    ) external view returns (uint64);
+
     /// @dev Checks if all cars are done in the matchedstore.
     /// @param _matchingId The ID of the matching.
     /// @return True if all cars are done in the matchedstore, otherwise false.
