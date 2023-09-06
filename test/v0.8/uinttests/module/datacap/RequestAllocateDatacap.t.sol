@@ -17,14 +17,47 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {RequestAllocateTestCaseWithSuccess} from "test/v0.8/testcases/module/datacap/RequestAllocateTestSuite.sol";
 import {DatacapTestSetup} from "test/v0.8/uinttests/module/datacap/setup/DatacapTestSetup.sol";
+import "test/v0.8/testcases/module/datacap/RequestAllocateTestSuite.sol";
 
 contract RequestAllocateDatacapTest is Test, DatacapTestSetup {
     /// @dev test case with success
     function testRequestAllocateDatacapWithSuccess() public {
         setup();
         RequestAllocateTestCaseWithSuccess testCase = new RequestAllocateTestCaseWithSuccess(
+                datacaps,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    /// @dev test case with invalid matching id
+    function testRequestAllocateTestSuiteWithInvalidMatchingId() public {
+        setup();
+        RequestAllocateTestSuiteWithInvalidMatchingId testCase = new RequestAllocateTestSuiteWithInvalidMatchingId(
+                datacaps,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    /// @dev test case with invalid caller
+    function testRequestAllocateTestSuiteWithInvalidCaller() public {
+        setup();
+        RequestAllocateTestSuiteWithInvalidCaller testCase = new RequestAllocateTestSuiteWithInvalidCaller(
+                datacaps,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    /// @dev test case with invalid next request
+    function testRequestAllocateTestSuiteWithInvalidNextRequest() public {
+        setup();
+        RequestAllocateTestSuiteWithInvalidNextRequest testCase = new RequestAllocateTestSuiteWithInvalidNextRequest(
                 datacaps,
                 helpers,
                 assertion

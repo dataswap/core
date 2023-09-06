@@ -65,10 +65,11 @@ contract RequestAllocateTestSuiteWithInvalidMatchingId is DatacapTestBase {
             .storages()
             .matchings()
             .getMatchingInitiator(_matchingId);
-        vm.expectRevert();
+
+        vm.expectRevert(bytes("Address must not be zero"));
         datacapsAssertion.requestAllocateDatacapAssertion(
             initiator,
-            _matchingId
+            _matchingId + 1
         );
     }
 }
@@ -89,7 +90,7 @@ contract RequestAllocateTestSuiteWithInvalidCaller is DatacapTestBase {
             .matchings()
             .getMatchingInitiator(_matchingId);
         vm.assume(msg.sender != initiator);
-        vm.expectRevert();
+        vm.expectRevert(bytes("Only allowed address can call"));
         datacapsAssertion.requestAllocateDatacapAssertion(
             msg.sender,
             _matchingId
