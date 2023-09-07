@@ -197,6 +197,7 @@ interface IDatasetsAssertion {
     function getDatasetVerificationAssertion(
         uint64 _datasetId,
         address _auditor,
+        bytes32[] memory _expectLeaves,
         bytes32[][] memory _expectSiblings,
         uint32[] memory _expectPaths
     ) external;

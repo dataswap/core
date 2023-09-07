@@ -149,6 +149,7 @@ library DatasetVerificationLIB {
         bytes32[] memory leaves = new bytes32[](
             verification.challengeProof.length
         );
+
         for (uint256 i = 0; i < verification.challengeProof.length; i++) {
             DatasetType.DatasetChallengeProof
                 storage challengeProof = verification.challengeProof[i];
