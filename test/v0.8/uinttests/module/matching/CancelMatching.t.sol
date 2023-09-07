@@ -17,18 +17,52 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {CancelTestCaseWithSuccess} from "test/v0.8/testcases/module/matching/CancelTestSuite.sol";
 import {MatchingTestSetup} from "test/v0.8/uinttests/module/matching/setup/MatchingTestSetup.sol";
+import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import "test/v0.8/testcases/module/matching/CancelTestSuite.sol";
 
 contract CancelMatchingTest is Test, MatchingTestSetup {
     /// @notice test case with success
-    function testCancelMatchingWithSuccess() public {
+    function testCancelMatchingWithSuccess(uint64 _amount) public {
         setup();
         CancelTestCaseWithSuccess testCase = new CancelTestCaseWithSuccess(
             matchings,
             helpers,
             assertion
         );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
+    }
+
+    /// @notice test case with after started
+    function testCancelMatchingWithAfterStarted(uint64 _amount) public {
+        setup();
+        CancelTestCaseWithAfterStarted testCase = new CancelTestCaseWithAfterStarted(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
+    }
+
+    /// @notice test case with invalid state
+    function testCancelMatchingWithInvalidState() public {
+        setup();
+        CancelTestCaseWithInvalidState testCase = new CancelTestCaseWithInvalidState(
+                matchings,
+                helpers,
+                assertion
+            );
         testCase.run();
+    }
+
+    /// @notice test case with invalid sender
+    function testCancelMatchingWithInvalidSender(uint64 _amount) public {
+        setup();
+        CancelTestCaseWithAtInvalidSender testCase = new CancelTestCaseWithAtInvalidSender(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
     }
 }

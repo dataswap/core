@@ -17,18 +17,93 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {BiddingTestCaseWithSuccess} from "test/v0.8/testcases/module/matching/BiddingTestSuite.sol";
 import {MatchingTestSetup} from "test/v0.8/uinttests/module/matching/setup/MatchingTestSetup.sol";
+import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import "test/v0.8/testcases/module/matching/BiddingTestSuite.sol";
 
 contract BiddingMatchingTest is Test, MatchingTestSetup {
     /// @notice test case with success
-    function testBiddingMatchingWithSuccess() public {
+    function testBiddingMatchingWithSuccess(uint64 _amount) public {
         setup();
         BiddingTestCaseWithSuccess testCase = new BiddingTestCaseWithSuccess(
             matchings,
             helpers,
             assertion
         );
-        testCase.run();
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
+    }
+
+    /// @notice test case with invalid role
+    function testBiddingMatchingWithInvalidRole(uint64 _amount) public {
+        setup();
+        BiddingTestCaseWithInvlalidRole testCase = new BiddingTestCaseWithInvlalidRole(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
+    }
+
+    /// @notice test case with invalid amount
+    function testBiddingMatchingWithInvalidAmount(uint64 _amount) public {
+        setup();
+        BiddingTestCaseWithInvlalidAmount testCase = new BiddingTestCaseWithInvlalidAmount(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
+
+        setup();
+        testCase = new BiddingTestCaseWithInvlalidAmount(
+            matchings,
+            helpers,
+            assertion
+        );
+        testCase.run(MatchingType.BidSelectionRule.ImmediateAtLeast, _amount);
+    }
+
+    /// @notice test case with duplicate bid
+    function testBiddingMatchingWithDuplicateBid(uint64 _amount) public {
+        setup();
+        BiddingTestCaseWithInvlalidDuplicateBid testCase = new BiddingTestCaseWithInvlalidDuplicateBid(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
+    }
+
+    /// @notice test case with invalid state
+    function testBiddingMatchingWithInvalidState(uint64 _amount) public {
+        setup();
+        BiddingTestCaseWithInvlalidState testCase = new BiddingTestCaseWithInvlalidState(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
+    }
+
+    /// @notice test case with bid not start
+    function testBiddingMatchingWithNotStart(uint64 _amount) public {
+        setup();
+        BiddingTestCaseWithNotStart testCase = new BiddingTestCaseWithNotStart(
+            matchings,
+            helpers,
+            assertion
+        );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
+    }
+
+    /// @notice test case with bid is end
+    function testBiddingMatchingWithBidIsEnd(uint64 _amount) public {
+        setup();
+        BiddingTestCaseWithBidIsEnd testCase = new BiddingTestCaseWithBidIsEnd(
+            matchings,
+            helpers,
+            assertion
+        );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
     }
 }

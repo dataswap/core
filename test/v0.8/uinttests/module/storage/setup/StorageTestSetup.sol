@@ -87,7 +87,8 @@ contract StorageTestSetup {
         );
 
         MatchingsAssertion machingsAssertion = new MatchingsAssertion(
-            matchings
+            matchings,
+            carstore
         );
         assertion = new StoragesAssertion(storages);
 

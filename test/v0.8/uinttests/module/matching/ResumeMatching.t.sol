@@ -17,18 +17,41 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {ResumeTestCaseWithSuccess} from "test/v0.8/testcases/module/matching/ResumeTestSuite.sol";
 import {MatchingTestSetup} from "test/v0.8/uinttests/module/matching/setup/MatchingTestSetup.sol";
+import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import "test/v0.8/testcases/module/matching/ResumeTestSuite.sol";
 
 contract ResumeMatchingTest is Test, MatchingTestSetup {
     /// @notice test case with success
-    function testResumeMatchingWithSuccess() public {
+    function testResumeMatchingWithSuccess(uint64 _amount) public {
         setup();
         ResumeTestCaseWithSuccess testCase = new ResumeTestCaseWithSuccess(
             matchings,
             helpers,
             assertion
         );
-        testCase.run();
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
+    }
+
+    /// @notice test case with invalid state
+    function testResumeMatchingWithInvalidState(uint64 _amount) public {
+        setup();
+        ResumeTestCaseWithInvalidState testCase = new ResumeTestCaseWithInvalidState(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
+    }
+
+    /// @notice test case with invalid sender
+    function testResumeMatchingWithInvalidSender(uint64 _amount) public {
+        setup();
+        ResumeTestCaseWithInvalidSender testCase = new ResumeTestCaseWithInvalidSender(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
     }
 }

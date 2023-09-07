@@ -71,7 +71,7 @@ contract MatchingTestSetup {
             address(carstore),
             address(datasets)
         );
-        assertion = new MatchingsAssertion(matchings);
+        assertion = new MatchingsAssertion(matchings, carstore);
 
         Generator generator = new Generator();
         DatasetsAssertion datasetAssertion = new DatasetsAssertion(datasets);

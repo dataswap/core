@@ -16,8 +16,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {MatchingsTestBase} from "test/v0.8/testcases/module/matching/abstract/MatchingsTestBase.sol";
-
+import {Test} from "forge-std/Test.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
@@ -29,8 +28,12 @@ import {RolesType} from "src/v0.8/types/RolesType.sol";
 /// @dev Base contract for control test suites. Control test suites consist of three steps: before, action, and after.
 /// The `before` function is used for test case setup, and the `action` function performs the main action of the test case.
 /// The `after_` function can be used for cleanup or post-action code.
-abstract contract ControlTestSuiteBase is MatchingsTestBase {
-    /// @dev Constructor to initialize the ControlTestSuiteBase with the required contracts.
+abstract contract ControlTestSuiteBase is Test {
+    IMatchings internal matchings;
+    IMatchingsHelpers internal matchingsHelpers;
+    IMatchingsAssertion internal matchingsAssertion;
+
+    /// @dev Constructor to initialize the MatchingsTestBase with the required contracts.
     /// @param _matchings The address of the IMatchings contract.
     /// @param _matchingsHelpers The address of the IMatchingsHelpers contract.
     /// @param _matchingsAssertion The address of the IMatchingsAssertion contract.
@@ -38,21 +41,28 @@ abstract contract ControlTestSuiteBase is MatchingsTestBase {
         IMatchings _matchings,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
-    ) MatchingsTestBase(_matchings, _matchingsHelpers, _matchingsAssertion) {}
+    ) {
+        matchings = _matchings;
+        matchingsHelpers = _matchingsHelpers;
+        matchingsAssertion = _matchingsAssertion;
+    }
 
     /// @dev The `before` function is used to set up the initial state for the control test case.
     /// In this case, it sets up a dataset with certain parameters and performs administrative actions.
+    /// @param _bidRule The rules for determining the winning bid.
+    /// @param /*_amount*/ The ammount of the matching.
     /// @return The number of matchings available after setup.
-    function before() internal virtual override returns (uint64) {
+    function before(
+        MatchingType.BidSelectionRule _bidRule,
+        uint64 /*_amount*/
+    ) internal virtual returns (uint64) {
         // Set up a dataset with specific parameters
         uint64 datasetId = matchingsHelpers.setup("testAccessMethod", 100, 10);
-
         // Get the admin address for dataset roles
         address admin = matchings.datasets().roles().getRoleMember(
             bytes32(0x00),
             0
         );
-
         // Start a prank, perform administrative actions, and stop the prank
         vm.startPrank(admin);
         matchings.datasets().roles().grantRole(
@@ -62,21 +72,17 @@ abstract contract ControlTestSuiteBase is MatchingsTestBase {
         vm.stopPrank();
 
         // Get dataset cars and their count
-        (bytes32[] memory cars, uint64 size) = matchingsHelpers
-            .getDatasetCarsAndCarsCount(
-                datasetId,
-                DatasetType.DataType.MappingFiles
-            );
+        (bytes32[] memory cars, ) = matchingsHelpers.getDatasetCarsAndCarsCount(
+            datasetId,
+            DatasetType.DataType.MappingFiles
+        );
 
-        // Publish a matching with specific parameters
-        matchingsAssertion.publishMatchingAssertion(
+        matchingsAssertion.createMatchingAssertion(
             address(99),
             datasetId,
-            cars,
-            size,
             DatasetType.DataType.MappingFiles,
             0,
-            MatchingType.BidSelectionRule.HighestBid,
+            _bidRule,
             100,
             100,
             100,
@@ -84,8 +90,37 @@ abstract contract ControlTestSuiteBase is MatchingsTestBase {
             "TEST"
         );
 
+        uint64 matchingId = matchings.matchingsCount();
+
+        // Publish a matching with specific parameters
+        matchingsAssertion.publishMatchingAssertion(
+            address(99),
+            matchingId,
+            datasetId,
+            cars,
+            true
+        );
         // Get the count of available matchings
-        uint64 matchingCount = matchings.matchingsCount();
-        return matchingCount;
+        return matchingId;
+    }
+
+    /// @dev The main action of the test, where the sp bidding a matching.
+    /// @param _matchingId The address of the IMatchings contract.
+    /// @param _amount The ammount of the matching.
+    function action(uint64 _matchingId, uint64 _amount) internal virtual;
+
+    /// @dev Called after running the test to perform any necessary cleanup or validation.
+    /// @param _matchingId The address of the IMatchings contract.
+    /// @param _amount The ammount of the matching.
+    function after_(uint64 _matchingId, uint64 _amount) internal virtual {}
+
+    /// @dev Runs the test to bidding a matching.
+    function run(
+        MatchingType.BidSelectionRule _bidRule,
+        uint64 _amount
+    ) public {
+        uint64 matchingId = before(_bidRule, _amount);
+        action(matchingId, _amount);
+        after_(matchingId, _amount);
     }
 }

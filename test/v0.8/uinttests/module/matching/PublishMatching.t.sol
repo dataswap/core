@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {PublishMatchingTestCaseWithSuccess} from "test/v0.8/testcases/module/matching/PublishMatchingTestSuite.sol";
+import {PublishMatchingTestCaseWithSuccess, PublishMatchingTestCaseWithInvalidRole, PublishMatchingTestCaseWithInvalidSender, PublishMatchingTestCaseWithInvalidDataset} from "test/v0.8/testcases/module/matching/PublishMatchingTestSuite.sol";
 import {MatchingTestSetup} from "test/v0.8/uinttests/module/matching/setup/MatchingTestSetup.sol";
 
 contract PublishMatchingTest is Test, MatchingTestSetup {
@@ -25,6 +25,39 @@ contract PublishMatchingTest is Test, MatchingTestSetup {
     function testPublishMatchingWithSuccess() public {
         setup();
         PublishMatchingTestCaseWithSuccess testCase = new PublishMatchingTestCaseWithSuccess(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    ///@notice publish matching test case with invalid role
+    function testPublishMatchingWithInvalidRole() public {
+        setup();
+        PublishMatchingTestCaseWithInvalidRole testCase = new PublishMatchingTestCaseWithInvalidRole(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    ///@notice publish matching test case with invalid sender
+    function testPublishMatchingWithInvalidSender() public {
+        setup();
+        PublishMatchingTestCaseWithInvalidSender testCase = new PublishMatchingTestCaseWithInvalidSender(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    ///@notice publish matching test case with invalid dataset
+    function testPublishMatchingWithInvalidDataset() public {
+        setup();
+        PublishMatchingTestCaseWithInvalidDataset testCase = new PublishMatchingTestCaseWithInvalidDataset(
                 matchings,
                 helpers,
                 assertion

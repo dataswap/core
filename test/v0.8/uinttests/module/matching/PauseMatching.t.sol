@@ -17,18 +17,63 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {PauseTestCaseWithSuccess} from "test/v0.8/testcases/module/matching/PauseTestSuite.sol";
 import {MatchingTestSetup} from "test/v0.8/uinttests/module/matching/setup/MatchingTestSetup.sol";
+import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import "test/v0.8/testcases/module/matching/PauseTestSuite.sol";
 
 contract PauseMatchingTest is Test, MatchingTestSetup {
     /// @notice test case with success
-    function testPauseMatchingWithSuccess() public {
+    function testPauseMatchingWithSuccess(uint64 _amount) public {
         setup();
         PauseTestCaseWithSuccess testCase = new PauseTestCaseWithSuccess(
             matchings,
             helpers,
             assertion
         );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
+    }
+
+    /// @notice test case with invalid sender
+    function testPauseMatchingWithInvalidSender(uint64 _amount) public {
+        setup();
+        PauseTestCaseWithInvalidSender testCase = new PauseTestCaseWithInvalidSender(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
+    }
+
+    /// @notice test case with invalid state
+    function testPauseMatchingWithInvalidState() public {
+        setup();
+        PauseTestCaseWithInvalidState testCase = new PauseTestCaseWithInvalidState(
+                matchings,
+                helpers,
+                assertion
+            );
         testCase.run();
+    }
+
+    /// @notice test case with already paused
+    function testPauseMatchingWithAlreadyPaused(uint64 _amount) public {
+        setup();
+        PauseTestCaseWithAlreadyPaused testCase = new PauseTestCaseWithAlreadyPaused(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
+    }
+
+    /// @notice test case with already bidding
+    function testPauseMatchingWithAlreadyBidding(uint64 _amount) public {
+        setup();
+        PauseTestCaseWithAlreadyBidding testCase = new PauseTestCaseWithAlreadyBidding(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
     }
 }

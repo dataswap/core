@@ -254,6 +254,11 @@ contract Matchings is
         uint64 _matchingId
     ) external onlyMatchingInitiator(_matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
+        require(
+            uint8(block.number) <
+                matching.createdBlockNumber + matching.biddingDelayBlockCount,
+            "bid alreay start,can't cancel"
+        );
         matching._cancelMatching();
         emit MatchingsEvents.MatchingCancelled(_matchingId);
     }

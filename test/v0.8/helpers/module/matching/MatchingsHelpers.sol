@@ -78,7 +78,7 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
         cars = new bytes32[](carsCount);
         cars = matchings.datasets().getDatasetCars(
             _datasetId,
-            DatasetType.DataType.MappingFiles,
+            _dataType,
             0,
             carsCount
         );
@@ -105,15 +105,14 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
         );
         vm.stopPrank();
 
-        (bytes32[] memory cars, uint64 size) = getDatasetCarsAndCarsCount(
+        (bytes32[] memory cars, ) = getDatasetCarsAndCarsCount(
             datasetId,
             DatasetType.DataType.MappingFiles
         );
-        assertion.publishMatchingAssertion(
+
+        assertion.createMatchingAssertion(
             address(99),
             datasetId,
-            cars,
-            size,
             DatasetType.DataType.MappingFiles,
             0,
             MatchingType.BidSelectionRule.HighestBid,
@@ -123,7 +122,16 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
             100,
             "TEST"
         );
+
         matchingId = matchings.matchingsCount();
+
+        assertion.publishMatchingAssertion(
+            address(99),
+            matchingId,
+            datasetId,
+            cars,
+            true
+        );
 
         vm.startPrank(admin);
         matchings.datasets().roles().grantRole(

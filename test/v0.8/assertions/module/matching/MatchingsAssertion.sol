@@ -20,6 +20,7 @@ import {DSTest} from "ds-test/test.sol";
 import {Test} from "forge-std/Test.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 
@@ -27,11 +28,14 @@ import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatch
 /// @notice This contract provides assertion functions to test the functionality of the IMatchings contract.
 contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     IMatchings public matchings;
+    ICarstore public carstore;
 
     /// @notice Constructor to set the IMatchings contract address.
     /// @param _matchings The address of the IMatchings contract to test.
-    constructor(IMatchings _matchings) {
+    /// @param _carstore The address of the ICarstore contract to test.
+    constructor(IMatchings _matchings, ICarstore _carstore) {
         matchings = _matchings;
+        carstore = _carstore;
     }
 
     /// @notice Assertion function to test the 'bidding' function of IMatchings contract.
@@ -73,11 +77,9 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         hasMatchingBidAssertion(_matchingId, caller, true);
     }
 
-    /// @notice Assertion function to test the 'publishMatching' function of IMatchings contract.
+    /// @notice Assertion function to test the 'createMatching' function of IMatchings contract.
     /// @param caller The address of the caller.
     /// @param _datasetId The ID of the dataset.
-    /// @param _cars An array of car IDs.
-    /// @param _size The size of the matching.
     /// @param _dataType The data type of the matching.
     /// @param _associatedMappingFilesMatchingID The associated mapping files matching ID.
     /// @param _bidSelectionRule The bid selection rule.
@@ -86,11 +88,9 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     /// @param _storageCompletionPeriodBlocks The storage completion period in blocks.
     /// @param _biddingThreshold The bidding threshold.
     /// @param _additionalInfo Additional information about the matching.
-    function publishMatchingAssertion(
+    function createMatchingAssertion(
         address caller,
         uint64 _datasetId,
-        bytes32[] memory _cars,
-        uint64 _size,
         DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID,
         MatchingType.BidSelectionRule _bidSelectionRule,
@@ -102,6 +102,61 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     ) external {
         // Before the action, get the current number of matchings.
         uint64 oldMatchingsCount = matchings.matchingsCount();
+        // Perform the action
+        vm.prank(caller);
+        uint64 _matchingId = matchings.createMatching(
+            _datasetId,
+            _dataType,
+            _associatedMappingFilesMatchingID,
+            _bidSelectionRule,
+            _biddingDelayBlockCount,
+            _biddingPeriodBlockCount,
+            _storageCompletionPeriodBlocks,
+            _biddingThreshold,
+            _additionalInfo
+        );
+
+        // After the action:
+        // Check if the number of matchings has increased.
+        matchingsCountAssertion(oldMatchingsCount + 1);
+
+        // Check the details of the published matching.
+        getMatchingTargetAssertion(
+            _matchingId,
+            _datasetId,
+            new bytes32[](0),
+            0,
+            _dataType,
+            _associatedMappingFilesMatchingID
+        );
+
+        getMatchingCarsAssertion(_matchingId, new bytes32[](0));
+        getMatchingSizeAssertion(_matchingId, 0);
+        getMatchingInitiatorAssertion(_matchingId, caller);
+    }
+
+    /// @notice Assertion function to test the 'publishMatching' function of IMatchings contract.
+    /// @param caller The address of the caller.
+    /// @param _matchingId The ID of the dataset.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _cars An array of car IDs.
+    /// @param complete If the publish is complete.
+    function publishMatchingAssertion(
+        address caller,
+        uint64 _matchingId,
+        uint64 _datasetId,
+        bytes32[] memory _cars,
+        bool complete
+    ) external {
+        uint64 _size = carstore.getCarsSize(_cars);
+
+        (
+            ,
+            ,
+            ,
+            DatasetType.DataType _dataType,
+            uint64 _associatedMappingFilesMatchingID
+        ) = matchings.getMatchingTarget(_matchingId);
 
         // Check if the matching target is valid.
         isMatchingTargetValidAssertion(
@@ -124,54 +179,26 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         );
 
         // Check if the matching already contains the cars.
-        isMatchingContainsCarsAssertion(oldMatchingsCount + 1, _cars, false);
+        isMatchingContainsCarsAssertion(_matchingId, _cars, false);
         // Perform the action
         vm.prank(caller);
-        uint64 _machingId = matchings.createMatching(
-            _datasetId,
-            _dataType,
-            _associatedMappingFilesMatchingID,
-            _bidSelectionRule,
-            _biddingDelayBlockCount,
-            _biddingPeriodBlockCount,
-            _storageCompletionPeriodBlocks,
-            _biddingThreshold,
-            _additionalInfo
-        );
-
-        vm.prank(caller);
-        matchings.publishMatching(
-            _machingId,
-            _datasetId,
-            _cars,
-            //_associatedMappingFilesMatchingID,
-            //_bidSelectionRule,
-            //_biddingDelayBlockCount,
-            //_biddingPeriodBlockCount,
-            //_storageCompletionPeriodBlocks,
-            //_biddingThreshold,
-            //_additionalInfo,
-            true
-        );
+        matchings.publishMatching(_matchingId, _datasetId, _cars, complete);
 
         // After the action:
-        // 1. Check if the number of matchings has increased.
-        matchingsCountAssertion(oldMatchingsCount + 1);
-
-        // 2. Check the details of the published matching.
+        // Check the details of the published matching.
         getMatchingTargetAssertion(
-            oldMatchingsCount + 1,
+            _matchingId,
             _datasetId,
             _cars,
             _size,
             _dataType,
             _associatedMappingFilesMatchingID
         );
-        getMatchingCarsAssertion(oldMatchingsCount + 1, _cars);
-        getMatchingSizeAssertion(oldMatchingsCount + 1, _size);
-        getMatchingInitiatorAssertion(oldMatchingsCount + 1, caller);
-        isMatchingContainsCarAssertion(oldMatchingsCount + 1, _cars[0], true);
-        isMatchingContainsCarsAssertion(oldMatchingsCount + 1, _cars, true);
+        getMatchingCarsAssertion(_matchingId, _cars);
+        getMatchingSizeAssertion(_matchingId, _size);
+        getMatchingInitiatorAssertion(_matchingId, caller);
+        isMatchingContainsCarAssertion(_matchingId, _cars[0], true);
+        isMatchingContainsCarsAssertion(_matchingId, _cars, true);
     }
 
     /// @notice Assertion function to test the 'pauseMatching' function of IMatchings contract.
