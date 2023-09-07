@@ -100,7 +100,8 @@ contract DatacapTestSetup {
         );
 
         MatchingsAssertion machingsAssertion = new MatchingsAssertion(
-            matchings
+            matchings,
+            carstore
         );
         Generator generator = new Generator();
         DatasetsAssertion datasetAssertion = new DatasetsAssertion(datasets);

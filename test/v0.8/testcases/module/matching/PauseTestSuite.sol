@@ -17,10 +17,15 @@
 pragma solidity ^0.8.21;
 
 import {ControlTestSuiteBase} from "test/v0.8/testcases/module/matching/abstract/ControlTestSuiteBase.sol";
-
+import {MatchingsTestBase} from "test/v0.8/testcases/module/matching/abstract/MatchingsTestBase.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
+import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {RolesType} from "src/v0.8/types/RolesType.sol";
+import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 
 ///@notice pause matching test case with success
 contract PauseTestCaseWithSuccess is ControlTestSuiteBase {
@@ -32,9 +37,131 @@ contract PauseTestCaseWithSuccess is ControlTestSuiteBase {
         ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
     {}
 
-    function action(uint64 _matchingId) internal virtual override {
+    function action(
+        uint64 _matchingId,
+        uint64 /*_amount*/
+    ) internal virtual override {
         vm.roll(99);
         address initiator = matchings.getMatchingInitiator(_matchingId);
+        matchingsAssertion.pauseMatchingAssertion(initiator, _matchingId);
+    }
+}
+
+///@notice pause matching test case with invalid sender
+contract PauseTestCaseWithInvalidSender is ControlTestSuiteBase {
+    constructor(
+        IMatchings _matchings,
+        IMatchingsHelpers _matchingsHelpers,
+        IMatchingsAssertion _matchingsAssertion
+    )
+        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+    {}
+
+    function action(
+        uint64 _matchingId,
+        uint64 /*_amount*/
+    ) internal virtual override {
+        address initiator = matchings.getMatchingInitiator(_matchingId);
+        vm.roll(99);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.NotMatchingInitiator.selector,
+                _matchingId,
+                initiator,
+                address(100)
+            )
+        );
+        matchingsAssertion.pauseMatchingAssertion(address(100), _matchingId);
+    }
+}
+
+///@notice pause matching test case with invalid state
+contract PauseTestCaseWithInvalidState is MatchingsTestBase {
+    constructor(
+        IMatchings _matchings,
+        IMatchingsHelpers _matchingsHelpers,
+        IMatchingsAssertion _matchingsAssertion
+    )
+        MatchingsTestBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+    {}
+
+    function before() internal virtual override returns (uint64) {
+        uint64 datasetId = matchingsHelpers.setup("testAccessMethod", 100, 10);
+        address admin = matchings.datasets().roles().getRoleMember(
+            bytes32(0x00),
+            0
+        );
+        vm.startPrank(admin);
+        matchings.datasets().roles().grantRole(
+            RolesType.DATASET_PROVIDER,
+            address(99)
+        );
+        vm.stopPrank();
+
+        matchingsAssertion.createMatchingAssertion(
+            address(99),
+            datasetId,
+            DatasetType.DataType.MappingFiles,
+            0,
+            MatchingType.BidSelectionRule.HighestBid,
+            100,
+            100,
+            100,
+            100,
+            "TEST"
+        );
+        return matchings.matchingsCount();
+    }
+
+    function action(uint64 _matchingId) internal virtual override {
+        address initiator = matchings.getMatchingInitiator(_matchingId);
+        vm.roll(99);
+        vm.expectRevert();
+        matchingsAssertion.pauseMatchingAssertion(initiator, _matchingId);
+    }
+}
+
+///@notice pause matching test case with already paused
+contract PauseTestCaseWithAlreadyPaused is ControlTestSuiteBase {
+    constructor(
+        IMatchings _matchings,
+        IMatchingsHelpers _matchingsHelpers,
+        IMatchingsAssertion _matchingsAssertion
+    )
+        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+    {}
+
+    function action(
+        uint64 _matchingId,
+        uint64 /*_amount*/
+    ) internal virtual override {
+        vm.roll(99);
+        address initiator = matchings.getMatchingInitiator(_matchingId);
+        matchingsAssertion.pauseMatchingAssertion(initiator, _matchingId);
+        vm.prank(initiator);
+        vm.expectRevert();
+        matchings.pauseMatching(_matchingId);
+    }
+}
+
+///@notice pause matching test case with already paused
+contract PauseTestCaseWithAlreadyBidding is ControlTestSuiteBase {
+    constructor(
+        IMatchings _matchings,
+        IMatchingsHelpers _matchingsHelpers,
+        IMatchingsAssertion _matchingsAssertion
+    )
+        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+    {}
+
+    function action(
+        uint64 _matchingId,
+        uint64 /*_amount*/
+    ) internal virtual override {
+        vm.roll(101);
+        address initiator = matchings.getMatchingInitiator(_matchingId);
+
+        vm.expectRevert(bytes("alreay bidding,can't pause."));
         matchingsAssertion.pauseMatchingAssertion(initiator, _matchingId);
     }
 }

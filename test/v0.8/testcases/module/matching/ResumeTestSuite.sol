@@ -21,6 +21,11 @@ import {ControlTestSuiteBase} from "test/v0.8/testcases/module/matching/abstract
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
+import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {RolesType} from "src/v0.8/types/RolesType.sol";
+import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 
 ///@notice resume matching test case with success
 contract ResumeTestCaseWithSuccess is ControlTestSuiteBase {
@@ -32,11 +37,66 @@ contract ResumeTestCaseWithSuccess is ControlTestSuiteBase {
         ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
     {}
 
-    function action(uint64 _matchingId) internal virtual override {
+    function action(
+        uint64 _matchingId,
+        uint64 /*_amount*/
+    ) internal virtual override {
         address initiator = matchings.getMatchingInitiator(_matchingId);
         vm.roll(99);
         matchingsAssertion.pauseMatchingAssertion(initiator, _matchingId);
         vm.roll(1099);
         matchingsAssertion.resumeMatchingAssertion(initiator, _matchingId);
+    }
+}
+
+///@notice resume matching test case with invalid state
+contract ResumeTestCaseWithInvalidState is ControlTestSuiteBase {
+    constructor(
+        IMatchings _matchings,
+        IMatchingsHelpers _matchingsHelpers,
+        IMatchingsAssertion _matchingsAssertion
+    )
+        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+    {}
+
+    function action(
+        uint64 _matchingId,
+        uint64 /*_amount*/
+    ) internal virtual override {
+        address initiator = matchings.getMatchingInitiator(_matchingId);
+        vm.roll(199);
+        vm.expectRevert();
+        matchingsAssertion.resumeMatchingAssertion(initiator, _matchingId);
+    }
+}
+
+///@notice resume matching test case with invalid sender
+contract ResumeTestCaseWithInvalidSender is ControlTestSuiteBase {
+    constructor(
+        IMatchings _matchings,
+        IMatchingsHelpers _matchingsHelpers,
+        IMatchingsAssertion _matchingsAssertion
+    )
+        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+    {}
+
+    function action(
+        uint64 _matchingId,
+        uint64 /*_amount*/
+    ) internal virtual override {
+        address initiator = matchings.getMatchingInitiator(_matchingId);
+        vm.roll(99);
+        matchingsAssertion.pauseMatchingAssertion(initiator, _matchingId);
+        vm.roll(1099);
+
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.NotMatchingInitiator.selector,
+                _matchingId,
+                initiator,
+                address(1000)
+            )
+        );
+        matchingsAssertion.resumeMatchingAssertion(address(1000), _matchingId);
     }
 }

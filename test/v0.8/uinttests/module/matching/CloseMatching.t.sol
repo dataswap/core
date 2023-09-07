@@ -17,18 +17,49 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {CloseTestCaseWithSuccess} from "test/v0.8/testcases/module/matching/CloseTestSuite.sol";
 import {MatchingTestSetup} from "test/v0.8/uinttests/module/matching/setup/MatchingTestSetup.sol";
+import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import "test/v0.8/testcases/module/matching/CloseTestSuite.sol";
 
 contract CloseMatchingTest is Test, MatchingTestSetup {
     /// @notice test case with success
-    function testCloseMatchingWithSuccess() public {
+    function testCloseMatchingWithSuccess(uint64 _amount) public {
         setup();
         CloseTestCaseWithSuccess testCase = new CloseTestCaseWithSuccess(
             matchings,
             helpers,
             assertion
         );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
+    }
+
+    /// @notice test case with invalid state
+    function testCloseMatchingWithInvalidState() public {
+        setup();
+        CloseTestCaseWithInvalidState testCase = new CloseTestCaseWithInvalidState(
+                matchings,
+                helpers,
+                assertion
+            );
         testCase.run();
+    }
+
+    /// @notice test case with at invalid block
+    function testCloseMatchingWithAtInvalidBlock(uint64 _amount) public {
+        setup();
+        CloseTestCaseWithAtInvalidBlock testCase = new CloseTestCaseWithAtInvalidBlock(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
+
+        setup();
+        testCase = new CloseTestCaseWithAtInvalidBlock(
+            matchings,
+            helpers,
+            assertion
+        );
+        testCase.run(MatchingType.BidSelectionRule.ImmediateAtMost, _amount);
     }
 }

@@ -34,24 +34,20 @@ interface IMatchingsAssertion {
         uint256 _amount
     ) external;
 
-    /// @notice Asserts the publishing of a matching.
-    /// @param caller The caller's address.
-    /// @param _datasetId The ID of the dataset associated with the matching.
-    /// @param _cars The CIDs of the cars associated with the matching.
-    /// @param _size The size of the matching.
+    /// @notice Assertion function to test the 'publishMatching' function of IMatchings contract.
+    /// @param caller The address of the caller.
+    /// @param _datasetId The ID of the dataset.
     /// @param _dataType The data type of the matching.
     /// @param _associatedMappingFilesMatchingID The associated mapping files matching ID.
-    /// @param _bidSelectionRule The bid selection rule for the matching.
+    /// @param _bidSelectionRule The bid selection rule.
     /// @param _biddingDelayBlockCount The bidding delay block count.
     /// @param _biddingPeriodBlockCount The bidding period block count.
-    /// @param _storageCompletionPeriodBlocks The storage completion period blocks.
-    /// @param _biddingThreshold The bidding threshold amount.
+    /// @param _storageCompletionPeriodBlocks The storage completion period in blocks.
+    /// @param _biddingThreshold The bidding threshold.
     /// @param _additionalInfo Additional information about the matching.
-    function publishMatchingAssertion(
+    function createMatchingAssertion(
         address caller,
         uint64 _datasetId,
-        bytes32[] memory _cars,
-        uint64 _size,
         DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID,
         MatchingType.BidSelectionRule _bidSelectionRule,
@@ -60,6 +56,20 @@ interface IMatchingsAssertion {
         uint64 _storageCompletionPeriodBlocks,
         uint256 _biddingThreshold,
         string memory _additionalInfo
+    ) external;
+
+    /// @notice Assertion function to test the 'publishMatching' function of IMatchings contract.
+    /// @param caller The address of the caller.
+    /// @param _matchingId The ID of the dataset.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _cars An array of car IDs.
+    /// @param complete If the publish is complete.
+    function publishMatchingAssertion(
+        address caller,
+        uint64 _matchingId,
+        uint64 _datasetId,
+        bytes32[] memory _cars,
+        bool complete
     ) external;
 
     /// @notice Asserts the pausing of a matching.
