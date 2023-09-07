@@ -360,7 +360,8 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         getDatasetVerificationsCountAssertion(_datasetId, oldCount + 1);
         getDatasetVerificationAssertion(
             _datasetId,
-            msg.sender,
+            caller,
+            _leaves,
             _siblings,
             _paths
         );
@@ -536,41 +537,47 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
     function getDatasetVerificationAssertion(
         uint64 _datasetId,
         address _auditor,
+        bytes32[] memory _expectLeaves,
         bytes32[][] memory _expectSiblings,
         uint32[] memory _expectPaths
-    ) public view {
-        bytes32[] memory leaves = new bytes32[](_expectPaths.length);
-        bytes32[][] memory siblings = new bytes32[][](_expectPaths.length);
-        uint32[] memory paths = new uint32[](_expectPaths.length);
-        for (uint64 i = 0; i < _expectPaths.length; i++) {
-            siblings[i] = new bytes32[](_expectSiblings[i].length);
-        }
-        (leaves, siblings, paths) = datasets.getDatasetVerification(
-            _datasetId,
-            _auditor
+    ) public {
+        assertEq(
+            _expectSiblings.length,
+            _expectLeaves.length,
+            "length not matched"
+        );
+        assertEq(
+            _expectPaths.length,
+            _expectLeaves.length,
+            "length not matched"
         );
 
-        /// @dev TODO: get dataset verification assertion error:https://github.com/dataswap/core/issues/66
+        (
+            bytes32[] memory leaves,
+            bytes32[][] memory siblings,
+            uint32[] memory paths
+        ) = datasets.getDatasetVerification(_datasetId, _auditor);
 
-        // assertEq(siblings.length, _expectSiblings.length, "length not matched");
-        // assertEq(paths.length, _expectPaths.length, "length not matched");
-        // for (uint64 i = 0; i < paths.length; i++) {
-        //     assertEq(paths[i], _expectPaths[i], "paths not matched");
-        // }
-        // for (uint64 i = 0; i < siblings.length; i++) {
-        //     assertEq(
-        //         siblings[i].length,
-        //         _expectSiblings[i].length,
-        //         "length not matched"
-        //     );
-        //     for (uint64 j = 0; j < siblings[i].length; j++) {
-        //         assertEq(
-        //             siblings[i][j],
-        //             _expectSiblings[i][j],
-        //             "siblings not matched"
-        //         );
-        //     }
-        // }
+        assertEq(leaves.length, _expectLeaves.length, "length not matched");
+        assertEq(siblings.length, _expectSiblings.length, "length not matched");
+        assertEq(paths.length, _expectPaths.length, "length not matched");
+
+        for (uint64 i = 0; i < _expectLeaves.length; i++) {
+            assertEq(paths[i], _expectPaths[i], "paths not matched");
+            assertEq(leaves[i], _expectLeaves[i], "leaves not matched");
+            assertEq(
+                siblings[i].length,
+                _expectSiblings[i].length,
+                "length not matched"
+            );
+            for (uint64 j = 0; j < siblings[i].length; j++) {
+                assertEq(
+                    siblings[i][j],
+                    _expectSiblings[i][j],
+                    "siblings not matched"
+                );
+            }
+        }
     }
 
     /// @notice Assertion function for getting dataset verification count.
