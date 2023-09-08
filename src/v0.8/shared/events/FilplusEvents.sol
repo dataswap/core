@@ -18,8 +18,6 @@
 
 pragma solidity ^0.8.21;
 
-import {FilplusType} from "../../types/FilplusType.sol";
-
 /// @title Filplus
 library FilplusEvents {
     // Event emitted when the maximum number of car replicas per car rule is set
@@ -33,8 +31,8 @@ library FilplusEvents {
 
     // Event emitted when the maximum replicas per country rule is set for a dataset
     event SetDatasetRuleMaxReplicasInCountry(
-        bytes32 _countryCode,
-        uint32 _newValue
+        uint16 _countryCode,
+        uint16 _newValue
     );
 
     // Event emitted when the maximum replicas per city rule is set for a dataset
@@ -60,12 +58,4 @@ library FilplusEvents {
 
     // Event emitted when the maximum remaining percentage for the next allocation rule is set
     event SetDatacapRulesMaxRemainingPercentageForNext(uint64 _newValue);
-
-    // Event emitted when the matching commission percentage rule is set
-    event SetMatchingRulesDataswapCommissionPercentage(uint8 _newValue);
-
-    // Event emitted when the matching commission type rule is set
-    event SetMatchingRulesCommissionType(
-        FilplusType.MatchingRuleCommissionType _newType
-    );
 }

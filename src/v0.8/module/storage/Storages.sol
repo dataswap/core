@@ -19,7 +19,6 @@ import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
-import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 /// shared
@@ -51,7 +50,6 @@ contract Storages is
     IFilplus private filplus;
     IFilecoin private filecoin;
     ICarstore private carstore;
-    IDatasets private datasets;
     IMatchings public matchings;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
@@ -63,7 +61,6 @@ contract Storages is
         address _filplus,
         address _filecoin,
         address _carstore,
-        address _datasets,
         address _matchings
     ) public initializer {
         StoragesModifiers.storagesModifiersInitialize(
@@ -71,7 +68,6 @@ contract Storages is
             _filplus,
             _filecoin,
             _carstore,
-            _datasets,
             _matchings,
             address(this)
         );
@@ -80,7 +76,6 @@ contract Storages is
         filplus = IFilplus(_filplus);
         filecoin = IFilecoin(_filecoin);
         carstore = ICarstore(_carstore);
-        datasets = IDatasets(_datasets);
         matchings = IMatchings(_matchings);
         __UUPSUpgradeable_init();
     }
@@ -101,6 +96,10 @@ contract Storages is
     }
 
     /// @dev Submits a Filecoin claim Id for a matchedstore after successful matching.
+    /// @param _matchingId The ID of the matching.
+    /// @param _provider A provider of storage provider of matching.
+    /// @param _cid The content identifier of the matched data.
+    /// @param _claimId The ID of the successful Filecoin storage deal.
     function submitStorageClaimId(
         uint64 _matchingId,
         uint64 _provider,
@@ -141,6 +140,10 @@ contract Storages is
     }
 
     /// @dev Submits multiple Filecoin claim Ids for a matchedstore after successful matching.
+    /// @param _matchingId The ID of the matching.
+    /// @param _provider A provider of storage provider of matching.
+    /// @param _cids An array of content identifiers of the matched data.
+    /// @param _claimIds An array of IDs of successful Filecoin storage deals.
     function submitStorageClaimIds(
         uint64 _matchingId,
         uint64 _provider,

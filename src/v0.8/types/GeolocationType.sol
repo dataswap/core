@@ -17,20 +17,14 @@
 /// SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-/// @title CommonType Library
-/// @notice This library defines common data structures used for geolocation and storage provider information.
-/// @dev This library provides structs to represent geolocation and storage provider details.
-library CommonType {
+/// @title GeolocationType Library
+/// @notice This library defines common data structures used for geolocation information.
+/// @dev This library provides structs to represent geolocation details.
+library GeolocationType {
     /// @notice Struct representing geolocation information.
     struct Geolocation {
-        bytes2 regionCode; // Code representing the region
-        bytes2 countryCode; // Code representing the country
-        bytes2 cityCode; // Code representing the city
-    }
-
-    /// @notice Struct representing storage provider information.
-    struct StorageProvider {
-        string nodeId; // Identifier for the storage provider's node
-        string organization; // Name of the organization providing storage
+        uint16 regionCode; // Code representing the region
+        uint16 countryCode; // Code representing the country
+        uint32[] cityCodes; // Code representing the city
     }
 }

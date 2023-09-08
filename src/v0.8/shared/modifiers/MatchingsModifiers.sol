@@ -22,10 +22,9 @@ import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
-import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 ///shared
-import {DatasetsModifiers} from "src/v0.8/shared/modifiers/DatasetsModifiers.sol";
+import {CarstoreModifiers} from "src/v0.8/shared/modifiers/CarstoreModifiers.sol";
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 ///types
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
@@ -34,12 +33,11 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
-contract MatchingsModifiers is Initializable, DatasetsModifiers {
+contract MatchingsModifiers is Initializable, CarstoreModifiers {
     IRoles private roles;
     IFilplus private filplus;
     IFilecoin private filecoin;
     ICarstore private carstore;
-    IDatasets private datasets;
     IMatchings private matchings;
 
     /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
@@ -48,20 +46,17 @@ contract MatchingsModifiers is Initializable, DatasetsModifiers {
         address _filplus,
         address _filecoin,
         address _carstore,
-        address _datasets,
         address _matchings
     ) public onlyInitializing {
-        DatasetsModifiers.datasetsModifiersInitialize(
+        CarstoreModifiers.carstoreModifiersInitialize(
             _roles,
             _filplus,
             _filecoin,
-            _carstore,
-            _datasets
+            _carstore
         );
         roles = IRoles(_roles);
         filplus = IFilplus(_filplus);
         carstore = ICarstore(_carstore);
-        datasets = IDatasets(_datasets);
         matchings = IMatchings(_matchings);
     }
 

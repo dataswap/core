@@ -22,6 +22,9 @@ import {DatasetsTestBase} from "test/v0.8/testcases/module/dataset/abstract/Data
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
+import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
+import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
 
@@ -29,10 +32,20 @@ import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHel
 contract SubmitProofTestCaseWithSuccess is DatasetsTestBase {
     constructor(
         IDatasets _datasets,
+        IDatasetsRequirement _datasetsRequirement,
+        IDatasetsProof _datasetsProof,
+        IDatasetsChallenge _datasetsChallenge,
         IDatasetsHelpers _datasetsHelpers,
         IDatasetsAssertion _datasetsAssertion
     )
-        DatasetsTestBase(_datasets, _datasetsHelpers, _datasetsAssertion) // solhint-disable-next-line
+        DatasetsTestBase(
+            _datasets,
+            _datasetsRequirement,
+            _datasetsProof,
+            _datasetsChallenge,
+            _datasetsHelpers,
+            _datasetsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64) {
@@ -52,7 +65,11 @@ contract SubmitProofTestCaseWithSuccess is DatasetsTestBase {
             sourceLeavesIndexs,
             sourceLeavesSizes,
 
-        ) = datasetsHelpers.generateProof(sourceLeavesCount, 0);
+        ) = datasetsHelpers.generateProof(
+            sourceLeavesCount,
+            DatasetType.DataType.Source,
+            0
+        );
         // vm.prank();
         address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
         vm.startPrank(admin);
@@ -75,7 +92,7 @@ contract SubmitProofTestCaseWithSuccess is DatasetsTestBase {
             false
         );
 
-        uint64 count = datasets.getDatasetProofCount(
+        uint64 count = datasetsProof.getDatasetProofCount(
             _datasetId,
             DatasetType.DataType.Source
         );
@@ -85,7 +102,11 @@ contract SubmitProofTestCaseWithSuccess is DatasetsTestBase {
             sourceLeavesIndexs,
             sourceLeavesSizes,
 
-        ) = datasetsHelpers.generateProof(sourceLeavesCount, count);
+        ) = datasetsHelpers.generateProof(
+            sourceLeavesCount,
+            DatasetType.DataType.Source,
+            count
+        );
 
         datasetsAssertion.submitDatasetProofAssertion(
             address(99),
@@ -103,10 +124,20 @@ contract SubmitProofTestCaseWithSuccess is DatasetsTestBase {
 contract SubmitProofTestCaseWithInvalidSubmitter is DatasetsTestBase {
     constructor(
         IDatasets _datasets,
+        IDatasetsRequirement _datasetsRequirement,
+        IDatasetsProof _datasetsProof,
+        IDatasetsChallenge _datasetsChallenge,
         IDatasetsHelpers _datasetsHelpers,
         IDatasetsAssertion _datasetsAssertion
     )
-        DatasetsTestBase(_datasets, _datasetsHelpers, _datasetsAssertion) // solhint-disable-next-line
+        DatasetsTestBase(
+            _datasets,
+            _datasetsRequirement,
+            _datasetsProof,
+            _datasetsChallenge,
+            _datasetsHelpers,
+            _datasetsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64) {
@@ -126,7 +157,11 @@ contract SubmitProofTestCaseWithInvalidSubmitter is DatasetsTestBase {
             sourceLeavesIndexs,
             sourceLeavesSizes,
 
-        ) = datasetsHelpers.generateProof(sourceLeavesCount, 0);
+        ) = datasetsHelpers.generateProof(
+            sourceLeavesCount,
+            DatasetType.DataType.Source,
+            0
+        );
         // vm.prank();
         address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
         vm.startPrank(admin);
@@ -150,7 +185,7 @@ contract SubmitProofTestCaseWithInvalidSubmitter is DatasetsTestBase {
             false
         );
 
-        uint64 count = datasets.getDatasetProofCount(
+        uint64 count = datasetsProof.getDatasetProofCount(
             _datasetId,
             DatasetType.DataType.Source
         );
@@ -161,7 +196,11 @@ contract SubmitProofTestCaseWithInvalidSubmitter is DatasetsTestBase {
             sourceLeavesIndexs,
             sourceLeavesSizes,
 
-        ) = datasetsHelpers.generateProof(sourceLeavesCount, count);
+        ) = datasetsHelpers.generateProof(
+            sourceLeavesCount,
+            DatasetType.DataType.Source,
+            count
+        );
         vm.expectRevert(bytes("Invalid Dataset submitter"));
         datasetsAssertion.submitDatasetProofAssertion(
             address(199),
@@ -179,10 +218,20 @@ contract SubmitProofTestCaseWithInvalidSubmitter is DatasetsTestBase {
 contract SubmitProofTestCaseWithInvalidIndex is DatasetsTestBase {
     constructor(
         IDatasets _datasets,
+        IDatasetsRequirement _datasetsRequirement,
+        IDatasetsProof _datasetsProof,
+        IDatasetsChallenge _datasetsChallenge,
         IDatasetsHelpers _datasetsHelpers,
         IDatasetsAssertion _datasetsAssertion
     )
-        DatasetsTestBase(_datasets, _datasetsHelpers, _datasetsAssertion) // solhint-disable-next-line
+        DatasetsTestBase(
+            _datasets,
+            _datasetsRequirement,
+            _datasetsProof,
+            _datasetsChallenge,
+            _datasetsHelpers,
+            _datasetsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64) {
@@ -202,7 +251,11 @@ contract SubmitProofTestCaseWithInvalidIndex is DatasetsTestBase {
             sourceLeavesIndexs,
             sourceLeavesSizes,
 
-        ) = datasetsHelpers.generateProof(sourceLeavesCount, 0);
+        ) = datasetsHelpers.generateProof(
+            sourceLeavesCount,
+            DatasetType.DataType.Source,
+            0
+        );
         // vm.prank();
         address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
         vm.startPrank(admin);
@@ -226,7 +279,7 @@ contract SubmitProofTestCaseWithInvalidIndex is DatasetsTestBase {
             false
         );
 
-        uint64 count = datasets.getDatasetProofCount(
+        uint64 count = datasetsProof.getDatasetProofCount(
             _datasetId,
             DatasetType.DataType.Source
         );
@@ -237,12 +290,104 @@ contract SubmitProofTestCaseWithInvalidIndex is DatasetsTestBase {
             sourceLeavesIndexs,
             sourceLeavesSizes,
 
-        ) = datasetsHelpers.generateProof(sourceLeavesCount, count + 10);
+        ) = datasetsHelpers.generateProof(
+            sourceLeavesCount,
+            DatasetType.DataType.Source,
+            count + 10
+        );
         vm.expectRevert(bytes("index must match Count"));
         datasetsAssertion.submitDatasetProofAssertion(
             address(99),
             _datasetId,
             DatasetType.DataType.Source,
+            sourceLeavesHashes,
+            sourceLeavesIndexs,
+            sourceLeavesSizes,
+            true
+        );
+    }
+}
+
+///@notice submit dataset proof test case with invalid proportion.
+contract SubmitProofTestCaseWithInvalidProportion is DatasetsTestBase {
+    constructor(
+        IDatasets _datasets,
+        IDatasetsRequirement _datasetsRequirement,
+        IDatasetsProof _datasetsProof,
+        IDatasetsChallenge _datasetsChallenge,
+        IDatasetsHelpers _datasetsHelpers,
+        IDatasetsAssertion _datasetsAssertion
+    )
+        DatasetsTestBase(
+            _datasets,
+            _datasetsRequirement,
+            _datasetsProof,
+            _datasetsChallenge,
+            _datasetsHelpers,
+            _datasetsAssertion
+        ) // solhint-disable-next-line
+    {}
+
+    function before() internal virtual override returns (uint64) {
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return setup.proofTestSetup(datasetsHelpers, datasets);
+    }
+
+    function action(uint64 _datasetId) internal virtual override {
+        bytes32 sourceRoot = datasetsHelpers.generateRoot();
+        uint64 sourceLeavesCount = 100;
+        bytes32[] memory sourceLeavesHashes = new bytes32[](sourceLeavesCount);
+        uint64[] memory sourceLeavesIndexs = new uint64[](sourceLeavesCount);
+        uint64[] memory sourceLeavesSizes = new uint64[](sourceLeavesCount);
+        // firset submit
+        (
+            sourceLeavesHashes,
+            sourceLeavesIndexs,
+            sourceLeavesSizes,
+
+        ) = datasetsHelpers.generateProof(
+            sourceLeavesCount,
+            DatasetType.DataType.Source,
+            0
+        );
+        // vm.prank();
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
+        vm.stopPrank();
+        datasetsAssertion.submitDatasetProofRootAssertion(
+            address(99),
+            _datasetId,
+            DatasetType.DataType.Source,
+            "",
+            sourceRoot
+        );
+        datasetsAssertion.submitDatasetProofAssertion(
+            address(99),
+            _datasetId,
+            DatasetType.DataType.Source,
+            sourceLeavesHashes,
+            sourceLeavesIndexs,
+            sourceLeavesSizes,
+            true
+        );
+
+        (
+            sourceLeavesHashes,
+            sourceLeavesIndexs,
+            sourceLeavesSizes,
+
+        ) = datasetsHelpers.generateProof(
+            sourceLeavesCount,
+            DatasetType.DataType.MappingFiles,
+            0
+        );
+
+        vm.expectRevert(bytes("Invalid mappingFiles percentage"));
+        datasetsAssertion.submitDatasetProofAssertion(
+            address(99),
+            _datasetId,
+            DatasetType.DataType.MappingFiles,
             sourceLeavesHashes,
             sourceLeavesIndexs,
             sourceLeavesSizes,

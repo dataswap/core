@@ -38,39 +38,44 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
     /// @param _cid The CID (Content Identifier) of the car.
     /// @param _datasetId The dataset ID associated with the car.
     /// @param _size The size of the car.
+    /// @param _replicaCount count of car's replicas
     function addCarAssertion(
         bytes32 _cid,
         uint64 _datasetId,
-        uint64 _size
+        uint64 _size,
+        uint16 _replicaCount
     ) public {
         // Before adding, check car count and car existence.
         uint64 beforeCount = carstore.carsCount();
         hasCarAssertion(_cid, false);
 
         // Perform the action: add the car.
-        carstore.addCar(_cid, _datasetId, _size);
+        carstore.addCar(_cid, _datasetId, _size, _replicaCount);
 
         // After adding, check car attributes and existence.
         getCarDatasetIdAssertion(_cid, _datasetId);
         getCarSizeAssertion(_cid, _size);
         hasCarAssertion(_cid, true);
         carsCountAssertion(beforeCount + 1);
+        getCarReplicasCountAssertion(_cid, _replicaCount);
     }
 
     /// @notice Assertion for the `addCars` function.
     /// @param _cids An array of CIDs (Content Identifiers) for the cars.
     /// @param _datasetId The dataset ID associated with all the cars.
     /// @param _sizes An array of sizes corresponding to the cars.
+    /// @param _replicaCount count of car's replicas
     function addCarsAssertion(
         bytes32[] memory _cids,
         uint64 _datasetId,
-        uint64[] memory _sizes
+        uint64[] memory _sizes,
+        uint16 _replicaCount
     ) external {
         // Before adding, check car existence.
         hasCarsAssertion(_cids, false);
 
         // Perform the action: add multiple cars.
-        carstore.addCars(_cids, _datasetId, _sizes);
+        carstore.addCars(_cids, _datasetId, _sizes, _replicaCount);
 
         // After adding, check car existence.
         hasCarsAssertion(_cids, true);
@@ -81,37 +86,70 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         getCarsSizeAssertion(_cids, size);
     }
 
-    /// @notice Assertion for the `addCarReplica` function.
+    /// @notice Assertion for the `registCarReplica` function.
     /// @param _cid The CID (Content Identifier) of the car.
     /// @param _matchingId The matching ID associated with the car replica.
-    function addCarReplicaAssertion(bytes32 _cid, uint64 _matchingId) external {
+    /// @param _replicaIndex The index of the car's replica
+    function registCarReplicaAssertion(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint16 _replicaIndex
+    ) external {
         // Before adding, check replica count, replica existence, and replica state.
         uint16 beforeReplicasCount = carstore.getCarReplicasCount(_cid);
         hasCarReplicaAssertion(_cid, _matchingId, false);
+
+        // Perform the action: regist a car replica.
+        carstore.registCarReplica(_cid, _matchingId, _replicaIndex);
+
+        // After adding, check replica count, replica state, and replica existence.
+        getCarReplicasCountAssertion(_cid, beforeReplicasCount);
+        getCarReplicaStateAssertion(
+            _cid,
+            _matchingId,
+            CarReplicaType.State.None
+        );
+        getCarReplicaAssertion(_cid, _matchingId, CarReplicaType.State.None, 0);
+        getCarReplicaFilecoinClaimIdAssertion(_cid, _matchingId, 0);
+        hasCarReplicaAssertion(_cid, _matchingId, true);
+    }
+
+    /// @notice Assertion for the `reportCarReplicaMatchingState` function.
+    /// @param _cid The CID (Content Identifier) of the car.
+    /// @param _matchingId The matching ID associated with the car replica.
+    /// @param _matchingState Matching's state of the replica, true for success ,false for failed.
+    function reportCarReplicaMatchingStateAssertion(
+        bytes32 _cid,
+        uint64 _matchingId,
+        bool _matchingState
+    ) external {
+        hasCarReplicaAssertion(_cid, _matchingId, true);
         getCarReplicaStateAssertion(
             _cid,
             _matchingId,
             CarReplicaType.State.None
         );
 
-        // Perform the action: add a car replica.
-        carstore.addCarReplica(_cid, _matchingId);
+        // Perform the action: report an matching failed car replica.
+        carstore.reportCarReplicaMatchingState(
+            _cid,
+            _matchingId,
+            _matchingState
+        );
 
-        // After adding, check replica count, replica state, and replica existence.
-        getCarReplicasCountAssertion(_cid, beforeReplicasCount + 1);
-        getCarReplicaStateAssertion(
-            _cid,
-            _matchingId,
-            CarReplicaType.State.Matched
-        );
-        getCarReplicaAssertion(
-            _cid,
-            _matchingId,
-            CarReplicaType.State.Matched,
-            0
-        );
-        getCarReplicaFilecoinClaimIdAssertion(_cid, _matchingId, 0);
-        hasCarReplicaAssertion(_cid, _matchingId, true);
+        if (_matchingState) {
+            getCarReplicaStateAssertion(
+                _cid,
+                _matchingId,
+                CarReplicaType.State.Matched
+            );
+        } else {
+            getCarReplicaStateAssertion(
+                _cid,
+                _matchingId,
+                CarReplicaType.State.StorageFailed
+            );
+        }
     }
 
     /// @notice Assertion for the `reportCarReplicaExpired` function.

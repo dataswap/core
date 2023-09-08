@@ -23,6 +23,7 @@ import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 ///shared
 import {CarstoreModifiers} from "src/v0.8/shared/modifiers/CarstoreModifiers.sol";
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
@@ -84,24 +85,58 @@ contract DatasetsModifiers is Initializable, CarstoreModifiers {
         }
         _;
     }
+}
+
+/// @title storages
+/// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
+contract DatasetsProofModifiers is Initializable, CarstoreModifiers {
+    IRoles private roles;
+    IFilplus private filplus;
+    IFilecoin private filecoin;
+    ICarstore private carstore;
+    IDatasetsProof private datasetsProof;
+
+    /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
+    function datasetsProofModifiersInitialize(
+        address _roles,
+        address _filplus,
+        address _filecoin,
+        address _carstore,
+        address _datasetsProof
+    ) public onlyInitializing {
+        CarstoreModifiers.carstoreModifiersInitialize(
+            _roles,
+            _filplus,
+            _filecoin,
+            _carstore
+        );
+        roles = IRoles(_roles);
+        filplus = IFilplus(_filplus);
+        carstore = ICarstore(_carstore);
+        datasetsProof = IDatasetsProof(_datasetsProof);
+    }
+
     /// @notice The sender of the dataset proof transaction must be the submitter of the proof.
     modifier onlyDatasetProofSubmitterOrSubmitterNotExsits(
         uint64 _datasetId,
         address _sender
     ) {
         if (
-            datasets.getDatasetProofCount(
+            datasetsProof.getDatasetProofCount(
                 _datasetId,
                 DatasetType.DataType.Source
             ) !=
             0 ||
-            datasets.getDatasetProofCount(
+            datasetsProof.getDatasetProofCount(
                 _datasetId,
                 DatasetType.DataType.MappingFiles
             ) !=
             0
         ) {
-            if (datasets.isDatasetProofSubmitter(_datasetId, _sender) != true) {
+            if (
+                datasetsProof.isDatasetProofSubmitter(_datasetId, _sender) !=
+                true
+            ) {
                 revert Errors.InvalidDatasetProofsSubmitter(
                     _datasetId,
                     _sender

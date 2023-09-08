@@ -21,6 +21,8 @@ pragma solidity ^0.8.21;
 import {Test} from "forge-std/Test.sol";
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
+import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
@@ -32,12 +34,18 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
     IMatchings matchings;
     IDatasetsHelpers datasetsHelpers;
     IMatchingsAssertion assertion;
+    IDatasets public datasets;
+    IDatasetsProof public datasetsProof;
 
     constructor(
+        IDatasets _datasets,
+        IDatasetsProof _datasetsProof,
         IMatchings _matchings,
         IDatasetsHelpers _datasetsHelpers,
         IMatchingsAssertion _assertion
     ) {
+        datasets = _datasets;
+        datasetsProof = _datasetsProof;
         matchings = _matchings;
         datasetsHelpers = _datasetsHelpers;
         assertion = _assertion;
@@ -70,13 +78,13 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
         uint64 _datasetId,
         DatasetType.DataType _dataType
     ) public view returns (bytes32[] memory cars, uint64 size) {
-        size = matchings.datasets().getDatasetSize(_datasetId, _dataType);
-        uint64 carsCount = matchings.datasets().getDatasetCarsCount(
+        size = datasetsProof.getDatasetSize(_datasetId, _dataType);
+        uint64 carsCount = datasetsProof.getDatasetCarsCount(
             _datasetId,
             _dataType
         );
         cars = new bytes32[](carsCount);
-        cars = matchings.datasets().getDatasetCars(
+        cars = datasetsProof.getDatasetCars(
             _datasetId,
             _dataType,
             0,
@@ -94,15 +102,9 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
     {
         datasetId = setup("testAccessMethod", 100, 10);
 
-        address admin = matchings.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
         vm.startPrank(admin);
-        matchings.datasets().roles().grantRole(
-            RolesType.DATASET_PROVIDER,
-            address(99)
-        );
+        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
         vm.stopPrank();
 
         (bytes32[] memory cars, ) = getDatasetCarsAndCarsCount(
@@ -120,6 +122,7 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
             100,
             100,
             100,
+            0,
             "TEST"
         );
 
@@ -134,10 +137,7 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
         );
 
         vm.startPrank(admin);
-        matchings.datasets().roles().grantRole(
-            RolesType.STORAGE_PROVIDER,
-            address(199)
-        );
+        datasets.roles().grantRole(RolesType.STORAGE_PROVIDER, address(199));
         vm.stopPrank();
         vm.roll(101);
         vm.prank(address(199));

@@ -26,6 +26,9 @@ contract SubmitMetadataTest is Test, DatasetTestSetup {
         setup();
         SubmitMetadataTestCaseWithSuccess testCase = new SubmitMetadataTestCaseWithSuccess(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );
@@ -37,6 +40,9 @@ contract SubmitMetadataTest is Test, DatasetTestSetup {
         setup();
         SubmitMetadataTestCaseWithDuplicate testCase = new SubmitMetadataTestCaseWithDuplicate(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );

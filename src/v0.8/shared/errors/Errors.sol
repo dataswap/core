@@ -72,4 +72,8 @@ library Errors {
         uint64 reallyStored,
         uint64 allocatedDatacap
     );
+    error NotCompliantRuleMaxReplicasPerSP(address winner, bytes32 cid);
+    error NotCompliantRuleMatchingTargetMeetsFilPlusRequirements(
+        uint64 matchingId
+    );
 }

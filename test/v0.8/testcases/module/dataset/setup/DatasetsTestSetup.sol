@@ -34,6 +34,17 @@ contract DatasetsTestSetup is Test {
             address(9),
             "TEST"
         );
+        _datasetsHelpers.submitDatasetReplicaRequirements(
+            address(9),
+            datasetId,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0
+        );
+
         return datasetId;
     }
 
@@ -46,6 +57,17 @@ contract DatasetsTestSetup is Test {
             address(9),
             "TEST"
         );
+        _datasetsHelpers.submitDatasetReplicaRequirements(
+            address(9),
+            datasetId,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0
+        );
+
         vm.prank(_datasets.governanceAddress());
         _datasets.approveDatasetMetadata(datasetId);
 
@@ -76,6 +98,17 @@ contract DatasetsTestSetup is Test {
     }
 
     ///@notice Setup proof conditions for dataset test caset.
+    function replicaRequirementTestSetup(
+        IDatasetsHelpers _datasetsHelpers
+    ) public returns (uint64 id) {
+        uint64 datasetId = _datasetsHelpers.submitDatasetMetadata(
+            address(9),
+            "TEST"
+        );
+        return datasetId;
+    }
+
+    ///@notice Setup proof conditions for dataset test caset.
     function proofTestSetup(
         IDatasetsHelpers _datasetsHelpers,
         IDatasets _datasets
@@ -83,6 +116,16 @@ contract DatasetsTestSetup is Test {
         uint64 datasetId = _datasetsHelpers.submitDatasetMetadata(
             address(9),
             "TEST"
+        );
+        _datasetsHelpers.submitDatasetReplicaRequirements(
+            address(9),
+            datasetId,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0
         );
         vm.prank(_datasets.governanceAddress());
         _datasets.approveDatasetMetadata(datasetId);
@@ -98,6 +141,17 @@ contract DatasetsTestSetup is Test {
             address(9),
             "TEST"
         );
+        _datasetsHelpers.submitDatasetReplicaRequirements(
+            address(9),
+            datasetId,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0
+        );
+
         vm.prank(_datasets.governanceAddress());
         _datasets.approveDatasetMetadata(datasetId);
 
@@ -121,6 +175,7 @@ contract DatasetsTestSetup is Test {
             10,
             true
         );
+
         return datasetId;
     }
 }

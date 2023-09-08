@@ -76,6 +76,24 @@ interface IDatasetsAssertion {
         uint64 _version
     ) external;
 
+    /// @notice Assertion function for submitting dataset replica requirement.
+    /// @param caller The address of the caller.
+    /// @param _datasetId The ID of the dataset for which proof is submitted.
+    /// @param _dataPreparers The client specified data preparer, which the client can either specify or not, but the parameter cannot be empty.
+    /// @param _storageProviders The client specified storage provider, which the client can either specify or not, but the parameter cannot be empty.
+    /// @param _regions The region specified by the client, and the client must specify a region for the replicas.
+    /// @param _countrys The country specified by the client, and the client must specify a country for the replicas.
+    /// @param _citys The citys specified by the client, when the country of a replica is duplicated, citys must be specified and cannot be empty.
+    function submitDatasetReplicaRequirementsAssertion(
+        address caller,
+        uint64 _datasetId,
+        address[][] memory _dataPreparers,
+        address[][] memory _storageProviders,
+        uint16[] memory _regions,
+        uint16[] memory _countrys,
+        uint32[][] memory _citys
+    ) external;
+
     /// @notice Asserts the submission of dataset proof.
     /// @param caller The caller's address.
     /// @param _datasetId The ID of the dataset for which proof is submitted.
@@ -113,7 +131,7 @@ interface IDatasetsAssertion {
     /// @param _randomSeed The random seed used for verification.
     /// @param _siblings The Merkle proof siblings.
     /// @param _paths The Merkle proof paths.
-    function submitDatasetVerificationAssertion(
+    function submitDatasetChallengeProofsAssertion(
         address caller,
         uint64 _datasetId,
         uint64 _randomSeed,
@@ -182,6 +200,14 @@ interface IDatasetsAssertion {
         uint64 _expectCount
     ) external;
 
+    /// @notice Assertion function for getting replica's count of dataset.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _expectCount The expected cars count.
+    function getDatasetReplicasCountAssertion(
+        uint64 _datasetId,
+        uint16 _expectCount
+    ) external;
+
     /// @notice Asserts the retrieval of dataset size.
     /// @param _datasetId The ID of the dataset for which the size is retrieved.
     /// @param _dataType The data type of the dataset.
@@ -205,7 +231,7 @@ interface IDatasetsAssertion {
     /// @param _auditor The auditor address for which verification is retrieved.
     /// @param _expectSiblings The expected Merkle proof siblings.
     /// @param _expectPaths The expected Merkle proof paths.
-    function getDatasetVerificationAssertion(
+    function getDatasetChallengeProofsAssertion(
         uint64 _datasetId,
         address _auditor,
         bytes32[] memory _expectLeaves,
@@ -216,7 +242,7 @@ interface IDatasetsAssertion {
     /// @notice Asserts the retrieval of the count of dataset verifications.
     /// @param _datasetId The ID of the dataset for which the count of verifications is retrieved.
     /// @param _expectCount The expected count of verifications.
-    function getDatasetVerificationsCountAssertion(
+    function getDatasetChallengeProofsCountAssertion(
         uint64 _datasetId,
         uint16 _expectCount
     ) external;

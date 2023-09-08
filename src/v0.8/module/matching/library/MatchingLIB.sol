@@ -29,12 +29,28 @@ library MatchingLIB {
     using MatchingStateMachineLIB for MatchingType.Matching;
     using MatchingBidsLIB for MatchingType.Matching;
 
+    /// @notice Get the cars of a matching.
+    /// @return cars An array of CIDs representing the cars in the matching.
+    function _getCars(
+        MatchingType.Matching storage self
+    ) internal view returns (bytes32[] memory) {
+        return self.target.cars;
+    }
+
     /// @notice Get datasetId of matching.
     /// @dev This function is used to get dataset id of matching.
     function _getDatasetId(
         MatchingType.Matching storage self
     ) internal view returns (uint64) {
         return self.target.datasetId;
+    }
+
+    /// @notice Get replica index of matching.
+    /// @dev This function is used to get dataset's replica index of matching.
+    function _getDatasetReplicaIndex(
+        MatchingType.Matching storage self
+    ) internal view returns (uint64) {
+        return self.target.replicaIndex;
     }
 
     /// @notice Publish a matching.

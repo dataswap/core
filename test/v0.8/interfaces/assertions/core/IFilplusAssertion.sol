@@ -22,14 +22,6 @@ pragma solidity ^0.8.21;
 interface IFilplusAssertion {
     // Setter assertions
 
-    /// @notice Asserts the setting of the maximum number of car replicas allowed.
-    /// @param _caller The address of the caller.
-    /// @param _newValue The expected new maximum number of car replicas.
-    function setCarRuleMaxCarReplicasAssertion(
-        address _caller,
-        uint16 _newValue
-    ) external;
-
     /// @notice Asserts the setting of the minimum number of regions per dataset.
     /// @param _caller The address of the caller.
     /// @param _newValue The expected new minimum number of regions per dataset.
@@ -52,7 +44,7 @@ interface IFilplusAssertion {
     /// @param _newValue The expected new maximum replicas for the specified country.
     function setDatasetRuleMaxReplicasInCountryAssertion(
         address _caller,
-        bytes32 _countryCode,
+        uint16 _countryCode,
         uint16 _newValue
     ) external;
 
@@ -120,27 +112,7 @@ interface IFilplusAssertion {
         uint8 _newValue
     ) external;
 
-    /// @notice Asserts the setting of the Dataswap commission percentage in matching rules.
-    /// @param _caller The address of the caller.
-    /// @param _newValue The expected new Dataswap commission percentage.
-    function setMatchingRulesDataswapCommissionPercentageAssertion(
-        address _caller,
-        uint8 _newValue
-    ) external;
-
-    /// @notice Asserts the setting of the commission type in matching rules.
-    /// @param _caller The address of the caller.
-    /// @param _newType The expected new commission type.
-    function setMatchingRulesCommissionTypeAssertion(
-        address _caller,
-        uint8 _newType
-    ) external;
-
     // Getter assertions
-
-    /// @notice Asserts the maximum number of car replicas allowed.
-    /// @param _expectCount The expected maximum number of car replicas.
-    function carRuleMaxCarReplicasAssertion(uint16 _expectCount) external;
 
     /// @notice Asserts the minimum number of regions per dataset.
     /// @param _expectCount The expected minimum number of regions per dataset.
@@ -192,23 +164,50 @@ interface IFilplusAssertion {
         uint8 _expectPercentage
     ) external;
 
-    /// @notice Asserts the Dataswap commission percentage in matching rules.
-    /// @param _expectPercentage The expected Dataswap commission percentage.
-    function matchingRulesDataswapCommissionPercentageAssertion(
-        uint8 _expectPercentage
-    ) external;
-
-    /// @notice Asserts the commission type in matching rules.
-    /// @param _expectType The expected commission type.
-    function getMatchingRulesCommissionTypeAssertion(
-        uint8 _expectType
-    ) external;
-
     /// @notice Asserts the maximum replicas per country for a specific country code in dataset rules.
     /// @param _countryCode The country code for which the maximum replicas are being asserted.
     /// @param _expectCount The expected maximum replicas for the specified country.
     function getDatasetRuleMaxReplicasInCountryAssertion(
-        bytes32 _countryCode,
+        uint16 _countryCode,
         uint16 _expectCount
+    ) external;
+
+    /// @notice Check if the storage area complies with filplus rules.
+    function isCompliantRuleGeolocationAsseretion(
+        uint16[] memory _regions,
+        uint16[] memory _countrys,
+        uint32[][] memory _citys,
+        bool _expectResult
+    ) external;
+
+    /// @notice Check if the mappingFiles percentage in the dataset complies with filplus rules.
+    function isCompliantRuleMaxProportionOfMappingFilesToDatasetAsseretion(
+        uint64 _mappingFilesSize,
+        uint64 _sourceSize,
+        bool _expectResult
+    ) external;
+
+    /// @notice Check if the total number of storage replicas complies with filplus rules.
+    function isCompliantRuleTotalReplicasPerDatasetAsseretion(
+        address[][] memory _dataPreparers,
+        address[][] memory _storageProviders,
+        uint16[] memory _regions,
+        uint16[] memory _countrys,
+        uint32[][] memory _citys,
+        bool _expectResult
+    ) external;
+
+    /// @notice Check if the storage provider for each dataset complies with filplus rules `datasetRuleMinSPsPerDataset`.
+    function isCompliantRuleMinSPsPerDatasetAsseretion(
+        uint16 _requirementValue,
+        uint16 _totalExists,
+        uint16 _uniqueExists,
+        bool _expectResult
+    ) external;
+
+    /// @notice Check if the storage provider for each dataset complies with filplus rules `datasetRuleMaxReplicasPerSP`.
+    function isCompliantRuleMaxReplicasPerSPAsseretion(
+        uint16 _value,
+        bool _expectResult
     ) external;
 }

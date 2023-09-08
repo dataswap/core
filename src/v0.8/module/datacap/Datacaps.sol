@@ -22,7 +22,6 @@ import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
-import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
@@ -61,7 +60,6 @@ contract Datacaps is
     IFilplus private filplus;
     IFilecoin private filecoin;
     ICarstore private carstore;
-    IDatasets private datasets;
     IMatchings private matchings;
     IStorages public storages;
     /// @dev This empty reserved space is put in place to allow future versions to add new
@@ -75,7 +73,6 @@ contract Datacaps is
         address _filplus,
         address _filecoin,
         address _carstore,
-        address _datasets,
         address _matchings,
         address _storages
     ) public initializer {
@@ -84,7 +81,6 @@ contract Datacaps is
             _filplus,
             _filecoin,
             _carstore,
-            _datasets,
             _matchings,
             _storages,
             address(this)
@@ -93,7 +89,6 @@ contract Datacaps is
         roles = IRoles(_roles);
         filplus = IFilplus(_filplus);
         carstore = ICarstore(_carstore);
-        datasets = IDatasets(_datasets);
         matchings = IMatchings(_matchings);
         storages = IStorages(_storages);
         __UUPSUpgradeable_init();

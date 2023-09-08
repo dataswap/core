@@ -21,17 +21,31 @@ import {DSTest} from "ds-test/test.sol";
 import {Test} from "forge-std/Test.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
+import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
+import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
 
 /// @notice This contract defines assertion functions for testing an IDatasets contract.
 /// @dev NOTE: All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
 contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
     IDatasets public datasets;
+    IDatasetsRequirement public datasetsRequirement;
+    IDatasetsProof public datasetsProof;
+    IDatasetsChallenge public datasetsChallenge;
 
     /// @notice Constructor that sets the address of the IDatasets contract.
     /// @param _datasets The address of the IDatasets contract.
-    constructor(IDatasets _datasets) {
+    constructor(
+        IDatasets _datasets,
+        IDatasetsRequirement _datasetsRequirement,
+        IDatasetsProof _datasetsProof,
+        IDatasetsChallenge _datasetsChallenge
+    ) {
         datasets = _datasets;
+        datasetsRequirement = _datasetsRequirement;
+        datasetsProof = _datasetsProof;
+        datasetsChallenge = _datasetsChallenge;
     }
 
     /// @notice Assertion function for approving a dataset.
@@ -48,7 +62,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         );
 
         // Check verification count, Judgment strategy depends on actual needs
-        getDatasetVerificationsCountAssertion(_datasetId, 1);
+        getDatasetChallengeProofsCountAssertion(_datasetId, 1);
 
         // Perform the action.
         vm.prank(caller);
@@ -175,10 +189,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         // After the action, check the updated state.
         hasDatasetMetadataAssertion(_accessMethod, true);
         uint64 newDatasetsCount = datasets.datasetsCount();
-        getDatasetStateAssertion(
-            oldDatasetsCount + 1,
-            DatasetType.State.MetadataSubmitted
-        );
+
         datasetsCountAssertion(oldDatasetsCount + 1);
         getDatasetMetadataAssertion(
             newDatasetsCount,
@@ -186,6 +197,54 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             address(caller),
             uint64(block.number)
         );
+        getDatasetMetadataSubmitterAssertion(newDatasetsCount, address(caller));
+    }
+
+    /// @notice Assertion function for submitting dataset replica requirement.
+    /// @param caller The address of the caller.
+    /// @param _datasetId The ID of the dataset for which proof is submitted.
+    /// @param _dataPreparers The client specified data preparer, which the client can either specify or not, but the parameter cannot be empty.
+    /// @param _storageProviders The client specified storage provider, which the client can either specify or not, but the parameter cannot be empty.
+    /// @param _regions The region specified by the client, and the client must specify a region for the replicas.
+    /// @param _countrys The country specified by the client, and the client must specify a country for the replicas.
+    /// @param _citys The citys specified by the client, when the country of a replica is duplicated, citys must be specified and cannot be empty.
+    function submitDatasetReplicaRequirementsAssertion(
+        address caller,
+        uint64 _datasetId,
+        address[][] memory _dataPreparers,
+        address[][] memory _storageProviders,
+        uint16[] memory _regions,
+        uint16[] memory _countrys,
+        uint32[][] memory _citys
+    ) external {
+        // Perform the action.
+        vm.prank(caller);
+        datasetsRequirement.submitDatasetReplicaRequirements(
+            _datasetId,
+            _dataPreparers,
+            _storageProviders,
+            _regions,
+            _countrys,
+            _citys
+        );
+        getDatasetStateAssertion(
+            _datasetId,
+            DatasetType.State.MetadataSubmitted
+        );
+
+        getDatasetReplicasCountAssertion(_datasetId, uint16(_regions.length));
+
+        for (uint64 i = 0; i < _regions.length; i++) {
+            getDatasetReplicaRequirementAssertion(
+                _datasetId,
+                i,
+                _dataPreparers[i],
+                _storageProviders[i],
+                _regions[i],
+                _countrys[i],
+                _citys[i]
+            );
+        }
     }
 
     /// @notice Assertion function for submitting dataset proof root.
@@ -209,7 +268,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
 
         // Perform the action.
         vm.prank(caller);
-        datasets.submitDatasetProofRoot(
+        datasetsProof.submitDatasetProofRoot(
             _datasetId,
             _dataType,
             accessMethod,
@@ -224,6 +283,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
     /// @param _datasetId The ID of the dataset for which to submit proof.
     /// @param _dataType The data type of the proof.
     /// @param _leafHashes The leaf hashes of the proof.
+    /// @param _leafIndexs The indexes of leaf hashes.
     /// @param _leafSizes The sizes of the leaf hashes.
     /// @param _completed A boolean indicating if the proof is completed.
     function submitDatasetProofAssertion(
@@ -240,17 +300,20 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             _datasetId,
             DatasetType.State.MetadataApproved
         );
-        uint64 oldProofCount = datasets.getDatasetProofCount(
+        uint64 oldProofCount = datasetsProof.getDatasetProofCount(
             _datasetId,
             _dataType
         );
-        uint64 oldDatasetSize = datasets.getDatasetSize(_datasetId, _dataType);
+        uint64 oldDatasetSize = datasetsProof.getDatasetSize(
+            _datasetId,
+            _dataType
+        );
         isDatasetContainsCarAssertion(_datasetId, _leafHashes[0], false);
         isDatasetContainsCarsAssertion(_datasetId, _leafHashes, false);
 
         // Perform the action.
         vm.prank(caller);
-        datasets.submitDatasetProof(
+        datasetsProof.submitDatasetProof(
             _datasetId,
             _dataType,
             _leafHashes,
@@ -290,19 +353,19 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
     ) internal {
         // Check proof count.
         assertEq(
-            datasets.getDatasetProofCount(_datasetId, _dataType),
+            datasetsProof.getDatasetProofCount(_datasetId, _dataType),
             _oldProofCount + uint64(_leafHashes.length)
         );
         // assert leves
         getDatasetProofCountAssertion(
             _datasetId,
             _dataType,
-            datasets.getDatasetProofCount(_datasetId, _dataType)
+            datasetsProof.getDatasetProofCount(_datasetId, _dataType)
         );
         getDatasetCarsCountAssertion(
             _datasetId,
             _dataType,
-            datasets.getDatasetProofCount(_datasetId, _dataType)
+            datasetsProof.getDatasetProofCount(_datasetId, _dataType)
         );
 
         getDatasetProofAssertion(
@@ -358,7 +421,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
     /// @param _randomSeed The random seed for verification.
     /// @param _siblings The Merkle tree siblings for verification.
     /// @param _paths The Merkle tree paths for verification.
-    function submitDatasetVerificationAssertion(
+    function submitDatasetChallengeProofsAssertion(
         address caller,
         uint64 _datasetId,
         uint64 _randomSeed,
@@ -367,9 +430,11 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         uint32[] memory _paths
     ) external {
         // Before the action, capture the initial state.
-        uint16 oldCount = datasets.getDatasetVerificationsCount(_datasetId);
+        uint16 oldCount = datasetsChallenge.getDatasetChallengeProofsCount(
+            _datasetId
+        );
 
-        isDatasetVerificationDuplicateAssertion(
+        isDatasetChallengeProofDuplicateAssertion(
             _datasetId,
             caller,
             _randomSeed,
@@ -378,7 +443,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
 
         // Perform the action.
         vm.prank(caller);
-        datasets.submitDatasetVerification(
+        datasetsChallenge.submitDatasetChallengeProofs(
             _datasetId,
             _randomSeed,
             _leaves,
@@ -387,8 +452,8 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         );
 
         // After the action, check the updated state.
-        getDatasetVerificationsCountAssertion(_datasetId, oldCount + 1);
-        getDatasetVerificationAssertion(
+        getDatasetChallengeProofsCountAssertion(_datasetId, oldCount + 1);
+        getDatasetChallengeProofsAssertion(
             _datasetId,
             caller,
             _leaves,
@@ -434,6 +499,17 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         );
     }
 
+    /// @notice Assertion function for getting dataset metadata's submitter.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _expectSubmitter The expected submitter address.
+    function getDatasetMetadataSubmitterAssertion(
+        uint64 _datasetId,
+        address _expectSubmitter
+    ) public {
+        address submitter = datasets.getDatasetMetadataSubmitter(_datasetId);
+        assertEq(submitter, _expectSubmitter, "submitter not matched");
+    }
+
     /// @notice Assertion function for getting dataset proof.
     /// @param _datasetId The ID of the dataset.
     /// @param _dataType The data type of the proof.
@@ -447,7 +523,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         uint64 _len,
         bytes32[] memory _expectProof
     ) public {
-        bytes32[] memory proof = datasets.getDatasetProof(
+        bytes32[] memory proof = datasetsProof.getDatasetProof(
             _datasetId,
             _dataType,
             _index,
@@ -473,7 +549,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         uint64 _len,
         bytes32[] memory _expectCars
     ) public {
-        bytes32[] memory cars = datasets.getDatasetCars(
+        bytes32[] memory cars = datasetsProof.getDatasetCars(
             _datasetId,
             _dataType,
             _index,
@@ -491,7 +567,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         address _submitter
     ) public {
         assertEq(
-            datasets.getDatasetProofSubmitter(_datasetId),
+            datasetsProof.getDatasetProofSubmitter(_datasetId),
             _submitter,
             "invalid submitter"
         );
@@ -507,7 +583,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         uint64 _expectCount
     ) public {
         assertEq(
-            datasets.getDatasetProofCount(_datasetId, _dataType),
+            datasetsProof.getDatasetProofCount(_datasetId, _dataType),
             _expectCount,
             "count not matched"
         );
@@ -523,10 +599,60 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         uint64 _expectCount
     ) public {
         assertEq(
-            datasets.getDatasetCarsCount(_datasetId, _dataType),
+            datasetsProof.getDatasetCarsCount(_datasetId, _dataType),
             _expectCount,
             "count not matched"
         );
+    }
+
+    /// @notice Assertion function for getting replica's count of dataset.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _expectCount The expected cars count.
+    function getDatasetReplicasCountAssertion(
+        uint64 _datasetId,
+        uint16 _expectCount
+    ) public {
+        assertEq(
+            datasetsRequirement.getDatasetReplicasCount(_datasetId),
+            _expectCount,
+            "replicas not matched"
+        );
+    }
+
+    ///@notice Get dataset replica requirement
+    function getDatasetReplicaRequirementAssertion(
+        uint64 _datasetId,
+        uint64 _index,
+        address[] memory _expectDataPreprares,
+        address[] memory _expectStorageProviders,
+        uint16 _expectRegion,
+        uint16 _expectCountry,
+        uint32[] memory _expectCitys
+    ) public {
+        (
+            address[] memory dps,
+            address[] memory sps,
+            uint16 region,
+            uint16 country,
+            uint32[] memory citys
+        ) = datasetsRequirement.getDatasetReplicaRequirement(
+                _datasetId,
+                _index
+            );
+        assertEq(
+            dps.length,
+            _expectDataPreprares.length,
+            "dps length not match"
+        );
+        assertEq(
+            sps.length,
+            _expectStorageProviders.length,
+            "sps length not match"
+        );
+        assertEq(citys.length, _expectCitys.length, "citys length not match");
+
+        assertEq(region, _expectRegion, "region not match");
+        assertEq(country, _expectCountry, "country not match");
     }
 
     /// @notice Assertion function for getting dataset size.
@@ -539,7 +665,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         uint64 _expectSize
     ) public {
         assertEq(
-            datasets.getDatasetSize(_datasetId, _dataType),
+            datasetsProof.getDatasetSize(_datasetId, _dataType),
             _expectSize,
             "size not matched"
         );
@@ -564,7 +690,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
     /// @param _auditor The auditor address.
     /// @param _expectSiblings The expected Merkle tree siblings.
     /// @param _expectPaths The expected Merkle tree paths.
-    function getDatasetVerificationAssertion(
+    function getDatasetChallengeProofsAssertion(
         uint64 _datasetId,
         address _auditor,
         bytes32[] memory _expectLeaves,
@@ -586,7 +712,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             bytes32[] memory leaves,
             bytes32[][] memory siblings,
             uint32[] memory paths
-        ) = datasets.getDatasetVerification(_datasetId, _auditor);
+        ) = datasetsChallenge.getDatasetChallengeProofs(_datasetId, _auditor);
 
         assertEq(leaves.length, _expectLeaves.length, "length not matched");
         assertEq(siblings.length, _expectSiblings.length, "length not matched");
@@ -613,12 +739,12 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
     /// @notice Assertion function for getting dataset verification count.
     /// @param _datasetId The ID of the dataset.
     /// @param _expectCount The expected verification count.
-    function getDatasetVerificationsCountAssertion(
+    function getDatasetChallengeProofsCountAssertion(
         uint64 _datasetId,
         uint16 _expectCount
     ) public {
         assertEq(
-            datasets.getDatasetVerificationsCount(_datasetId),
+            datasetsChallenge.getDatasetChallengeProofsCount(_datasetId),
             _expectCount,
             "count not matched"
         );
@@ -648,7 +774,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         bool _expectIsDatasetContainsCar
     ) public {
         assertEq(
-            datasets.isDatasetContainsCar(_datasetId, _cid),
+            datasetsProof.isDatasetContainsCar(_datasetId, _cid),
             _expectIsDatasetContainsCar,
             "isDatasetContainsCar not matched"
         );
@@ -664,7 +790,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         bool _expectIsDatasetContainsCars
     ) public {
         assertEq(
-            datasets.isDatasetContainsCars(_datasetId, _cids),
+            datasetsProof.isDatasetContainsCars(_datasetId, _cids),
             _expectIsDatasetContainsCars,
             "isDatasetContainsCars not matched"
         );
@@ -680,7 +806,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         bool _expectIsDatasetProofSubmitter
     ) public {
         assertEq(
-            datasets.isDatasetProofSubmitter(_datasetId, _submitter),
+            datasetsProof.isDatasetProofSubmitter(_datasetId, _submitter),
             _expectIsDatasetProofSubmitter,
             "isDatasetProofSubmitter not matched"
         );
@@ -691,20 +817,20 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
     /// @param _auditor The _auditor to check.
     /// @param _randomSeed The _randomSeed to check.
     /// @param _expectIsDatasetVerificationDuplicate The expected result, true if dupulicated of the dataset varification.
-    function isDatasetVerificationDuplicateAssertion(
+    function isDatasetChallengeProofDuplicateAssertion(
         uint64 _datasetId,
         address _auditor,
         uint64 _randomSeed,
         bool _expectIsDatasetVerificationDuplicate
     ) public {
         assertEq(
-            datasets.isDatasetVerificationDuplicate(
+            datasetsChallenge.isDatasetChallengeProofDuplicate(
                 _datasetId,
                 _auditor,
                 _randomSeed
             ),
             _expectIsDatasetVerificationDuplicate,
-            "isDatasetVerificationDuplicate not matched"
+            "isDatasetChallengeProofDuplicate not matched"
         );
     }
 
@@ -726,7 +852,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         uint64 _expectCount
     ) external {
         assertEq(
-            datasets.getChallengeCount(_datasetId),
+            datasetsChallenge.getChallengeCount(_datasetId),
             _expectCount,
             "challenge count not matched"
         );

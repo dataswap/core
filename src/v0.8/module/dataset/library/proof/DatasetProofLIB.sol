@@ -18,24 +18,26 @@
 pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
-import {DatasetStateMachineLIB} from "src/v0.8/module/dataset/library/DatasetStateMachineLIB.sol";
 import {DatasetProofInnerLIB} from "src/v0.8/module/dataset/library/proof/DatasetProofInnerLIB.sol";
+import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
+import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 
 /// @title DatasetProofLIB Library,include add,get,verify.
 /// @notice This library provides functions for managing proofs associated with datasets.
 library DatasetProofLIB {
-    using DatasetStateMachineLIB for DatasetType.Dataset;
-    using DatasetProofInnerLIB for DatasetType.DatasetProof;
+    using DatasetProofInnerLIB for DatasetType.Proof;
 
     /// @notice Submit a proof root for a dataset.
     /// @dev This function allows submitting a proof root for a dataset and emits the SubmitDatasetProof event.
     /// @param self The dataset to which the proof will be submitted.
+    /// @param _dataType The type of the dataset proof.
+    /// @param _rootHash The root hash of the dataset proofs.
     function addDatasetProofRoot(
-        DatasetType.Dataset storage self,
+        DatasetType.DatasetProof storage self,
         DatasetType.DataType _dataType,
         bytes32 _rootHash
     ) external {
-        DatasetType.DatasetProof storage proof;
+        DatasetType.Proof storage proof;
         if (_dataType == DatasetType.DataType.Source) {
             proof = self.sourceProof;
         } else {
@@ -50,8 +52,13 @@ library DatasetProofLIB {
     /// @notice Submit a proof for a dataset.
     /// @dev This function allows submitting a proof for a dataset and emits the SubmitDatasetProof event.
     /// @param self The dataset to which the proof will be submitted.
+    /// @param _dataType The type of the dataset proof.
+    /// @param _leafHashes The leaf hashes of the proof.
+    /// @param _leafIndexs The sizes of the leaf hashes.
+    /// @param _leafSizes The sizes of the leaf hashes.
+    /// @param _allCompleted A boolean indicating if the proof is completed.
     function addDatasetProofBatch(
-        DatasetType.Dataset storage self,
+        DatasetType.DatasetProof storage self,
         DatasetType.DataType _dataType,
         bytes32[] calldata _leafHashes,
         uint64[] calldata _leafIndexs,
@@ -59,7 +66,7 @@ library DatasetProofLIB {
         bool _allCompleted
     ) external {
         require(_leafHashes.length == _leafSizes.length, "length must matched");
-        DatasetType.DatasetProof storage proof;
+        DatasetType.Proof storage proof;
         if (_dataType == DatasetType.DataType.Source) {
             proof = self.sourceProof;
         } else {
@@ -78,13 +85,17 @@ library DatasetProofLIB {
     /// @notice Get the source dataset proof from the submitted dataset proof.
     /// @dev This function returns the root hash and array of leaf hashes of the Merkle proof for the source dataset.
     /// @param self The dataset from which to retrieve the source dataset proof.
+    /// @param _dataType The type of the dataset proof.
+    /// @param _index The starting index to get dataset proof..
+    /// @param _len The length to get dataset proof..
+    /// @return The car hashs of the dataset proof.
     function getDatasetProof(
-        DatasetType.Dataset storage self,
+        DatasetType.DatasetProof storage self,
         DatasetType.DataType _dataType,
         uint64 _index,
         uint64 _len
     ) internal view returns (bytes32[] memory) {
-        DatasetType.DatasetProof storage proof;
+        DatasetType.Proof storage proof;
         if (_dataType == DatasetType.DataType.Source) {
             proof = self.sourceProof;
         } else {
@@ -96,8 +107,12 @@ library DatasetProofLIB {
     /// @notice Get the source dataset proof from the submitted dataset proof.
     /// @dev This function returns the root hash and array of leaf hashes of the Merkle proof for the source dataset.
     /// @param self The dataset from which to retrieve the source dataset proof.
+    /// @param _dataType The type of the dataset proof.
+    /// @param _index The starting index to get dataset proof..
+    /// @param _len The length to get dataset proof..
+    /// @return The car hashs of the dataset proof.
     function getDatasetCars(
-        DatasetType.Dataset storage self,
+        DatasetType.DatasetProof storage self,
         DatasetType.DataType _dataType,
         uint64 _index,
         uint64 _len
@@ -115,11 +130,13 @@ library DatasetProofLIB {
     /// @notice Get the source dataset proof from the submitted dataset proof.
     /// @dev This function returns the root hash and array of leaf hashes of the Merkle proof for the source dataset.
     /// @param self The dataset from which to retrieve the source dataset proof.
+    /// @param _dataType The type of the dataset proof.
+    /// @return The count of the hashs of dataset proof.
     function getDatasetCount(
-        DatasetType.Dataset storage self,
+        DatasetType.DatasetProof storage self,
         DatasetType.DataType _dataType
     ) internal view returns (uint64) {
-        DatasetType.DatasetProof storage proof;
+        DatasetType.Proof storage proof;
         if (_dataType == DatasetType.DataType.Source) {
             proof = self.sourceProof;
         } else {
@@ -131,11 +148,12 @@ library DatasetProofLIB {
     /// @notice Get the source dataset proof from the submitted dataset proof.
     /// @dev This function returns the root hash and array of leaf hashes of the Merkle proof for the source dataset.
     /// @param self The dataset from which to retrieve the source dataset proof.
+    /// @param _dataType The type of the dataset proof.
     function getDatasetSize(
-        DatasetType.Dataset storage self,
+        DatasetType.DatasetProof storage self,
         DatasetType.DataType _dataType
     ) internal view returns (uint64) {
-        DatasetType.DatasetProof storage proof;
+        DatasetType.Proof storage proof;
         if (_dataType == DatasetType.DataType.Source) {
             proof = self.sourceProof;
         } else {
@@ -148,7 +166,7 @@ library DatasetProofLIB {
     /// @param self The dataset from which to retrieve the source dataset proof.
     /// @return The address of submitter
     function getDatasetSubmitter(
-        DatasetType.Dataset storage self
+        DatasetType.DatasetProof storage self
     ) internal view returns (address) {
         return self.proofSubmitter;
     }
@@ -157,7 +175,7 @@ library DatasetProofLIB {
     /// @param self The dataset from which to retrieve the source dataset proof.
     /// @param submitter The address being compared.
     function isDatasetSubmitter(
-        DatasetType.Dataset storage self,
+        DatasetType.DatasetProof storage self,
         address submitter
     ) internal view returns (bool) {
         if (submitter == self.proofSubmitter) {

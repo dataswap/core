@@ -36,18 +36,6 @@ contract FilplusAssertion is DSTest, Test, IFilplusAssertion {
 
     // Assertion functions for setting values
 
-    /// @notice Sets the maximum number of car replicas allowed and asserts the value.
-    /// @param _caller The address of the caller.
-    /// @param _newValue The new maximum car replicas value.
-    function setCarRuleMaxCarReplicasAssertion(
-        address _caller,
-        uint16 _newValue
-    ) external {
-        vm.prank(_caller);
-        filplus.setCarRuleMaxCarReplicas(_newValue);
-        carRuleMaxCarReplicasAssertion(_newValue);
-    }
-
     /// @notice Sets the minimum number of regions per dataset and asserts the value.
     /// @param _caller The address of the caller.
     /// @param _newValue The new minimum regions per dataset value.
@@ -78,7 +66,7 @@ contract FilplusAssertion is DSTest, Test, IFilplusAssertion {
     /// @param _newValue The new maximum replicas value for the country.
     function setDatasetRuleMaxReplicasInCountryAssertion(
         address _caller,
-        bytes32 _countryCode,
+        uint16 _countryCode,
         uint16 _newValue
     ) external {
         vm.prank(_caller);
@@ -182,37 +170,7 @@ contract FilplusAssertion is DSTest, Test, IFilplusAssertion {
         datacapRulesMaxRemainingPercentageForNextAssertion(_newValue);
     }
 
-    /// @notice Sets the dataswap commission percentage for matching rules and asserts the value.
-    /// @param _caller The address of the caller.
-    /// @param _newValue The new dataswap commission percentage value.
-    function setMatchingRulesDataswapCommissionPercentageAssertion(
-        address _caller,
-        uint8 _newValue
-    ) external {
-        vm.prank(_caller);
-        filplus.setMatchingRulesDataswapCommissionPercentage(_newValue);
-        matchingRulesDataswapCommissionPercentageAssertion(_newValue);
-    }
-
-    /// @notice Sets the commission type for matching rules and asserts the value.
-    /// @param _caller The address of the caller.
-    /// @param _newType The new commission type value.
-    function setMatchingRulesCommissionTypeAssertion(
-        address _caller,
-        uint8 _newType
-    ) external {
-        vm.prank(_caller);
-        filplus.setMatchingRulesCommissionType(_newType);
-        getMatchingRulesCommissionTypeAssertion(_newType);
-    }
-
     // Assertion functions for getting values
-
-    /// @notice Asserts the maximum number of car replicas allowed.
-    /// @param _expectCount The expected maximum car replicas value.
-    function carRuleMaxCarReplicasAssertion(uint16 _expectCount) public {
-        assertEq(filplus.carRuleMaxCarReplicas(), _expectCount);
-    }
 
     /// @notice Asserts the minimum number of regions per dataset.
     /// @param _expectCount The expected minimum regions per dataset value.
@@ -299,35 +257,93 @@ contract FilplusAssertion is DSTest, Test, IFilplusAssertion {
         );
     }
 
-    /// @notice Asserts the dataswap commission percentage for matching rules.
-    /// @param _expectPercentrage The expected dataswap commission percentage value.
-    function matchingRulesDataswapCommissionPercentageAssertion(
-        uint8 _expectPercentrage
-    ) public {
-        assertEq(
-            filplus.matchingRulesDataswapCommissionPercentage(),
-            _expectPercentrage
-        );
-    }
-
-    /// @notice Asserts the commission type for matching rules.
-    /// @param _expectPercentrage The expected commission type value.
-    function getMatchingRulesCommissionTypeAssertion(
-        uint8 _expectPercentrage
-    ) public {
-        assertEq(filplus.getMatchingRulesCommissionType(), _expectPercentrage);
-    }
-
     /// @notice Asserts the maximum replicas allowed in a specific country for datasets.
     /// @param _countryCode The country code.
     /// @param _expectCount The expected maximum replicas value for the country.
     function getDatasetRuleMaxReplicasInCountryAssertion(
-        bytes32 _countryCode,
+        uint16 _countryCode,
         uint16 _expectCount
     ) public {
         assertEq(
             filplus.getDatasetRuleMaxReplicasInCountry(_countryCode),
             _expectCount
+        );
+    }
+
+    /// @notice Check if the storage area complies with filplus rules.
+    function isCompliantRuleGeolocationAsseretion(
+        uint16[] memory _regions,
+        uint16[] memory _countrys,
+        uint32[][] memory _citys,
+        bool _expectResult
+    ) public {
+        assertEq(
+            filplus.isCompliantRuleGeolocation(_regions, _countrys, _citys),
+            _expectResult
+        );
+    }
+
+    /// @notice Check if the mappingFiles percentage in the dataset complies with filplus rules.
+    function isCompliantRuleMaxProportionOfMappingFilesToDatasetAsseretion(
+        uint64 _mappingFilesSize,
+        uint64 _sourceSize,
+        bool _expectResult
+    ) public {
+        assertEq(
+            filplus.isCompliantRuleMaxProportionOfMappingFilesToDataset(
+                _mappingFilesSize,
+                _sourceSize
+            ),
+            _expectResult
+        );
+    }
+
+    /// @notice Check if the total number of storage replicas complies with filplus rules.
+    function isCompliantRuleTotalReplicasPerDatasetAsseretion(
+        address[][] memory _dataPreparers,
+        address[][] memory _storageProviders,
+        uint16[] memory _regions,
+        uint16[] memory _countrys,
+        uint32[][] memory _citys,
+        bool _expectResult
+    ) public {
+        assertEq(
+            filplus.isCompliantRuleTotalReplicasPerDataset(
+                _dataPreparers,
+                _storageProviders,
+                _regions,
+                _countrys,
+                _citys
+            ),
+            _expectResult
+        );
+    }
+
+    /// @notice Check if the storage provider for each dataset complies with filplus rules `datasetRuleMinSPsPerDataset`.
+    function isCompliantRuleMinSPsPerDatasetAsseretion(
+        uint16 _requirementValue,
+        uint16 _totalExists,
+        uint16 _uniqueExists,
+        bool _expectResult
+    ) public {
+        assertEq(
+            filplus.isCompliantRuleMinSPsPerDataset(
+                _requirementValue,
+                _totalExists,
+                _uniqueExists
+            ),
+            _expectResult
+        );
+    }
+
+    /// @notice Check if the storage provider for each dataset complies with filplus rules `datasetRuleMaxReplicasPerSP`.
+    function isCompliantRuleMaxReplicasPerSPAsseretion(
+        uint16 _value,
+        bool _expectResult
+    ) public {
+        assertEq(
+            filplus.isCompliantRuleMaxReplicasPerSP(_value),
+            _expectResult
         );
     }
 }

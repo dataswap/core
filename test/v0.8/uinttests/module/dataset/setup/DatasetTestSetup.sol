@@ -22,6 +22,9 @@ import {MockMerkleUtils} from "src/v0.8/mocks/utils/merkle/MockMerkleUtils.sol";
 import {MockFilecoin} from "src/v0.8/mocks/core/filecoin/MockFilecoin.sol";
 import {Carstore} from "src/v0.8/core/carstore/Carstore.sol";
 import {Datasets} from "src/v0.8/module/dataset/Datasets.sol";
+import {DatasetsRequirement} from "src/v0.8/module/dataset/DatasetsRequirement.sol";
+import {DatasetsProof} from "src/v0.8/module/dataset/DatasetsProof.sol";
+import {DatasetsChallenge} from "src/v0.8/module/dataset/DatasetsChallenge.sol";
 import {DatasetsAssertion} from "test/v0.8/assertions/module/dataset/DatasetsAssertion.sol";
 import {DatasetsHelpers} from "test/v0.8/helpers/module/dataset/DatasetsHelpers.sol";
 import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
@@ -31,6 +34,9 @@ import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
 contract DatasetTestSetup {
     address payable public governanceContractAddresss;
     Datasets datasets;
+    DatasetsRequirement datasetsRequirement;
+    DatasetsProof datasetsProof;
+    DatasetsChallenge datasetsChallenge;
     DatasetsAssertion assertion;
     DatasetsHelpers helpers;
 
@@ -54,12 +60,55 @@ contract DatasetTestSetup {
             address(role),
             address(filplus),
             address(filecoin),
+            address(carstore)
+        );
+
+        datasetsRequirement = new DatasetsRequirement();
+        datasetsRequirement.initialize(
+            governanceContractAddresss,
+            address(role),
+            address(filplus),
+            address(filecoin),
             address(carstore),
+            address(datasets)
+        );
+
+        datasetsProof = new DatasetsProof();
+        datasetsProof.initialize(
+            governanceContractAddresss,
+            address(role),
+            address(filplus),
+            address(filecoin),
+            address(carstore),
+            address(datasets),
+            address(datasetsRequirement)
+        );
+
+        datasetsChallenge = new DatasetsChallenge();
+        datasetsChallenge.initialize(
+            governanceContractAddresss,
+            address(role),
+            address(filplus),
+            address(filecoin),
+            address(carstore),
+            address(datasetsProof),
             address(merkleUtils)
         );
 
-        assertion = new DatasetsAssertion(datasets);
+        assertion = new DatasetsAssertion(
+            datasets,
+            datasetsRequirement,
+            datasetsProof,
+            datasetsChallenge
+        );
         Generator generator = new Generator();
-        helpers = new DatasetsHelpers(datasets, generator, assertion);
+        helpers = new DatasetsHelpers(
+            datasets,
+            datasetsRequirement,
+            datasetsProof,
+            datasetsChallenge,
+            generator,
+            assertion
+        );
     }
 }

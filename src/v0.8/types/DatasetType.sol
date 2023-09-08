@@ -18,24 +18,11 @@
 
 pragma solidity ^0.8.21;
 
+import {GeolocationType} from "src/v0.8/types/GeolocationType.sol";
+
 /// @title DatasetType Library
 /// @notice This library defines data structures for managing datasets, their metadata, states, and events.
 library DatasetType {
-    /// @notice Struct representing metadata associated with a dataset.
-    struct Metadata {
-        string title; // Title of the dataset.
-        string industry; // Industry category of the dataset.
-        string name; // Name of the dataset.
-        string description; // Description of the dataset.
-        string source; // Source of the dataset.
-        string accessMethod; // Method of accessing the dataset (e.g., URL, API).
-        address submitter; // Address of the dataset's submitter.
-        uint64 createdBlockNumber; // Block number at which the dataset was created.
-        uint64 sizeInBytes; // Size of the dataset in bytes.
-        bool isPublic; // Boolean indicating if the dataset is public.
-        uint64 version; // Version number of the dataset.
-    }
-
     /// @notice Enum representing the possible states of a dataset.
     enum State {
         None, // No specific state.
@@ -62,8 +49,28 @@ library DatasetType {
         MappingFiles // Matching is associated with mapping files
     }
 
+    /// @notice Struct representing metadata associated with a dataset.
+    struct Metadata {
+        string title; // Title of the dataset.
+        string industry; // Industry category of the dataset.
+        string name; // Name of the dataset.
+        string description; // Description of the dataset.
+        string source; // Source of the dataset.
+        string accessMethod; // Method of accessing the dataset (e.g., URL, API).
+        address submitter; // Address of the dataset's submitter.
+        uint64 createdBlockNumber; // Block number at which the dataset was created.
+        uint64 sizeInBytes; // Size of the dataset in bytes.
+        bool isPublic; // Boolean indicating if the dataset is public.
+        uint64 version; // Version number of the dataset.
+    }
+
+    struct Dataset {
+        Metadata metadata;
+        State state; // Current state of the dataset.
+    }
+
     /// @notice Struct representing proofs associated with a dataset challenge submitted by reviewers.
-    struct DatasetProof {
+    struct Proof {
         uint64 datasetSize;
         bytes32 rootHash; // Root hash of the data's Merkle tree.
         bool allCompleted;
@@ -71,8 +78,16 @@ library DatasetType {
         bytes32[] leafHashes; // Proof associated with the dataset.
     }
 
+    struct DatasetProof {
+        //proof
+        string mappingFilesAccessMethod; // Method of accessing data (e.g., URL, API).
+        Proof sourceProof; // Proof associated with the dataset.
+        Proof mappingFilesProof; // Note:mappingFiles includes mappingFiles and CarMerkleTree,Proof associated with the dataset.
+        address proofSubmitter; // Address of the dataset proof's submitter.
+    }
+
     /// @notice Struct representing proofs associated with a dataset challenge submitted by reviewers.
-    struct DatasetChallengeProof {
+    struct Challenge {
         bytes32 leaf;
         bytes32[] siblings;
         uint32 path;
@@ -80,23 +95,26 @@ library DatasetType {
 
     /// @notice Struct representing verification details of a dataset.
     /// @dev TODO: support batch submit likes DatasetProof
-    struct Verification {
+    struct ChallengeProof {
         uint64 randomSeed; // Random seed used for verification. This seed determines which nodes need to be challenged.
-        DatasetChallengeProof[] challengeProof; // Merkle proof provided by the auditor to support their challenge.
+        Challenge[] challenges; // Merkle proof provided by the auditor to support their challenge.
     }
 
-    /// @notice Struct representing a dataset including its metadata, state, proof, and verifications.
-    struct Dataset {
-        Metadata metadata; // Metadata of the dataset.
-        State state; // Current state of the dataset.
-        //proof
-        string mappingFilesAccessMethod; // Method of accessing data (e.g., URL, API).
-        DatasetProof sourceProof; // Proof associated with the dataset.
-        DatasetProof mappingFilesProof; // Note:mappingFiles includes mappingFiles and CarMerkleTree,Proof associated with the dataset.
-        address proofSubmitter; // Address of the dataset proof's submitter.
-        //verifications
-        uint16 verificationsCount;
-        mapping(address => Verification) verifications; // Address of the auditor who submits challenges.
+    struct DatasetChallengeProof {
+        // challenges
+        uint16 challengesCount;
+        mapping(address => ChallengeProof) challengeProofs; // Address of the auditor who submits challenges.
         address[] auditors; // Records of auditors submitting verifications.
+    }
+
+    /// @notice The struct describes the storage requirements specified by the client.
+    struct ReplicaRequirement {
+        address[] dataPreparers; // The client can specify DP or choose not to specify
+        address[] storageProviders; //The client can specify SP or choose not to specify.
+        GeolocationType.Geolocation geolocations; // Geolocation requested by the client.
+    }
+
+    struct DatasetReplicasRequirement {
+        ReplicaRequirement[] replicasRequirement; // Replica requirements requested by the client.
     }
 }

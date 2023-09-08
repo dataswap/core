@@ -20,28 +20,25 @@ pragma solidity ^0.8.21;
 
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
-import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
-import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
 ///shared
 import {DatasetsEvents} from "src/v0.8/shared/events/DatasetsEvents.sol";
 import {DatasetsModifiers} from "src/v0.8/shared/modifiers/DatasetsModifiers.sol";
 /// library
-import {DatasetMetadataLIB} from "src/v0.8/module/dataset/library/DatasetMetadataLIB.sol";
-import {DatasetProofLIB} from "src/v0.8/module/dataset/library/proof/DatasetProofLIB.sol";
-import {DatasetStateMachineLIB} from "src/v0.8/module/dataset/library/DatasetStateMachineLIB.sol";
-import {DatasetVerificationLIB} from "src/v0.8/module/dataset/library/challenge/DatasetVerificationLIB.sol";
-import {DatasetAuditLIB} from "src/v0.8/module/dataset/library/DatasetAuditLIB.sol";
+import {DatasetMetadataLIB} from "src/v0.8/module/dataset/library/metadata/DatasetMetadataLIB.sol";
+import {DatasetStateMachineLIB} from "src/v0.8/module/dataset/library/metadata/DatasetStateMachineLIB.sol";
+import {DatasetAuditLIB} from "src/v0.8/module/dataset/library/metadata/DatasetAuditLIB.sol";
+
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {GeolocationType} from "src/v0.8/types/GeolocationType.sol";
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /// @title Datasets Base Contract
-/// @notice This contract serves as the base for managing datasets, metadata, proofs, and verifications.
+/// @notice This contract serves as the base for managing Dataset, metadata, state.
 /// @dev This contract is intended to be inherited by specific dataset-related contracts.
 contract Datasets is
     Initializable,
@@ -50,19 +47,14 @@ contract Datasets is
     DatasetsModifiers
 {
     using DatasetMetadataLIB for DatasetType.Dataset;
-    using DatasetProofLIB for DatasetType.Dataset;
-    using DatasetStateMachineLIB for DatasetType.Dataset;
-    using DatasetVerificationLIB for DatasetType.Dataset;
     using DatasetAuditLIB for DatasetType.Dataset;
+    using DatasetStateMachineLIB for DatasetType.Dataset;
 
     uint64 public datasetsCount; // Total count of datasets
     mapping(uint64 => DatasetType.Dataset) private datasets; // Mapping of dataset ID to dataset details
 
     address public governanceAddress;
     IRoles public roles;
-    IFilplus private filplus;
-    ICarstore private carstore;
-    IMerkleUtils public merkleUtils;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -72,8 +64,7 @@ contract Datasets is
         address _roles,
         address _filplus,
         address _filecoin,
-        address _carstore,
-        address _merkleUtils
+        address _carstore
     ) public initializer {
         DatasetsModifiers.datasetsModifiersInitialize(
             _roles,
@@ -84,9 +75,6 @@ contract Datasets is
         );
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
-        filplus = IFilplus(_filplus);
-        carstore = ICarstore(_carstore);
-        merkleUtils = IMerkleUtils(_merkleUtils);
         __UUPSUpgradeable_init();
     }
 
@@ -200,107 +188,6 @@ contract Datasets is
         emit DatasetsEvents.DatasetMetadataSubmitted(datasetsCount, msg.sender);
     }
 
-    ///@notice Submit proof root for a dataset
-    ///@dev Submit the rootHash of the dataset, the mappingFilesAccessMethod,
-    /// and confirm that the sender is the submitter of the dataset.
-    function submitDatasetProofRoot(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        string calldata _mappingFilesAccessMethod,
-        bytes32 _rootHash
-    )
-        external
-        onlyDatasetProofSubmitterOrSubmitterNotExsits(_datasetId, msg.sender)
-        onlyDatasetState(_datasetId, DatasetType.State.MetadataApproved)
-    {
-        //Note: params check in lib
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        if (_dataType == DatasetType.DataType.MappingFiles) {
-            if (bytes(dataset.mappingFilesAccessMethod).length == 0) {
-                dataset.mappingFilesAccessMethod = _mappingFilesAccessMethod;
-            }
-        }
-        // If the Dataset proof has not been submitted before,
-        // then set the current sender as the submitter.
-        if (
-            dataset.getDatasetCount(DatasetType.DataType.Source) == 0 &&
-            dataset.getDatasetCount(DatasetType.DataType.MappingFiles) == 0
-        ) {
-            dataset.proofSubmitter = msg.sender;
-        }
-        require(
-            dataset.isDatasetSubmitter(msg.sender),
-            "Invalid Dataset submitter"
-        );
-        dataset.addDatasetProofRoot(_dataType, _rootHash);
-    }
-
-    ///@notice Submit proof for a dataset
-    ///@dev Submit the proof of the dataset in batches,
-    /// specifically by submitting the _leafHashes in the order of _leafIndexes.
-    function submitDatasetProof(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        bytes32[] calldata _leafHashes,
-        uint64[] calldata _leafIndexs,
-        uint64[] calldata _leafSizes,
-        bool _completed
-    )
-        external
-        onlyDatasetState(_datasetId, DatasetType.State.MetadataApproved)
-    {
-        //Note: params check in lib
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-
-        // Checking if the current sender is the submitter.
-        require(
-            dataset.isDatasetSubmitter(msg.sender),
-            "Invalid Dataset submitter"
-        );
-
-        carstore.addCars(_leafHashes, _datasetId, _leafSizes);
-
-        dataset.addDatasetProofBatch(
-            _dataType,
-            _leafHashes,
-            _leafIndexs,
-            _leafSizes,
-            _completed
-        );
-
-        if (
-            dataset.sourceProof.allCompleted &&
-            dataset.mappingFilesProof.allCompleted
-        ) {
-            dataset._emitDatasetEvent((DatasetType.Event.SubmitDatasetProof));
-            emit DatasetsEvents.DatasetProofSubmitted(_datasetId, msg.sender);
-        }
-    }
-
-    ///@notice Submit proof verification for a dataset
-    /// Based on merkle proof verification.
-    /// random challenge method is used to reduce the amount of data and calculation while ensuring algorithm security.
-    function submitDatasetVerification(
-        uint64 _datasetId,
-        uint64 _randomSeed,
-        bytes32[] memory _leaves,
-        bytes32[][] memory _siblings,
-        uint32[] memory _paths
-    ) external onlyRole(RolesType.DATASET_AUDITOR) {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        dataset._submitDatasetVerification(
-            _randomSeed,
-            _leaves,
-            _siblings,
-            _paths,
-            merkleUtils
-        );
-        emit DatasetsEvents.DatasetVerificationSubmitted(
-            _datasetId,
-            msg.sender
-        );
-    }
-
     ///@notice Get dataset metadata
     function getDatasetMetadata(
         uint64 _datasetId
@@ -323,62 +210,31 @@ contract Datasets is
         )
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.getDatasetMetadata();
+        require(
+            bytes(dataset.metadata.title).length > 0,
+            "Metadata does not exist"
+        );
+        return (
+            dataset.metadata.title,
+            dataset.metadata.industry,
+            dataset.metadata.name,
+            dataset.metadata.description,
+            dataset.metadata.source,
+            dataset.metadata.accessMethod,
+            dataset.metadata.submitter,
+            dataset.metadata.createdBlockNumber,
+            dataset.metadata.sizeInBytes,
+            dataset.metadata.isPublic,
+            dataset.metadata.version
+        );
     }
 
-    ///@notice Get dataset source CIDs
-    function getDatasetProof(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _index,
-        uint64 _len
-    ) public view onlyNotZero(_datasetId) returns (bytes32[] memory) {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.getDatasetProof(_dataType, _index, _len);
-    }
-
-    ///@notice Get dataset source CIDs
-    function getDatasetCars(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _index,
-        uint64 _len
-    ) public view onlyNotZero(_datasetId) returns (bytes32[] memory) {
-        return getDatasetProof(_datasetId, _dataType, _index, _len);
-    }
-
-    /// @notice Get the number of leaf nodes (cars) in the dataset proofs.
-    function getDatasetProofCount(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType
-    ) public view onlyNotZero(_datasetId) returns (uint64) {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.getDatasetCount(_dataType);
-    }
-
-    /// @notice Get submitter of dataset's proofs
-    function getDatasetProofSubmitter(
+    /// @notice Get submitter of dataset's metadata
+    function getDatasetMetadataSubmitter(
         uint64 _datasetId
     ) public view returns (address) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.getDatasetSubmitter();
-    }
-
-    ///@notice Get dataset source CIDs
-    function getDatasetCarsCount(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType
-    ) public view onlyNotZero(_datasetId) returns (uint64) {
-        return getDatasetProofCount(_datasetId, _dataType);
-    }
-
-    ///@notice Get dataset size
-    function getDatasetSize(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType
-    ) public view onlyNotZero(_datasetId) returns (uint64) {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.getDatasetSize(_dataType);
+        return dataset.getDatasetMetadataSubmitter();
     }
 
     ///@notice Get dataset state
@@ -387,32 +243,6 @@ contract Datasets is
     ) public view onlyNotZero(_datasetId) returns (DatasetType.State) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetState();
-    }
-
-    ///@notice Get dataset verification
-    function getDatasetVerification(
-        uint64 _datasetId,
-        address _auditor
-    )
-        public
-        view
-        onlyNotZero(_datasetId)
-        returns (
-            bytes32[] memory,
-            bytes32[][] memory _siblings,
-            uint32[] memory _paths
-        )
-    {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.getDatasetVerification(_auditor);
-    }
-
-    ///@notice Get count of dataset verifications
-    function getDatasetVerificationsCount(
-        uint64 _datasetId
-    ) public view onlyNotZero(_datasetId) returns (uint16) {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.getDatasetVerificationsCount();
     }
 
     ///@notice Check if a dataset has metadata
@@ -426,49 +256,26 @@ contract Datasets is
         return false;
     }
 
-    ///@notice Check if a dataset has a cid
-    function isDatasetContainsCar(
-        uint64 _datasetId,
-        bytes32 _cid
-    ) public view onlyNotZero(_datasetId) returns (bool) {
-        return _datasetId == carstore.getCarDatasetId(_cid);
-    }
-
-    ///@notice Check if a dataset has cids
-    function isDatasetContainsCars(
-        uint64 _datasetId,
-        bytes32[] memory _cids
-    ) external view onlyNotZero(_datasetId) returns (bool) {
-        for (uint64 i = 0; i < _cids.length; i++) {
-            if (!isDatasetContainsCar(_datasetId, _cids[i])) return false;
-        }
+    /// @notice Checks if metadata fields are valid.
+    function requireValidDatasetMetadata(
+        uint64 _datasetId
+    ) external view returns (bool) {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        dataset.requireValidDatasetMetadata();
         return true;
     }
 
-    ///@notice Check if a dataset has submitter
-    function isDatasetProofSubmitter(
-        uint64 _datasetId,
-        address _submitter
-    ) public view returns (bool) {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.isDatasetSubmitter(_submitter);
-    }
-
-    ///@notice Check if the verification is a duplicate.
-    function isDatasetVerificationDuplicate(
-        uint64 _datasetId,
-        address _auditor,
-        uint64 _randomSeed
-    ) public view returns (bool) {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.isDatasetVerificationDuplicate(_auditor, _randomSeed);
-    }
-
-    ///@notice Get a dataset challenge count
-    function getChallengeCount(
+    /// @notice Report the dataset replica has already been submitted.
+    function reportDatasetReplicaRequirementSubmitted(
         uint64 _datasetId
-    ) external view returns (uint64) {
+    ) external {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.getChallengeCount();
+        dataset._emitDatasetEvent(DatasetType.Event.SubmitMetadata);
+    }
+
+    /// @notice Report the dataset proof has already been submitted.
+    function reportDatasetProofSubmitted(uint64 _datasetId) external {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        dataset._emitDatasetEvent(DatasetType.Event.SubmitDatasetProof);
     }
 }

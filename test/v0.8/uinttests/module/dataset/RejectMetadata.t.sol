@@ -26,6 +26,9 @@ contract RejectMetadataTest is Test, DatasetTestSetup {
         setup();
         RejectMetadataTestCaseWithSuccess testCase = new RejectMetadataTestCaseWithSuccess(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );
@@ -37,6 +40,9 @@ contract RejectMetadataTest is Test, DatasetTestSetup {
         setup();
         RejectMetadataTestCaseWithInvalidAddress testCase = new RejectMetadataTestCaseWithInvalidAddress(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );
@@ -48,6 +54,9 @@ contract RejectMetadataTest is Test, DatasetTestSetup {
         setup();
         RejectMetadataTestCaseWithZeroID testCase = new RejectMetadataTestCaseWithZeroID(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );
@@ -59,6 +68,9 @@ contract RejectMetadataTest is Test, DatasetTestSetup {
         setup();
         RejectMetadataTestCaseWithInvalidState testCase = new RejectMetadataTestCaseWithInvalidState(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );

@@ -17,15 +17,18 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import "test/v0.8/testcases/module/dataset/SubmittVerificationTestSuite.sol";
+import "test/v0.8/testcases/module/dataset/SubmittChallengeProofsTestSuite.sol";
 import {DatasetTestSetup} from "test/v0.8/uinttests/module/dataset/setup/DatasetTestSetup.sol";
 
-contract VerificationTest is Test, DatasetTestSetup {
+contract ChallengeProofsTest is Test, DatasetTestSetup {
     /// @notice test case with success
-    function testSubmitDatasetVerificationWithSuccess() public {
+    function testSubmitDatasetChallengeProofsWithSuccess() public {
         setup();
-        SubmittVerificationTestCaseWithSuccess testCase = new SubmittVerificationTestCaseWithSuccess(
+        SubmittChallengeProofsTestCaseWithSuccess testCase = new SubmittChallengeProofsTestCaseWithSuccess(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );
@@ -33,10 +36,13 @@ contract VerificationTest is Test, DatasetTestSetup {
     }
 
     /// @notice test case with fail
-    function testSubmitDatasetVerificationWithFail() public {
+    function testSubmitDatasetChallengeProofsWithFail() public {
         setup();
-        SubmittVerificationTestCaseWithFail testCase = new SubmittVerificationTestCaseWithFail(
+        SubmittChallengeProofsTestCaseWithFail testCase = new SubmittChallengeProofsTestCaseWithFail(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );
@@ -44,10 +50,13 @@ contract VerificationTest is Test, DatasetTestSetup {
     }
 
     /// @notice test case with illegal role
-    function testSubmitDatasetVerificationWithIllegalRole() public {
+    function testSubmitDatasetChallengeProofsWithIllegalRole() public {
         setup();
-        SubmittVerificationTestCaseWithIllegalRole testCase = new SubmittVerificationTestCaseWithIllegalRole(
+        SubmittChallengeProofsTestCaseWithIllegalRole testCase = new SubmittChallengeProofsTestCaseWithIllegalRole(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );

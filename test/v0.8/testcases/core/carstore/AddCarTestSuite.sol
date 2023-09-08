@@ -35,10 +35,12 @@ contract AddCarTestCaseWithSuccess is AddCarTestSuiteBase {
     function before(
         bytes32 /*_cid*/,
         uint64 _datasetId,
-        uint64 _size
+        uint64 _size,
+        uint16 _replicaCount
     ) internal virtual override {
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
+        vm.assume(_replicaCount > 0 && _replicaCount < 5);
     }
 }
 
@@ -54,18 +56,21 @@ contract AddCarTestCaseWithInvalidId is AddCarTestSuiteBase {
     function before(
         bytes32 /*_cid*/,
         uint64 _datasetId,
-        uint64 _size
+        uint64 _size,
+        uint16 _replicaCount
     ) internal virtual override {
         vm.assume(_datasetId == 0 || _size == 0);
+        vm.assume(_replicaCount > 0 && _replicaCount < 5);
     }
 
     function action(
         bytes32 _cid,
         uint64 _datasetId,
-        uint64 _size
+        uint64 _size,
+        uint16 _replicaCount
     ) internal virtual override {
         vm.expectRevert(bytes("Value must not be zero"));
-        super.action(_cid, _datasetId, _size);
+        super.action(_cid, _datasetId, _size, _replicaCount);
     }
 }
 
@@ -81,20 +86,23 @@ contract AddCarTestCaseWithCarAlreayExsit is AddCarTestSuiteBase {
     function before(
         bytes32 _cid,
         uint64 _datasetId,
-        uint64 _size
+        uint64 _size,
+        uint16 _replicaCount
     ) internal virtual override {
         vm.assume(_datasetId != 0 && _size != 0);
-        carstore.addCar(_cid, _datasetId, _size);
+        vm.assume(_replicaCount > 0 && _replicaCount < 5);
+        carstore.addCar(_cid, _datasetId, _size, _replicaCount);
     }
 
     function action(
         bytes32 _cid,
         uint64 _datasetId,
-        uint64 _size
+        uint64 _size,
+        uint16 _replicaCount
     ) internal virtual override {
         vm.expectRevert(
             abi.encodeWithSelector(Errors.CarAlreadyExists.selector, _cid)
         );
-        super.action(_cid, _datasetId, _size);
+        super.action(_cid, _datasetId, _size, _replicaCount);
     }
 }

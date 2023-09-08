@@ -34,42 +34,54 @@ abstract contract AddCarTestSuiteBase is CarstoreTestBase, Test {
     /// @param _cid The content ID of the car to be added.
     /// @param _datasetId The dataset ID for the car.
     /// @param _size The size of the car.
+    /// @param _replicaCount count of car's replicas
     function before(
         bytes32 _cid,
         uint64 _datasetId,
-        uint64 _size
+        uint64 _size,
+        uint16 _replicaCount
     ) internal virtual;
 
     /// @dev The main action of the test, where the car is added to the carstore.
     /// @param _cid The content ID of the car to be added.
     /// @param _datasetId The dataset ID for the car.
     /// @param _size The size of the car.
+    /// @param _replicaCount count of car's replicas
     function action(
         bytes32 _cid,
         uint64 _datasetId,
-        uint64 _size
+        uint64 _size,
+        uint16 _replicaCount
     ) internal virtual {
-        assertion.addCarAssertion(_cid, _datasetId, _size);
+        assertion.addCarAssertion(_cid, _datasetId, _size, _replicaCount);
     }
 
     /// @dev Called after running the test to perform any necessary cleanup or validation.
     /// @param _cid The content ID of the car that was added.
     /// @param _datasetId The dataset ID for the car.
     /// @param _size The size of the car.
+    /// @param _replicaCount count of car's replicas
     function after_(
         bytes32 _cid,
         uint64 _datasetId,
-        uint64 _size
+        uint64 _size,
+        uint16 _replicaCount
     ) internal virtual {}
 
     /// @dev Runs the test to add a car to the carstore.
     /// @param _cid The content ID of the car to be added.
     /// @param _datasetId The dataset ID for the car.
     /// @param _size The size of the car.
-    function run(bytes32 _cid, uint64 _datasetId, uint64 _size) public {
-        before(_cid, _datasetId, _size);
-        action(_cid, _datasetId, _size);
-        after_(_cid, _datasetId, _size);
+    /// @param _replicaCount count of car's replicas
+    function run(
+        bytes32 _cid,
+        uint64 _datasetId,
+        uint64 _size,
+        uint16 _replicaCount
+    ) public {
+        before(_cid, _datasetId, _size, _replicaCount);
+        action(_cid, _datasetId, _size, _replicaCount);
+        after_(_cid, _datasetId, _size, _replicaCount);
     }
 }
 
@@ -85,52 +97,60 @@ abstract contract AddCarsTestSuiteBase is CarstoreTestBase, Test {
     /// @param _cids The content IDs of the cars to be added.
     /// @param _datasetId The dataset ID for the cars.
     /// @param _sizes The sizes of the cars.
+    /// @param _replicaCount count of car's replicas
     function before(
         bytes32[] memory _cids,
         uint64 _datasetId,
-        uint64[] memory _sizes
+        uint64[] memory _sizes,
+        uint16 _replicaCount
     ) internal virtual;
 
     /// @dev The main action of the test, where the cars are added to the carstore.
     /// @param _cids The content IDs of the cars to be added.
     /// @param _datasetId The dataset ID for the cars.
     /// @param _sizes The sizes of the cars.
+    /// @param _replicaCount count of car's replicas
     function action(
         bytes32[] memory _cids,
         uint64 _datasetId,
-        uint64[] memory _sizes
+        uint64[] memory _sizes,
+        uint16 _replicaCount
     ) internal virtual {
-        assertion.addCarsAssertion(_cids, _datasetId, _sizes);
+        assertion.addCarsAssertion(_cids, _datasetId, _sizes, _replicaCount);
     }
 
     /// @dev Called after running the test to perform any necessary cleanup or validation.
     /// @param _cids The content IDs of the cars that were added.
     /// @param _datasetId The dataset ID for the cars.
     /// @param _sizes The sizes of the cars.
+    /// @param _replicaCount count of car's replicas
     function after_(
         bytes32[] memory _cids,
         uint64 _datasetId,
-        uint64[] memory _sizes
+        uint64[] memory _sizes,
+        uint16 _replicaCount
     ) internal virtual {}
 
     /// @dev Runs the test to add multiple cars to the carstore.
     /// @param _cids The content IDs of the cars to be added.
     /// @param _datasetId The dataset ID for the cars.
     /// @param _sizes The sizes of the cars.
+    /// @param _replicaCount count of car's replicas
     function run(
         bytes32[] memory _cids,
         uint64 _datasetId,
-        uint64[] memory _sizes
+        uint64[] memory _sizes,
+        uint16 _replicaCount
     ) public {
-        before(_cids, _datasetId, _sizes);
-        action(_cids, _datasetId, _sizes);
-        after_(_cids, _datasetId, _sizes);
+        before(_cids, _datasetId, _sizes, _replicaCount);
+        action(_cids, _datasetId, _sizes, _replicaCount);
+        after_(_cids, _datasetId, _sizes, _replicaCount);
     }
 }
 
-/// @title AddCarReplicaTestSuiteBase
+/// @title RegistCarReplicaTestSuiteBase
 /// @dev Base contract for test suites related to adding a car replica to the carstore.
-abstract contract AddCarReplicaTestSuiteBase is CarstoreTestBase, Test {
+abstract contract RegistCarReplicaTestSuiteBase is CarstoreTestBase, Test {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
@@ -139,30 +159,121 @@ abstract contract AddCarReplicaTestSuiteBase is CarstoreTestBase, Test {
     /// @dev Called before running the test to set up the test scenario.
     /// @param _cid The content ID of the car replica to be added.
     /// @param _matchingId The matching ID of the car replica.
-    function before(bytes32 _cid, uint64 _matchingId) internal virtual;
+    /// @param _replicaIndex The index of the replica.
+    function before(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint16 _replicaIndex
+    ) internal virtual;
 
     /// @dev The main action of the test, where the car replica is added to the carstore.
     /// @param _cid The content ID of the car replica to be added.
     /// @param _matchingId The matching ID of the car replica.
-    function action(bytes32 _cid, uint64 _matchingId) internal virtual {
-        assertion.addCarReplicaAssertion(_cid, _matchingId);
+    /// @param _replicaIndex The index of the replica.
+    function action(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint16 _replicaIndex
+    ) internal virtual {
+        assertion.registCarReplicaAssertion(_cid, _matchingId, _replicaIndex);
     }
 
     /// @dev Called after running the test to perform any necessary cleanup or validation.
     /// @param _cid The content ID of the car replica that was added.
     /// @param _matchingId The matching ID of the car replica.
+    /// @param _replicaIndex The index of the replica.
     function after_(
         bytes32 _cid,
-        uint64 _matchingId // solhint-disable-next-line
+        uint64 _matchingId,
+        uint16 _replicaIndex // solhint-disable-next-line
     ) internal virtual {}
 
     /// @dev Runs the test to add a car replica to the carstore.
     /// @param _cid The content ID of the car replica to be added.
     /// @param _matchingId The matching ID of the car replica.
-    function run(bytes32 _cid, uint64 _matchingId) public {
-        before(_cid, _matchingId);
-        action(_cid, _matchingId);
-        after_(_cid, _matchingId);
+    /// @param _replicaIndex The index of the replica.
+    function run(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint16 _replicaIndex
+    ) public {
+        before(_cid, _matchingId, _replicaIndex);
+        action(_cid, _matchingId, _replicaIndex);
+        after_(_cid, _matchingId, _replicaIndex);
+    }
+}
+
+/// @title AddCarReplicaTestSuiteBase
+/// @dev Base contract for test suites related to adding a car replica to the carstore.
+abstract contract ReportCarReplicaMatchingStateTestSuiteBase is
+    CarstoreTestBase,
+    Test
+{
+    constructor(
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
+    ) CarstoreTestBase(_carstore, _assertion) {}
+
+    /// @dev Called before running the test to set up the test scenario.
+    /// @param _cid The content ID of the car replica to be added.
+    /// @param _datasetId The dataset ID of the car replica.
+    /// @param _size The size of the car replica.
+    /// @param _matchingId The matching ID of the car replica.
+    /// @param _replicaIndex The index of the replica.
+    function before(
+        bytes32 _cid,
+        uint64 _datasetId,
+        uint64 _size,
+        uint64 _matchingId,
+        uint16 _replicaIndex
+    ) internal virtual;
+
+    /// @dev The main action of the test, where the car replica is added to the carstore.
+    /// @param _cid The content ID of the car replica to be added.
+    /// @param _matchingId The matching ID of the car replica.
+    /// @param _matchingState The state of the matching.
+    function action(
+        bytes32 _cid,
+        uint64 _matchingId,
+        bool _matchingState
+    ) internal virtual {
+        assertion.reportCarReplicaMatchingStateAssertion(
+            _cid,
+            _matchingId,
+            _matchingState
+        );
+    }
+
+    /// @dev Called after running the test to perform any necessary cleanup or validation.
+    /// @param _cid The content ID of the car replica that was added.
+    /// @param _matchingId The matching ID of the car replica.
+    /// @param _replicaIndex The index of the replica.
+    /// @param _matchingState The state of the matching.
+    function after_(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint16 _replicaIndex,
+        bool _matchingState
+    ) internal virtual {}
+
+    /// @dev Runs the test to add a car replica to the carstore.
+    /// @param _cid The content ID of the car replica to be added.
+    /// @param _datasetId The dataset ID of the car replica.
+    /// @param _size The size of the car replica.
+    /// @param _matchingId The matching ID of the car replica.
+    /// @param _replicaIndex The index of the replica.
+    /// @param _matchingState The state of the matching.
+    function run(
+        bytes32 _cid,
+        uint64 _datasetId,
+        uint64 _size,
+        uint64 _matchingId,
+        uint16 _replicaIndex,
+        bool _matchingState
+    ) public {
+        before(_cid, _datasetId, _size, _matchingId, _replicaIndex);
+        action(_cid, _matchingId, _matchingState);
+        after_(_cid, _matchingId, _replicaIndex, _matchingState);
     }
 }
 

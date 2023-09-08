@@ -84,7 +84,11 @@ library MatchingBidsLIB {
             }
         }
 
-        MatchingType.Bid memory _bid = MatchingType.Bid(msg.sender, _amount);
+        MatchingType.Bid memory _bid = MatchingType.Bid(
+            msg.sender,
+            _amount,
+            true
+        );
         self.bids.push(_bid);
     }
 
@@ -127,7 +131,10 @@ library MatchingBidsLIB {
                 self.bidSelectionRule ==
                 MatchingType.BidSelectionRule.ImmediateAtLeast
             ) {
-                if (self.bids[i].bid > winningBid) {
+                if (
+                    self.bids[i].bid > winningBid &&
+                    self.bids[i].complyFilplusRule
+                ) {
                     winningBid = self.bids[i].bid;
                     winner = self.bids[i].bidder;
                 }
@@ -137,7 +144,10 @@ library MatchingBidsLIB {
                 self.bidSelectionRule ==
                 MatchingType.BidSelectionRule.ImmediateAtMost
             ) {
-                if (self.bids[i].bid < winningBid) {
+                if (
+                    self.bids[i].bid < winningBid &&
+                    self.bids[i].complyFilplusRule
+                ) {
                     winningBid = self.bids[i].bid;
                     winner = self.bids[i].bidder;
                 }
@@ -145,6 +155,21 @@ library MatchingBidsLIB {
         }
 
         return winner;
+    }
+
+    /// @notice Set the bidder not comply fileplus in the matching.
+    /// @dev This function set the comply fileplus to false of a bidder.
+    /// @param self The bids in the matching.
+    /// @param _bidder The address of the bidder.
+    function _setMatchingBidderNotComplyFilplusRule(
+        MatchingType.Matching storage self,
+        address _bidder
+    ) internal {
+        for (uint64 i = uint64(self.bids.length - 1); i >= 0; i--) {
+            if (_bidder == self.bids[i].bidder) {
+                self.bids[i].complyFilplusRule = false;
+            }
+        }
     }
 
     /// @notice Get the bid amount of a bidder in the matching.

@@ -18,6 +18,9 @@ pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
+import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
+import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
 import {TestCaseBase} from "test/v0.8/testcases/module/abstract/TestCaseBase.sol";
@@ -29,6 +32,9 @@ import {TestCaseBase} from "test/v0.8/testcases/module/abstract/TestCaseBase.sol
 abstract contract DatasetsTestBase is TestCaseBase, Test {
     /// @dev The address of the IDatasets contract being tested.
     IDatasets internal datasets;
+    IDatasetsRequirement internal datasetsRequirement;
+    IDatasetsProof internal datasetsProof;
+    IDatasetsChallenge internal datasetsChallenge;
 
     /// @dev The address of the IDatasetsHelpers contract being used for test setup.
     IDatasetsHelpers internal datasetsHelpers;
@@ -42,10 +48,16 @@ abstract contract DatasetsTestBase is TestCaseBase, Test {
     /// @param _datasetsAssertion The address of the IDatasetsAssertion contract.
     constructor(
         IDatasets _datasets,
+        IDatasetsRequirement _datasetsRequirement,
+        IDatasetsProof _datasetsProof,
+        IDatasetsChallenge _datasetsChallenge,
         IDatasetsHelpers _datasetsHelpers,
         IDatasetsAssertion _datasetsAssertion
     ) {
         datasets = _datasets;
+        datasetsRequirement = _datasetsRequirement;
+        datasetsProof = _datasetsProof;
+        datasetsChallenge = _datasetsChallenge;
         datasetsHelpers = _datasetsHelpers;
         datasetsAssertion = _datasetsAssertion;
     }

@@ -25,41 +25,44 @@ contract AddCarTest is Test, CarstoreTestSetup {
     function testAddCarWithSuccess(
         bytes32 _cid,
         uint64 _datasetId,
-        uint64 _size
+        uint64 _size,
+        uint16 _replicaCount
     ) public {
         setup();
         AddCarTestCaseWithSuccess testCase = new AddCarTestCaseWithSuccess(
             carstore,
             assertion
         );
-        testCase.run(_cid, _datasetId, _size);
+        testCase.run(_cid, _datasetId, _size, _replicaCount);
     }
 
     /// @notice test case with invalid id
     function testAddCarWithInvalidId(
         bytes32 _cid,
         uint64 _datasetId,
-        uint64 _size
+        uint64 _size,
+        uint16 _replicaCount
     ) public {
         setup();
         AddCarTestCaseWithInvalidId testCase = new AddCarTestCaseWithInvalidId(
             carstore,
             assertion
         );
-        testCase.run(_cid, _datasetId, _size);
+        testCase.run(_cid, _datasetId, _size, _replicaCount);
     }
 
     /// @notice test case with car already exsit
     function testAddCarWithCarAlreadyExsit(
         bytes32 _cid,
         uint64 _datasetId,
-        uint64 _size
+        uint64 _size,
+        uint16 _replicaCount
     ) public {
         setup();
         AddCarTestCaseWithCarAlreayExsit testCase = new AddCarTestCaseWithCarAlreayExsit(
                 carstore,
                 assertion
             );
-        testCase.run(_cid, _datasetId, _size);
+        testCase.run(_cid, _datasetId, _size, _replicaCount);
     }
 }

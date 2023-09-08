@@ -65,12 +65,14 @@ library MatchingType {
         uint64 size; // Size of the matching target，Note:total datacap size that this matching need allocate
         DatasetType.DataType dataType; // Type of data associated with the matching
         uint64 associatedMappingFilesMatchingID; // ID of the matching associated with mapping files
+        uint16 replicaIndex; // index of dataset's replica
     }
 
     /// @notice Struct representing a bid in a matching.
     struct Bid {
         address bidder; // Address of the bidder
         uint256 bid; // Bid amount
+        bool complyFilplusRule; //If the bidder comply with filplus rules
     }
 
     /// @notice Struct representing a dataset matching.

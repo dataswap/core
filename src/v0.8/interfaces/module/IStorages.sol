@@ -24,6 +24,7 @@ import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 interface IStorages {
     /// @dev Submits a Filecoin claim Id for a matchedstore after successful matching.
     /// @param _matchingId The ID of the matching.
+    /// @param _provider A provider of storage provider of matching.
     /// @param _cid The content identifier of the matched data.
     /// @param _claimId The ID of the successful Filecoin storage deal.
     function submitStorageClaimId(
@@ -35,6 +36,7 @@ interface IStorages {
 
     /// @dev Submits multiple Filecoin claim Ids for a matchedstore after successful matching.
     /// @param _matchingId The ID of the matching.
+    /// @param _provider A provider of storage provider of matching.
     /// @param _cids An array of content identifiers of the matched data.
     /// @param _claimIds An array of IDs of successful Filecoin storage deals.
     function submitStorageClaimIds(
@@ -58,12 +60,17 @@ interface IStorages {
         uint64 _matchingId
     ) external view returns (uint64);
 
-    ///@notice get total stored size
+    /// @notice get total stored size
+    /// @param _matchingId The ID of the matching.
+    /// @return The total size of the matching's stored cars.
     function getTotalStoredSize(
         uint64 _matchingId
     ) external view returns (uint64);
 
     ///@notice get car size
+    /// @param _matchingId The ID of the matching.
+    /// @param _cid The content identifier of the matched data.
+    /// @return The size of the matching's stored cars.
     function getStoredCarSize(
         uint64 _matchingId,
         bytes32 _cid

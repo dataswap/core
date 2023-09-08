@@ -17,63 +17,67 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {AddCarReplicaTestCaseWithSuccess, AddCarReplicaTestCaseWithInvalidId, AddCarReplicaTestCaseWithCarNotExist, AddCarReplicaTestCaseWithReplicaAlreadyExists} from "test/v0.8/testcases/core/carstore/AddCarReplicaTestSuite.sol";
+import "test/v0.8/testcases/core/carstore/RegistCarReplicaTestSuite.sol";
 import {CarstoreTestSetup} from "test/v0.8/uinttests/core/carstore/setup/CarstoreTestSetup.sol";
 
-contract AddCarReplicaTest is Test, CarstoreTestSetup {
+contract RegistCarReplicaTest is Test, CarstoreTestSetup {
     /// @notice test case with success
-    function testAddCarReplicaWithSuccess(
+    function testRegistCarReplicaWithSuccess(
         bytes32 _cid,
-        uint64 _matchingId
+        uint64 _matchingId,
+        uint16 _replicaIndex
     ) public {
         setup();
-        AddCarReplicaTestCaseWithSuccess testCase = new AddCarReplicaTestCaseWithSuccess(
+        RegistCarReplicaTestCaseWithSuccess testCase = new RegistCarReplicaTestCaseWithSuccess(
                 carstore,
                 assertion
             );
         // run testcase
-        testCase.run(_cid, _matchingId);
+        testCase.run(_cid, _matchingId, _replicaIndex);
     }
 
     /// @notice test case with invalid id
-    function testAddCarReplicaWithInvalidId(
+    function testRegistCarReplicaWithInvalidId(
         bytes32 _cid,
-        uint64 _matchingId
+        uint64 _matchingId,
+        uint16 _replicaIndex
     ) public {
         setup();
-        AddCarReplicaTestCaseWithInvalidId testCase = new AddCarReplicaTestCaseWithInvalidId(
+        RegistCarReplicaTestCaseWithInvalidId testCase = new RegistCarReplicaTestCaseWithInvalidId(
                 carstore,
                 assertion
             );
         // run testcase
-        testCase.run(_cid, _matchingId);
+        testCase.run(_cid, _matchingId, _replicaIndex);
     }
 
     /// @notice test case with car not exsit
-    function testAddCarReplicaWithCarNotExsit(
+    function testRegistCarReplicaWithCarNotExsit(
         bytes32 _cid,
-        uint64 _matchingId
+        uint64 _matchingId,
+        uint16 _replicaIndex
     ) public {
         setup();
-        AddCarReplicaTestCaseWithCarNotExist testCase = new AddCarReplicaTestCaseWithCarNotExist(
+        RegistCarReplicaTestCaseWithCarNotExist testCase = new RegistCarReplicaTestCaseWithCarNotExist(
                 carstore,
                 assertion
             );
         // run testcase
-        testCase.run(_cid, _matchingId);
+        testCase.run(_cid, _matchingId, _replicaIndex);
     }
 
     /// @notice test case with replica alreay exsit
-    function testAddCarReplicaWithReplicaAlreadyExists(
+    function testRegistCarReplicaWithReplicaAlreadyExists(
         bytes32 _cid,
-        uint64 _matchingId
+        uint64 _matchingId,
+        uint16 _replicaIndex
     ) public {
         setup();
-        AddCarReplicaTestCaseWithReplicaAlreadyExists testCase = new AddCarReplicaTestCaseWithReplicaAlreadyExists(
+        RegistCarReplicaTestCaseWithReplicaAlreadyExists testCase = new RegistCarReplicaTestCaseWithReplicaAlreadyExists(
                 carstore,
                 assertion
             );
         // run testcase
-        testCase.run(_cid, _matchingId);
+        testCase.run(_cid, _matchingId, _replicaIndex);
     }
 }

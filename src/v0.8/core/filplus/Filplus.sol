@@ -22,10 +22,9 @@ pragma solidity ^0.8.21;
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 ///shared
 import {FilplusEvents} from "src/v0.8/shared/events/FilplusEvents.sol";
+import "src/v0.8/shared/utils/array/ArrayLIB.sol";
 ///type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
-import {FilplusType} from "src/v0.8/types/FilplusType.sol";
-
 import {RolesModifiers} from "src/v0.8/shared/modifiers/RolesModifiers.sol";
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -33,18 +32,18 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 
 /// @title Filplus
 contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
+    using ArrayUint16LIB for uint16[];
+    using ArrayUint32LIB for uint32[];
+
     // solhint-disable-next-line
     address public GOVERNANCE_ADDRESS; //The address of the governance contract.
-
-    ///@notice car rules
-    uint16 public carRuleMaxCarReplicas; // Represents the maximum number of car replicas in the entire network
 
     ///@notice dataset region rules
     uint16 public datasetRuleMinRegionsPerDataset; // Minimum required number of regions (e.g., 3).
 
     uint16 public datasetRuleDefaultMaxReplicasPerCountry; // Default maximum replicas allowed per country.
 
-    mapping(bytes32 => uint16) private datasetRuleMaxReplicasInCountries; // Maximum replicas allowed per country.
+    mapping(uint16 => uint16) private datasetRuleMaxReplicasInCountries; // Maximum replicas allowed per country.
 
     uint16 public datasetRuleMaxReplicasPerCity; // Maximum replicas allowed per city (e.g., 1).
 
@@ -64,11 +63,6 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
 
     uint8 public datacapRulesMaxRemainingPercentageForNext; // Minimum completion percentage for the next allocation.
 
-    ///@notice matching rules
-    uint8 public matchingRulesDataswapCommissionPercentage; // Percentage of commission.
-
-    FilplusType.MatchingRuleCommissionType private matchingRulesCommissionType; // Type of commission for matching.
-
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -79,8 +73,6 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         address _roles
     ) public initializer {
         GOVERNANCE_ADDRESS = _governanceAddress;
-        //defalut car rules
-        carRuleMaxCarReplicas = 20;
 
         //defalut dataset region rules
         datasetRuleMinRegionsPerDataset = 3;
@@ -97,12 +89,6 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         //defalut datacap rules
         datacapRulesMaxAllocatedSizePerTime = 50 * 1024 * 1024 * 1024 * 1024; //50TB
         datacapRulesMaxRemainingPercentageForNext = 20; //20%
-
-        //default matching rules
-        matchingRulesDataswapCommissionPercentage = 3;
-        matchingRulesCommissionType = FilplusType
-            .MatchingRuleCommissionType
-            .BuyerPays;
 
         RolesModifiers.rolesModifiersInitialize(_roles);
         __UUPSUpgradeable_init();
@@ -123,27 +109,15 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         return _getImplementation();
     }
 
-    function getMatchingRulesCommissionType() external view returns (uint8) {
-        return uint8(matchingRulesCommissionType);
-    }
-
     // Public getter function to access datasetRuleMaxReplicasInCountries
     function getDatasetRuleMaxReplicasInCountry(
-        bytes32 _countryCode
+        uint16 _countryCode
     ) public view returns (uint16) {
         if (datasetRuleMaxReplicasInCountries[_countryCode] == 0) {
             return datasetRuleDefaultMaxReplicasPerCountry;
         } else {
             return datasetRuleMaxReplicasInCountries[_countryCode];
         }
-    }
-
-    // Set functions for public variables
-    function setCarRuleMaxCarReplicas(
-        uint16 _newValue
-    ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        carRuleMaxCarReplicas = _newValue;
-        emit FilplusEvents.SetCarRuleMaxCarReplicas(_newValue);
     }
 
     function setDatasetRuleMinRegionsPerDataset(
@@ -163,7 +137,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     }
 
     function setDatasetRuleMaxReplicasInCountry(
-        bytes32 _countryCode,
+        uint16 _countryCode,
         uint16 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) onlyNotZero(_newValue) {
         datasetRuleMaxReplicasInCountries[_countryCode] = _newValue;
@@ -234,27 +208,170 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         );
     }
 
-    function setMatchingRulesDataswapCommissionPercentage(
-        uint8 _newValue
-    ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        matchingRulesDataswapCommissionPercentage = _newValue;
-        emit FilplusEvents.SetMatchingRulesDataswapCommissionPercentage(
-            _newValue
-        );
+    /// @notice Check if the storage regions complies with filplus rules.
+    function isCompliantRuleMinRegionsPerDataset(
+        uint16[] memory _regions
+    ) internal view returns (bool) {
+        uint256 count = _regions.countUniqueElements();
+        if (count < datasetRuleMinRegionsPerDataset) {
+            return false;
+        }
+        return true;
     }
 
-    function setMatchingRulesCommissionType(
-        uint8 _newValue
-    ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        require(
-            _newValue < uint8(FilplusType.MatchingRuleCommissionType.Max),
-            "Invalid state"
-        );
-        matchingRulesCommissionType = FilplusType.MatchingRuleCommissionType(
-            _newValue
-        );
-        emit FilplusEvents.SetMatchingRulesCommissionType(
-            matchingRulesCommissionType
-        );
+    /// @notice Check if the distribution of storage replica countries complies with filplus rules.
+    function isCompliantRuleMaxReplicasPerCountry(
+        uint16[] memory _countrys,
+        uint32[][] memory _citys
+    ) internal view returns (bool) {
+        (uint256 uniqueCountryCount, uint16[] memory uniqueCountrys) = _countrys
+            .uniqueElements();
+
+        for (uint256 i = 0; i < uniqueCountryCount; i++) {
+            uint256 _value = _countrys.countOccurrences(uniqueCountrys[i]);
+            if (_value > 1) {
+                for (uint32 j = 0; j < _countrys.length; j++) {
+                    if (uniqueCountrys[i] == _countrys[j]) {
+                        require(_citys[j].length > 0, "City is required");
+                    }
+                }
+            }
+            if (
+                _value > getDatasetRuleMaxReplicasInCountry(uniqueCountrys[i])
+            ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// @notice Check if the distribution of storage replica cities complies with filplus rules
+    function isCompliantRuleMaxReplicasPerCity(
+        uint32[][] memory _citys
+    ) internal view returns (bool) {
+        uint256 cityCount = 0;
+        for (uint256 i = 0; i < _citys.length; i++) {
+            require(!_citys[i].hasDuplicates(), "Invalid duplicate city");
+            cityCount += _citys[i].length;
+        }
+        uint32[] memory totalCitys = new uint32[](cityCount);
+        uint256 cnt = 0;
+
+        for (uint256 i = 0; i < _citys.length; i++) {
+            for (uint256 j = 0; j < _citys[i].length; j++) {
+                totalCitys[cnt] = _citys[i][j];
+                cnt++;
+            }
+        }
+
+        (uint256 count, uint32[] memory uniqueCitys) = totalCitys
+            .uniqueElements();
+
+        for (uint256 i = 0; i < count; i++) {
+            uint256 _value = totalCitys.countOccurrences(uniqueCitys[i]);
+            if (_value > datasetRuleMaxReplicasPerCity) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /// @notice Check if the storage geolocation complies with filplus rules.
+    function isCompliantRuleGeolocation(
+        uint16[] memory _regions,
+        uint16[] memory _countrys,
+        uint32[][] memory _citys
+    ) external view returns (bool) {
+        if (!isCompliantRuleMinRegionsPerDataset(_regions)) {
+            return false;
+        }
+
+        if (!isCompliantRuleMaxReplicasPerCountry(_countrys, _citys)) {
+            return false;
+        }
+
+        if (!isCompliantRuleMaxReplicasPerCity(_citys)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /// @notice Check if the mappingFiles percentage in the dataset complies with filplus rules.
+    function isCompliantRuleMaxProportionOfMappingFilesToDataset(
+        uint64 _mappingFilesSize,
+        uint64 _sourceSize
+    ) external view returns (bool) {
+        uint64 proportion = (_mappingFilesSize * 10000) / _sourceSize;
+        if (proportion > datasetRuleMaxProportionOfMappingFilesToDataset) {
+            return false;
+        }
+        return true;
+    }
+
+    /// @notice Check if the total number of storage replicas complies with filplus rules.
+    function isCompliantRuleTotalReplicasPerDataset(
+        address[][] memory _dataPreparers,
+        address[][] memory _storageProviders,
+        uint16[] memory _regions,
+        uint16[] memory _countrys,
+        uint32[][] memory _citys
+    ) external view returns (bool) {
+        if (
+            _regions.length != _dataPreparers.length ||
+            _regions.length != _storageProviders.length ||
+            _regions.length != _countrys.length ||
+            _regions.length != _citys.length
+        ) {
+            return false;
+        }
+
+        if (
+            _regions.length > datasetRuleMaxTotalReplicasPerDataset ||
+            _regions.length < datasetRuleMinTotalReplicasPerDataset ||
+            _regions.length < datasetRuleMinSPsPerDataset
+        ) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /// @notice Check if the storage provider for each dataset complies with filplus rules `datasetRuleMinSPsPerDataset`.
+    function isCompliantRuleMinSPsPerDataset(
+        uint16 _requirementValue,
+        uint16 _totalExists,
+        uint16 _uniqueExists
+    ) external view returns (bool) {
+        if (_uniqueExists >= datasetRuleMinSPsPerDataset) {
+            return true;
+        }
+
+        if (
+            _uniqueExists >= _requirementValue ||
+            _totalExists >= _requirementValue
+        ) {
+            return false;
+        }
+
+        if (
+            (_requirementValue - _totalExists + _uniqueExists) >=
+            datasetRuleMinSPsPerDataset
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /// @notice Check if the storage provider for each dataset complies with filplus rules `datasetRuleMaxReplicasPerSP`.
+    function isCompliantRuleMaxReplicasPerSP(
+        uint16 _value
+    ) external view returns (bool) {
+        if (_value > datasetRuleMaxReplicasPerSP) {
+            return false;
+        }
+        return true;
     }
 }

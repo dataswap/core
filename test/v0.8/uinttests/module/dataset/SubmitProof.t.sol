@@ -26,6 +26,9 @@ contract SubmitProofTest is Test, DatasetTestSetup {
         setup();
         SubmitProofTestCaseWithSuccess testCase = new SubmitProofTestCaseWithSuccess(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );
@@ -37,6 +40,9 @@ contract SubmitProofTest is Test, DatasetTestSetup {
         setup();
         SubmitProofTestCaseWithInvalidSubmitter testCase = new SubmitProofTestCaseWithInvalidSubmitter(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );
@@ -48,6 +54,23 @@ contract SubmitProofTest is Test, DatasetTestSetup {
         setup();
         SubmitProofTestCaseWithInvalidIndex testCase = new SubmitProofTestCaseWithInvalidIndex(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    /// @notice test case with invalid proportion of proof
+    function testSubmitDatasetProofWithInvalidProportion() public {
+        setup();
+        SubmitProofTestCaseWithInvalidProportion testCase = new SubmitProofTestCaseWithInvalidProportion(
+                datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );
