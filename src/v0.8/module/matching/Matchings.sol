@@ -425,18 +425,21 @@ contract Matchings is IMatchings, MatchingsModifiers {
             "Invalid cids!"
         );
         require(_size > 0, "Invalid size!");
-        if (_dataType == DatasetType.DataType.Source) {
-            (
-                uint64 datasetId,
-                ,
-                ,
-                DatasetType.DataType dataType,
 
-            ) = getMatchingTarget(_associatedMappingFilesMatchingID);
+        // Source data needs to ensure that the associated mapping files data has been stored
+        if (_dataType == DatasetType.DataType.Source) {
+            (, , , DatasetType.DataType dataType, ) = getMatchingTarget(
+                _associatedMappingFilesMatchingID
+            );
 
             require(
-                datasetId == _datasetId && dataType == _dataType,
-                "Need a associated matching id"
+                dataType == DatasetType.DataType.MappingFiles,
+                "Need a associated matching"
+            );
+            require(
+                getMatchingState(_associatedMappingFilesMatchingID) ==
+                    MatchingType.State.Completed,
+                "datasetId is not completed!"
             );
             require(
                 isMatchingTargetMeetsFilPlusRequirements(
