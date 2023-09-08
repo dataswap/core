@@ -17,6 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
+import {DatasetsTestSetup} from "test/v0.8/testcases/module/dataset/setup/DatasetsTestSetup.sol";
 import {DatasetsTestBase} from "test/v0.8/testcases/module/dataset/abstract/DatasetsTestBase.sol";
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
@@ -37,34 +38,8 @@ contract RejectTestCaseWithSuccess is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64 id) {
-        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
-            address(9),
-            "TEST"
-        );
-        vm.prank(datasets.governanceAddress());
-        datasets.approveDatasetMetadata(datasetId);
-        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.stopPrank();
-        datasetsHelpers.submitDatasetProof(
-            address(99),
-            datasetId,
-            DatasetType.DataType.Source,
-            "",
-            100,
-            true
-        );
-        datasetsHelpers.submitDatasetProof(
-            address(99),
-            datasetId,
-            DatasetType.DataType.MappingFiles,
-            "accessmethod",
-            10,
-            true
-        );
-        //TODO: should verfiration:https://github.com/dataswap/core/issues/49
-        return datasetId;
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return setup.datasetTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64 _id) internal virtual override {
@@ -86,35 +61,8 @@ contract RejectTestCaseWithInvalidAddress is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64 id) {
-        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
-            address(9),
-            "TEST"
-        );
-        vm.prank(datasets.governanceAddress());
-        datasets.approveDatasetMetadata(datasetId);
-
-        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.stopPrank();
-        datasetsHelpers.submitDatasetProof(
-            address(99),
-            datasetId,
-            DatasetType.DataType.Source,
-            "",
-            100,
-            true
-        );
-        datasetsHelpers.submitDatasetProof(
-            address(99),
-            datasetId,
-            DatasetType.DataType.MappingFiles,
-            "accessmethod",
-            10,
-            true
-        );
-        //TODO: should verfiration:https://github.com/dataswap/core/issues/49
-        return datasetId;
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return setup.datasetTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64 _id) internal virtual override {
@@ -152,35 +100,8 @@ contract RejectTestCaseWithInvalidState is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64 id) {
-        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
-            address(9),
-            "TEST"
-        );
-        vm.prank(datasets.governanceAddress());
-        datasets.approveDatasetMetadata(datasetId);
-
-        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.stopPrank();
-        datasetsHelpers.submitDatasetProof(
-            address(99),
-            datasetId,
-            DatasetType.DataType.Source,
-            "",
-            100,
-            true
-        );
-        datasetsHelpers.submitDatasetProof(
-            address(99),
-            datasetId,
-            DatasetType.DataType.MappingFiles,
-            "accessmethod",
-            10,
-            true
-        );
-        //TODO: should verfiration:https://github.com/dataswap/core/issues/49
-        return datasetId;
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return setup.datasetTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64 _id) internal virtual override {

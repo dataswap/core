@@ -226,7 +226,6 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(199));
         vm.stopPrank();
         // 4: Submit verification
-        // NOTE: TODO verify before approved: https://github.com/dataswap/core/issues/49
         submitDatasetVerification(address(199), datasetId);
 
         // 5: Approve dataset

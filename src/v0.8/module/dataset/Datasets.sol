@@ -168,8 +168,7 @@ contract Datasets is IDatasets, DatasetsModifiers {
     }
 
     ///@notice Submit proof for a dataset
-    /// Proof and verification functionality is provided here as a sample code structure.
-    /// The actual functionality is pending completion.
+    /// Based on merkle proof.
     function submitDatasetProof(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
@@ -224,9 +223,9 @@ contract Datasets is IDatasets, DatasetsModifiers {
         }
     }
 
-    ///@notice Submit proof for a dataset
-    /// Proof and verification functionality is provided here as a sample code structure.
-    /// The actual functionality is pending completion.
+    ///@notice Submit proof verification for a dataset
+    /// Based on merkle proof verification.
+    /// random challenge method is used to reduce the amount of data and calculation while ensuring algorithm security.
     function submitDatasetVerification(
         uint64 _datasetId,
         uint64 _randomSeed,

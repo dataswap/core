@@ -18,6 +18,7 @@ pragma solidity ^0.8.21;
 
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {DatasetsTestBase} from "test/v0.8/testcases/module/dataset/abstract/DatasetsTestBase.sol";
+import {DatasetsTestSetup} from "test/v0.8/testcases/module/dataset/setup/DatasetsTestSetup.sol";
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
@@ -37,11 +38,8 @@ contract ApproveMetadataTestCaseWithSuccess is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64 id) {
-        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
-            address(9),
-            "TEST"
-        );
-        return datasetId;
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return setup.metadataTestSetup(datasetsHelpers);
     }
 
     function action(uint64 _id) internal virtual override {
@@ -63,11 +61,8 @@ contract ApproveMetadataTestCaseWithInvalidAddress is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64 id) {
-        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
-            address(9),
-            "TEST"
-        );
-        return datasetId;
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return setup.metadataTestSetup(datasetsHelpers);
     }
 
     function action(uint64 _id) internal virtual override {
@@ -87,11 +82,8 @@ contract ApproveMetadataTestCaseWithZeroID is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64 id) {
-        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
-            address(9),
-            "TEST"
-        );
-        return datasetId;
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return setup.metadataTestSetup(datasetsHelpers);
     }
 
     function action(uint64) internal virtual override {
@@ -113,11 +105,8 @@ contract ApproveMetadataTestCaseWithInvalidState is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64 id) {
-        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
-            address(9),
-            "TEST"
-        );
-        return datasetId;
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return setup.metadataTestSetup(datasetsHelpers);
     }
 
     function action(uint64 _id) internal virtual override {
