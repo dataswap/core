@@ -47,6 +47,9 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             DatasetType.State.DatasetProofSubmitted
         );
 
+        // Check verification count, Judgment strategy depends on actual needs
+        getDatasetVerificationsCountAssertion(_datasetId, 1);
+
         // Perform the action.
         vm.prank(caller);
         datasets.approveDataset(_datasetId);

@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {DatasetsTestSetup} from "test/v0.8/testcases/module/dataset/setup/DatasetsTestSetup.sol";
 import {DatasetsTestBase} from "test/v0.8/testcases/module/dataset/abstract/DatasetsTestBase.sol";
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
@@ -36,34 +37,8 @@ contract SubmittVerificationTestCaseWithSuccess is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64 id) {
-        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
-            address(9),
-            "TEST"
-        );
-        vm.prank(datasets.governanceAddress());
-        datasets.approveDatasetMetadata(datasetId);
-
-        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.stopPrank();
-        datasetsHelpers.submitDatasetProof(
-            address(99),
-            datasetId,
-            DatasetType.DataType.Source,
-            "",
-            100,
-            true
-        );
-        datasetsHelpers.submitDatasetProof(
-            address(99),
-            datasetId,
-            DatasetType.DataType.MappingFiles,
-            "accessmethod",
-            10,
-            true
-        );
-        return datasetId;
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return setup.verificationTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64 _id) internal virtual override {
@@ -101,36 +76,8 @@ contract SubmittVerificationTestCaseWithFail is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64 id) {
-        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
-            address(9),
-            "TEST"
-        );
-        vm.prank(datasets.governanceAddress());
-        datasets.approveDatasetMetadata(datasetId);
-
-        datasets.merkleUtils().setMockValidState(false);
-
-        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.stopPrank();
-        datasetsHelpers.submitDatasetProof(
-            address(99),
-            datasetId,
-            DatasetType.DataType.Source,
-            "",
-            100,
-            true
-        );
-        datasetsHelpers.submitDatasetProof(
-            address(99),
-            datasetId,
-            DatasetType.DataType.MappingFiles,
-            "accessmethod",
-            10,
-            true
-        );
-        return datasetId;
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return setup.verificationTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64 _id) internal virtual override {
@@ -139,6 +86,8 @@ contract SubmittVerificationTestCaseWithFail is DatasetsTestBase {
         bytes32[][] memory siblings = new bytes32[][](pointCount);
         uint32[] memory paths = new uint32[](pointCount);
         uint64 randomSeed;
+
+        datasets.merkleUtils().setMockValidState(false);
         (randomSeed, leaves, siblings, paths) = datasetsHelpers
             .generateVerification(pointCount);
 
@@ -169,34 +118,8 @@ contract SubmittVerificationTestCaseWithIllegalRole is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64 id) {
-        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
-            address(9),
-            "TEST"
-        );
-        vm.prank(datasets.governanceAddress());
-        datasets.approveDatasetMetadata(datasetId);
-
-        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.stopPrank();
-        datasetsHelpers.submitDatasetProof(
-            address(99),
-            datasetId,
-            DatasetType.DataType.Source,
-            "",
-            100,
-            true
-        );
-        datasetsHelpers.submitDatasetProof(
-            address(99),
-            datasetId,
-            DatasetType.DataType.MappingFiles,
-            "accessmethod",
-            10,
-            true
-        );
-        return datasetId;
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return setup.verificationTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64 _id) internal virtual override {

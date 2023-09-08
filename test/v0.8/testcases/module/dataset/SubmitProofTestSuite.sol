@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {DatasetsTestSetup} from "test/v0.8/testcases/module/dataset/setup/DatasetsTestSetup.sol";
 import {DatasetsTestBase} from "test/v0.8/testcases/module/dataset/abstract/DatasetsTestBase.sol";
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
@@ -36,13 +37,8 @@ contract SubmitProofTestCaseWithSuccess is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64) {
-        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
-            address(9),
-            "TEST"
-        );
-        vm.prank(datasets.governanceAddress());
-        datasets.approveDatasetMetadata(datasetId);
-        return datasetId;
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return setup.proofTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64 _datasetId) internal virtual override {
@@ -96,13 +92,8 @@ contract SubmitProofTestCaseWithInvalidSubmitter is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64) {
-        uint64 datasetId = datasetsHelpers.submitDatasetMetadata(
-            address(9),
-            "TEST"
-        );
-        vm.prank(datasets.governanceAddress());
-        datasets.approveDatasetMetadata(datasetId);
-        return datasetId;
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return setup.proofTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64 _datasetId) internal virtual override {
