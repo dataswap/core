@@ -33,6 +33,7 @@ library CarReplicaType {
 
     /// @notice Enum representing the events associated with car replicas.
     enum Event {
+        MatchingFailed, // Matching for a replica has been failed
         MatchingCompleted, // Matching for a replica has been completed
         StorageCompleted, // Storage for a replica has been completed
         StorageFailed, // Storage for a replica has failed
@@ -42,6 +43,7 @@ library CarReplicaType {
 
     /// @notice Struct representing a car replica.
     struct Replica {
+        uint64 matchingId; // The matchingId associated with the replica.
         uint64 filecoinClaimId; // ID of the Filecoin claim associated with the replica's storage
         State state; // Current state of the replica
     }
@@ -50,7 +52,7 @@ library CarReplicaType {
     struct Car {
         uint64 datasetId; // Index of approved dataset
         uint64 size; //car size
-        uint16 replicasCount; // Number of replicas associated with the car
-        mapping(uint64 => Replica) replicas; // Mapping from matchingId => Replica details
+        mapping(uint64 => uint16) replicaIndex; // Mapping from matchingId => Replica index
+        Replica[] replicas; // replicas associated with the car.
     }
 }

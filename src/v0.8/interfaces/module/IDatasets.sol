@@ -54,33 +54,6 @@ interface IDatasets {
         uint64 _version
     ) external;
 
-    ///@notice Submit proof root for a dataset
-    function submitDatasetProofRoot(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        string calldata _mappingFilesAccessMethod,
-        bytes32 _rootHash
-    ) external;
-
-    ///@notice Submit proof for a dataset
-    function submitDatasetProof(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        bytes32[] calldata _leafHashes,
-        uint64[] calldata _leafIndexs,
-        uint64[] calldata _leafSizes,
-        bool _completed
-    ) external;
-
-    ///@notice Submit proof for a dataset
-    function submitDatasetVerification(
-        uint64 _datasetId,
-        uint64 _randomSeed,
-        bytes32[] memory _leaves,
-        bytes32[][] memory _siblings,
-        uint32[] memory _paths
-    ) external;
-
     ///@notice Get dataset metadata
     function getDatasetMetadata(
         uint64 _datasetId
@@ -101,96 +74,33 @@ interface IDatasets {
             uint64 version
         );
 
-    ///@notice Get dataset source CIDs
-    function getDatasetProof(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _index,
-        uint64 _len
-    ) external view returns (bytes32[] memory);
-
-    ///@notice Get dataset source CIDs
-    function getDatasetCars(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _index,
-        uint64 _len
-    ) external view returns (bytes32[] memory);
-
-    function getDatasetProofCount(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType
-    ) external view returns (uint64);
-
-    ///@notice Get dataset proof's submitter
-    function getDatasetProofSubmitter(
+    /// @notice Get submitter of dataset's metadata
+    function getDatasetMetadataSubmitter(
         uint64 _datasetId
     ) external view returns (address);
-
-    ///@notice Get dataset source CIDs
-    function getDatasetCarsCount(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType
-    ) external view returns (uint64);
-
-    ///@notice Get dataset size
-    function getDatasetSize(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType
-    ) external view returns (uint64);
 
     ///@notice Get dataset state
     function getDatasetState(
         uint64 _datasetId
     ) external view returns (DatasetType.State);
 
-    ///@notice Get dataset verification
-    function getDatasetVerification(
-        uint64 _datasetId,
-        address _auditor
-    )
-        external
-        view
-        returns (
-            bytes32[] memory,
-            bytes32[][] memory _siblings,
-            uint32[] memory _paths
-        );
-
-    ///@notice Get count of dataset verifications
-    function getDatasetVerificationsCount(
-        uint64 _datasetId
-    ) external view returns (uint16);
-
     ///@notice Check if a dataset has metadata
     function hasDatasetMetadata(
         string memory _accessMethod
     ) external view returns (bool);
 
-    ///@notice Check if a dataset has a cid
-    function isDatasetContainsCar(
-        uint64 _datasetId,
-        bytes32 _cid
-    ) external returns (bool);
-
-    ///@notice Check if a dataset has cids
-    function isDatasetContainsCars(
-        uint64 _datasetId,
-        bytes32[] memory _cids
+    /// @notice Checks if metadata fields are valid.
+    function requireValidDatasetMetadata(
+        uint64 _datasetId
     ) external view returns (bool);
 
-    ///@notice Check if a dataset has submitter
-    function isDatasetProofSubmitter(
-        uint64 _datasetId,
-        address _submitter
-    ) external view returns (bool);
+    /// @notice Report the dataset replica has already been submitted.
+    function reportDatasetReplicaRequirementSubmitted(
+        uint64 _datasetId
+    ) external;
 
-    ///@notice Checking if duplicate verifications of the Dataset
-    function isDatasetVerificationDuplicate(
-        uint64 _datasetId,
-        address _auditor,
-        uint64 _randomSeed
-    ) external view returns (bool);
+    /// @notice Report the dataset proof has already been submitted.
+    function reportDatasetProofSubmitted(uint64 _datasetId) external;
 
     /// @notice Default getter functions for public variables
     function datasetsCount() external view returns (uint64);
@@ -200,12 +110,4 @@ interface IDatasets {
 
     /// @notice get  governance address
     function governanceAddress() external view returns (address);
-
-    /// @notice get  merkle utils
-    function merkleUtils() external view returns (IMerkleUtils);
-
-    /// @notice Get a dataset challenge count
-    function getChallengeCount(
-        uint64 _datasetId
-    ) external view returns (uint64);
 }

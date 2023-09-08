@@ -19,6 +19,8 @@
 pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 
 /// @title IMatchingsHelpers
 /// @dev Interface for managing matching-related operations.
@@ -49,4 +51,8 @@ interface IMatchingsHelpers {
     function completeMatchingWorkflow()
         external
         returns (uint64 datasetId, uint64 matchingId);
+
+    function datasets() external returns (IDatasets);
+
+    function datasetsProof() external returns (IDatasetsProof);
 }

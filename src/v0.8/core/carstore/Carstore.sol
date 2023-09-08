@@ -67,14 +67,18 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     ///      filplus requires dataset replicas,but not limit for car replicas
     /// @param _cid Car CID to be added.
     /// @param _datasetId dataset index of approved dataset
+    /// @param _size size of car
+    /// @param _replicaCount count of car's replicas
     function addCar(
         bytes32 _cid,
         uint64 _datasetId,
-        uint64 _size
+        uint64 _size,
+        uint16 _replicaCount
     ) public onlyCarNotExist(_cid) onlyNotZero(_datasetId) onlyNotZero(_size) {
         carsCount++;
         CarReplicaType.Car storage car = cars[_cid];
         car._setDatasetId(_datasetId);
+        car._initRepicas(_replicaCount);
         car.size = _size;
     }
 
@@ -82,26 +86,31 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     /// @dev This function allows the addition of multiple cars at once.
     /// @param _cids Array of car CIDs to be added.
     /// @param _datasetId dataset index of approved dataset
+    /// @param _sizes car size array
+    /// @param _replicaCount count of car's replicas
     function addCars(
         bytes32[] memory _cids,
         uint64 _datasetId,
-        uint64[] memory _sizes
+        uint64[] memory _sizes,
+        uint16 _replicaCount
     ) external onlyNotZero(_datasetId) {
         require(_cids.length == _sizes.length, "Invalid params");
         for (uint64 i; i < _cids.length; i++) {
-            addCar(_cids[i], _datasetId, _sizes[i]);
+            addCar(_cids[i], _datasetId, _sizes[i], _replicaCount);
         }
 
         emit CarstoreEvents.CarsAdded(_cids);
     }
 
-    /// @notice Add a replica to a car.
+    /// @notice Regist a replica to a car.
     /// @dev This function allows adding a replica to an existing car.
     /// @param _cid Car CID to which the replica will be added.
     /// @param _matchingId Matching ID for the new replica.
-    function addCarReplica(
+    /// @param _replicaIndex The index of the replica.
+    function registCarReplica(
         bytes32 _cid,
-        uint64 _matchingId
+        uint64 _matchingId,
+        uint16 _replicaIndex
     )
         external
         onlyCarExist(_cid)
@@ -109,9 +118,58 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         onlyCarReplicaNotExist(_cid, _matchingId)
     {
         CarReplicaType.Car storage car = cars[_cid];
-        car._addRepica(_matchingId);
+        require(
+            _replicaIndex < car._getRepicasCount(),
+            "Invalid replica index"
+        );
 
-        emit CarstoreEvents.CarReplicaAdded(_cid, _matchingId);
+        car._registRepica(_matchingId, _replicaIndex);
+
+        emit CarstoreEvents.CarReplicaRegisted(
+            _cid,
+            _matchingId,
+            _replicaIndex
+        );
+    }
+
+    /// @notice Report that matching's state for a replica.
+    /// @dev This function allows reporting that the matching for a replica is failed.
+    /// @param _cid Car CID associated with the replica.
+    /// @param _matchingId Matching ID of the replica.
+    /// @param _matchingState Matching's state of the replica, true for success ,false for failed.
+    function reportCarReplicaMatchingState(
+        bytes32 _cid,
+        uint64 _matchingId,
+        bool _matchingState
+    )
+        external
+        onlyCarExist(_cid)
+        onlyNotZero(_matchingId)
+        onlyCarReplicaExist(_cid, _matchingId)
+    {
+        if (_matchingState) {
+            _emitRepicaEvent(
+                _cid,
+                _matchingId,
+                CarReplicaType.Event.MatchingCompleted
+            );
+            emit CarstoreEvents.CarReplicaMatchingState(
+                _cid,
+                _matchingId,
+                "success"
+            );
+        } else {
+            _emitRepicaEvent(
+                _cid,
+                _matchingId,
+                CarReplicaType.Event.MatchingFailed
+            );
+            emit CarstoreEvents.CarReplicaMatchingState(
+                _cid,
+                _matchingId,
+                "failed"
+            );
+        }
     }
 
     /// @notice Report that storage deal for a replica has expired.
@@ -225,6 +283,16 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     function getCarDatasetId(bytes32 _cid) public view returns (uint64) {
         CarReplicaType.Car storage car = cars[_cid];
         return car._getDatasetId();
+    }
+
+    /// @notice Get the matching ids of a replica associated with a car.
+    /// @param _cid Car CID associated with the replica.
+    /// @return The matching ids of the car's replica.
+    function getCarMatchingIds(
+        bytes32 _cid
+    ) public view onlyCarExist(_cid) returns (uint64[] memory) {
+        CarReplicaType.Car storage car = cars[_cid];
+        return car._getMatchingIds();
     }
 
     /// @notice Get the replica details associated with a car.

@@ -46,8 +46,9 @@ contract SetCarReplicaFilecoinClaimIdTestCaseWithSuccess is
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
         vm.assume(_matchingId != 0 && _claimId != 0);
-        carstore.addCar(_cid, _datasetId, _size);
-        carstore.addCarReplica(_cid, _matchingId);
+        carstore.addCar(_cid, _datasetId, _size, 3);
+        carstore.registCarReplica(_cid, _matchingId, 0);
+        carstore.reportCarReplicaMatchingState(_cid, _matchingId, true);
     }
 }
 
@@ -75,8 +76,9 @@ contract SetCarReplicaFilecoinClaimIdTestCaseWithInvalidId is
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
         vm.assume(_matchingId != 0 && _claimId == 0);
-        carstore.addCar(_cid, _datasetId, _size);
-        carstore.addCarReplica(_cid, _matchingId);
+        carstore.addCar(_cid, _datasetId, _size, 3);
+        carstore.registCarReplica(_cid, _matchingId, 0);
+        carstore.reportCarReplicaMatchingState(_cid, _matchingId, true);
     }
 
     function action(
@@ -113,7 +115,7 @@ contract SetCarReplicaFilecoinClaimIdTestCaseWithReplicaNotExist is
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
         vm.assume(_matchingId != 0 && _claimId != 0);
-        carstore.addCar(_cid, _datasetId, _size);
+        carstore.addCar(_cid, _datasetId, _size, 3);
     }
 
     function action(
@@ -156,8 +158,9 @@ contract SetCarReplicaFilecoinClaimIdTestCaseWithReplicaFilecoinClaimIdExists is
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
         vm.assume(_matchingId != 0 && _claimId != 0);
-        carstore.addCar(_cid, _datasetId, _size);
-        carstore.addCarReplica(_cid, _matchingId);
+        carstore.addCar(_cid, _datasetId, _size, 3);
+        carstore.registCarReplica(_cid, _matchingId, 0);
+        carstore.reportCarReplicaMatchingState(_cid, _matchingId, true);
         carstore.setCarReplicaFilecoinClaimId(_cid, _matchingId, _claimId);
     }
 

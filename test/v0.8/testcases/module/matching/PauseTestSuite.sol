@@ -87,12 +87,12 @@ contract PauseTestCaseWithInvalidState is MatchingsTestBase {
 
     function before() internal virtual override returns (uint64) {
         uint64 datasetId = matchingsHelpers.setup("testAccessMethod", 100, 10);
-        address admin = matchings.datasets().roles().getRoleMember(
+        address admin = matchingsHelpers.datasets().roles().getRoleMember(
             bytes32(0x00),
             0
         );
         vm.startPrank(admin);
-        matchings.datasets().roles().grantRole(
+        matchingsHelpers.datasets().roles().grantRole(
             RolesType.DATASET_PROVIDER,
             address(99)
         );
@@ -108,6 +108,7 @@ contract PauseTestCaseWithInvalidState is MatchingsTestBase {
             100,
             100,
             100,
+            0,
             "TEST"
         );
         return matchings.matchingsCount();

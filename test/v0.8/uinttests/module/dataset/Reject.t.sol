@@ -26,6 +26,9 @@ contract RejectTest is Test, DatasetTestSetup {
         setup();
         RejectTestCaseWithSuccess testCase = new RejectTestCaseWithSuccess(
             datasets,
+            datasetsRequirement,
+            datasetsProof,
+            datasetsChallenge,
             helpers,
             assertion
         );
@@ -37,6 +40,9 @@ contract RejectTest is Test, DatasetTestSetup {
         setup();
         RejectTestCaseWithInvalidAddress testCase = new RejectTestCaseWithInvalidAddress(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );
@@ -48,6 +54,9 @@ contract RejectTest is Test, DatasetTestSetup {
         setup();
         RejectTestCaseWithZeroID testCase = new RejectTestCaseWithZeroID(
             datasets,
+            datasetsRequirement,
+            datasetsProof,
+            datasetsChallenge,
             helpers,
             assertion
         );
@@ -59,6 +68,9 @@ contract RejectTest is Test, DatasetTestSetup {
         setup();
         RejectTestCaseWithInvalidState testCase = new RejectTestCaseWithInvalidState(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );

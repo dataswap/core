@@ -25,7 +25,7 @@ import {IFilplusAssertion} from "test/v0.8/interfaces/assertions/core/IFilplusAs
 
 /// @title SetVariableOfUint64TestSuiteBase
 /// @dev Base contract for test suites related to variable of type uint64 to the filplus.
-abstract contract SetVariableOfUint64TestSuiteBase is FilplusTestBase, Test {
+abstract contract SetVariableOfUint64TestSuiteBase is FilplusTestBase {
     constructor(
         IFilplus _filplus,
         IFilplusAssertion _assertion,
@@ -63,7 +63,7 @@ abstract contract SetVariableOfUint64TestSuiteBase is FilplusTestBase, Test {
 
 /// @title SetVariableOfUint16TestSuiteBase
 /// @dev Base contract for test suites related to variable of type uint16 to the filplus.
-abstract contract SetVariableOfUint16TestSuiteBase is FilplusTestBase, Test {
+abstract contract SetVariableOfUint16TestSuiteBase is FilplusTestBase {
     constructor(
         IFilplus _filplus,
         IFilplusAssertion _assertion,
@@ -101,7 +101,7 @@ abstract contract SetVariableOfUint16TestSuiteBase is FilplusTestBase, Test {
 
 /// @title SetVariableOfUint8TestSuiteBase
 /// @dev Base contract for test suites related to variable of type uint8 to the filplus.
-abstract contract SetVariableOfUint8TestSuiteBase is FilplusTestBase, Test {
+abstract contract SetVariableOfUint8TestSuiteBase is FilplusTestBase {
     constructor(
         IFilplus _filplus,
         IFilplusAssertion _assertion,
@@ -140,8 +140,7 @@ abstract contract SetVariableOfUint8TestSuiteBase is FilplusTestBase, Test {
 /// @title SetDatasetRuleMaxReplicasInCountryTestSuiteBase
 /// @dev Base contract for test suites related to max replicas in countries to the filplus.
 abstract contract SetDatasetRuleMaxReplicasInCountryTestSuiteBase is
-    FilplusTestBase,
-    Test
+    FilplusTestBase
 {
     constructor(
         IFilplus _filplus,
@@ -160,24 +159,58 @@ abstract contract SetDatasetRuleMaxReplicasInCountryTestSuiteBase is
     /// @dev Called before running the test to set up the test scenario.
     /// @param _countryCode The country code the mapping datasetRuleMaxReplicasInCountries.
     /// @param _newValue The new value of max replicas in countries of the datasetRuleMaxReplicasInCountries.
-    function before(bytes32 _countryCode, uint16 _newValue) internal virtual;
+    function before(uint16 _countryCode, uint16 _newValue) internal virtual;
 
     /// @dev The main action of the test, where the set the datasetRuleMaxReplicasInCountries to the filplus.
     /// @param _countryCode The country code the mapping datasetRuleMaxReplicasInCountries.
     /// @param _newValue The new value of max replicas in countries of the datasetRuleMaxReplicasInCountries.
-    function action(bytes32 _countryCode, uint16 _newValue) internal virtual;
+    function action(uint16 _countryCode, uint16 _newValue) internal virtual;
 
     /// @dev Called after running the test to perform any necessary cleanup or validation.
     /// @param _countryCode The country code the mapping datasetRuleMaxReplicasInCountries.
     /// @param _newValue The new value of max replicas in countries of the datasetRuleMaxReplicasInCountries.
-    function after_(bytes32 _countryCode, uint16 _newValue) internal virtual {}
+    function after_(uint16 _countryCode, uint16 _newValue) internal virtual {}
 
     /// @dev Runs the test to set datasetRuleMaxReplicasInCountries to the filplus.
     /// @param _countryCode The country code the mapping datasetRuleMaxReplicasInCountries.
     /// @param _newValue The new value of max replicas in countries of the datasetRuleMaxReplicasInCountries.
-    function run(bytes32 _countryCode, uint16 _newValue) public {
+    function run(uint16 _countryCode, uint16 _newValue) public {
         before(_countryCode, _newValue);
         action(_countryCode, _newValue);
         after_(_countryCode, _newValue);
+    }
+}
+
+/// @title FilplusCompliantTestSuiteBase
+/// @dev Base contract for test suites related to copliant rule in countries to the filplus.
+abstract contract FilplusCompliantTestSuiteBase is FilplusTestBase {
+    constructor(
+        IFilplus _filplus,
+        IFilplusAssertion _assertion,
+        Generator _generator,
+        address _governanceContractAddresss
+    )
+        FilplusTestBase(
+            _filplus,
+            _assertion,
+            _generator,
+            _governanceContractAddresss
+        ) // solhint-disable-next-line
+    {}
+
+    /// @dev Called before running the test to set up the test scenario.
+    function before() internal virtual {}
+
+    /// @dev The main action of the test suite base.
+    function action() internal virtual {}
+
+    /// @dev Called after running the test to perform any necessary cleanup or validation.
+    function after_() internal virtual {}
+
+    /// @dev Runs the test to set datasetRuleMaxReplicasInCountries to the filplus.
+    function run() public {
+        before();
+        action();
+        after_();
     }
 }

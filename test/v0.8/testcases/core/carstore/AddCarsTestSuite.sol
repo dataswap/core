@@ -33,10 +33,12 @@ contract AddCarsTestCaseWithSuccess is AddCarsTestSuiteBase {
     function before(
         bytes32[] memory _cids,
         uint64 _datasetId,
-        uint64[] memory _sizes
+        uint64[] memory _sizes,
+        uint16 _replicaCount
     ) internal virtual override {
         vm.assume(_datasetId != 0);
         vm.assume(_cids.length == _sizes.length);
+        vm.assume(_replicaCount > 0 && _replicaCount < 5);
         for (uint64 i = 0; i < _sizes.length; i++) {
             vm.assume(_sizes[i] != 0);
         }
@@ -55,17 +57,20 @@ contract AddCarsTestCaseWithInvalidPrams is AddCarsTestSuiteBase {
     function before(
         bytes32[] memory _cids,
         uint64 _datasetId,
-        uint64[] memory _sizes
+        uint64[] memory _sizes,
+        uint16 _replicaCount
     ) internal virtual override {
         vm.assume(_datasetId != 0 && _cids.length != _sizes.length);
+        vm.assume(_replicaCount > 0 && _replicaCount < 5);
     }
 
     function action(
         bytes32[] memory _cids,
         uint64 _datasetId,
-        uint64[] memory _sizes
+        uint64[] memory _sizes,
+        uint16 _replicaCount
     ) internal virtual override {
         vm.expectRevert(bytes("Invalid params"));
-        super.action(_cids, _datasetId, _sizes);
+        super.action(_cids, _datasetId, _sizes, _replicaCount);
     }
 }

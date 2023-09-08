@@ -36,6 +36,12 @@ library DatasetsEvents {
         address indexed _provider
     );
 
+    /// @notice Event emitted when replica requirement is submitted for a new dataset.
+    event DatasetReplicaRequirementSubmitted(
+        uint64 indexed _datasetId,
+        address indexed _provider
+    );
+
     /// @notice Event emitted when a proof is submitted for a dataset.
     event DatasetProofSubmitted(
         uint64 indexed _datasetId,
@@ -43,7 +49,7 @@ library DatasetsEvents {
     );
 
     /// @notice Event emitted when a dataset is verified.
-    event DatasetVerificationSubmitted(
+    event DatasetChallengeProofsSubmitted(
         uint64 indexed _datasetId,
         address indexed _verifier
     );

@@ -21,15 +21,21 @@ pragma solidity ^0.8.21;
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
+import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
+import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 /// shared
 import {MatchingsEvents} from "src/v0.8/shared/events/MatchingsEvents.sol";
 import {MatchingsModifiers} from "src/v0.8/shared/modifiers/MatchingsModifiers.sol";
+import {Errors} from "src/v0.8/shared/errors/Errors.sol";
+
 /// library
 import {MatchingLIB} from "src/v0.8/module/matching/library/MatchingLIB.sol";
 import {MatchingStateMachineLIB} from "src/v0.8/module/matching/library/MatchingStateMachineLIB.sol";
 import {MatchingBidsLIB} from "src/v0.8/module/matching/library/MatchingBidsLIB.sol";
+import "src/v0.8/shared/utils/array/ArrayLIB.sol";
+
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
@@ -55,6 +61,8 @@ contract Matchings is
     using MatchingLIB for MatchingType.Matching;
     using MatchingStateMachineLIB for MatchingType.Matching;
     using MatchingBidsLIB for MatchingType.Matching;
+    using ArrayAddressLIB for address[];
+    using ArrayUint64LIB for uint64[];
 
     /// @notice  Declare private variables
     uint64 public matchingsCount;
@@ -65,6 +73,8 @@ contract Matchings is
     IFilplus private filplus;
     ICarstore private carstore;
     IDatasets public datasets;
+    IDatasetsRequirement public datasetsRequirement;
+    IDatasetsProof public datasetsProof;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -76,14 +86,15 @@ contract Matchings is
         address _filplus,
         address _filecoin,
         address _carstore,
-        address _datasets
+        address _datasets,
+        address _datasetsRequirement,
+        address _datasetsProof
     ) public initializer {
         MatchingsModifiers.matchingsModifiersInitialize(
             _roles,
             _filplus,
             _filecoin,
             _carstore,
-            _datasets,
             address(this)
         );
         governanceAddress = _governanceAddress;
@@ -91,6 +102,8 @@ contract Matchings is
         filplus = IFilplus(_filplus);
         carstore = ICarstore(_carstore);
         datasets = IDatasets(_datasets);
+        datasetsRequirement = IDatasetsRequirement(_datasetsRequirement);
+        datasetsProof = IDatasetsProof(_datasetsProof);
         __UUPSUpgradeable_init();
     }
 
@@ -109,11 +122,28 @@ contract Matchings is
         return _getImplementation();
     }
 
-    ///@dev update cars info  to carStore before complete
-    function _beforeCompleteMatching(uint64 _matchingId) internal {
+    ///@dev update cars info to carStore before matching complete
+    function _beforeMatchingCompleted(uint64 _matchingId) internal {
         bytes32[] memory cars = getMatchingCars(_matchingId);
         for (uint64 i; i < cars.length; i++) {
-            carstore.addCarReplica(cars[i], _matchingId);
+            carstore.reportCarReplicaMatchingState(cars[i], _matchingId, true);
+        }
+    }
+
+    ///@dev update cars info to carStore after matching failed
+    function _afterMatchingFailed(uint64 _matchingId) internal {
+        bytes32[] memory cars = getMatchingCars(_matchingId);
+        for (uint64 i; i < cars.length; i++) {
+            carstore.reportCarReplicaMatchingState(cars[i], _matchingId, false);
+        }
+    }
+
+    ///@dev update cars info  to carStore before bidding
+    function _beforeBidding(uint64 _matchingId) internal {
+        bytes32[] memory cars = getMatchingCars(_matchingId);
+        uint16 replicaIndex = getMatchingReplicaIndex(_matchingId);
+        for (uint64 i; i < cars.length; i++) {
+            carstore.registCarReplica(cars[i], _matchingId, replicaIndex);
         }
     }
 
@@ -124,6 +154,15 @@ contract Matchings is
     ) external onlyRole(RolesType.STORAGE_PROVIDER) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching._matchingBidding(_amount);
+        (, address[] memory sp, , , ) = datasetsRequirement
+            .getDatasetReplicaRequirement(
+                matching._getDatasetId(),
+                matching._getDatasetReplicaIndex()
+            );
+
+        if (sp.length > 0) {
+            require(sp.isContains(msg.sender), "Invalid SP submitter");
+        }
 
         emit MatchingsEvents.MatchingBidPlaced(
             _matchingId,
@@ -136,7 +175,12 @@ contract Matchings is
             matching.bidSelectionRule ==
             MatchingType.BidSelectionRule.ImmediateAtMost
         ) {
-            closeMatching(_matchingId);
+            if (!closeMatching(_matchingId)) {
+                revert Errors
+                    .NotCompliantRuleMatchingTargetMeetsFilPlusRequirements(
+                        _matchingId
+                    );
+            }
         }
     }
 
@@ -149,6 +193,7 @@ contract Matchings is
     /// @param _biddingPeriodBlockCount The number of blocks for bidding period.
     /// @param _storageCompletionPeriodBlocks The number of blocks for storage period.
     /// @param _biddingThreshold The threshold for bidding.
+    /// @param _replicaIndex The index of the replica in dataset.
     /// @param _additionalInfo The additional information about the matching.
     /// @return The matchingId.
     function createMatching(
@@ -160,17 +205,33 @@ contract Matchings is
         uint64 _biddingPeriodBlockCount,
         uint64 _storageCompletionPeriodBlocks,
         uint256 _biddingThreshold,
+        uint16 _replicaIndex,
         string memory _additionalInfo
     ) external onlyRole(RolesType.DATASET_PROVIDER) returns (uint64) {
         matchingsCount++;
         MatchingType.Matching storage matching = matchings[matchingsCount];
+        require(
+            _replicaIndex <
+                datasetsRequirement.getDatasetReplicasCount(_datasetId),
+            "Invalid matching replica"
+        );
+
+        (address[] memory dp, , , , ) = datasetsRequirement
+            .getDatasetReplicaRequirement(_datasetId, _replicaIndex);
+
+        if (dp.length > 0) {
+            require(dp.isContains(msg.sender), "Invalid DP submitter");
+        }
+
         matching.target = MatchingType.Target({
             datasetId: _datasetId,
             cars: new bytes32[](0),
             size: 0,
             dataType: _dataType,
-            associatedMappingFilesMatchingID: _associatedMappingFilesMatchingID
+            associatedMappingFilesMatchingID: _associatedMappingFilesMatchingID,
+            replicaIndex: _replicaIndex
         });
+
         matching.bidSelectionRule = _bidSelectionRule;
         matching.biddingDelayBlockCount = _biddingDelayBlockCount;
         matching.biddingPeriodBlockCount = _biddingPeriodBlockCount;
@@ -198,8 +259,11 @@ contract Matchings is
         require(matching.initiator == msg.sender, "invalid sender");
         (uint64 datasetId, , , , ) = getMatchingTarget(_matchingId);
         require(datasetId == _datasetId, "invalid dataset id");
+
+        matching._updateTargetCars(_cars, _size);
+
         require(
-            isMatchingTargetMeetsFilPlusRequirements(
+            isMatchingTargetValid(
                 _datasetId,
                 _cars,
                 _size,
@@ -209,10 +273,9 @@ contract Matchings is
             "Target invalid"
         );
 
-        matching._updateTargetCars(_cars, _size);
-
         if (complete) {
             matching._publishMatching();
+            _beforeBidding(_matchingId);
             emit MatchingsEvents.MatchingPublished(_matchingId, msg.sender);
         }
     }
@@ -260,13 +323,18 @@ contract Matchings is
             "bid alreay start,can't cancel"
         );
         matching._cancelMatching();
+        _afterMatchingFailed(_matchingId);
         emit MatchingsEvents.MatchingCancelled(_matchingId);
     }
 
     /// @notice  Function for closing a matching and choosing a winner
     function closeMatching(
         uint64 _matchingId
-    ) public onlyMatchingState(_matchingId, MatchingType.State.InProgress) {
+    )
+        public
+        onlyMatchingState(_matchingId, MatchingType.State.InProgress)
+        returns (bool)
+    {
         MatchingType.Matching storage matching = matchings[_matchingId];
         if (
             matching.bidSelectionRule ==
@@ -293,15 +361,25 @@ contract Matchings is
         }
         matching._closeMatching();
         address winner = matching._chooseMatchingWinner();
+
         if (winner != address(0)) {
-            _beforeCompleteMatching(_matchingId);
+            if (
+                !_isMatchingTargetMeetsFilPlusRequirements(_matchingId, winner)
+            ) {
+                matching._setMatchingBidderNotComplyFilplusRule(winner);
+                return false;
+            }
+
+            _beforeMatchingCompleted(_matchingId);
             matching.winner = winner;
             matching._emitMatchingEvent(MatchingType.Event.HasWinner);
             emit MatchingsEvents.MatchingHasWinner(_matchingId, winner);
         } else {
+            _afterMatchingFailed(_matchingId);
             matching._emitMatchingEvent(MatchingType.Event.NoWinner);
             emit MatchingsEvents.MatchingNoWinner(_matchingId);
         }
+        return true;
     }
 
     /// @notice  Function for getting bids in a matching
@@ -336,7 +414,17 @@ contract Matchings is
         uint64 _matchingId
     ) public view returns (bytes32[] memory) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        return matching.target.cars;
+        return matching._getCars();
+    }
+
+    /// @notice Get the index of matching's replica.
+    /// @param _matchingId The ID of the matching.
+    /// @return index The index of the matching's replica.
+    function getMatchingReplicaIndex(
+        uint64 _matchingId
+    ) public view returns (uint16) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        return matching.target.replicaIndex;
     }
 
     /// @notice  Function for getting the total data size of bids in a matching
@@ -347,7 +435,7 @@ contract Matchings is
 
     function getMatchingInitiator(
         uint64 _matchingId
-    ) external view returns (address) {
+    ) public view returns (address) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         return matching.initiator;
     }
@@ -397,6 +485,19 @@ contract Matchings is
     ) public view returns (address) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         return matching.winner;
+    }
+
+    /// @notice  Function for getting winners of a matchings
+    function getMatchingWinners(
+        uint64[] memory _matchingIds
+    ) public view returns (address[] memory) {
+        (uint256 count, uint64[] memory matchingIds) = _matchingIds
+            .removeElement(0);
+        address[] memory winners = new address[](count);
+        for (uint64 i = 0; i < count; i++) {
+            winners[i] = getMatchingWinner(matchingIds[i]);
+        }
+        return winners;
     }
 
     /// @notice  Function for checking if a bidder has a bid in a matching
@@ -451,7 +552,7 @@ contract Matchings is
             "datasetId is not approved!"
         );
         require(
-            datasets.isDatasetContainsCars(_datasetId, _cars),
+            datasetsProof.isDatasetContainsCars(_datasetId, _cars),
             "Invalid cids!"
         );
         require(_size > 0, "Invalid size!");
@@ -471,44 +572,53 @@ contract Matchings is
                     MatchingType.State.Completed,
                 "datasetId is not completed!"
             );
-            require(
-                isMatchingTargetMeetsFilPlusRequirements(
-                    _datasetId,
-                    _cars,
-                    _size,
-                    _dataType,
-                    _associatedMappingFilesMatchingID
-                ),
-                "Not meets filplus requirements"
-            );
         }
         return true;
     }
 
     /// @notice Check if a matching meets the requirements of Fil+.
-    function isMatchingTargetMeetsFilPlusRequirements(
-        uint64 _matchingId
-    ) public view returns (bool) {
+    function _isMatchingTargetMeetsFilPlusRequirements(
+        uint64 _matchingId,
+        address candidate
+    ) internal view returns (bool) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        return
-            isMatchingTargetMeetsFilPlusRequirements(
-                matching.target.datasetId,
-                matching.target.cars,
-                matching.target.size,
-                matching.target.dataType,
-                matching.target.associatedMappingFilesMatchingID
+        bytes32[] memory cars = getMatchingCars(_matchingId);
+        uint16 requirementReplicaCount = datasetsRequirement
+            .getDatasetReplicasCount(matching.target.datasetId);
+        for (uint64 i; i < cars.length; i++) {
+            address[] memory winners = getMatchingWinners(
+                carstore.getCarMatchingIds(cars[i])
             );
-    }
 
-    /// @notice Check if a matching meets the requirements of Fil+.
-    function isMatchingTargetMeetsFilPlusRequirements(
-        uint64 /*_datasetId*/,
-        bytes32[] memory /*_cars*/,
-        uint64 /*_size*/,
-        DatasetType.DataType /*_dataType*/,
-        uint64 /*_associatedMappingFilesMatchingID*/
-    ) public pure returns (bool) {
-        //TODO https://github.com/dataswap/core/issues/29
+            uint256 alreadyStoredReplicasByWinner = winners.countOccurrences(
+                candidate
+            );
+
+            if (
+                !filplus.isCompliantRuleMaxReplicasPerSP(
+                    uint16(alreadyStoredReplicasByWinner + 1)
+                )
+            ) {
+                return false;
+            }
+
+            uint256 uniqueCount = winners.countUniqueElements();
+
+            if (winners.isContains(candidate)) {
+                uniqueCount++;
+            }
+
+            if (
+                !filplus.isCompliantRuleMinSPsPerDataset(
+                    requirementReplicaCount,
+                    uint16(winners.length),
+                    uint16(uniqueCount)
+                )
+            ) {
+                return false;
+            }
+        }
+
         return true;
     }
 }

@@ -26,6 +26,9 @@ contract ApproveMetadataTest is Test, DatasetTestSetup {
         setup();
         ApproveMetadataTestCaseWithSuccess testCase = new ApproveMetadataTestCaseWithSuccess(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );
@@ -37,6 +40,9 @@ contract ApproveMetadataTest is Test, DatasetTestSetup {
         setup();
         ApproveMetadataTestCaseWithInvalidAddress testCase = new ApproveMetadataTestCaseWithInvalidAddress(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );
@@ -48,6 +54,9 @@ contract ApproveMetadataTest is Test, DatasetTestSetup {
         setup();
         ApproveMetadataTestCaseWithZeroID testCase = new ApproveMetadataTestCaseWithZeroID(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );
@@ -59,6 +68,9 @@ contract ApproveMetadataTest is Test, DatasetTestSetup {
         setup();
         ApproveMetadataTestCaseWithInvalidState testCase = new ApproveMetadataTestCaseWithInvalidState(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );

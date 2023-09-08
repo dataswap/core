@@ -23,7 +23,10 @@ import {CommonHelpers} from "test/v0.8/helpers/utils/CommonHelpers.sol";
 
 contract AddCarsTest is Test, CarstoreTestSetup {
     /// @notice test case with success
-    function testAddCarsWithSuccess(uint64 _datasetId) public {
+    function testAddCarsWithSuccess(
+        uint64 _datasetId,
+        uint16 _replicaCount
+    ) public {
         setup();
         AddCarsTestCaseWithSuccess testCase = new AddCarsTestCaseWithSuccess(
             carstore,
@@ -38,14 +41,15 @@ contract AddCarsTest is Test, CarstoreTestSetup {
             cids[i] = CommonHelpers.convertUint64ToBytes32(i);
         }
         // run testcase
-        testCase.run(cids, _datasetId, sizes);
+        testCase.run(cids, _datasetId, sizes, _replicaCount);
     }
 
     /// @notice test case with invalid params
     function testAddCarsWithInvalidParams(
         bytes32[] memory _cids,
         uint64 _datasetId,
-        uint64[] memory _sizes
+        uint64[] memory _sizes,
+        uint16 _replicaCount
     ) public {
         setup();
         AddCarsTestCaseWithInvalidPrams testCase = new AddCarsTestCaseWithInvalidPrams(
@@ -53,6 +57,6 @@ contract AddCarsTest is Test, CarstoreTestSetup {
                 assertion
             );
         // run testcase
-        testCase.run(_cids, _datasetId, _sizes);
+        testCase.run(_cids, _datasetId, _sizes, _replicaCount);
     }
 }

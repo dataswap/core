@@ -38,14 +38,53 @@ interface IDatasetsHelpers {
 
     /// @notice Generate a Merkle tree proof.
     /// @param _leavesCount The number of leaves in the tree.
+    /// @param _dataType The data type of the dataset.
     /// @param _offset The offset of leaves in the tree.
     /// @return An array of proof elements, an array of leaf sizes, and the tree height.
     function generateProof(
         uint64 _leavesCount,
+        DatasetType.DataType _dataType,
         uint64 _offset
     )
         external
         returns (bytes32[] memory, uint64[] memory, uint64[] memory, uint64);
+
+    ///  @notice Generate actors of replicas.
+    ///  @param _replicasCount The number of car's replicas.
+    ///  @param _countPerReplica The actor's number of a replica.
+    ///  @param _duplicateInReplicas The duplicate number of replicas.
+    ///  @param _duplicatePerReplica The duplicate number per replica.
+    ///  @param _contain The member that mast in actors.
+    ///  @return The total size of the Merkle tree.
+    function generateReplicasActors(
+        uint16 _replicasCount,
+        uint16 _countPerReplica,
+        uint16 _duplicateInReplicas,
+        uint16 _duplicatePerReplica,
+        address _contain
+    ) external returns (address[][] memory);
+
+    /// @notice Generate an array of uint16 for testing.
+    /// @param _count The number of row element's count.
+    /// @param _duplicate The duplicate number of row elements.
+    /// @return An array of uint16[].
+    function generateReplicasPositions(
+        uint16 _count,
+        uint16 _duplicate
+    ) external returns (uint16[] memory);
+
+    /// @notice Generate an two-dimensional of uint32 for testing.
+    ///  @param _replicasCount The number of car's replicas.
+    ///  @param _countPerReplica The city's number of a replica.
+    ///  @param _duplicateInReplicas The duplicate city's number of replicas.
+    ///  @param _duplicatePerReplica The duplicate city's number per replica.
+    /// @return An array of uint32[][].
+    function generateReplicasCitys(
+        uint16 _replicasCount,
+        uint16 _countPerReplica,
+        uint16 _duplicateInReplicas,
+        uint16 _duplicatePerReplica
+    ) external returns (uint32[][] memory);
 
     /// @notice Submit a proof for a dataset.
     /// @param caller The address of the caller.
@@ -61,6 +100,26 @@ interface IDatasetsHelpers {
         string memory _accessMethod,
         uint64 _leavesCount,
         bool _complete
+    ) external;
+
+    ///@notice Submit replica requirement for a dataset.
+    /// @param caller The address of the caller.
+    /// @param _datasetId The ID of the dataset for which proof is submitted.
+    /// @param _replicasCount The number of replicas of the dataset.
+    /// @param _duplicateDataPreparers The duplicate count of the data prepares.
+    /// @param _duplicateStorageProviders The duplicate count of the storage providers.
+    /// @param _duplicateRegions The duplicate count of the regions.
+    /// @param _duplicateCountrys The duplicate count of the data countrys.
+    /// @param _duplicateCitys The duplicate count of the data citys.
+    function submitDatasetReplicaRequirements(
+        address caller,
+        uint64 _datasetId,
+        uint16 _replicasCount,
+        uint16 _duplicateDataPreparers,
+        uint16 _duplicateStorageProviders,
+        uint16 _duplicateRegions,
+        uint16 _duplicateCountrys,
+        uint16 _duplicateCitys
     ) external;
 
     /// @notice Generate data verification parameters.

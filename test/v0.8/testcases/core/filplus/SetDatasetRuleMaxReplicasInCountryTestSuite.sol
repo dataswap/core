@@ -42,14 +42,14 @@ contract SetDatasetRuleMaxReplicasInCountryTestCaseWithSuccess is
     {}
 
     function before(
-        bytes32 /*_countryCode*/,
+        uint16 /*_countryCode*/,
         uint16 _newValue
     ) internal virtual override {
         vm.assume(_newValue != 0);
     }
 
     function action(
-        bytes32 _countryCode,
+        uint16 _countryCode,
         uint16 _newValue
     ) internal virtual override {
         vm.expectEmit(true, true, false, true);
@@ -84,14 +84,14 @@ contract SetDatasetRuleMaxReplicasInCountryTestCaseWithInvalidGovernancer is
     {}
 
     function before(
-        bytes32 /*_countryCode*/,
+        uint16 /*_countryCode*/,
         uint16 _newValue
     ) internal virtual override {
         vm.assume(_newValue != 0);
     }
 
     function action(
-        bytes32 _countryCode,
+        uint16 _countryCode,
         uint16 _newValue
     ) internal virtual override {
         address addr = generator.generateAddress(100);
@@ -123,14 +123,14 @@ contract SetDatasetRuleMaxReplicasInCountryTestCaseWithZeroValue is
     {}
 
     function before(
-        bytes32 /*_countryCode*/,
+        uint16 /*_countryCode*/,
         uint16 _newValue
     ) internal virtual override {
         vm.assume(_newValue == 0);
     }
 
     function action(
-        bytes32 _countryCode,
+        uint16 _countryCode,
         uint16 _newValue
     ) internal virtual override {
         vm.expectRevert(bytes("Value must not be zero"));

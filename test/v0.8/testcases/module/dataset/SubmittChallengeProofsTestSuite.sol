@@ -22,17 +22,30 @@ import {DatasetsTestBase} from "test/v0.8/testcases/module/dataset/abstract/Data
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
+import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
+import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
 
-///@notice submit dataset verification test case with success.
-contract SubmittVerificationTestCaseWithSuccess is DatasetsTestBase {
+///@notice submit dataset challenge proofs test case with success.
+contract SubmittChallengeProofsTestCaseWithSuccess is DatasetsTestBase {
     constructor(
         IDatasets _datasets,
+        IDatasetsRequirement _datasetsRequirement,
+        IDatasetsProof _datasetsProof,
+        IDatasetsChallenge _datasetsChallenge,
         IDatasetsHelpers _datasetsHelpers,
         IDatasetsAssertion _datasetsAssertion
     )
-        DatasetsTestBase(_datasets, _datasetsHelpers, _datasetsAssertion) // solhint-disable-next-line
+        DatasetsTestBase(
+            _datasets,
+            _datasetsRequirement,
+            _datasetsProof,
+            _datasetsChallenge,
+            _datasetsHelpers,
+            _datasetsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64 id) {
@@ -53,7 +66,7 @@ contract SubmittVerificationTestCaseWithSuccess is DatasetsTestBase {
         vm.startPrank(admin);
         datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(199));
         vm.stopPrank();
-        datasetsAssertion.submitDatasetVerificationAssertion(
+        datasetsAssertion.submitDatasetChallengeProofsAssertion(
             address(199),
             _id,
             randomSeed,
@@ -64,14 +77,24 @@ contract SubmittVerificationTestCaseWithSuccess is DatasetsTestBase {
     }
 }
 
-///@notice submit dataset verification test case with fail.
-contract SubmittVerificationTestCaseWithFail is DatasetsTestBase {
+///@notice submit dataset challenge proofs test case with fail.
+contract SubmittChallengeProofsTestCaseWithFail is DatasetsTestBase {
     constructor(
         IDatasets _datasets,
+        IDatasetsRequirement _datasetsRequirement,
+        IDatasetsProof _datasetsProof,
+        IDatasetsChallenge _datasetsChallenge,
         IDatasetsHelpers _datasetsHelpers,
         IDatasetsAssertion _datasetsAssertion
     )
-        DatasetsTestBase(_datasets, _datasetsHelpers, _datasetsAssertion) // solhint-disable-next-line
+        DatasetsTestBase(
+            _datasets,
+            _datasetsRequirement,
+            _datasetsProof,
+            _datasetsChallenge,
+            _datasetsHelpers,
+            _datasetsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64 id) {
@@ -86,7 +109,7 @@ contract SubmittVerificationTestCaseWithFail is DatasetsTestBase {
         uint32[] memory paths = new uint32[](pointCount);
         uint64 randomSeed;
 
-        datasets.merkleUtils().setMockValidState(false);
+        datasetsChallenge.merkleUtils().setMockValidState(false);
         (randomSeed, leaves, siblings, paths) = datasetsHelpers
             .generateVerification(pointCount);
 
@@ -95,7 +118,7 @@ contract SubmittVerificationTestCaseWithFail is DatasetsTestBase {
         datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(200));
         vm.stopPrank();
         vm.expectRevert(bytes("mockValidState must is true"));
-        datasetsAssertion.submitDatasetVerificationAssertion(
+        datasetsAssertion.submitDatasetChallengeProofsAssertion(
             address(200),
             _id,
             randomSeed,
@@ -106,14 +129,24 @@ contract SubmittVerificationTestCaseWithFail is DatasetsTestBase {
     }
 }
 
-///@notice submit dataset verification test case with illegal role.
-contract SubmittVerificationTestCaseWithIllegalRole is DatasetsTestBase {
+///@notice submit dataset challenge proofs test case with illegal role.
+contract SubmittChallengeProofsTestCaseWithIllegalRole is DatasetsTestBase {
     constructor(
         IDatasets _datasets,
+        IDatasetsRequirement _datasetsRequirement,
+        IDatasetsProof _datasetsProof,
+        IDatasetsChallenge _datasetsChallenge,
         IDatasetsHelpers _datasetsHelpers,
         IDatasetsAssertion _datasetsAssertion
     )
-        DatasetsTestBase(_datasets, _datasetsHelpers, _datasetsAssertion) // solhint-disable-next-line
+        DatasetsTestBase(
+            _datasets,
+            _datasetsRequirement,
+            _datasetsProof,
+            _datasetsChallenge,
+            _datasetsHelpers,
+            _datasetsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64 id) {
@@ -131,7 +164,7 @@ contract SubmittVerificationTestCaseWithIllegalRole is DatasetsTestBase {
             .generateVerification(pointCount);
 
         vm.expectRevert(bytes("Only allowed role can call"));
-        datasetsAssertion.submitDatasetVerificationAssertion(
+        datasetsAssertion.submitDatasetChallengeProofsAssertion(
             address(199),
             _id,
             randomSeed,

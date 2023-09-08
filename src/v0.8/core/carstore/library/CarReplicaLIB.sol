@@ -52,7 +52,11 @@ library CarReplicaLIB {
         CarReplicaType.State newState;
 
         // Apply the state transition based on the event
-        if (_event == CarReplicaType.Event.MatchingCompleted) {
+        if (_event == CarReplicaType.Event.MatchingFailed) {
+            if (currentState == CarReplicaType.State.None) {
+                newState = CarReplicaType.State.StorageFailed;
+            }
+        } else if (_event == CarReplicaType.Event.MatchingCompleted) {
             if (currentState == CarReplicaType.State.None) {
                 newState = CarReplicaType.State.Matched;
             }
@@ -79,5 +83,41 @@ library CarReplicaLIB {
         if (newState != CarReplicaType.State.None) {
             self.state = newState;
         }
+    }
+
+    /// @notice Check if a replica with a specific index valid or not.
+    /// @param self The reference to the replica storage.
+    /// @param _matchingId The matching ID of the replica.
+    function _init(
+        CarReplicaType.Replica storage self,
+        uint64 _matchingId
+    ) internal {
+        self.matchingId = _matchingId;
+        self.state = CarReplicaType.State.None;
+        self.filecoinClaimId = 0;
+    }
+
+    /// @notice Check if a replica with a specific index valid or not.
+    /// @param self The reference to the replica storage.
+    /// @param _matchingId The matching ID of the replica.
+    function _isMatchingValid(
+        CarReplicaType.Replica storage self,
+        uint64 _matchingId
+    ) internal view returns (bool) {
+        if (self.matchingId != _matchingId) {
+            return false;
+        }
+        return true;
+    }
+
+    /// @notice Check if a replica with a specific index valid or not.
+    /// @param self The reference to the replica storage.
+    function _isStateValid(
+        CarReplicaType.Replica storage self
+    ) internal view returns (bool) {
+        if (uint64(self.state) > uint64(CarReplicaType.State.Stored)) {
+            return false;
+        }
+        return true;
     }
 }

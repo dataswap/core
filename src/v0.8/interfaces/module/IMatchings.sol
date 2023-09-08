@@ -20,7 +20,6 @@ pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
-import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 
 /// @title IMatchings
 interface IMatchings {
@@ -36,6 +35,7 @@ interface IMatchings {
     /// @param _biddingPeriodBlockCount The number of blocks for bidding period.
     /// @param _storageCompletionPeriodBlocks The number of blocks for storage period.
     /// @param _biddingThreshold The threshold for bidding.
+    /// @param _replicaIndex The index of the replica in dataset.
     /// @param _additionalInfo The additional information about the matching.
     /// @return The matchingId.
     function createMatching(
@@ -47,6 +47,7 @@ interface IMatchings {
         uint64 _biddingPeriodBlockCount,
         uint64 _storageCompletionPeriodBlocks,
         uint256 _biddingThreshold,
+        uint16 _replicaIndex,
         string memory _additionalInfo
     ) external returns (uint64);
 
@@ -72,7 +73,7 @@ interface IMatchings {
     function cancelMatching(uint64 _matchingId) external;
 
     /// @notice  Function for closing a matching and choosing a winner
-    function closeMatching(uint64 _matchingId) external;
+    function closeMatching(uint64 _matchingId) external returns (bool);
 
     /// @notice  Function for getting bids in a matching
     function getMatchingBids(
@@ -94,6 +95,11 @@ interface IMatchings {
     function getMatchingCars(
         uint64 _matchingId
     ) external view returns (bytes32[] memory);
+
+    /// @notice Get the index of matching's replica.
+    function getMatchingReplicaIndex(
+        uint64 _matchingId
+    ) external view returns (uint16);
 
     /// @notice get matchings size
     function getMatchingSize(uint64 _matchingId) external view returns (uint64);
@@ -133,6 +139,11 @@ interface IMatchings {
         uint64 _matchingId
     ) external view returns (address);
 
+    /// @notice  Function for getting winners of a matchings
+    function getMatchingWinners(
+        uint64[] memory _matchingIds
+    ) external view returns (address[] memory);
+
     /// @notice  Function for checking if a bidder has a bid in a matching
     function hasMatchingBid(
         uint64 _matchingId,
@@ -166,23 +177,6 @@ interface IMatchings {
         uint64 _associatedMappingFilesMatchingID
     ) external view returns (bool);
 
-    /// @notice Check if a matching meets the requirements of Fil+.
-    function isMatchingTargetMeetsFilPlusRequirements(
-        uint64 _matchingId
-    ) external view returns (bool);
-
-    /// @notice Check if a matching meets the requirements of Fil+.
-    function isMatchingTargetMeetsFilPlusRequirements(
-        uint64 _datasetId,
-        bytes32[] memory _cars,
-        uint64 _size,
-        DatasetType.DataType _dataType,
-        uint64 _associatedMappingFilesMatchingID
-    ) external view returns (bool);
-
     // Default getter functions for public variables
     function matchingsCount() external view returns (uint64);
-
-    /// @notice get datasets instrance
-    function datasets() external view returns (IDatasets);
 }

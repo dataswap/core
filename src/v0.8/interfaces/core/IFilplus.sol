@@ -22,12 +22,10 @@ pragma solidity ^0.8.21;
 interface IFilplus {
     // Public getter function to access datasetRuleMaxReplicasInCountries
     function getDatasetRuleMaxReplicasInCountry(
-        bytes32 _countryCode
+        uint16 _countryCode
     ) external view returns (uint16);
 
     // Set functions for public variables
-    function setCarRuleMaxCarReplicas(uint16 _newValue) external;
-
     function setDatasetRuleMinRegionsPerDataset(uint16 _newValue) external;
 
     function setDatasetRuleDefaultMaxReplicasPerCountry(
@@ -35,7 +33,7 @@ interface IFilplus {
     ) external;
 
     function setDatasetRuleMaxReplicasInCountry(
-        bytes32 _countryCode,
+        uint16 _countryCode,
         uint16 _newValue
     ) external;
 
@@ -64,15 +62,7 @@ interface IFilplus {
         uint8 _newValue
     ) external;
 
-    function setMatchingRulesDataswapCommissionPercentage(
-        uint8 _newValue
-    ) external;
-
-    function setMatchingRulesCommissionType(uint8 _newType) external;
-
     // Default getter functions for public variables
-    function carRuleMaxCarReplicas() external view returns (uint16);
-
     function datasetRuleMinRegionsPerDataset() external view returns (uint16);
 
     function datasetRuleDefaultMaxReplicasPerCountry()
@@ -111,10 +101,37 @@ interface IFilplus {
         view
         returns (uint8);
 
-    function matchingRulesDataswapCommissionPercentage()
-        external
-        view
-        returns (uint8);
+    /// @notice Check if the storage area complies with filplus rules.
+    function isCompliantRuleGeolocation(
+        uint16[] memory _regions,
+        uint16[] memory _countrys,
+        uint32[][] memory _citys
+    ) external view returns (bool);
 
-    function getMatchingRulesCommissionType() external view returns (uint8);
+    /// @notice Check if the mappingFiles percentage in the dataset complies with filplus rules.
+    function isCompliantRuleMaxProportionOfMappingFilesToDataset(
+        uint64 _mappingFilesSize,
+        uint64 _sourceSize
+    ) external view returns (bool);
+
+    /// @notice Check if the total number of storage replicas complies with filplus rules.
+    function isCompliantRuleTotalReplicasPerDataset(
+        address[][] memory _dataPreparers,
+        address[][] memory _storageProviders,
+        uint16[] memory _regions,
+        uint16[] memory _countrys,
+        uint32[][] memory _citys
+    ) external view returns (bool);
+
+    /// @notice Check if the storage provider for each dataset complies with filplus rules `datasetRuleMinSPsPerDataset`.
+    function isCompliantRuleMinSPsPerDataset(
+        uint16 _requirementValue,
+        uint16 _totalExists,
+        uint16 _uniqueExists
+    ) external view returns (bool);
+
+    /// @notice Check if the storage provider for each dataset complies with filplus rules `datasetRuleMaxReplicasPerSP`.
+    function isCompliantRuleMaxReplicasPerSP(
+        uint16 _value
+    ) external view returns (bool);
 }

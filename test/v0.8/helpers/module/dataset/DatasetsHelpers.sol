@@ -23,21 +23,33 @@ import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHel
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
+import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
+import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
 import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
 
 // Contract definition for test helper functions
 contract DatasetsHelpers is Test, IDatasetsHelpers {
     IDatasets public datasets;
+    IDatasetsRequirement public datasetsRequirement;
+    IDatasetsProof public datasetsProof;
+    IDatasetsChallenge public datasetsChallenge;
     Generator private generator;
     IDatasetsAssertion private assertion;
 
     constructor(
         IDatasets _datasets,
+        IDatasetsRequirement _datasetsRequirement,
+        IDatasetsProof _datasetsProof,
+        IDatasetsChallenge _datasetsChallenge,
         Generator _generator,
         IDatasetsAssertion _assertion
     ) {
         datasets = _datasets;
+        datasetsRequirement = _datasetsRequirement;
+        datasetsProof = _datasetsProof;
+        datasetsChallenge = _datasetsChallenge;
         generator = _generator;
         assertion = _assertion;
     }
@@ -74,6 +86,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
 
     ///  @notice Generate Merkle proof data.
     ///  @param _leavesCount The number of leaves in the Merkle tree.
+    ///  @param _dataType The data type of the dataset.
     ///  @param _offset The offset of leaves in the Merkle tree.
     ///  @return leavesHashes The hashes of Merkle tree leaves.
     ///  @return leavesIndexs The index of Merkle tree leaves.
@@ -81,6 +94,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
     ///  @return The total size of the Merkle tree.
     function generateProof(
         uint64 _leavesCount,
+        DatasetType.DataType _dataType,
         uint64 _offset
     )
         public
@@ -91,7 +105,64 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             uint64
         )
     {
-        return generator.generateLeavesAndSizes(_leavesCount, _offset);
+        return
+            generator.generateLeavesAndSizes(_leavesCount, _dataType, _offset);
+    }
+
+    ///  @notice Generate actors of replicas.
+    ///  @param _replicasCount The number of car's replicas.
+    ///  @param _countPerReplica The actor's number of a replica.
+    ///  @param _duplicateInReplicas The duplicate number of replicas.
+    ///  @param _duplicatePerReplica The duplicate number per replica.
+    ///  @param _contain The member that mast in actors.
+    ///  @return The total size of the Merkle tree.
+    function generateReplicasActors(
+        uint16 _replicasCount,
+        uint16 _countPerReplica,
+        uint16 _duplicateInReplicas,
+        uint16 _duplicatePerReplica,
+        address _contain
+    ) public returns (address[][] memory) {
+        return
+            generator.generateGeolocationActors(
+                _replicasCount,
+                _countPerReplica,
+                _duplicateInReplicas,
+                _duplicatePerReplica,
+                _contain
+            );
+    }
+
+    /// @notice Generate an array of uint16 for testing.
+    /// @param _count The number of row element's count.
+    /// @param _duplicate The duplicate number of row elements.
+    /// @return An array of uint16[].
+    function generateReplicasPositions(
+        uint16 _count,
+        uint16 _duplicate
+    ) public returns (uint16[] memory) {
+        return generator.generateGeolocationPositions(_count, _duplicate);
+    }
+
+    /// @notice Generate an two-dimensional of uint32 for testing.
+    ///  @param _replicasCount The number of car's replicas.
+    ///  @param _countPerReplica The city's number of a replica.
+    ///  @param _duplicateInReplicas The duplicate city's number of replicas.
+    ///  @param _duplicatePerReplica The duplicate city's number per replica.
+    /// @return An array of uint32[][].
+    function generateReplicasCitys(
+        uint16 _replicasCount,
+        uint16 _countPerReplica,
+        uint16 _duplicateInReplicas,
+        uint16 _duplicatePerReplica
+    ) public returns (uint32[][] memory) {
+        return
+            generator.generateGeolocationCitys(
+                _replicasCount,
+                _countPerReplica,
+                _duplicateInReplicas,
+                _duplicatePerReplica
+            );
     }
 
     /// @notice Submit a proof for a dataset.
@@ -113,13 +184,17 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         bytes32[] memory leavesHashes = new bytes32[](_leavesCount);
         uint64[] memory leavesIndexs = new uint64[](_leavesCount);
         uint64[] memory leavesSizes = new uint64[](_leavesCount);
-        uint64 count = datasets.getDatasetProofCount(_datasetId, _dataType);
+        uint64 count = datasetsProof.getDatasetProofCount(
+            _datasetId,
+            _dataType
+        );
         (leavesHashes, leavesIndexs, leavesSizes, ) = generateProof(
             _leavesCount,
+            _dataType,
             count
         );
         vm.prank(caller);
-        datasets.submitDatasetProofRoot(
+        datasetsProof.submitDatasetProofRoot(
             _datasetId,
             _dataType,
             _accessMethod,
@@ -127,7 +202,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         );
 
         vm.prank(caller);
-        datasets.submitDatasetProof(
+        datasetsProof.submitDatasetProof(
             _datasetId,
             _dataType,
             leavesHashes,
@@ -135,6 +210,60 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             leavesSizes,
             _complete
         );
+    }
+
+    ///@notice Submit replica requirement for a dataset.
+    /// @param caller The address of the caller.
+    /// @param _datasetId The ID of the dataset for which proof is submitted.
+    /// @param _replicasCount The number of replicas of the dataset.
+    /// @param _duplicateDataPreparers The duplicate count of the data prepares.
+    /// @param _duplicateStorageProviders The duplicate count of the storage providers.
+    /// @param _duplicateRegions The duplicate count of the regions.
+    /// @param _duplicateCountrys The duplicate count of the data countrys.
+    /// @param _duplicateCitys The duplicate count of the data citys.
+    function submitDatasetReplicaRequirements(
+        address caller,
+        uint64 _datasetId,
+        uint16 _replicasCount,
+        uint16 _duplicateDataPreparers,
+        uint16 _duplicateStorageProviders,
+        uint16 _duplicateRegions,
+        uint16 _duplicateCountrys,
+        uint16 _duplicateCitys
+    ) public {
+        vm.startPrank(caller);
+        datasetsRequirement.submitDatasetReplicaRequirements(
+            _datasetId,
+            generator.generateGeolocationActors(
+                _replicasCount,
+                3,
+                _duplicateDataPreparers,
+                0,
+                address(99)
+            ),
+            generator.generateGeolocationActors(
+                _replicasCount,
+                3,
+                _duplicateStorageProviders,
+                0,
+                address(199)
+            ),
+            generator.generateGeolocationPositions(
+                _replicasCount,
+                _duplicateRegions
+            ),
+            generator.generateGeolocationPositions(
+                _replicasCount,
+                _duplicateCountrys
+            ),
+            generator.generateGeolocationCitys(
+                _replicasCount,
+                3,
+                _duplicateCitys,
+                0
+            )
+        );
+        vm.stopPrank();
     }
 
     /// @notice Generate Merkle verification data.
@@ -175,7 +304,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         uint64 _datasetId
     ) public {
         uint64 randomSeed = generator.generateNonce();
-        uint64 challengeCount = datasets.getChallengeCount(_datasetId);
+        uint64 challengeCount = datasetsChallenge.getChallengeCount(_datasetId);
         assertion.getChallengeCountAssertion(_datasetId, challengeCount);
         bytes32[][] memory siblings = new bytes32[][](challengeCount);
         uint32[] memory paths = new uint32[](challengeCount);
@@ -188,7 +317,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             paths[i] = i;
         }
         vm.prank(caller);
-        datasets.submitDatasetVerification(
+        datasetsChallenge.submitDatasetChallengeProofs(
             _datasetId,
             randomSeed,
             leaves,
@@ -214,6 +343,17 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         vm.stopPrank();
         datasetId = submitDatasetMetadata(address(9), _accessMethod);
 
+        submitDatasetReplicaRequirements(
+            address(9),
+            datasetId,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0
+        );
+
         // 2: Approve metadata
         assertion.approveDatasetMetadataAssertion(
             datasets.governanceAddress(),
@@ -227,7 +367,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         submitDatasetProof(
             address(99),
             datasetId,
-            DatasetType.DataType.MappingFiles,
+            DatasetType.DataType.Source,
             _accessMethod,
             _sourceLeavesCount,
             true
@@ -235,17 +375,16 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         submitDatasetProof(
             address(99),
             datasetId,
-            DatasetType.DataType.Source,
+            DatasetType.DataType.MappingFiles,
             _accessMethod,
             _mappingFilesLeavesCount,
             true
         );
-
         vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(199));
+        datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(299));
         vm.stopPrank();
         // 4: Submit verification
-        submitDatasetVerification(address(199), datasetId);
+        submitDatasetVerification(address(299), datasetId);
 
         // 5: Approve dataset
         assertion.approveDatasetAssertion(

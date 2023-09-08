@@ -26,6 +26,9 @@ contract ApproveTest is Test, DatasetTestSetup {
         setup();
         ApproveTestCaseWithSuccess testCase = new ApproveTestCaseWithSuccess(
             datasets,
+            datasetsRequirement,
+            datasetsProof,
+            datasetsChallenge,
             helpers,
             assertion
         );
@@ -37,6 +40,9 @@ contract ApproveTest is Test, DatasetTestSetup {
         setup();
         ApproveTestCaseWithInvalidAddress testCase = new ApproveTestCaseWithInvalidAddress(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );
@@ -48,6 +54,9 @@ contract ApproveTest is Test, DatasetTestSetup {
         setup();
         ApproveTestCaseWithZeroID testCase = new ApproveTestCaseWithZeroID(
             datasets,
+            datasetsRequirement,
+            datasetsProof,
+            datasetsChallenge,
             helpers,
             assertion
         );
@@ -59,6 +68,9 @@ contract ApproveTest is Test, DatasetTestSetup {
         setup();
         ApproveTestCaseWithInvalidState testCase = new ApproveTestCaseWithInvalidState(
                 datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
                 helpers,
                 assertion
             );

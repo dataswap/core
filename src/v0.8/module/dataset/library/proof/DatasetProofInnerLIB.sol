@@ -18,7 +18,7 @@
 pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
-import {DatasetStateMachineLIB} from "src/v0.8/module/dataset/library/DatasetStateMachineLIB.sol";
+import {DatasetStateMachineLIB} from "src/v0.8/module/dataset/library/metadata/DatasetStateMachineLIB.sol";
 
 library DatasetProofInnerLIB {
     using DatasetStateMachineLIB for DatasetType.Dataset;
@@ -28,7 +28,7 @@ library DatasetProofInnerLIB {
     /// @param self The dataset proof to which the root hash will be set.
     /// @param _rootHash The root hash of the data's Merkle tree.
     function setRootHash(
-        DatasetType.DatasetProof storage self,
+        DatasetType.Proof storage self,
         bytes32 _rootHash
     ) internal {
         self.rootHash = _rootHash;
@@ -39,7 +39,7 @@ library DatasetProofInnerLIB {
     /// @param self The dataset proof from which the root hash will be retrieved.
     /// @return The root hash of the data's Merkle tree.
     function getRootHash(
-        DatasetType.DatasetProof storage self
+        DatasetType.Proof storage self
     ) internal view returns (bytes32) {
         return self.rootHash;
     }
@@ -49,7 +49,7 @@ library DatasetProofInnerLIB {
     /// @param self The dataset proof for which the completion status will be set.
     /// @param _completed The completion status to be set.
     function setAllCompleted(
-        DatasetType.DatasetProof storage self,
+        DatasetType.Proof storage self,
         bool _completed
     ) internal {
         self.allCompleted = _completed;
@@ -60,7 +60,7 @@ library DatasetProofInnerLIB {
     /// @param self The dataset proof from which the completion status will be retrieved.
     /// @return The completion status for all proof batches.
     function getAllCompleted(
-        DatasetType.DatasetProof storage self
+        DatasetType.Proof storage self
     ) internal view returns (bool) {
         return self.allCompleted;
     }
@@ -69,8 +69,9 @@ library DatasetProofInnerLIB {
     /// @dev This function allows setting a specific proof batch in a dataset proof.
     /// @param self The dataset proof to which the proof batch will be added.
     /// @param _leafHashes Array of leaf hashes representing items in the data.
+    /// @param _leafIndexs The sizes of the leaf hashes.
     function addProofBatch(
-        DatasetType.DatasetProof storage self,
+        DatasetType.Proof storage self,
         bytes32[] calldata _leafHashes,
         uint64[] calldata _leafIndexs
     ) external {
@@ -88,7 +89,7 @@ library DatasetProofInnerLIB {
     /// @dev This function allows getting a specific proof batch from a dataset proof.
     /// @param self The dataset proof from which the proof batch will be retrieved.
     function getProof(
-        DatasetType.DatasetProof storage self,
+        DatasetType.Proof storage self,
         uint64 _index,
         uint64 _len
     ) internal view returns (bytes32[] memory) {

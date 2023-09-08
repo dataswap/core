@@ -55,6 +55,7 @@ interface IMatchingsAssertion {
         uint64 _biddingPeriodBlockCount,
         uint64 _storageCompletionPeriodBlocks,
         uint256 _biddingThreshold,
+        uint16 _replicaIndex,
         string memory _additionalInfo
     ) external;
 
@@ -142,6 +143,14 @@ interface IMatchingsAssertion {
         bytes32[] memory _expectCars
     ) external;
 
+    /// @notice Get the index of matching's replica.
+    /// @param _matchingId The ID of the matching.
+    /// @param _expectIndex The expected index of replica.
+    function getMatchingReplicaIndexAssertion(
+        uint64 _matchingId,
+        uint16 _expectIndex
+    ) external;
+
     /// @notice Asserts the retrieval of the size of a matching.
     /// @param _matchingId The ID of the matching.
     /// @param _expectSize The expected size of the matching.
@@ -190,6 +199,14 @@ interface IMatchingsAssertion {
         address _expectWinner
     ) external;
 
+    /// @notice Assertion function to test the 'getMatchingWinners' function of IMatchings contract.
+    /// @param _matchingIds The IDs of the matchings.
+    /// @param _expectWinners The expected winners address.
+    function getMatchingWinnersAssertion(
+        uint64[] memory _matchingIds,
+        address[] memory _expectWinners
+    ) external;
+
     /// @notice Asserts whether a matching has a bid from a specific bidder.
     /// @param _matchingId The ID of the matching.
     /// @param _bidder The address of the bidder.
@@ -234,30 +251,6 @@ interface IMatchingsAssertion {
         DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID,
         bool _expectIsMatchingTargetValid
-    ) external;
-
-    /// @notice Asserts whether a target for a matching meets FilPlus requirements.
-    /// @param _matchingId The ID of the matching.
-    /// @param _expectIsMatchingTargetMeetsFilPlusRequirements The expected result indicating whether the target meets FilPlus requirements.
-    function isMatchingTargetMeetsFilPlusRequirementsAssertion(
-        uint64 _matchingId,
-        bool _expectIsMatchingTargetMeetsFilPlusRequirements
-    ) external;
-
-    /// @notice Asserts whether a target for a matching meets FilPlus requirements.
-    /// @param _datasetId The dataset ID associated with the target.
-    /// @param _cars The array of car CIDs associated with the target.
-    /// @param _size The size of the target.
-    /// @param _dataType The data type of the target.
-    /// @param _associatedMappingFilesMatchingID The associated mapping files matching ID for the target.
-    /// @param _expectIsMatchingTargetMeetsFilPlusRequirements The expected result indicating whether the target meets FilPlus requirements.
-    function isMatchingTargetMeetsFilPlusRequirementsAssertion(
-        uint64 _datasetId,
-        bytes32[] memory _cars,
-        uint64 _size,
-        DatasetType.DataType _dataType,
-        uint64 _associatedMappingFilesMatchingID,
-        bool _expectIsMatchingTargetMeetsFilPlusRequirements
     ) external;
 
     /// @notice Asserts the count of matchings.

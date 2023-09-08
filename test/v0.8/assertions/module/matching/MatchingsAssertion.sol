@@ -87,6 +87,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     /// @param _biddingPeriodBlockCount The bidding period block count.
     /// @param _storageCompletionPeriodBlocks The storage completion period in blocks.
     /// @param _biddingThreshold The bidding threshold.
+    /// @param _replicaIndex The index of the replica in dataset.
     /// @param _additionalInfo Additional information about the matching.
     function createMatchingAssertion(
         address caller,
@@ -98,6 +99,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         uint64 _biddingPeriodBlockCount,
         uint64 _storageCompletionPeriodBlocks,
         uint256 _biddingThreshold,
+        uint16 _replicaIndex,
         string memory _additionalInfo
     ) external {
         // Before the action, get the current number of matchings.
@@ -113,6 +115,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
             _biddingPeriodBlockCount,
             _storageCompletionPeriodBlocks,
             _biddingThreshold,
+            _replicaIndex,
             _additionalInfo
         );
 
@@ -129,7 +132,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
             _dataType,
             _associatedMappingFilesMatchingID
         );
-
+        getMatchingReplicaIndexAssertion(_matchingId, _replicaIndex);
         getMatchingCarsAssertion(_matchingId, new bytes32[](0));
         getMatchingSizeAssertion(_matchingId, 0);
         getMatchingInitiatorAssertion(_matchingId, caller);
@@ -160,16 +163,6 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
 
         // Check if the matching target is valid.
         isMatchingTargetValidAssertion(
-            _datasetId,
-            _cars,
-            _size,
-            _dataType,
-            _associatedMappingFilesMatchingID,
-            true
-        );
-
-        // Check if the matching target meets FIL+ requirements.
-        isMatchingTargetMeetsFilPlusRequirementsAssertion(
             _datasetId,
             _cars,
             _size,
@@ -279,6 +272,11 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
                 MatchingType.State.Completed
             );
             getMatchingWinnerAssertion(_matchingId, _winner);
+            uint64[] memory matchingIds = new uint64[](1);
+            matchingIds[0] = _matchingId;
+            address[] memory winners = new address[](1);
+            winners[0] = winner;
+            getMatchingWinnersAssertion(matchingIds, winners);
         }
     }
 
@@ -340,6 +338,16 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         for (uint64 i = 0; i < cars.length; i++) {
             assertEq(cars[i], _expectCars[i]);
         }
+    }
+
+    /// @notice Get the index of matching's replica.
+    /// @param _matchingId The ID of the matching.
+    /// @param _expectIndex The expected index of replica.
+    function getMatchingReplicaIndexAssertion(
+        uint64 _matchingId,
+        uint16 _expectIndex
+    ) public {
+        assertEq(matchings.getMatchingReplicaIndex(_matchingId), _expectIndex);
     }
 
     /// @notice Assertion function to test the 'getMatchingSize' function of IMatchings contract.
@@ -420,6 +428,20 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         assertEq(matchings.getMatchingWinner(_matchingId), _expectWinner);
     }
 
+    /// @notice Assertion function to test the 'getMatchingWinners' function of IMatchings contract.
+    /// @param _matchingIds The IDs of the matchings.
+    /// @param _expectWinners The expected winners address.
+    function getMatchingWinnersAssertion(
+        uint64[] memory _matchingIds,
+        address[] memory _expectWinners
+    ) public {
+        assertEq(_matchingIds.length, _expectWinners.length);
+        address[] memory winners = matchings.getMatchingWinners(_matchingIds);
+        for (uint256 i = 0; i < _matchingIds.length; i++) {
+            assertEq(winners[i], _expectWinners[i]);
+        }
+    }
+
     /// @notice Assertion function to test the 'hasMatchingBid' function of IMatchings contract.
     /// @param _matchingId The ID of the matching.
     /// @param _bidder The address of the bidder.
@@ -489,46 +511,6 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
                 _associatedMappingFilesMatchingID
             ),
             _expectIsMatchingTargetValid
-        );
-    }
-
-    /// @notice Assertion function to test the 'isMatchingTargetMeetsFilPlusRequirements' function of IMatchings contract.
-    /// @param _matchingId The ID of the matching.
-    /// @param _expectIsMatchingTargetMeetsFilPlusRequirements The expected result of whether the matching target meets FIL+ requirements.
-    function isMatchingTargetMeetsFilPlusRequirementsAssertion(
-        uint64 _matchingId,
-        bool _expectIsMatchingTargetMeetsFilPlusRequirements
-    ) public {
-        assertEq(
-            matchings.isMatchingTargetMeetsFilPlusRequirements(_matchingId),
-            _expectIsMatchingTargetMeetsFilPlusRequirements
-        );
-    }
-
-    /// @notice Assertion function to test the 'isMatchingTargetMeetsFilPlusRequirements' function of IMatchings contract.
-    /// @param _datasetId The ID of the dataset.
-    /// @param _cars The array of car IDs.
-    /// @param _size The matching size.
-    /// @param _dataType The data type of the dataset.
-    /// @param _associatedMappingFilesMatchingID The associated mapping files matching ID.
-    /// @param _expectIsMatchingTargetMeetsFilPlusRequirements The expected result of whether the matching target meets FIL+ requirements.
-    function isMatchingTargetMeetsFilPlusRequirementsAssertion(
-        uint64 _datasetId,
-        bytes32[] memory _cars,
-        uint64 _size,
-        DatasetType.DataType _dataType,
-        uint64 _associatedMappingFilesMatchingID,
-        bool _expectIsMatchingTargetMeetsFilPlusRequirements
-    ) public {
-        assertEq(
-            matchings.isMatchingTargetMeetsFilPlusRequirements(
-                _datasetId,
-                _cars,
-                _size,
-                _dataType,
-                _associatedMappingFilesMatchingID
-            ),
-            _expectIsMatchingTargetMeetsFilPlusRequirements
         );
     }
 

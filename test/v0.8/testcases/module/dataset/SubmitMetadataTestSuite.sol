@@ -20,6 +20,9 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {DatasetsTestBase} from "test/v0.8/testcases/module/dataset/abstract/DatasetsTestBase.sol";
 
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
+import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
+import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
 
@@ -27,10 +30,20 @@ import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHel
 contract SubmitMetadataTestCaseWithSuccess is DatasetsTestBase {
     constructor(
         IDatasets _datasets,
+        IDatasetsRequirement _datasetsRequirement,
+        IDatasetsProof _datasetsProof,
+        IDatasetsChallenge _datasetsChallenge,
         IDatasetsHelpers _datasetsHelpers,
         IDatasetsAssertion _datasetsAssertion
     )
-        DatasetsTestBase(_datasets, _datasetsHelpers, _datasetsAssertion) // solhint-disable-next-line
+        DatasetsTestBase(
+            _datasets,
+            _datasetsRequirement,
+            _datasetsProof,
+            _datasetsChallenge,
+            _datasetsHelpers,
+            _datasetsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function action(uint64 /*_id*/) internal virtual override {
@@ -53,10 +66,20 @@ contract SubmitMetadataTestCaseWithSuccess is DatasetsTestBase {
 contract SubmitMetadataTestCaseWithDuplicate is DatasetsTestBase {
     constructor(
         IDatasets _datasets,
+        IDatasetsRequirement _datasetsRequirement,
+        IDatasetsProof _datasetsProof,
+        IDatasetsChallenge _datasetsChallenge,
         IDatasetsHelpers _datasetsHelpers,
         IDatasetsAssertion _datasetsAssertion
     )
-        DatasetsTestBase(_datasets, _datasetsHelpers, _datasetsAssertion) // solhint-disable-next-line
+        DatasetsTestBase(
+            _datasets,
+            _datasetsRequirement,
+            _datasetsProof,
+            _datasetsChallenge,
+            _datasetsHelpers,
+            _datasetsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function action(uint64 /*_id*/) internal virtual override {

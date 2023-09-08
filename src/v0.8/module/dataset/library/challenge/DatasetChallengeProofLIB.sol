@@ -18,36 +18,191 @@
 pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
+import {DatasetProofLIB} from "src/v0.8/module/dataset/library/proof/DatasetProofLIB.sol";
+import {DatasetChallengeLIB} from "src/v0.8/module/dataset/library/challenge/DatasetChallengeLIB.sol";
 
+/// @title DatasetVerificationLIB Library,include add,get,verify.
+/// @notice This library provides functions for managing verification associated with datasets.
+/// @dev Note:Need to check carefully,Need rewrite verification logic.
 library DatasetChallengeProofLIB {
-    function setChallengeProof(
-        DatasetType.DatasetChallengeProof memory self,
-        bytes32 _leaf,
-        bytes32[] memory _siblings,
-        uint32 _path
-    ) internal pure {
-        for (uint256 i = 0; i < _siblings.length; i++) {
-            self.siblings[i] = _siblings[i];
+    using DatasetProofLIB for DatasetType.DatasetProof;
+    using DatasetChallengeLIB for DatasetType.Challenge;
+
+    /// @notice Submit a challenge proofs for a dataset.
+    /// @dev This function allows submitting a challenge proofs for a dataset and triggers appropriate actions based on challenge results.
+    /// @param self The dataset to which the challenge proofs will be submitted.
+    function _submitDatasetChallengeProofs(
+        DatasetType.DatasetChallengeProof storage self,
+        uint64 _randomSeed,
+        bytes32[] memory _leaves,
+        bytes32[][] memory _siblings,
+        uint32[] memory _paths,
+        bytes32[] memory _roots,
+        IMerkleUtils _merkle
+    ) internal returns (bool) {
+        //For each challenge proofs submitted by an auditor, the random seed must be different.
+        require(
+            !isDatasetChallengeProofDuplicate(self, msg.sender, _randomSeed),
+            "Verification is duplicate"
+        );
+        require(_randomSeed > 0, "Invalid random seed");
+
+        if (
+            !_requireValidChallengeProofs(
+                _leaves,
+                _siblings,
+                _paths,
+                _roots,
+                _merkle
+            )
+        ) {
+            return false;
         }
-        self.leaf = _leaf;
-        self.path = _path;
+
+        // Update the dataset state here
+        self.challengesCount++;
+        DatasetType.ChallengeProof storage challengeProof = self
+            .challengeProofs[msg.sender];
+        for (uint32 i = 0; i < _paths.length; i++) {
+            DatasetType.Challenge memory challenge;
+            challenge.siblings = new bytes32[](_siblings[i].length);
+            challenge.setChallengeProof(_leaves[i], _siblings[i], _paths[i]);
+            challengeProof.challenges.push(challenge);
+        }
+        // Recording the auditor
+        self.auditors.push(msg.sender);
+
+        return true;
     }
 
-    function getChallengeProof(
-        DatasetType.DatasetChallengeProof storage self
+    /// @notice Validates the submitted challenge proofs.
+    /// @dev This function checks the validity of the submitted Merkle proofs for both the source dataset and mapping files.
+    // solhint-disable-next-line
+    function _requireValidChallengeProofs(
+        bytes32[] memory _leaves,
+        bytes32[][] memory _siblings,
+        uint32[] memory _paths,
+        bytes32[] memory roots,
+        IMerkleUtils _merkle
+    ) private view returns (bool) {
+        require(
+            roots.length == _leaves.length,
+            "roots.length != _leaves.length"
+        );
+        require(
+            roots.length == _siblings.length,
+            "roots.length != _siblings.length"
+        );
+        require(roots.length == _paths.length, "roots.length != _paths.length");
+
+        for (uint32 i = 0; i < roots.length; i++) {
+            if (
+                !_merkle.isValidMerkleProof(
+                    roots[i],
+                    _leaves[i],
+                    _siblings[i],
+                    _paths[i]
+                )
+            ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /// @notice Get the challenge proofs details for a specific index of a dataset.
+    /// @dev This function returns the challenge proofs details for a specific challenge proofs conducted on the dataset.
+    /// @param self The dataset for which to retrieve challenge proofs details.
+    /// @param _auditor address of the auditor.
+    function getDatasetChallengeProofs(
+        DatasetType.DatasetChallengeProof storage self,
+        address _auditor
     )
         internal
         view
-        returns (bytes32 _leaf, bytes32[] memory _siblings, uint32 _path)
+        returns (bytes32[] memory, bytes32[][] memory, uint32[] memory)
     {
-        bytes32[] memory result = new bytes32[](self.siblings.length);
-        bytes32 leaf;
-        uint32 path;
-        for (uint256 i = 0; i < self.siblings.length; i++) {
-            result[i] = self.siblings[i];
+        DatasetType.ChallengeProof storage challengeProof = self
+            .challengeProofs[_auditor];
+        bytes32[][] memory siblingss = new bytes32[][](
+            challengeProof.challenges.length
+        );
+        uint32[] memory paths = new uint32[](challengeProof.challenges.length);
+        bytes32[] memory leaves = new bytes32[](
+            challengeProof.challenges.length
+        );
+
+        for (uint256 i = 0; i < challengeProof.challenges.length; i++) {
+            DatasetType.Challenge storage challenge = challengeProof.challenges[
+                i
+            ];
+            (bytes32 leaf, bytes32[] memory siblings, uint32 path) = challenge
+                .getChallengeProof();
+            leaves[i] = leaf;
+            siblingss[i] = siblings;
+            paths[i] = path;
         }
-        leaf = self.leaf;
-        path = self.path;
-        return (leaf, result, path);
+        return (leaves, siblingss, paths);
+    }
+
+    /// @notice Get the count of challenge proofs for a dataset.
+    /// @dev This function returns the count of challenge proofs conducted on the dataset.
+    /// @param self The dataset for which to retrieve the challenge proofs count.
+    function getDatasetChallengeProofsCount(
+        DatasetType.DatasetChallengeProof storage self
+    ) internal view returns (uint16) {
+        return self.challengesCount;
+    }
+
+    /// @notice Check if the challange proof is a duplicate.
+    /// @param self The dataset for which to retrieve challenge proof details.
+    /// @param _auditor The address of the auditor submitting the challenge proof.
+    /// @param _randomSeed The random value used for selecting the challenge point.
+    function isDatasetChallengeProofDuplicate(
+        DatasetType.DatasetChallengeProof storage self,
+        address _auditor,
+        uint64 _randomSeed
+    ) internal view returns (bool) {
+        for (uint32 i = 0; i < self.auditors.length; i++) {
+            if (self.auditors[i] == _auditor) return true;
+            DatasetType.ChallengeProof storage verification = self
+                .challengeProofs[_auditor];
+            if (verification.randomSeed == _randomSeed) return true;
+        }
+        return false;
+    }
+
+    /// @notice generate a car challenge index.
+    /// @dev This function returns a car Challenge information for a specific dataset.
+    /// @param _randomSeed The cars challenge random seed.
+    /// @param _index The car index of challenge.
+    /// @param _carChallengesCount the cars Challenge count for specific dataset.
+    function generateChallengeIndex(
+        uint64 _randomSeed,
+        uint64 _index,
+        uint64 _carChallengesCount
+    ) internal pure returns (uint64) {
+        // Convert randomness and index to bytes
+        bytes memory input = new bytes(16);
+
+        bytes8 randomSeedBytes = bytes8(_randomSeed);
+        bytes8 indexBytes = bytes8(_index);
+
+        // LittleEndian encode
+        for (uint256 i = 0; i < 8; i++) {
+            input[i] = randomSeedBytes[7 - i];
+            input[i + 8] = indexBytes[7 - i];
+        }
+        // Calculate SHA-256 hash
+        bytes32 hash = sha256(input);
+
+        uint64 carChallenge;
+        // from golang binary.LittleEndian.Uint64
+        for (uint256 i = 0; i < 8; i++) {
+            carChallenge |= uint64(uint8(hash[i])) << uint64(i * 8);
+        }
+
+        return carChallenge % _carChallengesCount;
     }
 }

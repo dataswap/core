@@ -106,4 +106,15 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
         );
         testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
     }
+
+    /// @notice test case with invalid storage provider
+    function testBiddingWithInvalidStorageProvider(uint64 _amount) public {
+        setup();
+        BiddingTestCaseWithInvalidStorageProvider testCase = new BiddingTestCaseWithInvalidStorageProvider(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
+    }
 }

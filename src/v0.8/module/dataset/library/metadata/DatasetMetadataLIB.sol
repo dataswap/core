@@ -18,7 +18,7 @@
 pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
-import {DatasetStateMachineLIB} from "src/v0.8/module/dataset/library/DatasetStateMachineLIB.sol";
+import {DatasetStateMachineLIB} from "src/v0.8/module/dataset/library/metadata/DatasetStateMachineLIB.sol";
 
 /// @title DatasetMetadataLIB Library,,include add,get,verify.
 /// @notice This library provides functions for managing metadata of datasets.
@@ -51,6 +51,22 @@ library DatasetMetadataLIB {
                 bytes(_accessMethod).length > 0 &&
                 _sizeInBytes > 0,
             "all params must be non-empty"
+        );
+    }
+
+    /// @notice Checks if metadata fields are valid.
+    /// @param self The metadata object to store the metadata details.
+    function requireValidDatasetMetadata(
+        DatasetType.Dataset storage self
+    ) internal view {
+        _requireValidDatasetMetadata(
+            self.metadata.title,
+            self.metadata.industry,
+            self.metadata.name,
+            self.metadata.description,
+            self.metadata.source,
+            self.metadata.accessMethod,
+            self.metadata.sizeInBytes
         );
     }
 
@@ -99,51 +115,20 @@ library DatasetMetadataLIB {
         self.metadata.sizeInBytes = _sizeInBytes;
         self.metadata.isPublic = _isPublic;
         self.metadata.version = _version;
-
-        self._emitDatasetEvent(DatasetType.Event.SubmitMetadata);
     }
 
-    /// @notice Gets the submitted metadata for a dataset.
+    /// @notice Gets the submitter  for a dataset.
     /// @dev This function requires that metadata has been submitted before.
     /// @param self The metadata object to retrieve the metadata details from.
-    function getDatasetMetadata(
+    function getDatasetMetadataSubmitter(
         DatasetType.Dataset storage self
-    )
-        internal
-        view
-        returns (
-            string memory title,
-            string memory industry,
-            string memory name,
-            string memory description,
-            string memory source,
-            string memory accessMethod,
-            address submitter,
-            uint64 createdBlockNumber,
-            uint64 sizeInBytes,
-            bool isPublic,
-            uint64 version
-        )
-    {
+    ) internal view returns (address submitter) {
         require(
             bytes(self.metadata.title).length > 0,
             "Metadata does not exist"
         );
 
-        DatasetType.Metadata memory metadata = self.metadata;
-        return (
-            metadata.title,
-            metadata.industry,
-            metadata.name,
-            metadata.description,
-            metadata.source,
-            metadata.accessMethod,
-            metadata.submitter,
-            metadata.createdBlockNumber,
-            metadata.sizeInBytes,
-            metadata.isPublic,
-            metadata.version
-        );
+        return (self.metadata.submitter);
     }
 
     /// @notice Checks if an access method for a dataset has been submitted.

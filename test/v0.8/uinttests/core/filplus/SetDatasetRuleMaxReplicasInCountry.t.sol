@@ -23,7 +23,7 @@ import {FilplusTestSetup} from "test/v0.8/uinttests/core/filplus/setup/FilplusTe
 contract SetDatasetRuleMaxReplicasInCountryTest is Test, FilplusTestSetup {
     /// @notice test case with success
     function testSetDatasetRuleMaxReplicasInCountryWithSuccess(
-        bytes32 _countryCode,
+        uint16 _countryCode,
         uint16 _newValue
     ) public {
         setup();
@@ -38,7 +38,7 @@ contract SetDatasetRuleMaxReplicasInCountryTest is Test, FilplusTestSetup {
 
     /// @notice test case with invalid governancer
     function testSetDatasetRuleMaxReplicasInCountryWithInvalidGovernancer(
-        bytes32 _countryCode,
+        uint16 _countryCode,
         uint16 _newValue
     ) public {
         setup();
@@ -53,7 +53,7 @@ contract SetDatasetRuleMaxReplicasInCountryTest is Test, FilplusTestSetup {
 
     /// @notice test case with zero value
     function testSetDatasetRuleMaxReplicasInCountryWithZeroValue(
-        bytes32 _countryCode,
+        uint16 _countryCode,
         uint16 _newValue
     ) public {
         setup();

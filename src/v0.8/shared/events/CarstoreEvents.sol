@@ -23,8 +23,23 @@ library CarstoreEvents {
     /// @notice Emitted when multiple cars are added to the storage.
     event CarsAdded(bytes32[] _cids);
 
-    /// @notice Emitted when a replica is added to a car.
-    event CarReplicaAdded(bytes32 indexed _cid, uint64 _matchingId);
+    /// @notice Emitted when a replica is registed to a car.
+    event CarReplicaRegisted(
+        bytes32 indexed _cid,
+        uint64 _matchingId,
+        uint16 _replicaIndex
+    );
+
+    /// @notice Report that matching for a replica has failed.
+    /// @dev This function allows reporting that the matching for a replica has failed.
+    /// @param _cid Car CID associated with the replica.
+    /// @param _matchingId Matching ID of the replica.
+    /// @param _matchingState Matching state of the replica.
+    event CarReplicaMatchingState(
+        bytes32 indexed _cid,
+        uint64 _matchingId,
+        string _matchingState
+    );
 
     /// @notice Report that storage deal for a replica has expired.
     /// @dev This function allows reporting that the storage deal for a replica has expired.

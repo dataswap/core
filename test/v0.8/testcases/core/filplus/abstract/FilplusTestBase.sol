@@ -19,10 +19,11 @@ pragma solidity ^0.8.21;
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IFilplusAssertion} from "test/v0.8/interfaces/assertions/core/IFilplusAssertion.sol";
 import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
+import {Test} from "forge-std/Test.sol";
 
 /// @title FilplusTestBase
 /// @dev Base contract for filplus test cases with a common constructor.
-abstract contract FilplusTestBase {
+abstract contract FilplusTestBase is Test {
     IFilplus internal filplus; // The filplus contract for managing cars.
     IFilplusAssertion internal assertion; // The assertion contract for verifying filplus operations.
     Generator internal generator;

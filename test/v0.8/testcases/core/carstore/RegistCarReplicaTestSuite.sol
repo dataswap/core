@@ -16,106 +16,121 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {AddCarReplicaTestSuiteBase} from "test/v0.8/testcases/core/carstore/abstract/CarstoreTestSuiteBase.sol";
+import {RegistCarReplicaTestSuiteBase} from "test/v0.8/testcases/core/carstore/abstract/CarstoreTestSuiteBase.sol";
 
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 
 /// @notice set car replica filecoin claim id test case,it should be success
-contract AddCarReplicaTestCaseWithSuccess is AddCarReplicaTestSuiteBase {
+contract RegistCarReplicaTestCaseWithSuccess is RegistCarReplicaTestSuiteBase {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
     )
-        AddCarReplicaTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
+        RegistCarReplicaTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
     {}
 
     function before(
         bytes32 _cid,
-        uint64 _matchingId
+        uint64 _matchingId,
+        uint16 _replicaIndex
     ) internal virtual override {
         vm.assume(_matchingId != 0);
-        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024);
+        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024, 3);
+        vm.assume(_replicaIndex < 3);
     }
 }
 
 /// @notice set car replica filecoin claim id test case, it should revert due to an invalid ID
-contract AddCarReplicaTestCaseWithInvalidId is AddCarReplicaTestSuiteBase {
-    constructor(
-        ICarstore _carstore,
-        ICarstoreAssertion _assertion
-    )
-        AddCarReplicaTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
-    {}
-
-    function before(
-        bytes32 _cid,
-        uint64 _matchingId
-    ) internal virtual override {
-        vm.assume(_matchingId == 0);
-        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024);
-    }
-
-    function action(
-        bytes32 _cid,
-        uint64 _matchingId
-    ) internal virtual override {
-        vm.expectRevert();
-        super.action(_cid, _matchingId);
-    }
-}
-
-/// @notice set car replica filecoin claim id test case, it should revert due to the car not existing
-contract AddCarReplicaTestCaseWithCarNotExist is AddCarReplicaTestSuiteBase {
-    constructor(
-        ICarstore _carstore,
-        ICarstoreAssertion _assertion
-    )
-        AddCarReplicaTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
-    {}
-
-    function before(
-        bytes32 /*_cid*/,
-        uint64 _matchingId
-    ) internal virtual override {
-        vm.assume(_matchingId != 0);
-    }
-
-    function action(
-        bytes32 _cid,
-        uint64 _matchingId
-    ) internal virtual override {
-        vm.expectRevert(
-            abi.encodeWithSelector(Errors.CarNotExist.selector, _cid)
-        );
-        super.action(_cid, _matchingId);
-    }
-}
-
-/// @notice set car replica filecoin claim id test case, it should revert due to replica already existing
-contract AddCarReplicaTestCaseWithReplicaAlreadyExists is
-    AddCarReplicaTestSuiteBase
+contract RegistCarReplicaTestCaseWithInvalidId is
+    RegistCarReplicaTestSuiteBase
 {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
     )
-        AddCarReplicaTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
+        RegistCarReplicaTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
     {}
 
     function before(
         bytes32 _cid,
-        uint64 _matchingId
+        uint64 _matchingId,
+        uint16 _replicaIndex
     ) internal virtual override {
-        vm.assume(_matchingId != 0);
-        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024);
-        carstore.addCarReplica(_cid, _matchingId);
+        vm.assume(_matchingId == 0);
+        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024, 3);
+        vm.assume(_replicaIndex < 3);
     }
 
     function action(
         bytes32 _cid,
-        uint64 _matchingId
+        uint64 _matchingId,
+        uint16 _replicaIndex
+    ) internal virtual override {
+        vm.expectRevert();
+        super.action(_cid, _matchingId, _replicaIndex);
+    }
+}
+
+/// @notice set car replica filecoin claim id test case, it should revert due to the car not existing
+contract RegistCarReplicaTestCaseWithCarNotExist is
+    RegistCarReplicaTestSuiteBase
+{
+    constructor(
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
+    )
+        RegistCarReplicaTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
+    {}
+
+    function before(
+        bytes32 /*_cid*/,
+        uint64 _matchingId,
+        uint16 /*_replicaIndex*/
+    ) internal virtual override {
+        vm.assume(_matchingId != 0);
+    }
+
+    function action(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint16 _replicaIndex
+    ) internal virtual override {
+        vm.expectRevert(
+            abi.encodeWithSelector(Errors.CarNotExist.selector, _cid)
+        );
+        super.action(_cid, _matchingId, _replicaIndex);
+    }
+}
+
+/// @notice set car replica filecoin claim id test case, it should revert due to replica already existing
+contract RegistCarReplicaTestCaseWithReplicaAlreadyExists is
+    RegistCarReplicaTestSuiteBase
+{
+    constructor(
+        ICarstore _carstore,
+        ICarstoreAssertion _assertion
+    )
+        RegistCarReplicaTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
+    {}
+
+    function before(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint16 _replicaIndex
+    ) internal virtual override {
+        vm.assume(_matchingId != 0);
+        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024, 3);
+        vm.assume(_replicaIndex < 3);
+        carstore.registCarReplica(_cid, _matchingId, _replicaIndex);
+        carstore.reportCarReplicaMatchingState(_cid, _matchingId, true);
+    }
+
+    function action(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint16 _replicaIndex
     ) internal virtual override {
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -124,6 +139,6 @@ contract AddCarReplicaTestCaseWithReplicaAlreadyExists is
                 _matchingId
             )
         );
-        super.action(_cid, _matchingId);
+        super.action(_cid, _matchingId, _replicaIndex);
     }
 }

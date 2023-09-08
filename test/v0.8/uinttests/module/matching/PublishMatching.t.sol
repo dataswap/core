@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {PublishMatchingTestCaseWithSuccess, PublishMatchingTestCaseWithInvalidRole, PublishMatchingTestCaseWithInvalidSender, PublishMatchingTestCaseWithInvalidDataset} from "test/v0.8/testcases/module/matching/PublishMatchingTestSuite.sol";
+import "test/v0.8/testcases/module/matching/PublishMatchingTestSuite.sol";
 import {MatchingTestSetup} from "test/v0.8/uinttests/module/matching/setup/MatchingTestSetup.sol";
 
 contract PublishMatchingTest is Test, MatchingTestSetup {
@@ -58,6 +58,28 @@ contract PublishMatchingTest is Test, MatchingTestSetup {
     function testPublishMatchingWithInvalidDataset() public {
         setup();
         PublishMatchingTestCaseWithInvalidDataset testCase = new PublishMatchingTestCaseWithInvalidDataset(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    ///@notice publish matching test case with invalid data provider
+    function testPublishMatchingWithInvalidDataPreparer() public {
+        setup();
+        PublishMatchingTestCaseWithInvalidDataPreparer testCase = new PublishMatchingTestCaseWithInvalidDataPreparer(
+                matchings,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    ///@notice publish matching test case with invalid replica
+    function testPublishMatchingWithInvalidReplica() public {
+        setup();
+        PublishMatchingTestCaseWithInvalidReplica testCase = new PublishMatchingTestCaseWithInvalidReplica(
                 matchings,
                 helpers,
                 assertion

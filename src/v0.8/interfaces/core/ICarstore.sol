@@ -40,6 +40,13 @@ interface ICarstoreReadOnly {
     /// NOTE: a car only belongs a datasets
     function getCarDatasetId(bytes32 _cid) external view returns (uint64);
 
+    /// @notice Get the matching ids of a replica associated with a car.
+    /// @param _cid Car CID associated with the replica.
+    /// @return The matching ids of the car's replica.
+    function getCarMatchingIds(
+        bytes32 _cid
+    ) external view returns (uint64[] memory);
+
     /// @notice Get the replica details associated with a car.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
@@ -110,24 +117,48 @@ interface ICarstore is ICarstoreReadOnly {
     /// @param _cid Car CID to be added.
     /// @param _datasetId dataset index of approved dataset
     /// @param _size car size
-    function addCar(bytes32 _cid, uint64 _datasetId, uint64 _size) external;
+    /// @param _replicaCount count of car's replicas
+    function addCar(
+        bytes32 _cid,
+        uint64 _datasetId,
+        uint64 _size,
+        uint16 _replicaCount
+    ) external;
 
     /// @notice Add multiple cars to the storage.
     /// @dev This function allows the addition of multiple cars at once.
     /// @param _cids Array of car CIDs to be added.
     /// @param _datasetId dataset index of approved dataset
     /// @param _sizes car size array
+    /// @param _replicaCount count of car's replicas
     function addCars(
         bytes32[] memory _cids,
         uint64 _datasetId,
-        uint64[] memory _sizes
+        uint64[] memory _sizes,
+        uint16 _replicaCount
     ) external;
 
-    /// @notice Add a replica to a car.
+    /// @notice Regist a replica to a car.
     /// @dev This function allows adding a replica to an existing car.
     /// @param _cid Car CID to which the replica will be added.
     /// @param _matchingId Matching ID for the new replica.
-    function addCarReplica(bytes32 _cid, uint64 _matchingId) external;
+    /// @param _replicaIndex The index of the replica.
+    function registCarReplica(
+        bytes32 _cid,
+        uint64 _matchingId,
+        uint16 _replicaIndex
+    ) external;
+
+    /// @notice Report that matching's state for a replica.
+    /// @dev This function allows reporting that the matching for a replica is failed.
+    /// @param _cid Car CID associated with the replica.
+    /// @param _matchingId Matching ID of the replica.
+    /// @param _matchingState Matching's state of the replica, true for success ,false for failed.
+    function reportCarReplicaMatchingState(
+        bytes32 _cid,
+        uint64 _matchingId,
+        bool _matchingState
+    ) external;
 
     /// @notice Report that storage deal for a replica has expired.
     /// @dev This function allows reporting that the storage deal for a replica has expired.
