@@ -37,42 +37,53 @@ import {DatasetsAssertion} from "test/v0.8/assertions/module/dataset/DatasetsAss
 contract StorageTestSetup {
     address payable public governanceContractAddresss;
 
-    Storages storages;
-    StoragesAssertion assertion;
-    StoragesHelpers helpers;
-    Generator generator = new Generator();
+    Storages internal storages;
+    StoragesAssertion internal assertion;
+    StoragesHelpers internal helpers;
+    Generator internal generator = new Generator();
 
     /// @dev Initialize the storages and helpers,assertion contracts.
     function setup() internal {
         Roles role = new Roles();
-        Filplus filplus = new Filplus(governanceContractAddresss);
+        role.initialize();
+        Filplus filplus = new Filplus();
+        filplus.initialize(governanceContractAddresss, address(role));
+
         MockFilecoin filecoin = new MockFilecoin();
+        filecoin.initialize(address(role));
         MockMerkleUtils merkleUtils = new MockMerkleUtils();
-        Carstore carstore = new Carstore(role, filplus, filecoin);
-        Datasets datasets = new Datasets(
+        merkleUtils.initialize(address(role));
+
+        Carstore carstore = new Carstore();
+        carstore.initialize(address(role), address(filplus), address(filecoin));
+        Datasets datasets = new Datasets();
+        datasets.initialize(
             governanceContractAddresss,
-            role,
-            filplus,
-            filecoin,
-            carstore,
-            merkleUtils
+            address(role),
+            address(filplus),
+            address(filecoin),
+            address(carstore),
+            address(merkleUtils)
         );
-        Matchings matchings = new Matchings(
+
+        Matchings matchings = new Matchings();
+        matchings.initialize(
             governanceContractAddresss,
-            role,
-            filplus,
-            filecoin,
-            carstore,
-            datasets
+            address(role),
+            address(filplus),
+            address(filecoin),
+            address(carstore),
+            address(datasets)
         );
-        storages = new Storages(
+        storages = new Storages();
+        storages.initialize(
             governanceContractAddresss,
-            role,
-            filplus,
-            filecoin,
-            carstore,
-            datasets,
-            matchings
+            address(role),
+            address(filplus),
+            address(filecoin),
+            address(carstore),
+            address(datasets),
+            address(matchings)
         );
 
         MatchingsAssertion machingsAssertion = new MatchingsAssertion(

@@ -41,25 +41,35 @@ contract MatchingTestSetup {
     /// @dev Initialize the matchings and helpers,assertion contracts.
     function setup() internal {
         Roles role = new Roles();
-        Filplus filplus = new Filplus(governanceContractAddresss);
+        role.initialize();
+        Filplus filplus = new Filplus();
+        filplus.initialize(governanceContractAddresss, address(role));
+
         MockFilecoin filecoin = new MockFilecoin();
+        filecoin.initialize(address(role));
         MockMerkleUtils merkleUtils = new MockMerkleUtils();
-        Carstore carstore = new Carstore(role, filplus, filecoin);
-        Datasets datasets = new Datasets(
+        merkleUtils.initialize(address(role));
+
+        Carstore carstore = new Carstore();
+        carstore.initialize(address(role), address(filplus), address(filecoin));
+        Datasets datasets = new Datasets();
+        datasets.initialize(
             governanceContractAddresss,
-            role,
-            filplus,
-            filecoin,
-            carstore,
-            merkleUtils
+            address(role),
+            address(filplus),
+            address(filecoin),
+            address(carstore),
+            address(merkleUtils)
         );
-        matchings = new Matchings(
+
+        matchings = new Matchings();
+        matchings.initialize(
             governanceContractAddresss,
-            role,
-            filplus,
-            filecoin,
-            carstore,
-            datasets
+            address(role),
+            address(filplus),
+            address(filecoin),
+            address(carstore),
+            address(datasets)
         );
         assertion = new MatchingsAssertion(matchings);
 

@@ -19,7 +19,6 @@
 pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
-import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
 /// @title IMatchingsHelpers
 /// @dev Interface for managing matching-related operations.

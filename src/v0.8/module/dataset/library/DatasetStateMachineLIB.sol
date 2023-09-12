@@ -71,7 +71,7 @@ library DatasetStateMachineLIB {
     /// @return The current state of the dataset.
     function getDatasetState(
         DatasetType.Dataset storage self
-    ) public view returns (DatasetType.State) {
+    ) internal view returns (DatasetType.State) {
         return self.state;
     }
 }

@@ -27,10 +27,15 @@ import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
 
+import {RolesType} from "src/v0.8/types/RolesType.sol";
+
 /// shared
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {DatacapsModifiers} from "src/v0.8/shared/modifiers/DatacapsModifiers.sol";
 import {DatacapsEvents} from "src/v0.8/shared/events/DatacapsEvents.sol";
+
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 // TODO:version issue
 // import {DataCapAPI} from "@zondax/filecoin-solidity/contracts/v0.8/DataCapAPI.sol";
@@ -43,7 +48,12 @@ import {DatacapsEvents} from "src/v0.8/shared/events/DatacapsEvents.sol";
 /// Note:The removal of datacap is not necessary.
 ///     This design allocates datacap step by step according to chunks,
 ///     rather than allocating all at once.
-contract Datacaps is IDatacaps, DatacapsModifiers {
+contract Datacaps is
+    Initializable,
+    UUPSUpgradeable,
+    IDatacaps,
+    DatacapsModifiers
+{
     //(matchingID => allocated datacap size)
     mapping(uint64 => uint64) private allocatedDatacaps;
     address private governanceAddress;
@@ -54,19 +64,22 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
     IDatasets private datasets;
     IMatchings private matchings;
     IStorages public storages;
+    /// @dev This empty reserved space is put in place to allow future versions to add new
+    uint256[32] private __gap;
 
+    /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
     // solhint-disable-next-line
-    constructor(
+    function initialize(
         address _governanceAddress,
-        IRoles _roles,
-        IFilplus _filplus,
-        IFilecoin _filecoin,
-        ICarstore _carstore,
-        IDatasets _datasets,
-        IMatchings _matchings,
-        IStorages _storages
-    )
-        DatacapsModifiers(
+        address _roles,
+        address _filplus,
+        address _filecoin,
+        address _carstore,
+        address _datasets,
+        address _matchings,
+        address _storages
+    ) public initializer {
+        DatacapsModifiers.datacapsModifiersInitialize(
             _roles,
             _filplus,
             _filecoin,
@@ -74,16 +87,31 @@ contract Datacaps is IDatacaps, DatacapsModifiers {
             _datasets,
             _matchings,
             _storages,
-            this
-        )
-    {
+            address(this)
+        );
         governanceAddress = _governanceAddress;
-        roles = _roles;
-        filplus = _filplus;
-        carstore = _carstore;
-        datasets = _datasets;
-        matchings = _matchings;
-        storages = _storages;
+        roles = IRoles(_roles);
+        filplus = IFilplus(_filplus);
+        carstore = ICarstore(_carstore);
+        datasets = IDatasets(_datasets);
+        matchings = IMatchings(_matchings);
+        storages = IStorages(_storages);
+        __UUPSUpgradeable_init();
+    }
+
+    /// @notice UUPS Upgradeable function to update the roles implementation
+    /// @dev Only triggered by contract admin
+    function _authorizeUpgrade(
+        address newImplementation
+    )
+        internal
+        override
+        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+    {}
+
+    /// @notice Returns the implementation contract
+    function getImplementation() external view returns (address) {
+        return _getImplementation();
     }
 
     /// @dev Internal function to allocate matched datacap.

@@ -133,7 +133,7 @@ library DatasetVerificationLIB {
         DatasetType.Dataset storage self,
         address _auditor
     )
-        public
+        internal
         view
         returns (bytes32[] memory, bytes32[][] memory, uint32[] memory)
     {
@@ -170,7 +170,7 @@ library DatasetVerificationLIB {
     /// @param self The dataset for which to retrieve the verification count.
     function getDatasetVerificationsCount(
         DatasetType.Dataset storage self
-    ) public view returns (uint16) {
+    ) internal view returns (uint16) {
         return self.verificationsCount;
     }
 
@@ -182,7 +182,7 @@ library DatasetVerificationLIB {
         DatasetType.Dataset storage self,
         address _auditor,
         uint64 _randomSeed
-    ) public view returns (bool) {
+    ) internal view returns (bool) {
         for (uint32 i = 0; i < self.auditors.length; i++) {
             if (self.auditors[i] == _auditor) return true;
             DatasetType.Verification storage verification = self.verifications[

@@ -22,13 +22,15 @@ import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 ///shared
 import {CommonModifiers} from "src/v0.8/shared/modifiers/CommonModifiers.sol";
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
-contract FilplusModifiers is CommonModifiers {
+contract FilplusModifiers is Initializable, CommonModifiers {
     IFilplus private filplus;
 
-    // solhint-disable-next-line
-    constructor(IFilplus _filplus) {
-        filplus = _filplus;
+    /// @notice filplusModifiersInitialize function to initialize the contract and grant the default admin role to the deployer.
+    function filplusModifiersInitialize(address _filplus) public onlyInitializing {
+        filplus = IFilplus(_filplus);
     }
 }

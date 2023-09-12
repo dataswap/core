@@ -19,6 +19,7 @@ pragma solidity ^0.8.21;
 
 // Import required external contracts and interfaces
 import {Test} from "forge-std/Test.sol";
+import {Roles} from "src/v0.8/core/access/Roles.sol";
 import {MerkleUtils} from "src/v0.8/shared/utils/merkle/MerkleUtils.sol";
 import {TestCaseBase} from "test/v0.8/testcases/module/abstract/TestCaseBase.sol";
 
@@ -87,8 +88,10 @@ contract MerkleUtilsTestCaseWithSuccess is TestCaseBase, Test {
         siblings[17] = bytes32(
             0xcee5fbb1d273cc6fec5593492c822f5b7bc69fc57bebf163644da4a79086ff35
         );
-
+        Roles role = new Roles();
+        role.initialize();
         MerkleUtils merkleUtils = new MerkleUtils();
+        merkleUtils.initialize(address(role));
         assert(
             merkleUtils.isValidMerkleProof(root, leaf, siblings, path) == true
         );

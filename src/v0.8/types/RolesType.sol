@@ -21,6 +21,9 @@ pragma solidity ^0.8.21;
 /// @title RolesType Library
 /// @notice This library defines constants for different roles within the system.
 library RolesType {
+    /// @notice Default admin role
+    bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
+
     /// @notice Bytes32 constant representing the role of a storage provider.
     bytes32 public constant STORAGE_PROVIDER = keccak256("SP");
 

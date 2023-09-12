@@ -77,7 +77,7 @@ library DatasetMetadataLIB {
         uint64 _sizeInBytes,
         bool _isPublic,
         uint64 _version
-    ) external {
+    ) internal {
         _requireValidDatasetMetadata(
             _title,
             _industry,
@@ -109,7 +109,7 @@ library DatasetMetadataLIB {
     function getDatasetMetadata(
         DatasetType.Dataset storage self
     )
-        external
+        internal
         view
         returns (
             string memory title,
@@ -153,7 +153,7 @@ library DatasetMetadataLIB {
     function hasDatasetMetadata(
         DatasetType.Dataset storage self,
         string memory _accessMethod
-    ) public view returns (bool) {
+    ) internal view returns (bool) {
         return
             keccak256(bytes(self.metadata.accessMethod)) ==
             keccak256(bytes(_accessMethod));

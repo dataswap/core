@@ -29,15 +29,34 @@ Implement a decentralized matching mechanism to attract more open dataset suppli
 
   * Providing decentralized data analysis and matching services, empowering data-driven decision-making and intelligent solutions.
 
-
 ## Documentation
 
 For more details about Dataswap, check out the [Dataswap Spec](https://github.com/dataswap/specs).
 
-## Installation
+## Setup
+
+Please make sure to install the following before working with codebase:  
+
+[npm](https://docs.npmjs.com/getting-started)
+
+[Node.js (16+)](https://nodejs.org/en/download)
+
+[Hardhat](https://hardhat.org/hardhat-runner/docs/getting-started#installation)
+
+[Foundry](https://book.getfoundry.sh/getting-started/installation)
+
+## Deploy and Upgrade
 
 ```shell
-To be added
+export PRIVATE_KEY=“your private key” ;
+export [network name]_RPC_URL="deploy network rpc url";
+export DEPLOYER_ADDRESS="deployer address”;
+
+# Deploy 
+npx hardhat deploy --network [network name]
+
+# Upgrade
+npx hardhat upgrade --address [contract address] --name [contract name] --network [network name]
 ```
 
 ## Usage

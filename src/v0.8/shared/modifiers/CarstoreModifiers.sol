@@ -31,25 +31,29 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
-contract CarstoreModifiers is RolesModifiers, FilplusModifiers {
+contract CarstoreModifiers is Initializable, RolesModifiers, FilplusModifiers {
     IRoles private roles;
     IFilplus private filplus;
     ICarstore private carstore;
     IFilecoin private filecoin;
 
-    // solhint-disable-next-line
-    constructor(
-        IRoles _roles,
-        IFilplus _filplus,
-        IFilecoin _filecoin,
-        ICarstore _carstore
-    ) RolesModifiers(_roles) FilplusModifiers(_filplus) {
-        roles = _roles;
-        filplus = _filplus;
-        carstore = _carstore;
-        filecoin = _filecoin;
+    /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
+    function carstoreModifiersInitialize(
+        address _roles,
+        address _filplus,
+        address _filecoin,
+        address _carstore
+    ) public onlyInitializing {
+        RolesModifiers.rolesModifiersInitialize(_roles);
+        FilplusModifiers.filplusModifiersInitialize(_filplus);
+        roles = IRoles(_roles);
+        filplus = IFilplus(_filplus);
+        carstore = ICarstore(_carstore);
+        filecoin = IFilecoin(_filecoin);
     }
 
     /// @dev Modifier to ensure that a car with the given CID exists.

@@ -17,68 +17,68 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {Governor, IGovernor, IERC165} from "@openzeppelin/contracts/governance/Governor.sol";
-import {GovernorCompatibilityBravo} from "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
-import {GovernorVotes, IVotes} from "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
-import {GovernorVotesQuorumFraction} from "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {GovernorUpgradeable, IGovernorUpgradeable, IERC165Upgradeable} from "@openzeppelin/contracts-upgradeable/governance/GovernorUpgradeable.sol";
+import {GovernorCompatibilityBravoUpgradeable} from "@openzeppelin/contracts-upgradeable/governance/compatibility/GovernorCompatibilityBravoUpgradeable.sol";
+import {GovernorVotesUpgradeable, IVotesUpgradeable} from "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol";
+import {GovernorVotesQuorumFractionUpgradeable} from "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesQuorumFractionUpgradeable.sol";
 
-// import "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+// import "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelockControl.sol";
 
 /// @title DataswapDAOBase Contract
 /// @notice This contract serves as the base for the DataSwap DAO governance mechanism.
-/// @dev This contract inherits from various Governor-related contracts and Ownable2Step.
+/// @dev This contract inherits from various GovernorUpgradeable-related contracts and Ownable2Step.
 abstract contract DataswapDAOBase is
-    Governor,
-    GovernorCompatibilityBravo,
-    GovernorVotes,
-    GovernorVotesQuorumFraction
+    Initializable,
+    GovernorUpgradeable,
+    GovernorCompatibilityBravoUpgradeable,
+    GovernorVotesUpgradeable,
+    GovernorVotesQuorumFractionUpgradeable
     // GovernorTimelockControl
 {
-    /// @notice Constructor function to initialize the DataswapDAOBase contract.
+    /// @notice initialize function to initialize the DataswapDAOBase contract.
     /// @param _token The token used for voting.
     //  @param _timelock The timelock contract.
     // solhint-disable-next-line
-    constructor(
-        IVotes _token
-    )
+    function initialize(
+        IVotesUpgradeable _token
+    ) public virtual onlyInitializing {
         // TimelockController _timelock
-        Governor("DataswapDAO")
-        GovernorVotes(_token)
-        GovernorVotesQuorumFraction(4)
-    // GovernorTimelockControl(_timelock)
-    // solhint-disable-next-line
-    {
-
+        GovernorUpgradeable.__Governor_init("DataswapDAO");
+        GovernorVotesUpgradeable.__GovernorVotes_init(_token);
+        GovernorVotesQuorumFractionUpgradeable
+            .__GovernorVotesQuorumFraction_init(4);
+        // GovernorTimelockControl(_timelock)
     }
 
     /// @notice Returns the delay between the proposal's creation and the ability to vote on it.
-    /// @dev This function is an override required by the IGovernor interface.
+    /// @dev This function is an override required by the IGovernorUpgradeable interface.
     /// @return The delay in seconds.
     function votingDelay()
         public
         pure
         virtual
-        override(IGovernor)
+        override(IGovernorUpgradeable)
         returns (uint256)
     {
         return 2880; // 1 day
     }
 
     /// @notice Returns the duration of voting on a proposal.
-    /// @dev This function is an override required by the IGovernor interface.
+    /// @dev This function is an override required by the IGovernorUpgradeable interface.
     /// @return The voting period in seconds.
     function votingPeriod()
         public
         pure
         virtual
-        override(IGovernor)
+        override(IGovernorUpgradeable)
         returns (uint256)
     {
         return 2880 * 7; // 1 week
     }
 
     /// @notice Returns the minimum amount of votes required for a proposal to succeed.
-    /// @dev This function is an override required by the IGovernor interface.
+    /// @dev This function is an override required by the IGovernorUpgradeable interface.
     /// @return The proposal threshold.
     function proposalThreshold()
         public
@@ -96,9 +96,9 @@ abstract contract DataswapDAOBase is
     )
         public
         view
-        override(Governor, IGovernor)
+        override(GovernorUpgradeable, IGovernorUpgradeable)
         returns (
-            // override(Governor, IGovernor, GovernorTimelockControl)
+            // override(GovernorUpgradeable, IGovernorUpgradeable, GovernorTimelockControl)
             ProposalState
         )
     {
@@ -110,7 +110,11 @@ abstract contract DataswapDAOBase is
         uint256[] memory values,
         bytes[] memory calldatas,
         string memory description
-    ) public override(Governor, GovernorCompatibilityBravo) returns (uint256) {
+    )
+        public
+        override(GovernorUpgradeable, GovernorCompatibilityBravoUpgradeable)
+        returns (uint256)
+    {
         return super.propose(targets, values, calldatas, description);
     }
 
@@ -119,7 +123,11 @@ abstract contract DataswapDAOBase is
         uint256[] memory values,
         bytes[] memory calldatas,
         bytes32 descriptionHash
-    ) public override(Governor, GovernorCompatibilityBravo) returns (uint256) {
+    )
+        public
+        override(GovernorUpgradeable, GovernorCompatibilityBravoUpgradeable)
+        returns (uint256)
+    {
         return super.cancel(targets, values, calldatas, descriptionHash);
     }
 
@@ -132,8 +140,8 @@ abstract contract DataswapDAOBase is
     )
         internal
         override(
-            // ) internal override(Governor, GovernorTimelockControl) {
-            Governor
+            // ) internal override(GovernorUpgradeable, GovernorTimelockControl) {
+            GovernorUpgradeable
         )
     {
         super._execute(proposalId, targets, values, calldatas, descriptionHash);
@@ -147,8 +155,8 @@ abstract contract DataswapDAOBase is
     )
         internal
         override(
-            // ) internal override(Governor, GovernorTimelockControl) returns (uint256) {
-            Governor
+            // ) internal override(GovernorUpgradeable, GovernorTimelockControl) returns (uint256) {
+            GovernorUpgradeable
         )
         returns (uint256)
     {
@@ -159,8 +167,8 @@ abstract contract DataswapDAOBase is
         internal
         view
         override(
-            // override(Governor, GovernorTimelockControl)
-            Governor
+            // override(GovernorUpgradeable, GovernorTimelockControl)
+            GovernorUpgradeable
         )
         returns (address)
     {
@@ -172,9 +180,9 @@ abstract contract DataswapDAOBase is
     )
         public
         view
-        override(Governor, IERC165)
+        override(GovernorUpgradeable, IERC165Upgradeable)
         returns (
-            //override(Governor, IERC165, GovernorTimelockControl)
+            //override(GovernorUpgradeable, IERC165Upgradeable, GovernorTimelockControl)
             bool
         )
     {

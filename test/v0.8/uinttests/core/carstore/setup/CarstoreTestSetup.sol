@@ -32,9 +32,16 @@ contract CarstoreTestSetup {
     /// @dev Initialize the Carstore and assertion contracts.
     function setup() internal {
         Roles role = new Roles();
-        Filplus filplus = new Filplus(governanceContractAddresss);
+        role.initialize();
+
+        Filplus filplus = new Filplus();
+        filplus.initialize(governanceContractAddresss, address(role));
         MockFilecoin filecoin = new MockFilecoin();
-        carstore = new Carstore(role, filplus, filecoin);
+        filecoin.initialize(address(role));
+
+        carstore = new Carstore();
+        carstore.initialize(address(role), address(filplus), address(filecoin));
+
         assertion = new CarstoreAssertion(carstore);
     }
 }

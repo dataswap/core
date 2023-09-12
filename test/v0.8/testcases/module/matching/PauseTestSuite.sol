@@ -21,10 +21,6 @@ import {ControlTestSuiteBase} from "test/v0.8/testcases/module/matching/abstract
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
-import {MatchingType} from "src/v0.8/types/MatchingType.sol";
-import {DatasetType} from "src/v0.8/types/DatasetType.sol";
-import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {RolesType} from "src/v0.8/types/RolesType.sol";
 
 ///@notice pause matching test case with success
 contract PauseTestCaseWithSuccess is ControlTestSuiteBase {

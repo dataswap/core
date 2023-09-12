@@ -17,7 +17,6 @@
 pragma solidity ^0.8.21;
 
 import {AddCarReplicaTestSuiteBase} from "test/v0.8/testcases/core/carstore/abstract/CarstoreTestSuiteBase.sol";
-import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";

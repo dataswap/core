@@ -16,6 +16,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {Roles} from "src/v0.8/core/access/Roles.sol";
 import {MockFilecoin} from "src/v0.8/mocks/core/filecoin/MockFilecoin.sol";
 import {FilecoinAssertion} from "test/v0.8/assertions/core/filecoin/FilecoinAssertion.sol";
 
@@ -27,7 +28,10 @@ contract MockFilecoinSetup {
 
     /// @dev Initialize the mockfilecoin, assertion contracts.
     function setup() internal {
+        Roles role = new Roles();
+        role.initialize();
         filecoin = new MockFilecoin();
+        filecoin.initialize(address(role));
         assertion = new FilecoinAssertion(filecoin);
     }
 }

@@ -22,7 +22,7 @@ import {StorageTestSetup} from "test/v0.8/uinttests/module/storage/setup/Storage
 
 contract SubmitStorageDealIdTest is Test, StorageTestSetup {
     /// @notice test case with success
-    function testSubmitStorageDealIdWithSuccess() public {
+    function testSubmitStorageDealIdsWithSuccess() public {
         setup();
         SubmitStorageDealIdsTestCaseWithSuccess testCase = new SubmitStorageDealIdsTestCaseWithSuccess(
                 storages,

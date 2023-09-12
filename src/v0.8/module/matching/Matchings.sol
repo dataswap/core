@@ -20,7 +20,6 @@ pragma solidity ^0.8.21;
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
-import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
@@ -36,6 +35,9 @@ import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+
 /// @title Matchings Base Contract
 /// @notice This contract serves as the base for managing matchings, their states, and associated actions.
 /// @dev This contract is intended to be inherited by specific matching-related contracts.
@@ -43,7 +45,12 @@ import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 ///            1 bidder(when bidding) and initiator(when publish) should transfer FIL to payable function
 ///            2 proccess the fund after matched
 ///            3 proccess the fund after matchedsotre,step by step
-contract Matchings is IMatchings, MatchingsModifiers {
+contract Matchings is
+    Initializable,
+    UUPSUpgradeable,
+    IMatchings,
+    MatchingsModifiers
+{
     /// @notice  Use libraries for different matching functionalities
     using MatchingLIB for MatchingType.Matching;
     using MatchingStateMachineLIB for MatchingType.Matching;
@@ -58,30 +65,48 @@ contract Matchings is IMatchings, MatchingsModifiers {
     IFilplus private filplus;
     ICarstore private carstore;
     IDatasets public datasets;
+    /// @dev This empty reserved space is put in place to allow future versions to add new
+    uint256[32] private __gap;
 
+    /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
     // solhint-disable-next-line
-    constructor(
+    function initialize(
         address _governanceAddress,
-        IRoles _roles,
-        IFilplus _filplus,
-        IFilecoin _filecoin,
-        ICarstore _carstore,
-        IDatasets _datasets
-    )
-        MatchingsModifiers(
+        address _roles,
+        address _filplus,
+        address _filecoin,
+        address _carstore,
+        address _datasets
+    ) public initializer {
+        MatchingsModifiers.matchingsModifiersInitialize(
             _roles,
             _filplus,
             _filecoin,
             _carstore,
             _datasets,
-            this
-        )
-    {
+            address(this)
+        );
         governanceAddress = _governanceAddress;
-        roles = _roles;
-        filplus = _filplus;
-        carstore = _carstore;
-        datasets = _datasets;
+        roles = IRoles(_roles);
+        filplus = IFilplus(_filplus);
+        carstore = ICarstore(_carstore);
+        datasets = IDatasets(_datasets);
+        __UUPSUpgradeable_init();
+    }
+
+    /// @notice UUPS Upgradeable function to update the roles implementation
+    /// @dev Only triggered by contract admin
+    function _authorizeUpgrade(
+        address newImplementation
+    )
+        internal
+        override
+        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+    {}
+
+    /// @notice Returns the implementation contract
+    function getImplementation() external view returns (address) {
+        return _getImplementation();
     }
 
     ///@dev update cars info  to carStore before complete

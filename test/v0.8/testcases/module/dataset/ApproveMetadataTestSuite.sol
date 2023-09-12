@@ -20,9 +20,6 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {DatasetsTestBase} from "test/v0.8/testcases/module/dataset/abstract/DatasetsTestBase.sol";
 import {DatasetsTestSetup} from "test/v0.8/testcases/module/dataset/setup/DatasetsTestSetup.sol";
 
-import {DatasetType} from "src/v0.8/types/DatasetType.sol";
-import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
