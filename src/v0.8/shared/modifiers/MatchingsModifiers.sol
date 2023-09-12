@@ -30,9 +30,11 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 ///types
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
-contract MatchingsModifiers is DatasetsModifiers {
+contract MatchingsModifiers is Initializable, DatasetsModifiers {
     IRoles private roles;
     IFilplus private filplus;
     IFilecoin private filecoin;
@@ -40,20 +42,27 @@ contract MatchingsModifiers is DatasetsModifiers {
     IDatasets private datasets;
     IMatchings private matchings;
 
-    // solhint-disable-next-line
-    constructor(
-        IRoles _roles,
-        IFilplus _filplus,
-        IFilecoin _filecoin,
-        ICarstore _carstore,
-        IDatasets _datasets,
-        IMatchings _matchings
-    ) DatasetsModifiers(_roles, _filplus, _filecoin, _carstore, _datasets) {
-        roles = _roles;
-        filplus = _filplus;
-        carstore = _carstore;
-        datasets = _datasets;
-        matchings = _matchings;
+    /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
+    function matchingsModifiersInitialize(
+        address _roles,
+        address _filplus,
+        address _filecoin,
+        address _carstore,
+        address _datasets,
+        address _matchings
+    ) public onlyInitializing {
+        DatasetsModifiers.datasetsModifiersInitialize(
+            _roles,
+            _filplus,
+            _filecoin,
+            _carstore,
+            _datasets
+        );
+        roles = IRoles(_roles);
+        filplus = IFilplus(_filplus);
+        carstore = ICarstore(_carstore);
+        datasets = IDatasets(_datasets);
+        matchings = IMatchings(_matchings);
     }
 
     /// @notice Modifier to restrict access to the matching initiator

@@ -28,9 +28,11 @@ import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 ///shared
 import {MatchingsModifiers} from "src/v0.8/shared/modifiers/MatchingsModifiers.sol";
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
-contract StoragesModifiers is MatchingsModifiers {
+contract StoragesModifiers is Initializable, MatchingsModifiers {
     IRoles private roles;
     IFilplus private filplus;
     IFilecoin private filecoin;
@@ -39,30 +41,28 @@ contract StoragesModifiers is MatchingsModifiers {
     IMatchings private matchings;
     IStorages private storages;
 
-    // solhint-disable-next-line
-    constructor(
-        IRoles _roles,
-        IFilplus _filplus,
-        IFilecoin _filecoin,
-        ICarstore _carstore,
-        IDatasets _datasets,
-        IMatchings _matchings,
-        IStorages _storages
-    )
-        MatchingsModifiers(
+    function storagesModifiersInitialize(
+        address _roles,
+        address _filplus,
+        address _filecoin,
+        address _carstore,
+        address _datasets,
+        address _matchings,
+        address _storages
+    ) public onlyInitializing {
+        MatchingsModifiers.matchingsModifiersInitialize(
             _roles,
             _filplus,
             _filecoin,
             _carstore,
             _datasets,
             _matchings
-        )
-    {
-        roles = _roles;
-        filplus = _filplus;
-        carstore = _carstore;
-        datasets = _datasets;
-        matchings = _matchings;
-        storages = _storages;
+        );
+        roles = IRoles(_roles);
+        filplus = IFilplus(_filplus);
+        carstore = ICarstore(_carstore);
+        datasets = IDatasets(_datasets);
+        matchings = IMatchings(_matchings);
+        storages = IStorages(_storages);
     }
 }

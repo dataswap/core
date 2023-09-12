@@ -24,15 +24,42 @@ import {CommonTypes} from "@zondax/filecoin-solidity/contracts/v0.8/types/Common
 ///interface
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 ///type
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
-/// @title Filecoin
-contract Filecoin is IFilecoin {
-    FilecoinType.Network public network;
+import {RolesModifiers} from "src/v0.8/shared/modifiers/RolesModifiers.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
-    // solhint-disable-next-line
-    constructor(FilecoinType.Network _network) {
+/// @title Filecoin
+contract Filecoin is Initializable, UUPSUpgradeable, IFilecoin, RolesModifiers {
+    FilecoinType.Network public network;
+    /// @dev This empty reserved space is put in place to allow future versions to add new
+    uint256[32] private __gap;
+
+    /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
+    function initialize(
+        FilecoinType.Network _network,
+        address _roles
+    ) public initializer {
         network = _network;
+        RolesModifiers.rolesModifiersInitialize(_roles);
+        __UUPSUpgradeable_init();
+    }
+
+    /// @notice UUPS Upgradeable function to update the roles implementation
+    /// @dev Only triggered by contract admin
+    function _authorizeUpgrade(
+        address newImplementation
+    )
+        internal
+        override
+        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+    {}
+
+    /// @notice Returns the implementation contract
+    function getImplementation() external view returns (address) {
+        return _getImplementation();
     }
 
     /// @notice Internal function to get the state of a Filecoin storage deal for a replica.

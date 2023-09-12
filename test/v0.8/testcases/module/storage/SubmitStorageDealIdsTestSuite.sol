@@ -24,9 +24,6 @@ import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
 import {IStoragesHelpers} from "test/v0.8/interfaces/helpers/module/IStoragesHelpers.sol";
 
-import {MatchingType} from "src/v0.8/types/MatchingType.sol";
-import {DatasetType} from "src/v0.8/types/DatasetType.sol";
-
 /// NOTE: Exception test cases submit storage deal id already covered
 
 ///@notice submit storage filecoin deal ids test case with success

@@ -17,19 +17,25 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-// import {Governor, IGovernor, IERC165} from "@openzeppelin/contracts/governance/Governor.sol";
-// import {GovernorCompatibilityBravo} from "@openzeppelin/contracts/governance/compatibility/GovernorCompatibilityBravo.sol";
-import {IVotes} from "@openzeppelin/contracts/governance/extensions/GovernorVotes.sol";
-// import {GovernorVotesQuorumFraction} from "@openzeppelin/contracts/governance/extensions/GovernorVotesQuorumFraction.sol";
-// import {GovernorTimelockControl} from "@openzeppelin/contracts/governance/extensions/GovernorTimelockControl.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+// import {Governor, IGovernor, IERC165} from "@openzeppelin/contracts-upgradeable/governance/Governor.sol";
+// import {GovernorCompatibilityBravo} from "@openzeppelin/contracts-upgradeable/governance/compatibility/GovernorCompatibilityBravo.sol";
+import {IVotesUpgradeable} from "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesUpgradeable.sol";
+// import {GovernorVotesQuorumFraction} from "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorVotesQuorumFraction.sol";
+// import {GovernorTimelockControl} from "@openzeppelin/contracts-upgradeable/governance/extensions/GovernorTimelockControl.sol";
 import {DataswapDAOBase} from "src/v0.8/core/governance/abstract/DataswapDAOBase.sol";
 
 /// @title DataswapDAOPerPersonVoting Contract
 /// @notice This contract serves as the base for the DataSwap DAO governance mechanism with per-person voting.
 /// @dev This contract inherits from DataswapDAOBase and provides the foundation for individual voting.
-abstract contract DataswapDAOPerPersonVoting is DataswapDAOBase {
-    /// @notice Constructor function to initialize the DataswapDAOPerPersonVoting contract.
+abstract contract DataswapDAOPerPersonVoting is Initializable, DataswapDAOBase {
+
+    /// @notice initialize function to initialize the DataswapDAOPerPersonVoting contract.
     /// @param _token The token used for voting.
     // solhint-disable-next-line
-    constructor(IVotes _token) DataswapDAOBase(_token) {}
+    function initialize(
+        IVotesUpgradeable _token
+    ) public virtual override onlyInitializing {
+        DataswapDAOBase.initialize(_token);
+    }
 }

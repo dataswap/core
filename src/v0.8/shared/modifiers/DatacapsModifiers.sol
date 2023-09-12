@@ -30,9 +30,11 @@ import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
 import {StoragesModifiers} from "src/v0.8/shared/modifiers/StoragesModifiers.sol";
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
-contract DatacapsModifiers is StoragesModifiers {
+contract DatacapsModifiers is Initializable, StoragesModifiers {
     IRoles private roles;
     IFilplus private filplus;
     IFilecoin private filecoin;
@@ -42,18 +44,17 @@ contract DatacapsModifiers is StoragesModifiers {
     IStorages private storages;
     IDatacaps private datacaps;
 
-    // solhint-disable-next-line
-    constructor(
-        IRoles _roles,
-        IFilplus _filplus,
-        IFilecoin _filecoin,
-        ICarstore _carstore,
-        IDatasets _datasets,
-        IMatchings _matchings,
-        IStorages _storages,
-        IDatacaps _datacaps
-    )
-        StoragesModifiers(
+    function datacapsModifiersInitialize(
+        address _roles,
+        address _filplus,
+        address _filecoin,
+        address _carstore,
+        address _datasets,
+        address _matchings,
+        address _storages,
+        address _datacaps
+    ) public onlyInitializing {
+        StoragesModifiers.storagesModifiersInitialize(
             _roles,
             _filplus,
             _filecoin,
@@ -61,14 +62,13 @@ contract DatacapsModifiers is StoragesModifiers {
             _datasets,
             _matchings,
             _storages
-        )
-    {
-        roles = _roles;
-        filplus = _filplus;
-        carstore = _carstore;
-        datasets = _datasets;
-        matchings = _matchings;
-        datacaps = _datacaps;
+        );
+        roles = IRoles(_roles);
+        filplus = IFilplus(_filplus);
+        carstore = ICarstore(_carstore);
+        datasets = IDatasets(_datasets);
+        matchings = IMatchings(_matchings);
+        datacaps = IDatacaps(_datacaps);
     }
 
     /// @notice  validNextDatacapAllocation

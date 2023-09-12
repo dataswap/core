@@ -19,7 +19,6 @@ pragma solidity ^0.8.21;
 import {DatasetsTestBase} from "test/v0.8/testcases/module/dataset/abstract/DatasetsTestBase.sol";
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
-import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";

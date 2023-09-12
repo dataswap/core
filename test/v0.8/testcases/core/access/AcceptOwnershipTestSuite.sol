@@ -30,8 +30,7 @@ contract AcceptOwnershipTestCaseWithSuccess is CommonBase {
     {}
 
     function before() internal virtual override {
-        address admin = roles.getRoleMember(bytes32(0x00), 0);
-        vm.prank(admin);
+        vm.prank(roles.owner());
         roles.transferOwnership(address(7));
     }
 

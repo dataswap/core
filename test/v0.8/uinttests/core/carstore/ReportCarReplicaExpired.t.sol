@@ -19,7 +19,6 @@ pragma solidity ^0.8.21;
 import {Test} from "forge-std/Test.sol";
 import {ReportCarReplicaExpiredTestCaseWithSuccess, ReportCarReplicaExpiredTestCaseWithInvalidDealState, ReportCarReplicaExpiredTestCaseWithInvalidId} from "test/v0.8/testcases/core/carstore/ReportCarReplicaExpiredTestSuite.sol";
 import {CarstoreTestSetup} from "test/v0.8/uinttests/core/carstore/setup/CarstoreTestSetup.sol";
-import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
 contract ReportCarReplicaExpiredTest is Test, CarstoreTestSetup {
     /// @notice test case with success

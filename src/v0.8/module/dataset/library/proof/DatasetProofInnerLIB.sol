@@ -30,7 +30,7 @@ library DatasetProofInnerLIB {
     function setRootHash(
         DatasetType.DatasetProof storage self,
         bytes32 _rootHash
-    ) external {
+    ) internal {
         self.rootHash = _rootHash;
     }
 
@@ -40,7 +40,7 @@ library DatasetProofInnerLIB {
     /// @return The root hash of the data's Merkle tree.
     function getRootHash(
         DatasetType.DatasetProof storage self
-    ) external view returns (bytes32) {
+    ) internal view returns (bytes32) {
         return self.rootHash;
     }
 
@@ -51,7 +51,7 @@ library DatasetProofInnerLIB {
     function setAllCompleted(
         DatasetType.DatasetProof storage self,
         bool _completed
-    ) external {
+    ) internal {
         self.allCompleted = _completed;
     }
 
@@ -61,7 +61,7 @@ library DatasetProofInnerLIB {
     /// @return The completion status for all proof batches.
     function getAllCompleted(
         DatasetType.DatasetProof storage self
-    ) external view returns (bool) {
+    ) internal view returns (bool) {
         return self.allCompleted;
     }
 
@@ -72,7 +72,7 @@ library DatasetProofInnerLIB {
     function addProofBatch(
         DatasetType.DatasetProof storage self,
         bytes32[] calldata _leafHashes
-    ) external {
+    ) internal {
         for (uint64 i; i < _leafHashes.length; i++) {
             self.leafHashesCount++;
             self.leafHashes.push(_leafHashes[i]);
@@ -86,7 +86,7 @@ library DatasetProofInnerLIB {
         DatasetType.DatasetProof storage self,
         uint64 _index,
         uint64 _len
-    ) external view returns (bytes32[] memory) {
+    ) internal view returns (bytes32[] memory) {
         require(
             _index + _len <= self.leafHashes.length,
             "Index+len out of bounds"

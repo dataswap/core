@@ -17,11 +17,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {IAccessControlEnumerable} from "@openzeppelin/contracts/access/IAccessControlEnumerable.sol";
+import {IAccessControlEnumerableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/IAccessControlEnumerableUpgradeable.sol";
 
 /// @title IRoles Interface
 /// @notice This interface defines the role-based access control for various roles within the system.
-interface IRoles is IAccessControlEnumerable {
+interface IRoles is IAccessControlEnumerableUpgradeable {
     ///@dev The new owner accepts the ownership transfer.
     function acceptOwnership() external;
 

@@ -21,7 +21,6 @@ pragma solidity ^0.8.21;
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
-import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
@@ -38,10 +37,18 @@ import {DatasetAuditLIB} from "src/v0.8/module/dataset/library/DatasetAuditLIB.s
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+
 /// @title Datasets Base Contract
 /// @notice This contract serves as the base for managing datasets, metadata, proofs, and verifications.
 /// @dev This contract is intended to be inherited by specific dataset-related contracts.
-contract Datasets is IDatasets, DatasetsModifiers {
+contract Datasets is
+    Initializable,
+    UUPSUpgradeable,
+    IDatasets,
+    DatasetsModifiers
+{
     using DatasetMetadataLIB for DatasetType.Dataset;
     using DatasetProofLIB for DatasetType.Dataset;
     using DatasetStateMachineLIB for DatasetType.Dataset;
@@ -56,20 +63,46 @@ contract Datasets is IDatasets, DatasetsModifiers {
     IFilplus private filplus;
     ICarstore private carstore;
     IMerkleUtils public merkleUtils;
+    /// @dev This empty reserved space is put in place to allow future versions to add new
+    uint256[32] private __gap;
 
-    constructor(
+    /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
+    function initialize(
         address _governanceAddress,
-        IRoles _roles,
-        IFilplus _filplus,
-        IFilecoin _filecoin,
-        ICarstore _carstore,
-        IMerkleUtils _merkleUtils
-    ) DatasetsModifiers(_roles, _filplus, _filecoin, _carstore, this) {
+        address _roles,
+        address _filplus,
+        address _filecoin,
+        address _carstore,
+        address _merkleUtils
+    ) public initializer {
+        DatasetsModifiers.datasetsModifiersInitialize(
+            _roles,
+            _filplus,
+            _filecoin,
+            _carstore,
+            address(this)
+        );
         governanceAddress = _governanceAddress;
-        roles = _roles;
-        filplus = _filplus;
-        carstore = _carstore;
-        merkleUtils = _merkleUtils;
+        roles = IRoles(_roles);
+        filplus = IFilplus(_filplus);
+        carstore = ICarstore(_carstore);
+        merkleUtils = IMerkleUtils(_merkleUtils);
+        __UUPSUpgradeable_init();
+    }
+
+    /// @notice UUPS Upgradeable function to update the roles implementation
+    /// @dev Only triggered by contract admin
+    function _authorizeUpgrade(
+        address newImplementation
+    )
+        internal
+        override
+        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+    {}
+
+    /// @notice Returns the implementation contract
+    function getImplementation() external view returns (address) {
+        return _getImplementation();
     }
 
     ///@notice Approve a dataset.

@@ -27,12 +27,21 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {StoragesEvents} from "src/v0.8/shared/events/StoragesEvents.sol";
 import {StoragesModifiers} from "src/v0.8/shared/modifiers/StoragesModifiers.sol";
 /// type
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
 import {StorageType} from "src/v0.8/types/StorageType.sol";
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
-contract Storages is IStorages, StoragesModifiers {
+contract Storages is
+    Initializable,
+    UUPSUpgradeable,
+    IStorages,
+    StoragesModifiers
+{
     mapping(uint64 => StorageType.Storage) private storages; //matchingId=>Matchedstore
 
     address private governanceAddress;
@@ -42,33 +51,50 @@ contract Storages is IStorages, StoragesModifiers {
     ICarstore private carstore;
     IDatasets private datasets;
     IMatchings public matchings;
+    /// @dev This empty reserved space is put in place to allow future versions to add new
+    uint256[32] private __gap;
 
-    // solhint-disable-next-line
-    constructor(
+    /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
+    function initialize(
         address _governanceAddress,
-        IRoles _roles,
-        IFilplus _filplus,
-        IFilecoin _filecoin,
-        ICarstore _carstore,
-        IDatasets _datasets,
-        IMatchings _matchings
-    )
-        StoragesModifiers(
+        address _roles,
+        address _filplus,
+        address _filecoin,
+        address _carstore,
+        address _datasets,
+        address _matchings
+    ) public initializer {
+        StoragesModifiers.storagesModifiersInitialize(
             _roles,
             _filplus,
             _filecoin,
             _carstore,
             _datasets,
             _matchings,
-            this
-        )
-    {
+            address(this)
+        );
         governanceAddress = _governanceAddress;
-        roles = _roles;
-        filplus = _filplus;
-        carstore = _carstore;
-        datasets = _datasets;
-        matchings = _matchings;
+        roles = IRoles(_roles);
+        filplus = IFilplus(_filplus);
+        carstore = ICarstore(_carstore);
+        datasets = IDatasets(_datasets);
+        matchings = IMatchings(_matchings);
+        __UUPSUpgradeable_init();
+    }
+
+    /// @notice UUPS Upgradeable function to update the roles implementation
+    /// @dev Only triggered by contract admin
+    function _authorizeUpgrade(
+        address newImplementation
+    )
+        internal
+        override
+        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+    {}
+
+    /// @notice Returns the implementation contract
+    function getImplementation() external view returns (address) {
+        return _getImplementation();
     }
 
     /// @dev Submits a Filecoin deal Id for a matchedstore after successful matching.

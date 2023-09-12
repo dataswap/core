@@ -29,10 +29,12 @@ import {CarLIB} from "../library/CarLIB.sol";
 ///type
 import {CarReplicaType} from "../../../types/CarReplicaType.sol";
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
 /// @title CarsStorageBase
 /// @notice This contract allows adding cars and managing their associated replicas.
 /// @dev This contract provides functionality for managing car data and associated replicas.
-abstract contract CarstoreBase is ICarstore, CarstoreModifiers {
+abstract contract CarstoreBase is Initializable, ICarstore, CarstoreModifiers {
     using CarLIB for CarReplicaType.Car;
 
     uint64 public carsCount;
@@ -42,16 +44,24 @@ abstract contract CarstoreBase is ICarstore, CarstoreModifiers {
     IRoles internal roles;
     IFilplus public filplus;
     IFilecoin public filecoin;
+    /// @dev This empty reserved space is put in place to allow future versions to add new
+    uint256[32] private __gap;
 
-    // solhint-disable-next-line
-    constructor(
-        IRoles _roles,
-        IFilplus _filplus,
-        IFilecoin _filecoin
-    ) CarstoreModifiers(_roles, _filplus, _filecoin, this) {
-        roles = _roles;
-        filplus = _filplus;
-        filecoin = _filecoin;
+    /// @notice carstoreBaseInitialize function to initialize the contract and grant the default admin role to the deployer.
+    function carstoreBaseInitialize(
+        address _roles,
+        address _filplus,
+        address _filecoin
+    ) public virtual onlyInitializing {
+        CarstoreModifiers.carstoreModifiersInitialize(
+            _roles,
+            _filplus,
+            _filecoin,
+            address(this)
+        );
+        roles = IRoles(_roles);
+        filplus = IFilplus(_filplus);
+        filecoin = IFilecoin(_filecoin);
     }
 
     /// @notice Post an event for a car's replica based on the matching ID, triggering state transitions.

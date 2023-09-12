@@ -17,10 +17,40 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {RolesType} from "src/v0.8/types/RolesType.sol";
+import {RolesModifiers} from "src/v0.8/shared/modifiers/RolesModifiers.sol";
 import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /// @title MerkleUtils
-contract MerkleUtils is IMerkleUtils {
+contract MerkleUtils is
+    Initializable,
+    UUPSUpgradeable,
+    IMerkleUtils,
+    RolesModifiers
+{
+    /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
+    function initialize(address _roles) public initializer {
+        RolesModifiers.rolesModifiersInitialize(_roles);
+        __UUPSUpgradeable_init();
+    }
+
+    /// @notice UUPS Upgradeable function to update the roles implementation
+    /// @dev Only triggered by contract admin
+    function _authorizeUpgrade(
+        address newImplementation
+    )
+        internal
+        override
+        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+    {}
+
+    /// @notice Returns the implementation contract
+    function getImplementation() external view returns (address) {
+        return _getImplementation();
+    }
+
     /// @notice Validate a Merkle proof.
     /// @dev This function checks if a given Merkle proof is valid.
     function isValidMerkleProof(
@@ -87,5 +117,7 @@ contract MerkleUtils is IMerkleUtils {
     }
 
     /// @notice Mock function
-    function setMockValidState(bool _state) external {}
+    function setMockValidState(
+        bool _state // solhint-disable-next-line
+    ) external {}
 }

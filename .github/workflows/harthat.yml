@@ -24,6 +24,7 @@ jobs:
       - name: Install Depends
         run: |
           yarn install
+          npm install --save-dev hardhat
         id: intsalldepends
 
       - name: Run hardhat build

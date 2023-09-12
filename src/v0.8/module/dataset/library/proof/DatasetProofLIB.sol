@@ -37,7 +37,7 @@ library DatasetProofLIB {
         bytes32[] calldata _leafHashes,
         uint64[] calldata _leafSizes,
         bool _allCompleted
-    ) external {
+    ) internal {
         require(_leafHashes.length == _leafSizes.length, "length must matched");
         DatasetType.DatasetProof storage proof;
         if (_dataType == DatasetType.DataType.Source) {
@@ -66,7 +66,7 @@ library DatasetProofLIB {
         DatasetType.DataType _dataType,
         uint64 _index,
         uint64 _len
-    ) public view returns (bytes32[] memory) {
+    ) internal view returns (bytes32[] memory) {
         DatasetType.DatasetProof storage proof;
         if (_dataType == DatasetType.DataType.Source) {
             proof = self.sourceProof;
@@ -84,7 +84,7 @@ library DatasetProofLIB {
         DatasetType.DataType _dataType,
         uint64 _index,
         uint64 _len
-    ) public view returns (bytes32[] memory) {
+    ) internal view returns (bytes32[] memory) {
         bytes32[] memory hashes = getDatasetProof(
             self,
             _dataType,
@@ -101,7 +101,7 @@ library DatasetProofLIB {
     function getDatasetCount(
         DatasetType.Dataset storage self,
         DatasetType.DataType _dataType
-    ) public view returns (uint64) {
+    ) internal view returns (uint64) {
         DatasetType.DatasetProof storage proof;
         if (_dataType == DatasetType.DataType.Source) {
             proof = self.sourceProof;
@@ -117,7 +117,7 @@ library DatasetProofLIB {
     function getDatasetSize(
         DatasetType.Dataset storage self,
         DatasetType.DataType _dataType
-    ) public view returns (uint64) {
+    ) internal view returns (uint64) {
         DatasetType.DatasetProof storage proof;
         if (_dataType == DatasetType.DataType.Source) {
             proof = self.sourceProof;
@@ -132,7 +132,7 @@ library DatasetProofLIB {
     /// @return The address of submitter
     function getDatasetSubmitter(
         DatasetType.Dataset storage self
-    ) public view returns (address) {
+    ) internal view returns (address) {
         return self.proofSubmitter;
     }
 
@@ -142,7 +142,7 @@ library DatasetProofLIB {
     function isDatasetSubmitter(
         DatasetType.Dataset storage self,
         address submitter
-    ) public view returns (bool) {
+    ) internal view returns (bool) {
         if (submitter == self.proofSubmitter) {
             return true;
         }

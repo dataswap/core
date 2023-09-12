@@ -30,6 +30,7 @@ jobs:
               run: |
                   forge install
                   yarn install
+                  npm install @openzeppelin/contracts-upgradeable
               id: intsalldepends
 
             - name: Run Forge build

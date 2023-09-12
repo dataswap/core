@@ -28,6 +28,7 @@ contract AccessTestSetup {
     /// @dev Initialize the roles and assertion contracts.
     function setup() internal {
         roles = new Roles();
+        roles.initialize();
         assertion = new RolesAssertion(roles);
     }
 }

@@ -30,7 +30,7 @@ library DatasetAuditLIB {
     /// @notice Approve the metadata of a dataset.
     /// @dev This function changes the state of the dataset to MetadataApproved and emits the MetadataApproved event.
     /// @param self The dataset for which metadata is being approved.
-    function approveDatasetMetadata(DatasetType.Dataset storage self) external {
+    function approveDatasetMetadata(DatasetType.Dataset storage self) internal {
         require(
             self.state == DatasetType.State.MetadataSubmitted,
             "Invalid state"
@@ -41,7 +41,7 @@ library DatasetAuditLIB {
     /// @notice Reject the metadata of a dataset.
     /// @dev This function changes the state of the dataset to MetadataRejected and emits the MetadataRejected event.
     /// @param self The dataset for which metadata is being rejected.
-    function rejectDatasetMetadata(DatasetType.Dataset storage self) external {
+    function rejectDatasetMetadata(DatasetType.Dataset storage self) internal {
         require(
             self.state == DatasetType.State.MetadataSubmitted,
             "Invalid state"
@@ -52,7 +52,7 @@ library DatasetAuditLIB {
     /// @notice Approve a dataset.
     /// @dev This function changes the state of the dataset to DatasetApproved and emits the DatasetApproved event.
     /// @param self The dataset to be approved.
-    function approveDataset(DatasetType.Dataset storage self) external {
+    function approveDataset(DatasetType.Dataset storage self) internal {
         require(
             self.state == DatasetType.State.DatasetProofSubmitted,
             "Invalid state"
@@ -63,7 +63,7 @@ library DatasetAuditLIB {
     /// @notice Reject a dataset.
     /// @dev This function changes the state of the dataset to MetadataApproved and emits the DatasetRejected event.
     /// @param self The dataset to be rejected.
-    function rejectDataset(DatasetType.Dataset storage self) external {
+    function rejectDataset(DatasetType.Dataset storage self) internal {
         require(
             self.state == DatasetType.State.DatasetProofSubmitted,
             "Invalid state"

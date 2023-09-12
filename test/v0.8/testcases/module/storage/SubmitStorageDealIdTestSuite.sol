@@ -25,9 +25,6 @@ import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
 import {IStoragesHelpers} from "test/v0.8/interfaces/helpers/module/IStoragesHelpers.sol";
 
-import {MatchingType} from "src/v0.8/types/MatchingType.sol";
-import {DatasetType} from "src/v0.8/types/DatasetType.sol";
-
 ///@notice submit storage filecoin deal id test case with success
 contract SubmitStorageDealIdTestCaseWithSuccess is StoragesTestBase {
     constructor(

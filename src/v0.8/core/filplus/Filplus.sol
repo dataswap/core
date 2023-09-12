@@ -22,14 +22,19 @@ pragma solidity ^0.8.21;
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 ///shared
 import {FilplusEvents} from "src/v0.8/shared/events/FilplusEvents.sol";
-import {CommonModifiers} from "src/v0.8/shared/modifiers/CommonModifiers.sol";
 ///type
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {FilplusType} from "src/v0.8/types/FilplusType.sol";
 
+import {RolesModifiers} from "src/v0.8/shared/modifiers/RolesModifiers.sol";
+
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+
 /// @title Filplus
-contract Filplus is IFilplus, CommonModifiers {
+contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     // solhint-disable-next-line
-    address public immutable GOVERNANCE_ADDRESS; //The address of the governance contract.
+    address public GOVERNANCE_ADDRESS; //The address of the governance contract.
 
     ///@notice car rules
     uint16 public carRuleMaxCarReplicas; // Represents the maximum number of car replicas in the entire network
@@ -64,9 +69,16 @@ contract Filplus is IFilplus, CommonModifiers {
 
     FilplusType.MatchingRuleCommissionType private matchingRulesCommissionType; // Type of commission for matching.
 
+    /// @dev This empty reserved space is put in place to allow future versions to add new
+    uint256[32] private __gap;
+
+    /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
     // solhint-disable-next-line
-    constructor(address payable _governance_address) {
-        GOVERNANCE_ADDRESS = _governance_address;
+    function initialize(
+        address payable _governanceAddress,
+        address _roles
+    ) public initializer {
+        GOVERNANCE_ADDRESS = _governanceAddress;
         //defalut car rules
         carRuleMaxCarReplicas = 20;
 
@@ -91,6 +103,24 @@ contract Filplus is IFilplus, CommonModifiers {
         matchingRulesCommissionType = FilplusType
             .MatchingRuleCommissionType
             .BuyerPays;
+
+        RolesModifiers.rolesModifiersInitialize(_roles);
+        __UUPSUpgradeable_init();
+    }
+
+    /// @notice UUPS Upgradeable function to update the roles implementation
+    /// @dev Only triggered by contract admin
+    function _authorizeUpgrade(
+        address newImplementation
+    )
+        internal
+        override
+        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+    {}
+
+    /// @notice Returns the implementation contract
+    function getImplementation() external view returns (address) {
+        return _getImplementation();
     }
 
     function getMatchingRulesCommissionType() external view returns (uint8) {

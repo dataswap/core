@@ -11,7 +11,7 @@ bin/
 # Docs
 
 # Dotenv file
-.env
+.openzeppelin
 
 node_modules
 coverage
@@ -22,6 +22,8 @@ typechain-types
 # Hardhat files
 cache-hardhat
 artifacts
+deployments/
 
 # npm file
 package-lock.json
+yarn.lock

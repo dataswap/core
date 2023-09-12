@@ -17,8 +17,6 @@
 
 pragma solidity ^0.8.21;
 import {IDatacapsHelpers} from "test/v0.8/interfaces/helpers/module/IDatacapsHelpers.sol";
-import {DatasetType} from "src/v0.8/types/DatasetType.sol";
-import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
 

@@ -17,10 +17,6 @@
 
 pragma solidity ^0.8.21;
 
-/// interface
-import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
-import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 ///shared
 import {CarstoreEvents} from "src/v0.8/shared/events/CarstoreEvents.sol";
 ///library
@@ -28,23 +24,43 @@ import {CarLIB} from "src/v0.8/core/carstore/library/CarLIB.sol";
 ///abstract
 import {CarstoreBase} from "src/v0.8/core/carstore/abstract/CarstoreBase.sol";
 ///type
-import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
+import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
+
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
 /// @title CarsStorageBase
 /// @notice This contract allows adding cars and managing their associated replicas.
 /// @dev This contract provides functionality for managing car data and associated replicas.
-contract Carstore is CarstoreBase {
+contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     using CarLIB for CarReplicaType.Car;
 
-    // solhint-disable-next-line
-    constructor(
-        IRoles _roles,
-        IFilplus _filplus,
-        IFilecoin _filecoin
+    /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
+    function initialize(
+        address _roles,
+        address _filplus,
+        address _filecoin
+    ) public initializer {
+        CarstoreBase.carstoreBaseInitialize(_roles, _filplus, _filecoin);
+        __UUPSUpgradeable_init();
+    }
+
+    /// @notice UUPS Upgradeable function to update the roles implementation
+    /// @dev Only triggered by contract admin
+    function _authorizeUpgrade(
+        address newImplementation
     )
-        CarstoreBase(_roles, _filplus, _filecoin) // solhint-disable-next-line
+        internal
+        override
+        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
     {}
+
+    /// @notice Returns the implementation contract
+    function getImplementation() external view returns (address) {
+        return _getImplementation();
+    }
 
     /// @dev Internal function to add a car based on its CID.
     ///      tips: diffent dataset has the same car is dones't matter,maybe need limit replicas count for a car.

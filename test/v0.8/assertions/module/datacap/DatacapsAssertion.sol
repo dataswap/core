@@ -19,8 +19,6 @@ pragma solidity ^0.8.21;
 // Importing Solidity libraries and contracts
 import {DSTest} from "ds-test/test.sol";
 import {Test} from "forge-std/Test.sol";
-import {DatasetType} from "src/v0.8/types/DatasetType.sol";
-import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
 import {IDatacapsAssertion} from "test/v0.8/interfaces/assertions/module/IDatacapsAssertion.sol";
 

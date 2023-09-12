@@ -26,12 +26,10 @@ import {Matchings} from "src/v0.8/module/matching/Matchings.sol";
 import {Storages} from "src/v0.8/module/storage/Storages.sol";
 import {Datacaps} from "src/v0.8/module/datacap/Datacaps.sol";
 import {MatchingsAssertion} from "test/v0.8/assertions/module/matching/MatchingsAssertion.sol";
-import {StoragesAssertion} from "test/v0.8/assertions/module/storage/StoragesAssertion.sol";
 import {DatacapsAssertion} from "test/v0.8/assertions/module/datacap/DatacapsAssertion.sol";
 import {DatasetsHelpers} from "test/v0.8/helpers/module/dataset/DatasetsHelpers.sol";
 import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
 import {MatchingsHelpers} from "test/v0.8/helpers/module/matching/MatchingsHelpers.sol";
-import {StoragesHelpers} from "test/v0.8/helpers/module/storage/StoragesHelpers.sol";
 import {DatasetsAssertion} from "test/v0.8/assertions/module/dataset/DatasetsAssertion.sol";
 import {DatacapsHelpers} from "test/v0.8/helpers/module/datacap/DatacapsHelpers.sol";
 
@@ -47,45 +45,58 @@ contract DatacapTestSetup {
     /// @dev Initialize the Datacaps and assertion contracts.
     function setup() internal {
         Roles role = new Roles();
-        Filplus filplus = new Filplus(governanceContractAddresss);
+        role.initialize();
+        Filplus filplus = new Filplus();
+        filplus.initialize(governanceContractAddresss, address(role));
+
         MockFilecoin filecoin = new MockFilecoin();
+        filecoin.initialize(address(role));
         MockMerkleUtils merkleUtils = new MockMerkleUtils();
-        Carstore carstore = new Carstore(role, filplus, filecoin);
-        Datasets datasets = new Datasets(
+        merkleUtils.initialize(address(role));
+
+        Carstore carstore = new Carstore();
+        carstore.initialize(address(role), address(filplus), address(filecoin));
+        Datasets datasets = new Datasets();
+        datasets.initialize(
             governanceContractAddresss,
-            role,
-            filplus,
-            filecoin,
-            carstore,
-            merkleUtils
-        );
-        Matchings matchings = new Matchings(
-            governanceContractAddresss,
-            role,
-            filplus,
-            filecoin,
-            carstore,
-            datasets
-        );
-        Storages storages = new Storages(
-            governanceContractAddresss,
-            role,
-            filplus,
-            filecoin,
-            carstore,
-            datasets,
-            matchings
+            address(role),
+            address(filplus),
+            address(filecoin),
+            address(carstore),
+            address(merkleUtils)
         );
 
-        datacaps = new Datacaps(
+        Matchings matchings = new Matchings();
+        matchings.initialize(
             governanceContractAddresss,
-            role,
-            filplus,
-            filecoin,
-            carstore,
-            datasets,
-            matchings,
-            storages
+            address(role),
+            address(filplus),
+            address(filecoin),
+            address(carstore),
+            address(datasets)
+        );
+
+        Storages storages = new Storages();
+        storages.initialize(
+            governanceContractAddresss,
+            address(role),
+            address(filplus),
+            address(filecoin),
+            address(carstore),
+            address(datasets),
+            address(matchings)
+        );
+
+        datacaps = new Datacaps();
+        datacaps.initialize(
+            governanceContractAddresss,
+            address(role),
+            address(filplus),
+            address(filecoin),
+            address(carstore),
+            address(datasets),
+            address(matchings),
+            address(storages)
         );
 
         MatchingsAssertion machingsAssertion = new MatchingsAssertion(

@@ -30,27 +30,35 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 ///types
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
-contract DatasetsModifiers is CarstoreModifiers {
+contract DatasetsModifiers is Initializable, CarstoreModifiers {
     IRoles private roles;
     IFilplus private filplus;
     IFilecoin private filecoin;
     ICarstore private carstore;
     IDatasets private datasets;
 
-    // solhint-disable-next-line
-    constructor(
-        IRoles _roles,
-        IFilplus _filplus,
-        IFilecoin _filecoin,
-        ICarstore _carstore,
-        IDatasets _datasets
-    ) CarstoreModifiers(_roles, _filplus, _filecoin, _carstore) {
-        roles = _roles;
-        filplus = _filplus;
-        carstore = _carstore;
-        datasets = _datasets;
+    /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
+    function datasetsModifiersInitialize(
+        address _roles,
+        address _filplus,
+        address _filecoin,
+        address _carstore,
+        address _datasets
+    ) public onlyInitializing {
+        CarstoreModifiers.carstoreModifiersInitialize(
+            _roles,
+            _filplus,
+            _filecoin,
+            _carstore
+        );
+        roles = IRoles(_roles);
+        filplus = IFilplus(_filplus);
+        carstore = ICarstore(_carstore);
+        datasets = IDatasets(_datasets);
     }
 
     /// @dev Modifier to ensure that a dataset metadata  with the given accessMethod exists.
