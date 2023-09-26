@@ -74,20 +74,24 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
 
     ///  @notice Generate Merkle proof data.
     ///  @param _leavesCount The number of leaves in the Merkle tree.
+    ///  @param _offset The offset of leaves in the Merkle tree.
     ///  @return leavesHashes The hashes of Merkle tree leaves.
+    ///  @return leavesIndexs The index of Merkle tree leaves.
     ///  @return leavesSizes The sizes of Merkle tree leaves.
     ///  @return The total size of the Merkle tree.
     function generateProof(
-        uint64 _leavesCount
+        uint64 _leavesCount,
+        uint64 _offset
     )
         public
         returns (
             bytes32[] memory leavesHashes,
+            uint64[] memory leavesIndexs,
             uint64[] memory leavesSizes,
             uint64
         )
     {
-        return generator.generateLeavesAndSizes(_leavesCount);
+        return generator.generateLeavesAndSizes(_leavesCount, _offset);
     }
 
     /// @notice Submit a proof for a dataset.
@@ -107,16 +111,27 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
     ) public {
         bytes32 root = generateRoot();
         bytes32[] memory leavesHashes = new bytes32[](_leavesCount);
+        uint64[] memory leavesIndexs = new uint64[](_leavesCount);
         uint64[] memory leavesSizes = new uint64[](_leavesCount);
-        (leavesHashes, leavesSizes, ) = generateProof(_leavesCount);
+        uint64 count = datasets.getDatasetProofCount(_datasetId, _dataType);
+        (leavesHashes, leavesIndexs, leavesSizes, ) = generateProof(
+            _leavesCount,
+            count
+        );
+        vm.prank(caller);
+        datasets.submitDatasetProofRoot(
+            _datasetId,
+            _dataType,
+            _accessMethod,
+            root
+        );
 
         vm.prank(caller);
         datasets.submitDatasetProof(
             _datasetId,
             _dataType,
-            _accessMethod,
-            root,
             leavesHashes,
+            leavesIndexs,
             leavesSizes,
             _complete
         );
@@ -144,8 +159,10 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         siblings = new bytes32[][](_pointCount);
         paths = new uint32[](_pointCount);
         for (uint32 i = 0; i < _pointCount; i++) {
-            leaves[i] = generator.generateLeaves(1)[0];
-            siblings[i] = generator.generateLeaves(_pointCount);
+            bytes32[] memory tmpLeaves = new bytes32[](1);
+            (tmpLeaves, ) = generator.generateLeaves(1, 0);
+            leaves[i] = tmpLeaves[0];
+            (siblings[i], ) = generator.generateLeaves(_pointCount, 0);
             paths[i] = i;
         }
     }
@@ -164,8 +181,10 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         uint32[] memory paths = new uint32[](challengeCount);
         bytes32[] memory leaves = new bytes32[](challengeCount);
         for (uint32 i = 0; i < challengeCount; i++) {
-            leaves[i] = generator.generateLeaves(1)[0];
-            siblings[i] = generator.generateLeaves(challengeCount);
+            bytes32[] memory tmpLeaves = new bytes32[](1);
+            (tmpLeaves, ) = generator.generateLeaves(1, 0);
+            leaves[i] = tmpLeaves[0];
+            (siblings[i], ) = generator.generateLeaves(challengeCount, 0);
             paths[i] = i;
         }
         vm.prank(caller);

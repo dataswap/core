@@ -82,6 +82,18 @@ interface IDatasetsAssertion {
     /// @param _dataType The data type of the proof.
     /// @param accessMethod The access method for the proof.
     /// @param _rootHash The root hash of the proof.
+    function submitDatasetProofRootAssertion(
+        address caller,
+        uint64 _datasetId,
+        DatasetType.DataType _dataType,
+        string calldata accessMethod,
+        bytes32 _rootHash
+    ) external;
+
+    /// @notice Asserts the submission of dataset proof.
+    /// @param caller The caller's address.
+    /// @param _datasetId The ID of the dataset for which proof is submitted.
+    /// @param _dataType The data type of the proof.
     /// @param _leafHashes The leaf hashes of the proof.
     /// @param _leafSizes The sizes of the leaf hashes.
     /// @param _completed Indicates if the proof is completed.
@@ -89,9 +101,8 @@ interface IDatasetsAssertion {
         address caller,
         uint64 _datasetId,
         DatasetType.DataType _dataType,
-        string calldata accessMethod,
-        bytes32 _rootHash,
         bytes32[] calldata _leafHashes,
+        uint64[] calldata _leafIndexs,
         uint64[] calldata _leafSizes,
         bool _completed
     ) external;

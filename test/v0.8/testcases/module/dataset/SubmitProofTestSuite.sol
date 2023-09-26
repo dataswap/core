@@ -44,36 +44,55 @@ contract SubmitProofTestCaseWithSuccess is DatasetsTestBase {
         bytes32 sourceRoot = datasetsHelpers.generateRoot();
         uint64 sourceLeavesCount = 100;
         bytes32[] memory sourceLeavesHashes = new bytes32[](sourceLeavesCount);
+        uint64[] memory sourceLeavesIndexs = new uint64[](sourceLeavesCount);
         uint64[] memory sourceLeavesSizes = new uint64[](sourceLeavesCount);
         // firset submit
-        (sourceLeavesHashes, sourceLeavesSizes, ) = datasetsHelpers
-            .generateProof(sourceLeavesCount);
+        (
+            sourceLeavesHashes,
+            sourceLeavesIndexs,
+            sourceLeavesSizes,
+
+        ) = datasetsHelpers.generateProof(sourceLeavesCount, 0);
         // vm.prank();
         address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
         vm.startPrank(admin);
         datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
         vm.stopPrank();
-        datasetsAssertion.submitDatasetProofAssertion(
+        datasetsAssertion.submitDatasetProofRootAssertion(
             address(99),
             _datasetId,
             DatasetType.DataType.Source,
             "",
-            sourceRoot,
+            sourceRoot
+        );
+        datasetsAssertion.submitDatasetProofAssertion(
+            address(99),
+            _datasetId,
+            DatasetType.DataType.Source,
             sourceLeavesHashes,
+            sourceLeavesIndexs,
             sourceLeavesSizes,
             false
         );
 
+        uint64 count = datasets.getDatasetProofCount(
+            _datasetId,
+            DatasetType.DataType.Source
+        );
         // second submit
-        (sourceLeavesHashes, sourceLeavesSizes, ) = datasetsHelpers
-            .generateProof(sourceLeavesCount);
+        (
+            sourceLeavesHashes,
+            sourceLeavesIndexs,
+            sourceLeavesSizes,
+
+        ) = datasetsHelpers.generateProof(sourceLeavesCount, count);
+
         datasetsAssertion.submitDatasetProofAssertion(
             address(99),
             _datasetId,
             DatasetType.DataType.Source,
-            "",
-            sourceRoot,
             sourceLeavesHashes,
+            sourceLeavesIndexs,
             sourceLeavesSizes,
             true
         );
@@ -99,37 +118,133 @@ contract SubmitProofTestCaseWithInvalidSubmitter is DatasetsTestBase {
         bytes32 sourceRoot = datasetsHelpers.generateRoot();
         uint64 sourceLeavesCount = 100;
         bytes32[] memory sourceLeavesHashes = new bytes32[](sourceLeavesCount);
+        uint64[] memory sourceLeavesIndexs = new uint64[](sourceLeavesCount);
         uint64[] memory sourceLeavesSizes = new uint64[](sourceLeavesCount);
         // firset submit
-        (sourceLeavesHashes, sourceLeavesSizes, ) = datasetsHelpers
-            .generateProof(sourceLeavesCount);
+        (
+            sourceLeavesHashes,
+            sourceLeavesIndexs,
+            sourceLeavesSizes,
+
+        ) = datasetsHelpers.generateProof(sourceLeavesCount, 0);
         // vm.prank();
         address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
         vm.startPrank(admin);
         datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
         vm.stopPrank();
-        datasetsAssertion.submitDatasetProofAssertion(
+        datasetsAssertion.submitDatasetProofRootAssertion(
             address(99),
             _datasetId,
             DatasetType.DataType.Source,
             "",
-            sourceRoot,
+            sourceRoot
+        );
+
+        datasetsAssertion.submitDatasetProofAssertion(
+            address(99),
+            _datasetId,
+            DatasetType.DataType.Source,
             sourceLeavesHashes,
+            sourceLeavesIndexs,
             sourceLeavesSizes,
             false
         );
 
+        uint64 count = datasets.getDatasetProofCount(
+            _datasetId,
+            DatasetType.DataType.Source
+        );
+
         // second submit
-        (sourceLeavesHashes, sourceLeavesSizes, ) = datasetsHelpers
-            .generateProof(sourceLeavesCount);
+        (
+            sourceLeavesHashes,
+            sourceLeavesIndexs,
+            sourceLeavesSizes,
+
+        ) = datasetsHelpers.generateProof(sourceLeavesCount, count);
         vm.expectRevert(bytes("Invalid Dataset submitter"));
         datasetsAssertion.submitDatasetProofAssertion(
             address(199),
             _datasetId,
             DatasetType.DataType.Source,
-            "",
-            sourceRoot,
             sourceLeavesHashes,
+            sourceLeavesIndexs,
+            sourceLeavesSizes,
+            true
+        );
+    }
+}
+
+///@notice submit dataset proof test case with invalid index.
+contract SubmitProofTestCaseWithInvalidIndex is DatasetsTestBase {
+    constructor(
+        IDatasets _datasets,
+        IDatasetsHelpers _datasetsHelpers,
+        IDatasetsAssertion _datasetsAssertion
+    )
+        DatasetsTestBase(_datasets, _datasetsHelpers, _datasetsAssertion) // solhint-disable-next-line
+    {}
+
+    function before() internal virtual override returns (uint64) {
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return setup.proofTestSetup(datasetsHelpers, datasets);
+    }
+
+    function action(uint64 _datasetId) internal virtual override {
+        bytes32 sourceRoot = datasetsHelpers.generateRoot();
+        uint64 sourceLeavesCount = 100;
+        bytes32[] memory sourceLeavesHashes = new bytes32[](sourceLeavesCount);
+        uint64[] memory sourceLeavesIndexs = new uint64[](sourceLeavesCount);
+        uint64[] memory sourceLeavesSizes = new uint64[](sourceLeavesCount);
+        // firset submit
+        (
+            sourceLeavesHashes,
+            sourceLeavesIndexs,
+            sourceLeavesSizes,
+
+        ) = datasetsHelpers.generateProof(sourceLeavesCount, 0);
+        // vm.prank();
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
+        vm.stopPrank();
+        datasetsAssertion.submitDatasetProofRootAssertion(
+            address(99),
+            _datasetId,
+            DatasetType.DataType.Source,
+            "",
+            sourceRoot
+        );
+
+        datasetsAssertion.submitDatasetProofAssertion(
+            address(99),
+            _datasetId,
+            DatasetType.DataType.Source,
+            sourceLeavesHashes,
+            sourceLeavesIndexs,
+            sourceLeavesSizes,
+            false
+        );
+
+        uint64 count = datasets.getDatasetProofCount(
+            _datasetId,
+            DatasetType.DataType.Source
+        );
+
+        // second submit
+        (
+            sourceLeavesHashes,
+            sourceLeavesIndexs,
+            sourceLeavesSizes,
+
+        ) = datasetsHelpers.generateProof(sourceLeavesCount, count + 10);
+        vm.expectRevert(bytes("index must match Count"));
+        datasetsAssertion.submitDatasetProofAssertion(
+            address(99),
+            _datasetId,
+            DatasetType.DataType.Source,
+            sourceLeavesHashes,
+            sourceLeavesIndexs,
             sourceLeavesSizes,
             true
         );

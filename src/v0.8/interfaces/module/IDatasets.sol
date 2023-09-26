@@ -54,13 +54,20 @@ interface IDatasets {
         uint64 _version
     ) external;
 
+    ///@notice Submit proof root for a dataset
+    function submitDatasetProofRoot(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType,
+        string calldata _mappingFilesAccessMethod,
+        bytes32 _rootHash
+    ) external;
+
     ///@notice Submit proof for a dataset
     function submitDatasetProof(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
-        string calldata accessMethod,
-        bytes32 _rootHash,
         bytes32[] calldata _leafHashes,
+        uint64[] calldata _leafIndexs,
         uint64[] calldata _leafSizes,
         bool _completed
     ) external;

@@ -27,18 +27,14 @@ library DatasetProofLIB {
     using DatasetStateMachineLIB for DatasetType.Dataset;
     using DatasetProofInnerLIB for DatasetType.DatasetProof;
 
-    /// @notice Submit a proof for a dataset.
-    /// @dev This function allows submitting a proof for a dataset and emits the SubmitDatasetProof event.
+    /// @notice Submit a proof root for a dataset.
+    /// @dev This function allows submitting a proof root for a dataset and emits the SubmitDatasetProof event.
     /// @param self The dataset to which the proof will be submitted.
-    function addDatasetProofBatch(
+    function addDatasetProofRoot(
         DatasetType.Dataset storage self,
         DatasetType.DataType _dataType,
-        bytes32 _rootHash,
-        bytes32[] calldata _leafHashes,
-        uint64[] calldata _leafSizes,
-        bool _allCompleted
-    ) internal {
-        require(_leafHashes.length == _leafSizes.length, "length must matched");
+        bytes32 _rootHash
+    ) external {
         DatasetType.DatasetProof storage proof;
         if (_dataType == DatasetType.DataType.Source) {
             proof = self.sourceProof;
@@ -49,9 +45,30 @@ library DatasetProofLIB {
             require(_rootHash.length == 32, "length must matched");
             proof.rootHash = _rootHash;
         }
+    }
+
+    /// @notice Submit a proof for a dataset.
+    /// @dev This function allows submitting a proof for a dataset and emits the SubmitDatasetProof event.
+    /// @param self The dataset to which the proof will be submitted.
+    function addDatasetProofBatch(
+        DatasetType.Dataset storage self,
+        DatasetType.DataType _dataType,
+        bytes32[] calldata _leafHashes,
+        uint64[] calldata _leafIndexs,
+        uint64[] calldata _leafSizes,
+        bool _allCompleted
+    ) external {
+        require(_leafHashes.length == _leafSizes.length, "length must matched");
+        DatasetType.DatasetProof storage proof;
+        if (_dataType == DatasetType.DataType.Source) {
+            proof = self.sourceProof;
+        } else {
+            proof = self.mappingFilesProof;
+        }
+
         if (proof.allCompleted == false && _allCompleted == true)
             proof.allCompleted = _allCompleted;
-        proof.addProofBatch(_leafHashes);
+        proof.addProofBatch(_leafHashes, _leafIndexs);
 
         for (uint64 i; i < _leafSizes.length; i++) {
             proof.datasetSize += _leafSizes[i];

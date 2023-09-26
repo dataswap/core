@@ -71,9 +71,14 @@ library DatasetProofInnerLIB {
     /// @param _leafHashes Array of leaf hashes representing items in the data.
     function addProofBatch(
         DatasetType.DatasetProof storage self,
-        bytes32[] calldata _leafHashes
-    ) internal {
+        bytes32[] calldata _leafHashes,
+        uint64[] calldata _leafIndexs
+    ) external {
         for (uint64 i; i < _leafHashes.length; i++) {
+            require(
+                _leafIndexs[i] == self.leafHashesCount,
+                "index must match Count"
+            );
             self.leafHashesCount++;
             self.leafHashes.push(_leafHashes[i]);
         }

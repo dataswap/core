@@ -33,14 +33,20 @@ contract Generator {
 
     /// @notice Generate an array of leaves for testing.
     /// @param _count The number of leaves to generate.
-    /// @return An array of bytes32 leaves.
-    function generateLeaves(uint64 _count) public returns (bytes32[] memory) {
+    /// @param _offset The offset of leaves to generate.
+    /// @return An array of bytes32 leaves, an array of uint64 indexes.
+    function generateLeaves(
+        uint64 _count,
+        uint64 _offset
+    ) public returns (bytes32[] memory, uint64[] memory) {
         bytes32[] memory leaves = new bytes32[](_count);
+        uint64[] memory indexs = new uint64[](_count);
         for (uint64 i = 0; i < _count; i++) {
             nonce++;
+            indexs[i] = i + _offset;
             leaves[i] = CommonHelpers.convertUint64ToBytes32(nonce);
         }
-        return leaves;
+        return (leaves, indexs);
     }
 
     /// @notice Generate an array of sizes for testing.
@@ -60,15 +66,26 @@ contract Generator {
 
     /// @notice Generate an array of leaves and sizes for testing.
     /// @param _count The number of leaves and sizes to generate.
-    /// @return An array of bytes32 leaves, an array of uint64 sizes, and the total size.
+    /// @param _offset The offset of leaves and sizes to generate.
+    /// @return An array of bytes32 leaves, an array of uint64 indexes, an array of uint64 sizes, and the total size.
     function generateLeavesAndSizes(
-        uint64 _count
-    ) public returns (bytes32[] memory, uint64[] memory, uint64 totalSize) {
+        uint64 _count,
+        uint64 _offset
+    )
+        public
+        returns (
+            bytes32[] memory,
+            uint64[] memory,
+            uint64[] memory,
+            uint64 totalSize
+        )
+    {
         bytes32[] memory leaves = new bytes32[](_count);
+        uint64[] memory indexs = new uint64[](_count);
         uint64[] memory sizes = new uint64[](_count);
-        leaves = generateLeaves(_count);
+        (leaves, indexs) = generateLeaves(_count, _offset);
         (sizes, totalSize) = generateSizes(_count);
-        return (leaves, sizes, totalSize);
+        return (leaves, indexs, sizes, totalSize);
     }
 
     /// @notice Generate a nonce for testing.
