@@ -38,10 +38,14 @@ interface IDatasetsHelpers {
 
     /// @notice Generate a Merkle tree proof.
     /// @param _leavesCount The number of leaves in the tree.
+    /// @param _offset The offset of leaves in the tree.
     /// @return An array of proof elements, an array of leaf sizes, and the tree height.
     function generateProof(
-        uint64 _leavesCount
-    ) external returns (bytes32[] memory, uint64[] memory, uint64);
+        uint64 _leavesCount,
+        uint64 _offset
+    )
+        external
+        returns (bytes32[] memory, uint64[] memory, uint64[] memory, uint64);
 
     /// @notice Submit a proof for a dataset.
     /// @param caller The address of the caller.

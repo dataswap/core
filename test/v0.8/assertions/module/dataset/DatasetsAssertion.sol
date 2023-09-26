@@ -188,12 +188,41 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         );
     }
 
-    /// @notice Assertion function for submitting dataset proof.
+    /// @notice Assertion function for submitting dataset proof root.
     /// @param caller The address of the caller.
     /// @param _datasetId The ID of the dataset for which to submit proof.
     /// @param _dataType The data type of the proof.
     /// @param accessMethod The access method of the dataset.
     /// @param _rootHash The root hash of the proof.
+    function submitDatasetProofRootAssertion(
+        address caller,
+        uint64 _datasetId,
+        DatasetType.DataType _dataType,
+        string calldata accessMethod,
+        bytes32 _rootHash
+    ) external {
+        // Before the action, capture the initial state.
+        getDatasetStateAssertion(
+            _datasetId,
+            DatasetType.State.MetadataApproved
+        );
+
+        // Perform the action.
+        vm.prank(caller);
+        datasets.submitDatasetProofRoot(
+            _datasetId,
+            _dataType,
+            accessMethod,
+            _rootHash
+        );
+
+        isDatasetProofSubmitterAssertion(_datasetId, caller, true);
+    }
+
+    /// @notice Assertion function for submitting dataset proof.
+    /// @param caller The address of the caller.
+    /// @param _datasetId The ID of the dataset for which to submit proof.
+    /// @param _dataType The data type of the proof.
     /// @param _leafHashes The leaf hashes of the proof.
     /// @param _leafSizes The sizes of the leaf hashes.
     /// @param _completed A boolean indicating if the proof is completed.
@@ -201,9 +230,8 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         address caller,
         uint64 _datasetId,
         DatasetType.DataType _dataType,
-        string calldata accessMethod,
-        bytes32 _rootHash,
         bytes32[] calldata _leafHashes,
+        uint64[] calldata _leafIndexs,
         uint64[] calldata _leafSizes,
         bool _completed
     ) external {
@@ -225,9 +253,8 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         datasets.submitDatasetProof(
             _datasetId,
             _dataType,
-            accessMethod,
-            _rootHash,
             _leafHashes,
+            _leafIndexs,
             _leafSizes,
             _completed
         );

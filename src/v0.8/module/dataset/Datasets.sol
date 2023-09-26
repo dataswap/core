@@ -200,21 +200,18 @@ contract Datasets is
         emit DatasetsEvents.DatasetMetadataSubmitted(datasetsCount, msg.sender);
     }
 
-    ///@notice Submit proof for a dataset
-    /// Based on merkle proof.
-    function submitDatasetProof(
+    ///@notice Submit proof root for a dataset
+    ///@dev Submit the rootHash of the dataset, the mappingFilesAccessMethod,
+    /// and confirm that the sender is the submitter of the dataset.
+    function submitDatasetProofRoot(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         string calldata _mappingFilesAccessMethod,
-        bytes32 _rootHash,
-        bytes32[] calldata _leafHashes,
-        uint64[] calldata _leafSizes,
-        bool _completed
+        bytes32 _rootHash
     )
         external
-    // TODO: Handling problem: Stack too deep ,Uncomment onlyDatasetProofSubmitterOrSubmitterNotExsits and onlyDatasetState:https://github.com/dataswap/core/issues/81
-    // onlyDatasetProofSubmitterOrSubmitterNotExsits(_datasetId, msg.sender)
-    // onlyDatasetState(_datasetId, DatasetType.State.MetadataApproved)
+        onlyDatasetProofSubmitterOrSubmitterNotExsits(_datasetId, msg.sender)
+        onlyDatasetState(_datasetId, DatasetType.State.MetadataApproved)
     {
         //Note: params check in lib
         DatasetType.Dataset storage dataset = datasets[_datasetId];
@@ -231,6 +228,30 @@ contract Datasets is
         ) {
             dataset.proofSubmitter = msg.sender;
         }
+        require(
+            dataset.isDatasetSubmitter(msg.sender),
+            "Invalid Dataset submitter"
+        );
+        dataset.addDatasetProofRoot(_dataType, _rootHash);
+    }
+
+    ///@notice Submit proof for a dataset
+    ///@dev Submit the proof of the dataset in batches,
+    /// specifically by submitting the _leafHashes in the order of _leafIndexes.
+    function submitDatasetProof(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType,
+        bytes32[] calldata _leafHashes,
+        uint64[] calldata _leafIndexs,
+        uint64[] calldata _leafSizes,
+        bool _completed
+    )
+        external
+        onlyDatasetState(_datasetId, DatasetType.State.MetadataApproved)
+    {
+        //Note: params check in lib
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+
         // Checking if the current sender is the submitter.
         require(
             dataset.isDatasetSubmitter(msg.sender),
@@ -241,8 +262,8 @@ contract Datasets is
 
         dataset.addDatasetProofBatch(
             _dataType,
-            _rootHash,
             _leafHashes,
+            _leafIndexs,
             _leafSizes,
             _completed
         );

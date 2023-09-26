@@ -42,4 +42,15 @@ contract SubmitProofTest is Test, DatasetTestSetup {
             );
         testCase.run();
     }
+
+    /// @notice test case with invalid Index of proof
+    function testSubmitDatasetProofWithInvalidIndex() public {
+        setup();
+        SubmitProofTestCaseWithInvalidIndex testCase = new SubmitProofTestCaseWithInvalidIndex(
+                datasets,
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
 }
