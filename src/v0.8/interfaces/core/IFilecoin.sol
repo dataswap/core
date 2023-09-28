@@ -22,12 +22,21 @@ import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
 /// @title IFilplus
 interface IFilecoin {
-    /// @notice Internal function to get the state of a Filecoin storage deal for a replica.
+    /// @notice The function to get the state of a Filecoin storage deal for a replica.
     function getReplicaDealState(
         bytes32 _cid,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) external returns (FilecoinType.DealState);
 
     /// @dev do nothing,just for mock
     function setMockDealState(FilecoinType.DealState _state) external;
+
+    /// @notice The function to get the data of a claim for a replica.
+    function getReplicaClaimData(
+        uint64 _provider,
+        uint64 _claimId
+    ) external returns (bytes memory);
+
+    /// @dev mock the filecoin claim data
+    function setMockClaimData(uint64 claimId, bytes memory _data) external;
 }

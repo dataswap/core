@@ -121,7 +121,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     function reportCarReplicaExpired(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     )
         external
         onlyCarExist(_cid)
@@ -130,7 +130,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Stored)
         onlyCarReplicaFilecoinDealState(
             _cid,
-            _filecoinDealId,
+            _claimId,
             FilecoinType.DealState.Expired
         )
     {
@@ -149,7 +149,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     function reportCarReplicaSlashed(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     )
         external
         onlyCarExist(_cid)
@@ -158,7 +158,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Stored)
         onlyCarReplicaFilecoinDealState(
             _cid,
-            _filecoinDealId,
+            _claimId,
             FilecoinType.DealState.Slashed
         )
     {
@@ -170,36 +170,31 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         emit CarstoreEvents.CarReplicaSlashed(_cid, _matchingId);
     }
 
-    /// @notice Set the Filecoin deal ID for a replica's storage.
-    /// @dev This function allows setting the Filecoin deal ID for a specific replica's storage.
+    /// @notice Set the Filecoin claim ID for a replica's storage.
+    /// @dev This function allows setting the Filecoin claim ID for a specific replica's storage.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    /// @param _filecoinDealId New Filecoin deal ID to set for the replica's storage.
-    function setCarReplicaFilecoinDealId(
+    /// @param _claimId New Filecoin claim ID to set for the replica's storage.
+    function setCarReplicaFilecoinClaimId(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     )
         external
         onlyCarExist(_cid)
         onlyNotZero(_matchingId)
-        onlyNotZero(_filecoinDealId)
+        onlyNotZero(_claimId)
         onlyCarReplicaExist(_cid, _matchingId)
         onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Matched)
-        onlyUnsetCarReplicaFilecoinDealId(_cid, _matchingId)
+        onlyUnsetCarReplicaFilecoinClaimId(_cid, _matchingId)
     {
         CarReplicaType.Car storage car = cars[_cid];
-        car._setReplicaFilecoinDealId(
-            _cid,
-            _matchingId,
-            _filecoinDealId,
-            filecoin
-        );
+        car._setReplicaFilecoinClaimId(_cid, _matchingId, _claimId, filecoin);
 
-        emit CarstoreEvents.CarReplicaFilecoinDealIdSet(
+        emit CarstoreEvents.CarReplicaFilecoinClaimIdSet(
             _cid,
             _matchingId,
-            _filecoinDealId
+            _claimId
         );
     }
 
@@ -235,7 +230,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     /// @notice Get the replica details associated with a car.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    /// @return The dataset ID, state, and Filecoin deal ID of the replica.
+    /// @return The dataset ID, state, and Filecoin claim ID of the replica.
     function getCarReplica(
         bytes32 _cid,
         uint64 _matchingId
@@ -250,7 +245,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         CarReplicaType.Car storage car = cars[_cid];
         return (
             car._getReplicaState(_matchingId),
-            car._getReplicaFilecoinDealId(_matchingId)
+            car._getReplicaFilecoinClaimId(_matchingId)
         );
     }
 
@@ -265,11 +260,11 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         return car._getRepicasCount();
     }
 
-    /// @notice Get the Filecoin deal ID associated with a specific replica of a car.
+    /// @notice Get the Filecoin claim ID associated with a specific replica of a car.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    /// @return The Filecoin deal ID of the replica.
-    function getCarReplicaFilecoinDealId(
+    /// @return The Filecoin claim ID of the replica.
+    function getCarReplicaFilecoinClaimId(
         bytes32 _cid,
         uint64 _matchingId
     )
@@ -281,7 +276,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         returns (uint64)
     {
         CarReplicaType.Car storage car = cars[_cid];
-        return car._getReplicaFilecoinDealId(_matchingId);
+        return car._getReplicaFilecoinClaimId(_matchingId);
     }
 
     /// @notice Get the state of a replica associated with a car.

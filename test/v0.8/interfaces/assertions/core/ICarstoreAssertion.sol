@@ -50,31 +50,31 @@ interface ICarstoreAssertion {
     /// @dev Asserts the reporting of a car replica as expired.
     /// @param _cid The CID (Content Identifier) of the car replica.
     /// @param _matchingId The ID of the matching to which the car replica belongs.
-    /// @param _filecoinDealId The ID of the Filecoin deal associated with the car replica.
+    /// @param _claimId The ID of the Filecoin deal associated with the car replica.
     function reportCarReplicaExpiredAssertion(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) external;
 
     /// @dev Asserts the reporting of a car replica as slashed.
     /// @param _cid The CID (Content Identifier) of the car replica.
     /// @param _matchingId The ID of the matching to which the car replica belongs.
-    /// @param _filecoinDealId The ID of the Filecoin deal associated with the car replica.
+    /// @param _claimId The ID of the Filecoin deal associated with the car replica.
     function reportCarReplicaSlashedAssertion(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) external;
 
-    /// @dev Asserts the setting of a Filecoin deal ID for a car replica.
+    /// @dev Asserts the setting of a Filecoin claim ID for a car replica.
     /// @param _cid The CID (Content Identifier) of the car replica.
     /// @param _matchingId The ID of the matching to which the car replica belongs.
-    /// @param _filecoinDealId The ID of the Filecoin deal to set.
-    function setCarReplicaFilecoinDealIdAssertion(
+    /// @param _claimId The ID of the Filecoin deal to set.
+    function setCarReplicaFilecoinClaimIdAssertion(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) external;
 
     /// @dev Asserts getting the size of a car.
@@ -97,12 +97,12 @@ interface ICarstoreAssertion {
     /// @param _inputCid The CID (Content Identifier) of the car replica.
     /// @param _inputmatchingId The ID of the matching to which the car replica belongs.
     /// @param _expectState The expected state of the car replica.
-    /// @param _expectFilecoinDealId The expected Filecoin deal ID associated with the car replica.
+    /// @param _expectFilecoinClaimId The expected Filecoin claim ID associated with the car replica.
     function getCarReplicaAssertion(
         bytes32 _inputCid,
         uint64 _inputmatchingId,
         CarReplicaType.State _expectState,
-        uint64 _expectFilecoinDealId
+        uint64 _expectFilecoinClaimId
     ) external;
 
     /// @dev Asserts getting the count of car replicas for a given car.
@@ -113,14 +113,14 @@ interface ICarstoreAssertion {
         uint16 _expectCount
     ) external;
 
-    /// @dev Asserts getting the Filecoin deal ID of a car replica.
+    /// @dev Asserts getting the Filecoin claim ID of a car replica.
     /// @param _inputCid The CID (Content Identifier) of the car replica.
     /// @param _inputMatchingId The ID of the matching to which the car replica belongs.
-    /// @param _expectFilecoinDealId The expected Filecoin deal ID associated with the car replica.
-    function getCarReplicaFilecoinDealIdAssertion(
+    /// @param _expectFilecoinClaimId The expected Filecoin claim ID associated with the car replica.
+    function getCarReplicaFilecoinClaimIdAssertion(
         bytes32 _inputCid,
         uint64 _inputMatchingId,
-        uint64 _expectFilecoinDealId
+        uint64 _expectFilecoinClaimId
     ) external;
 
     /// @dev Asserts getting the state of a car replica.

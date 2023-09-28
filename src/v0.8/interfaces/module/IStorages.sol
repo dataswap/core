@@ -22,24 +22,26 @@ import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 
 /// @title Interface for Matchedstores contract
 interface IStorages {
-    /// @dev Submits a Filecoin deal Id for a matchedstore after successful matching.
+    /// @dev Submits a Filecoin claim Id for a matchedstore after successful matching.
     /// @param _matchingId The ID of the matching.
     /// @param _cid The content identifier of the matched data.
-    /// @param _filecoinDealId The ID of the successful Filecoin storage deal.
-    function submitStorageDealId(
+    /// @param _claimId The ID of the successful Filecoin storage deal.
+    function submitStorageClaimId(
         uint64 _matchingId,
+        uint64 _provider,
         bytes32 _cid,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) external;
 
-    /// @dev Submits multiple Filecoin deal Ids for a matchedstore after successful matching.
+    /// @dev Submits multiple Filecoin claim Ids for a matchedstore after successful matching.
     /// @param _matchingId The ID of the matching.
     /// @param _cids An array of content identifiers of the matched data.
-    /// @param _filecoinDealIds An array of IDs of successful Filecoin storage deals.
-    function submitStorageDealIds(
+    /// @param _claimIds An array of IDs of successful Filecoin storage deals.
+    function submitStorageClaimIds(
         uint64 _matchingId,
+        uint64 _provider,
         bytes32[] memory _cids,
-        uint64[] memory _filecoinDealIds
+        uint64[] memory _claimIds
     ) external;
 
     /// @dev Gets the list of done cars in the matchedstore.

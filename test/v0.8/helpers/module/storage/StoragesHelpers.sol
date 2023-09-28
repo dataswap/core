@@ -43,13 +43,13 @@ contract StoragesHelpers is IStoragesHelpers {
         return matchingsHelpers.completeMatchingWorkflow();
     }
 
-    function generateFilecoinDealIds(
+    function generateFilecoinClaimIds(
         uint64 _count
-    ) external returns (uint64[] memory filecoinDealIds) {
-        return generator.generateFilecoinDealIds(_count);
+    ) external returns (uint64[] memory claimIds) {
+        return generator.generateFilecoinClaimIds(_count);
     }
 
-    function generateFilecoinDealId() external returns (uint64) {
-        return generator.generateFilecoinDealId();
+    function generateFilecoinClaimId() external returns (uint64) {
+        return generator.generateFilecoinClaimId();
     }
 }

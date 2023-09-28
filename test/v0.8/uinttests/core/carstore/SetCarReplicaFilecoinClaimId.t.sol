@@ -17,28 +17,28 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {SetCarReplicaFilecoinDealIdTestCaseWithSuccess, SetCarReplicaFilecoinDealIdTestCaseWithInvalidId, SetCarReplicaFilecoinDealIdTestCaseWithReplicaNotExist, SetCarReplicaFilecoinDealIdTestCaseWithReplicaFilecoinDealIdExists} from "test/v0.8/testcases/core/carstore/SetCarReplicaFilecoinDealIdTestSuite.sol";
+import {SetCarReplicaFilecoinClaimIdTestCaseWithSuccess, SetCarReplicaFilecoinClaimIdTestCaseWithInvalidId, SetCarReplicaFilecoinClaimIdTestCaseWithReplicaNotExist, SetCarReplicaFilecoinClaimIdTestCaseWithReplicaFilecoinClaimIdExists} from "test/v0.8/testcases/core/carstore/SetCarReplicaFilecoinClaimIdTestSuite.sol";
 import {CarstoreTestSetup} from "test/v0.8/uinttests/core/carstore/setup/CarstoreTestSetup.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
-contract SetCarReplicaFilecoinDealIdTest is Test, CarstoreTestSetup {
+contract SetCarReplicaFilecoinClaimIdTest is Test, CarstoreTestSetup {
     /// @dev test case with success when filecoin deal state is storage success
     function testSetCarReplicaFilecoinDealAndStoredWithSuccess(
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) public {
         setup();
-        SetCarReplicaFilecoinDealIdTestCaseWithSuccess testCase = new SetCarReplicaFilecoinDealIdTestCaseWithSuccess(
+        SetCarReplicaFilecoinClaimIdTestCaseWithSuccess testCase = new SetCarReplicaFilecoinClaimIdTestCaseWithSuccess(
                 carstore,
                 assertion
             );
         // set filecoin store is ok
         carstore.filecoin().setMockDealState(FilecoinType.DealState.Stored);
         // run testcase
-        testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
+        testCase.run(_cid, _datasetId, _size, _matchingId, _claimId);
     }
 
     /// @dev test case with success when filecoin deal state is storage failed
@@ -47,10 +47,10 @@ contract SetCarReplicaFilecoinDealIdTest is Test, CarstoreTestSetup {
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) public {
         setup();
-        SetCarReplicaFilecoinDealIdTestCaseWithSuccess testCase = new SetCarReplicaFilecoinDealIdTestCaseWithSuccess(
+        SetCarReplicaFilecoinClaimIdTestCaseWithSuccess testCase = new SetCarReplicaFilecoinClaimIdTestCaseWithSuccess(
                 carstore,
                 assertion
             );
@@ -59,19 +59,19 @@ contract SetCarReplicaFilecoinDealIdTest is Test, CarstoreTestSetup {
             FilecoinType.DealState.StorageFailed
         );
         // run testcase
-        testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
+        testCase.run(_cid, _datasetId, _size, _matchingId, _claimId);
     }
 
     /// @notice test case with invalid id
-    function testSetCarReplicaFilecoinDealIdWithInvalidId(
+    function testSetCarReplicaFilecoinClaimIdWithInvalidId(
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) public {
         setup();
-        SetCarReplicaFilecoinDealIdTestCaseWithInvalidId testCase = new SetCarReplicaFilecoinDealIdTestCaseWithInvalidId(
+        SetCarReplicaFilecoinClaimIdTestCaseWithInvalidId testCase = new SetCarReplicaFilecoinClaimIdTestCaseWithInvalidId(
                 carstore,
                 assertion
             );
@@ -80,19 +80,19 @@ contract SetCarReplicaFilecoinDealIdTest is Test, CarstoreTestSetup {
             FilecoinType.DealState.StorageFailed
         );
         // run testcase
-        testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
+        testCase.run(_cid, _datasetId, _size, _matchingId, _claimId);
     }
 
     /// @notice test case with replica not exsit
-    function testSetCarReplicaFilecoinDealIdWithReplicaNotExist(
+    function testSetCarReplicaFilecoinClaimIdWithReplicaNotExist(
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) public {
         setup();
-        SetCarReplicaFilecoinDealIdTestCaseWithReplicaNotExist testCase = new SetCarReplicaFilecoinDealIdTestCaseWithReplicaNotExist(
+        SetCarReplicaFilecoinClaimIdTestCaseWithReplicaNotExist testCase = new SetCarReplicaFilecoinClaimIdTestCaseWithReplicaNotExist(
                 carstore,
                 assertion
             );
@@ -101,19 +101,19 @@ contract SetCarReplicaFilecoinDealIdTest is Test, CarstoreTestSetup {
             FilecoinType.DealState.StorageFailed
         );
         // run testcase
-        testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
+        testCase.run(_cid, _datasetId, _size, _matchingId, _claimId);
     }
 
-    /// @notice test case with filecoin deal id alreay exsit
-    function testSetCarReplicaFilecoinDealIdWithReplicaFilecoinDealIdExists(
+    /// @notice test case with filecoin claim id alreay exsit
+    function testSetCarReplicaFilecoinClaimIdWithReplicaFilecoinClaimIdExists(
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) public {
         setup();
-        SetCarReplicaFilecoinDealIdTestCaseWithReplicaFilecoinDealIdExists testCase = new SetCarReplicaFilecoinDealIdTestCaseWithReplicaFilecoinDealIdExists(
+        SetCarReplicaFilecoinClaimIdTestCaseWithReplicaFilecoinClaimIdExists testCase = new SetCarReplicaFilecoinClaimIdTestCaseWithReplicaFilecoinClaimIdExists(
                 carstore,
                 assertion
             );
@@ -122,6 +122,6 @@ contract SetCarReplicaFilecoinDealIdTest is Test, CarstoreTestSetup {
             FilecoinType.DealState.StorageFailed
         );
         // run testcase
-        testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
+        testCase.run(_cid, _datasetId, _size, _matchingId, _claimId);
     }
 }

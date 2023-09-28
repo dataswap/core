@@ -32,6 +32,8 @@ contract MockFilecoin is
     RolesModifiers
 {
     FilecoinType.DealState private mockDealState;
+    //bytes private mockClaimData;
+    mapping(uint64 => bytes) private mockClaimData; //matchingId=>Matchedstore
 
     /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
     function initialize(address _roles) public initializer {
@@ -54,16 +56,29 @@ contract MockFilecoin is
         return _getImplementation();
     }
 
-    /// @dev mock the filecoin deal state
+    /// @dev mock the filecoin storage state
     function setMockDealState(FilecoinType.DealState _state) external {
         mockDealState = _state;
     }
 
-    /// @dev get replica filecoin deal state
+    /// @dev get replica filecoin storage state
     function getReplicaDealState(
         bytes32,
         uint64
     ) external view override returns (FilecoinType.DealState) {
         return mockDealState;
+    }
+
+    /// @dev mock the filecoin claim data
+    function setMockClaimData(uint64 claimId, bytes memory _data) external {
+        mockClaimData[claimId] = _data;
+    }
+
+    /// @notice The function to get the data of a claim for a replica.
+    function getReplicaClaimData(
+        uint64,
+        uint64 claimId
+    ) external view override returns (bytes memory) {
+        return mockClaimData[claimId];
     }
 }

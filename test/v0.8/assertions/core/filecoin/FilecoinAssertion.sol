@@ -33,35 +33,35 @@ contract FilecoinAssertion is DSTest, Test, IFilecoinAssertion {
         filecoin = _filecoin;
     }
 
-    /// @notice Assertion function to get the mock Filecoin deal state for a given CID and Filecoin deal ID.
+    /// @notice Assertion function to get the mock Filecoin deal state for a given CID and Filecoin claim ID.
     /// @param _cid The CID (Content Identifier) of the data.
-    /// @param _filecoinDealId The ID of the Filecoin deal.
+    /// @param _claimId The ID of the Filecoin deal.
     /// @param _state The expected Filecoin deal state to compare with.
     function getReplicaDealStateAssertion(
         bytes32 _cid,
-        uint64 _filecoinDealId,
+        uint64 _claimId,
         FilecoinType.DealState _state
     ) public {
         // Ensure that the returned Filecoin deal state matches the expected state.
         assertEq(
-            uint8(filecoin.getReplicaDealState(_cid, _filecoinDealId)),
+            uint8(filecoin.getReplicaDealState(_cid, _claimId)),
             uint8(_state)
         );
     }
 
-    /// @notice Assertion function to set the mock Filecoin deal state for a given CID and Filecoin deal ID.
+    /// @notice Assertion function to set the mock Filecoin deal state for a given CID and Filecoin claim ID.
     /// @param _cid The CID (Content Identifier) of the data.
-    /// @param _filecoinDealId The ID of the Filecoin deal.
+    /// @param _claimId The ID of the Filecoin deal.
     /// @param _state The new Filecoin deal state to set.
     function setMockDealStateAssertion(
         bytes32 _cid,
-        uint64 _filecoinDealId,
+        uint64 _claimId,
         FilecoinType.DealState _state
     ) external {
         // Perform the action: set the mock Filecoin deal state.
         filecoin.setMockDealState(_state);
 
         // Before and after the action, verify that the deal state is as expected.
-        getReplicaDealStateAssertion(_cid, _filecoinDealId, _state);
+        getReplicaDealStateAssertion(_cid, _claimId, _state);
     }
 }

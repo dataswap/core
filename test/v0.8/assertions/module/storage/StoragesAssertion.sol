@@ -31,24 +31,25 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
         storages = _storages;
     }
 
-    /// @notice Assertion function to test the submission of a storage deal ID.
+    /// @notice Assertion function to test the submission of a storage claim ID.
     /// @param caller The address of the caller.
     /// @param _matchingId The matching ID for which to submit the storage deal.
+    /// @param _provider The storage provider for which to submit the storage deal.
     /// @param _cid The Content ID (CID) of the stored data.
-    /// @param _filecoinDealId The Filecoin deal ID associated with the storage transaction.
-    function submitStorageDealIdAssertion(
+    /// @param _claimId The Filecoin claim ID associated with the storage transaction.
+    function submitStorageClaimIdAssertion(
         address caller,
         uint64 _matchingId,
+        uint64 _provider,
         bytes32 _cid,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) external {
         // Record the count of stored cars before the action.
         uint64 oldDoneCount = storages.getStoredCarCount(_matchingId);
         uint64 oldtotalStoredSize = storages.getTotalStoredSize(_matchingId);
-
-        // Perform the action (submitting a storage deal ID).
+        // Perform the action (submitting a storage claim ID).
         vm.prank(caller);
-        storages.submitStorageDealId(_matchingId, _cid, _filecoinDealId);
+        storages.submitStorageClaimId(_matchingId, _provider, _cid, _claimId);
 
         // Assert that the count of stored cars has increased by one after the action.
         getStoredCarCountAssertion(_matchingId, oldDoneCount + 1);
@@ -56,20 +57,27 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
         getTotalStoredSizeAssertion(_matchingId, oldtotalStoredSize + carSize);
     }
 
-    /// @notice Assertion function to test the submission of multiple storage deal IDs.
+    /// @notice Assertion function to test the submission of multiple storage claim IDs.
     /// @param caller The address of the caller.
     /// @param _matchingId The matching ID for which to submit the storage deals.
+    /// @param _provider The storage provider for which to submit the storage deal.
     /// @param _cids An array of Content IDs (CIDs) of the stored data.
-    /// @param _filecoinDealIds An array of Filecoin deal IDs associated with the storage transactions.
-    function submitStorageDealIdsAssertion(
+    /// @param _claimIds An array of Filecoin claim IDs associated with the storage transactions.
+    function submitStorageClaimIdsAssertion(
         address caller,
         uint64 _matchingId,
+        uint64 _provider,
         bytes32[] memory _cids,
-        uint64[] memory _filecoinDealIds
+        uint64[] memory _claimIds
     ) external {
-        // Perform the action (submitting multiple storage deal IDs).
+        // Perform the action (submitting multiple storage claim IDs).
         vm.prank(caller);
-        storages.submitStorageDealIds(_matchingId, _cids, _filecoinDealIds);
+        storages.submitStorageClaimIds(
+            _matchingId,
+            _provider,
+            _cids,
+            _claimIds
+        );
 
         // After the action, assert the stored cars.
         getStoredCarsAssertion(_matchingId, _cids);

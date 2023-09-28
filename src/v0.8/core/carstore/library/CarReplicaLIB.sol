@@ -23,20 +23,20 @@ import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
 /// @dev This library provides functions to manage the state and events of car replicas.
 /// @notice Library for managing the lifecycle and events of car replicas.
 library CarReplicaLIB {
-    /// @notice Set the Filecoin deal ID for a car replica.
-    /// @dev Requires a non-zero new Filecoin deal ID and that it's different from the existing one.
-    ///      This should be called by an external  storage deal contract after a successful storage deal process.
+    /// @notice Set the Filecoin claim ID for a car replica.
+    /// @dev Requires a non-zero new Filecoin claim ID and that it's different from the existing one.
+    ///      This should be called by an external storage deal contract after a successful storage deal process.
     /// @param self The reference to the replica storage.
-    /// @param _filecoinDealId The new Filecoin deal ID to set.
-    function _setFilecoinDealId(
+    /// @param _claimId The new Filecoin claim ID to set.
+    function _setFilecoinClaimId(
         CarReplicaType.Replica storage self,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal {
         require(
-            _filecoinDealId != 0 && self.filecoinDealId != _filecoinDealId,
+            _claimId != 0 && self.filecoinClaimId != _claimId,
             "Invalid params"
         );
-        self.filecoinDealId = _filecoinDealId;
+        self.filecoinClaimId = _claimId;
     }
 
     /// @notice Emit an event for a car replica, triggering state transitions.

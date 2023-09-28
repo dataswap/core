@@ -24,20 +24,25 @@ import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
 import {IStoragesHelpers} from "test/v0.8/interfaces/helpers/module/IStoragesHelpers.sol";
+import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 
-///@notice submit storage filecoin deal id test case with success
-contract SubmitStorageDealIdTestCaseWithSuccess is StoragesTestBase {
+import {CidUtils} from "src/v0.8/shared/utils/cid/CidUtils.sol";
+
+///@notice submit storage filecoin claim id test case with success
+contract SubmitStorageClaimIdTestCaseWithSuccess is StoragesTestBase {
     constructor(
         IStorages _storages,
         Generator _generator,
         IStoragesHelpers _storagesHelpers,
-        IStoragesAssertion _storagesAssertion
+        IStoragesAssertion _storagesAssertion,
+        IFilecoin _filecoin
     )
         StoragesTestBase(
             _storages,
             _generator,
             _storagesHelpers,
-            _storagesAssertion
+            _storagesAssertion,
+            _filecoin
         ) // solhint-disable-next-line
     {}
 
@@ -51,32 +56,38 @@ contract SubmitStorageDealIdTestCaseWithSuccess is StoragesTestBase {
             _matchingId
         );
         bytes32 cid = cars[0];
-        uint64 filecoinDealId = storagesHelpers.generateFilecoinDealId();
+        uint64 provider = 0;
+        bytes memory dataCid = CidUtils.hashToCID(cid);
+        uint64 claimId = storagesHelpers.generateFilecoinClaimId();
+        filecoin.setMockClaimData(claimId, dataCid);
         address winner = storages.matchings().getMatchingWinner(_matchingId);
-        storagesAssertion.submitStorageDealIdAssertion(
+        storagesAssertion.submitStorageClaimIdAssertion(
             winner,
             _matchingId,
+            provider,
             cid,
-            filecoinDealId
+            claimId
         );
     }
 }
 
-///@notice Submit storage filecoin deal id Already includes the switch of Replica Matched status, there is no need to test its abnormal conditions.
+///@notice Submit storage filecoin claim id Already includes the switch of Replica Matched status, there is no need to test its abnormal conditions.
 
-///@notice submit storage filecoin deal id test case with invalid address
-contract SubmitStorageDealIdTestCaseWithInvalidAddress is StoragesTestBase {
+///@notice submit storage filecoin claim id test case with invalid address
+contract SubmitStorageClaimIdTestCaseWithInvalidAddress is StoragesTestBase {
     constructor(
         IStorages _storages,
         Generator _generator,
         IStoragesHelpers _storagesHelpers,
-        IStoragesAssertion _storagesAssertion
+        IStoragesAssertion _storagesAssertion,
+        IFilecoin _filecoin
     )
         StoragesTestBase(
             _storages,
             _generator,
             _storagesHelpers,
-            _storagesAssertion
+            _storagesAssertion,
+            _filecoin
         ) // solhint-disable-next-line
     {}
 
@@ -90,31 +101,35 @@ contract SubmitStorageDealIdTestCaseWithInvalidAddress is StoragesTestBase {
             _matchingId
         );
         bytes32 cid = cars[0];
-        uint64 filecoinDealId = storagesHelpers.generateFilecoinDealId();
+        uint64 provider = 0;
+        uint64 claimId = storagesHelpers.generateFilecoinClaimId();
         address winner = generator.generateAddress(100);
         vm.expectRevert(bytes("Only allowed address can call"));
-        storagesAssertion.submitStorageDealIdAssertion(
+        storagesAssertion.submitStorageClaimIdAssertion(
             winner,
             _matchingId,
+            provider,
             cid,
-            filecoinDealId
+            claimId
         );
     }
 }
 
-///@notice submit storage filecoin deal id test case with invalid cid
-contract SubmitStorageDealIdTestCaseWithInvalidCid is StoragesTestBase {
+///@notice submit storage filecoin claim id test case with invalid cid
+contract SubmitStorageClaimIdTestCaseWithInvalidCid is StoragesTestBase {
     constructor(
         IStorages _storages,
         Generator _generator,
         IStoragesHelpers _storagesHelpers,
-        IStoragesAssertion _storagesAssertion
+        IStoragesAssertion _storagesAssertion,
+        IFilecoin _filecoin
     )
         StoragesTestBase(
             _storages,
             _generator,
             _storagesHelpers,
-            _storagesAssertion
+            _storagesAssertion,
+            _filecoin
         ) // solhint-disable-next-line
     {}
 
@@ -125,7 +140,8 @@ contract SubmitStorageDealIdTestCaseWithInvalidCid is StoragesTestBase {
 
     function action(uint64 _matchingId) internal virtual override {
         bytes32 cid = bytes32("0");
-        uint64 filecoinDealId = storagesHelpers.generateFilecoinDealId();
+        uint64 provider = 0;
+        uint64 claimId = storagesHelpers.generateFilecoinClaimId();
         address winner = storages.matchings().getMatchingWinner(_matchingId);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -134,28 +150,31 @@ contract SubmitStorageDealIdTestCaseWithInvalidCid is StoragesTestBase {
                 _matchingId
             )
         );
-        storagesAssertion.submitStorageDealIdAssertion(
+        storagesAssertion.submitStorageClaimIdAssertion(
             winner,
             _matchingId,
+            provider,
             cid,
-            filecoinDealId
+            claimId
         );
     }
 }
 
-///@notice submit storage filecoin deal id test case with duplicate cid
-contract SubmitStorageDealIdTestCaseWithDuplicateCid is StoragesTestBase {
+///@notice submit storage filecoin claim id test case with duplicate cid
+contract SubmitStorageClaimIdTestCaseWithDuplicateCid is StoragesTestBase {
     constructor(
         IStorages _storages,
         Generator _generator,
         IStoragesHelpers _storagesHelpers,
-        IStoragesAssertion _storagesAssertion
+        IStoragesAssertion _storagesAssertion,
+        IFilecoin _filecoin
     )
         StoragesTestBase(
             _storages,
             _generator,
             _storagesHelpers,
-            _storagesAssertion
+            _storagesAssertion,
+            _filecoin
         ) // solhint-disable-next-line
     {}
 
@@ -169,26 +188,32 @@ contract SubmitStorageDealIdTestCaseWithDuplicateCid is StoragesTestBase {
             _matchingId
         );
         bytes32 cid = cars[0];
-        uint64 filecoinDealId = storagesHelpers.generateFilecoinDealId();
+        uint64 provider = 0;
+        bytes memory dataCid = CidUtils.hashToCID(cid);
+        uint64 claimId = storagesHelpers.generateFilecoinClaimId();
+        filecoin.setMockClaimData(claimId, dataCid);
+
         address winner = storages.matchings().getMatchingWinner(_matchingId);
-        storagesAssertion.submitStorageDealIdAssertion(
+        storagesAssertion.submitStorageClaimIdAssertion(
             winner,
             _matchingId,
+            provider,
             cid,
-            filecoinDealId
+            claimId
         );
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.ReplicaFilecoinDealIdExists.selector,
+                Errors.ReplicaFilecoinClaimIdExists.selector,
                 cid,
                 _matchingId
             )
         );
-        storagesAssertion.submitStorageDealIdAssertion(
+        storagesAssertion.submitStorageClaimIdAssertion(
             winner,
             _matchingId,
+            provider,
             cid,
-            filecoinDealId
+            claimId
         );
     }
 }

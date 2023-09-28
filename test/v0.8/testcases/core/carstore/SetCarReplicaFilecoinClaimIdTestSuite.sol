@@ -17,20 +17,23 @@
 pragma solidity ^0.8.21;
 
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
-import {SetCarReplicaFilecoinDealIdAssertionTestSuiteBase} from "test/v0.8/testcases/core/carstore/abstract/CarstoreTestSuiteBase.sol";
+import {SetCarReplicaFilecoinClaimIdAssertionTestSuiteBase} from "test/v0.8/testcases/core/carstore/abstract/CarstoreTestSuiteBase.sol";
 
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 
-/// @notice set car replica filecoin deal id test case,it should be success
-contract SetCarReplicaFilecoinDealIdTestCaseWithSuccess is
-    SetCarReplicaFilecoinDealIdAssertionTestSuiteBase
+/// @notice set car replica filecoin claim id test case,it should be success
+contract SetCarReplicaFilecoinClaimIdTestCaseWithSuccess is
+    SetCarReplicaFilecoinClaimIdAssertionTestSuiteBase
 {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
     )
-        SetCarReplicaFilecoinDealIdAssertionTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
+        SetCarReplicaFilecoinClaimIdAssertionTestSuiteBase(
+            _carstore,
+            _assertion
+        ) // solhint-disable-next-line
     {}
 
     function before(
@@ -38,25 +41,28 @@ contract SetCarReplicaFilecoinDealIdTestCaseWithSuccess is
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal virtual override {
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
-        vm.assume(_matchingId != 0 && _filecoinDealId != 0);
+        vm.assume(_matchingId != 0 && _claimId != 0);
         carstore.addCar(_cid, _datasetId, _size);
         carstore.addCarReplica(_cid, _matchingId);
     }
 }
 
-/// @notice set car replica filecoin deal id test case,it should be reverted due to invalid id.
-contract SetCarReplicaFilecoinDealIdTestCaseWithInvalidId is
-    SetCarReplicaFilecoinDealIdAssertionTestSuiteBase
+/// @notice set car replica filecoin claim id test case,it should be reverted due to invalid id.
+contract SetCarReplicaFilecoinClaimIdTestCaseWithInvalidId is
+    SetCarReplicaFilecoinClaimIdAssertionTestSuiteBase
 {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
     )
-        SetCarReplicaFilecoinDealIdAssertionTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
+        SetCarReplicaFilecoinClaimIdAssertionTestSuiteBase(
+            _carstore,
+            _assertion
+        ) // solhint-disable-next-line
     {}
 
     function before(
@@ -64,11 +70,11 @@ contract SetCarReplicaFilecoinDealIdTestCaseWithInvalidId is
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal virtual override {
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
-        vm.assume(_matchingId != 0 && _filecoinDealId == 0);
+        vm.assume(_matchingId != 0 && _claimId == 0);
         carstore.addCar(_cid, _datasetId, _size);
         carstore.addCarReplica(_cid, _matchingId);
     }
@@ -76,22 +82,25 @@ contract SetCarReplicaFilecoinDealIdTestCaseWithInvalidId is
     function action(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal virtual override {
         vm.expectRevert();
-        super.action(_cid, _matchingId, _filecoinDealId);
+        super.action(_cid, _matchingId, _claimId);
     }
 }
 
-/// @notice set car replica filecoin deal id test case,it should be reverted due to replica not exsit.
-contract SetCarReplicaFilecoinDealIdTestCaseWithReplicaNotExist is
-    SetCarReplicaFilecoinDealIdAssertionTestSuiteBase
+/// @notice set car replica filecoin claim id test case,it should be reverted due to replica not exsit.
+contract SetCarReplicaFilecoinClaimIdTestCaseWithReplicaNotExist is
+    SetCarReplicaFilecoinClaimIdAssertionTestSuiteBase
 {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
     )
-        SetCarReplicaFilecoinDealIdAssertionTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
+        SetCarReplicaFilecoinClaimIdAssertionTestSuiteBase(
+            _carstore,
+            _assertion
+        ) // solhint-disable-next-line
     {}
 
     function before(
@@ -99,18 +108,18 @@ contract SetCarReplicaFilecoinDealIdTestCaseWithReplicaNotExist is
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal virtual override {
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
-        vm.assume(_matchingId != 0 && _filecoinDealId != 0);
+        vm.assume(_matchingId != 0 && _claimId != 0);
         carstore.addCar(_cid, _datasetId, _size);
     }
 
     function action(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal virtual override {
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -119,19 +128,22 @@ contract SetCarReplicaFilecoinDealIdTestCaseWithReplicaNotExist is
                 _matchingId
             )
         );
-        super.action(_cid, _matchingId, _filecoinDealId);
+        super.action(_cid, _matchingId, _claimId);
     }
 }
 
-/// @notice set car replica filecoin deal id test case,it should be reverted due to deal id already exsit.
-contract SetCarReplicaFilecoinDealIdTestCaseWithReplicaFilecoinDealIdExists is
-    SetCarReplicaFilecoinDealIdAssertionTestSuiteBase
+/// @notice set car replica filecoin claim id test case,it should be reverted due to claim id already exsit.
+contract SetCarReplicaFilecoinClaimIdTestCaseWithReplicaFilecoinClaimIdExists is
+    SetCarReplicaFilecoinClaimIdAssertionTestSuiteBase
 {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
     )
-        SetCarReplicaFilecoinDealIdAssertionTestSuiteBase(_carstore, _assertion) // solhint-disable-next-line
+        SetCarReplicaFilecoinClaimIdAssertionTestSuiteBase(
+            _carstore,
+            _assertion
+        ) // solhint-disable-next-line
     {}
 
     function before(
@@ -139,24 +151,20 @@ contract SetCarReplicaFilecoinDealIdTestCaseWithReplicaFilecoinDealIdExists is
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal virtual override {
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
-        vm.assume(_matchingId != 0 && _filecoinDealId != 0);
+        vm.assume(_matchingId != 0 && _claimId != 0);
         carstore.addCar(_cid, _datasetId, _size);
         carstore.addCarReplica(_cid, _matchingId);
-        carstore.setCarReplicaFilecoinDealId(
-            _cid,
-            _matchingId,
-            _filecoinDealId
-        );
+        carstore.setCarReplicaFilecoinClaimId(_cid, _matchingId, _claimId);
     }
 
     function action(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal virtual override {
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -165,6 +173,6 @@ contract SetCarReplicaFilecoinDealIdTestCaseWithReplicaFilecoinDealIdExists is
                 _matchingId
             )
         );
-        super.action(_cid, _matchingId, _filecoinDealId);
+        super.action(_cid, _matchingId, _claimId);
     }
 }

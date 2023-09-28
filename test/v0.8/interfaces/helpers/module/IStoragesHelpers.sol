@@ -25,14 +25,14 @@ interface IStoragesHelpers {
     /// @return matchingId The ID of the created matching.
     function setup() external returns (uint64 datasetId, uint64 matchingId);
 
-    /// @notice Generate multiple Filecoin deal IDs.
-    /// @param _count The number of Filecoin deal IDs to generate.
-    /// @return filecoinDealIds An array of generated Filecoin deal IDs.
-    function generateFilecoinDealIds(
+    /// @notice Generate multiple Filecoin claim IDs.
+    /// @param _count The number of Filecoin claim IDs to generate.
+    /// @return claimIds An array of generated Filecoin claim IDs.
+    function generateFilecoinClaimIds(
         uint64 _count
-    ) external returns (uint64[] memory filecoinDealIds);
+    ) external returns (uint64[] memory claimIds);
 
-    /// @notice Generate a single Filecoin deal ID.
-    /// @return The generated Filecoin deal ID.
-    function generateFilecoinDealId() external returns (uint64);
+    /// @notice Generate a single Filecoin claim ID.
+    /// @return The generated Filecoin claim ID.
+    function generateFilecoinClaimId() external returns (uint64);
 }

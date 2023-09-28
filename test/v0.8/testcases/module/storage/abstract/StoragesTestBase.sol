@@ -20,6 +20,7 @@ import {Test} from "forge-std/Test.sol";
 import {TestCaseBase} from "test/v0.8/testcases/module/abstract/TestCaseBase.sol";
 import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
+import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
 import {IStoragesHelpers} from "test/v0.8/interfaces/helpers/module/IStoragesHelpers.sol";
 
@@ -33,6 +34,7 @@ abstract contract StoragesTestBase is TestCaseBase, Test {
     IStorages internal storages;
     IStoragesHelpers internal storagesHelpers;
     IStoragesAssertion internal storagesAssertion;
+    IFilecoin internal filecoin;
 
     /// @dev Constructor to initialize the StoragesTestBase with the required contracts.
     /// @param _storages The address of the IStorages contract.
@@ -43,11 +45,13 @@ abstract contract StoragesTestBase is TestCaseBase, Test {
         IStorages _storages,
         Generator _generator,
         IStoragesHelpers _storagesHelpers,
-        IStoragesAssertion _storagesAssertion
+        IStoragesAssertion _storagesAssertion,
+        IFilecoin _filecoin
     ) {
         storages = _storages;
         generator = _generator;
         storagesHelpers = _storagesHelpers;
         storagesAssertion = _storagesAssertion;
+        filecoin = _filecoin;
     }
 }

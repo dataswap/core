@@ -89,12 +89,12 @@ contract CarstoreModifiers is Initializable, RolesModifiers, FilplusModifiers {
     }
 
     /// @dev Modifier to ensure that a replica of a car exists.
-    modifier onlyUnsetCarReplicaFilecoinDealId(
+    modifier onlyUnsetCarReplicaFilecoinClaimId(
         bytes32 _cid,
         uint64 _matchingId
     ) {
-        if (carstore.getCarReplicaFilecoinDealId(_cid, _matchingId) != 0) {
-            revert Errors.ReplicaFilecoinDealIdExists(_cid, _matchingId);
+        if (carstore.getCarReplicaFilecoinClaimId(_cid, _matchingId) != 0) {
+            revert Errors.ReplicaFilecoinClaimIdExists(_cid, _matchingId);
         }
         _;
     }
@@ -114,17 +114,13 @@ contract CarstoreModifiers is Initializable, RolesModifiers, FilplusModifiers {
     /// @dev Modifier to ensure that a replica filecoin deal state before function do.
     modifier onlyCarReplicaFilecoinDealState(
         bytes32 _cid,
-        uint64 _filecoinDealId,
+        uint64 _claimId,
         FilecoinType.DealState _filecoinDealState
     ) {
         if (
-            _filecoinDealState !=
-            filecoin.getReplicaDealState(_cid, _filecoinDealId)
+            _filecoinDealState != filecoin.getReplicaDealState(_cid, _claimId)
         ) {
-            revert Errors.InvalidReplicaFilecoinDealState(
-                _cid,
-                _filecoinDealId
-            );
+            revert Errors.InvalidReplicaFilecoinDealState(_cid, _claimId);
         }
         _;
     }

@@ -23,22 +23,26 @@ import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
 import {IStoragesHelpers} from "test/v0.8/interfaces/helpers/module/IStoragesHelpers.sol";
+import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
+import {CidUtils} from "src/v0.8/shared/utils/cid/CidUtils.sol";
 
-/// NOTE: Exception test cases submit storage deal id already covered
+/// NOTE: Exception test cases submit storage claim id already covered
 
-///@notice submit storage filecoin deal ids test case with success
-contract SubmitStorageDealIdsTestCaseWithSuccess is StoragesTestBase {
+///@notice submit storage filecoin claim ids test case with success
+contract SubmitStorageClaimIdsTestCaseWithSuccess is StoragesTestBase {
     constructor(
         IStorages _storages,
         Generator _generator,
         IStoragesHelpers _storagesHelpers,
-        IStoragesAssertion _storagesAssertion
+        IStoragesAssertion _storagesAssertion,
+        IFilecoin _filecoin
     )
         StoragesTestBase(
             _storages,
             _generator,
             _storagesHelpers,
-            _storagesAssertion
+            _storagesAssertion,
+            _filecoin
         ) // solhint-disable-next-line
     {}
 
@@ -51,15 +55,26 @@ contract SubmitStorageDealIdsTestCaseWithSuccess is StoragesTestBase {
         bytes32[] memory cars = storages.matchings().getMatchingCars(
             _matchingId
         );
-        uint64[] memory filecoinDealIds = storagesHelpers
-            .generateFilecoinDealIds(uint64(cars.length));
+        uint64 provider = 0;
+        uint64[] memory claimIds = storagesHelpers.generateFilecoinClaimIds(
+            uint64(cars.length)
+        );
+
+        assertEq(cars.length, claimIds.length);
+
+        for (uint64 i = 0; i < cars.length; i++) {
+            bytes memory dataCid = CidUtils.hashToCID(cars[i]);
+            filecoin.setMockClaimData(claimIds[i], dataCid);
+        }
+
         address winner = storages.matchings().getMatchingWinner(_matchingId);
         storagesAssertion.isAllStoredDoneAssertion(_matchingId, false);
-        storagesAssertion.submitStorageDealIdsAssertion(
+        storagesAssertion.submitStorageClaimIdsAssertion(
             winner,
             _matchingId,
+            provider,
             cars,
-            filecoinDealIds
+            claimIds
         );
         storagesAssertion.isAllStoredDoneAssertion(_matchingId, true);
     }

@@ -26,10 +26,12 @@ import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {StoragesEvents} from "src/v0.8/shared/events/StoragesEvents.sol";
 import {StoragesModifiers} from "src/v0.8/shared/modifiers/StoragesModifiers.sol";
+import {CidUtils} from "src/v0.8/shared/utils/cid/CidUtils.sol";
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
 import {StorageType} from "src/v0.8/types/StorageType.sol";
+import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -76,6 +78,7 @@ contract Storages is
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
         filplus = IFilplus(_filplus);
+        filecoin = IFilecoin(_filecoin);
         carstore = ICarstore(_carstore);
         datasets = IDatasets(_datasets);
         matchings = IMatchings(_matchings);
@@ -97,50 +100,63 @@ contract Storages is
         return _getImplementation();
     }
 
-    /// @dev Submits a Filecoin deal Id for a matchedstore after successful matching.
-    //TODO: verify filecoin deal id matched cid:https://github.com/dataswap/core/issues/41
-    function submitStorageDealId(
+    /// @dev Submits a Filecoin claim Id for a matchedstore after successful matching.
+    function submitStorageClaimId(
         uint64 _matchingId,
+        uint64 _provider,
         bytes32 _cid,
-        uint64 _filecoinDealId
+        uint64 _claimId
     )
         public
         onlyAddress(matchings.getMatchingWinner(_matchingId))
         onlyMatchingContainsCar(_matchingId, _cid)
-        onlyUnsetCarReplicaFilecoinDealId(_cid, _matchingId)
-        onlyCarReplicaState(_cid, _matchingId, CarReplicaType.State.Matched)
+        onlyUnsetCarReplicaFilecoinClaimId(_cid, _matchingId)
     {
-        StorageType.Storage storage storage_ = storages[_matchingId];
-        storage_.doneCars.push(_cid);
-
-        /// Note:set deal id in carstore berfore submitDealid
-        carstore.setCarReplicaFilecoinDealId(
-            _cid,
-            _matchingId,
-            _filecoinDealId
+        require(
+            CarReplicaType.State.Matched ==
+                carstore.getCarReplicaState(_cid, _matchingId),
+            "Invalid Replica State"
         );
 
-        emit StoragesEvents.StorageDealIdSubmitted(
+        StorageType.Storage storage storage_ = storages[_matchingId];
+
+        bytes memory dataCid = filecoin.getReplicaClaimData(
+            _provider,
+            _claimId
+        );
+        bytes memory cid = CidUtils.hashToCID(_cid);
+
+        require(keccak256(dataCid) == keccak256(cid), "cid mismatch");
+
+        storage_.doneCars.push(_cid);
+
+        /// Note:set claim id in carstore berfore submitClaimid
+        carstore.setCarReplicaFilecoinClaimId(_cid, _matchingId, _claimId);
+
+        emit StoragesEvents.StorageClaimIdSubmitted(
             _matchingId,
             _cid,
-            _filecoinDealId
+            _claimId
         );
     }
 
-    /// @dev Submits multiple Filecoin deal Ids for a matchedstore after successful matching.
-    function submitStorageDealIds(
+    /// @dev Submits multiple Filecoin claim Ids for a matchedstore after successful matching.
+    function submitStorageClaimIds(
         uint64 _matchingId,
+        uint64 _provider,
         bytes32[] memory _cids,
-        uint64[] memory _filecoinDealIds
+        uint64[] memory _claimIds
     ) external {
-        if (_cids.length != _filecoinDealIds.length) {
-            revert Errors.ParamLengthMismatch(
-                _cids.length,
-                _filecoinDealIds.length
-            );
+        if (_cids.length != _claimIds.length) {
+            revert Errors.ParamLengthMismatch(_cids.length, _claimIds.length);
         }
         for (uint64 i = 0; i < _cids.length; i++) {
-            submitStorageDealId(_matchingId, _cids[i], _filecoinDealIds[i]);
+            submitStorageClaimId(
+                _matchingId,
+                _provider,
+                _cids[i],
+                _claimIds[i]
+            );
         }
     }
 
