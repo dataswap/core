@@ -166,9 +166,9 @@ abstract contract AddCarReplicaTestSuiteBase is CarstoreTestBase, Test {
     }
 }
 
-/// @title FilecoinDealIdTestSuiteBase
-/// @dev Base contract for test suites related to Filecoin deal IDs in the carstore.
-abstract contract FilecoinDealIdTestSuiteBase is CarstoreTestBase, Test {
+/// @title FilecoinClaimIdTestSuiteBase
+/// @dev Base contract for test suites related to Filecoin claim IDs in the carstore.
+abstract contract FilecoinClaimIdTestSuiteBase is CarstoreTestBase, Test {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
@@ -179,23 +179,23 @@ abstract contract FilecoinDealIdTestSuiteBase is CarstoreTestBase, Test {
     /// @param _datasetId The dataset ID of the car replica.
     /// @param _size The size of the car replica.
     /// @param _matchingId The matching ID of the car replica.
-    /// @param _filecoinDealId The Filecoin deal ID associated with the car replica.
+    /// @param _claimId The Filecoin claim ID associated with the car replica.
     function before(
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal virtual;
 
-    /// @dev The main action of the test, where a Filecoin deal ID is processed.
+    /// @dev The main action of the test, where a Filecoin claim ID is processed.
     /// @param _cid The content ID of the car replica.
     /// @param _matchingId The matching ID of the car replica.
-    /// @param _filecoinDealId The Filecoin deal ID to be processed.
+    /// @param _claimId The Filecoin claim ID to be processed.
     function action(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal virtual;
 
     /// @dev Called after running the test to perform any necessary cleanup or validation.
@@ -203,111 +203,103 @@ abstract contract FilecoinDealIdTestSuiteBase is CarstoreTestBase, Test {
     /// @param _datasetId The dataset ID of the car replica.
     /// @param _size The size of the car replica.
     /// @param _matchingId The matching ID of the car replica.
-    /// @param _filecoinDealId The Filecoin deal ID associated with the car replica.
+    /// @param _claimId The Filecoin claim ID associated with the car replica.
     function after_(
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId // solhint-disable-next-line
+        uint64 _claimId // solhint-disable-next-line
     ) internal virtual {}
 
-    /// @dev Runs the test to process a Filecoin deal ID in the carstore.
+    /// @dev Runs the test to process a Filecoin claim ID in the carstore.
     /// @param _cid The content ID of the car replica.
     /// @param _datasetId The dataset ID of the car replica.
     /// @param _size The size of the car replica.
     /// @param _matchingId The matching ID of the car replica.
-    /// @param _filecoinDealId The Filecoin deal ID to be processed.
+    /// @param _claimId The Filecoin claim ID to be processed.
     function run(
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) public {
-        before(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
-        action(_cid, _matchingId, _filecoinDealId);
-        after_(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
+        before(_cid, _datasetId, _size, _matchingId, _claimId);
+        action(_cid, _matchingId, _claimId);
+        after_(_cid, _datasetId, _size, _matchingId, _claimId);
     }
 }
 
 /// @title ReportCarReplicaExpiredTestSuiteBase
 /// @dev Base contract for test suites related to reporting an expired car replica in the carstore.
 abstract contract ReportCarReplicaExpiredTestSuiteBase is
-    FilecoinDealIdTestSuiteBase
+    FilecoinClaimIdTestSuiteBase
 {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
-    ) FilecoinDealIdTestSuiteBase(_carstore, _assertion) {}
+    ) FilecoinClaimIdTestSuiteBase(_carstore, _assertion) {}
 
     /// @dev The main action of the test, where a car replica is reported as expired.
     /// @param _cid The content ID of the car replica.
     /// @param _matchingId The matching ID of the car replica.
-    /// @param _filecoinDealId The Filecoin deal ID associated with the car replica.
+    /// @param _claimId The Filecoin claim ID associated with the car replica.
     function action(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal virtual override {
-        assertion.reportCarReplicaExpiredAssertion(
-            _cid,
-            _matchingId,
-            _filecoinDealId
-        );
+        assertion.reportCarReplicaExpiredAssertion(_cid, _matchingId, _claimId);
     }
 }
 
 /// @title ReportCarReplicaSlashedTestSuiteBase
 /// @dev Base contract for test suites related to reporting a slashed car replica in the carstore.
 abstract contract ReportCarReplicaSlashedTestSuiteBase is
-    FilecoinDealIdTestSuiteBase
+    FilecoinClaimIdTestSuiteBase
 {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
-    ) FilecoinDealIdTestSuiteBase(_carstore, _assertion) {}
+    ) FilecoinClaimIdTestSuiteBase(_carstore, _assertion) {}
 
     /// @dev The main action of the test, where a car replica is reported as slashed.
     /// @param _cid The content ID of the car replica.
     /// @param _matchingId The matching ID of the car replica.
-    /// @param _filecoinDealId The Filecoin deal ID associated with the car replica.
+    /// @param _claimId The Filecoin claim ID associated with the car replica.
     function action(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal virtual override {
-        assertion.reportCarReplicaSlashedAssertion(
-            _cid,
-            _matchingId,
-            _filecoinDealId
-        );
+        assertion.reportCarReplicaSlashedAssertion(_cid, _matchingId, _claimId);
     }
 }
 
-/// @title SetCarReplicaFilecoinDealIdAssertionTestSuiteBase
-/// @dev Base contract for test suites related to setting a Filecoin deal ID for a car replica in the carstore.
-abstract contract SetCarReplicaFilecoinDealIdAssertionTestSuiteBase is
-    FilecoinDealIdTestSuiteBase
+/// @title SetCarReplicaFilecoinClaimIdAssertionTestSuiteBase
+/// @dev Base contract for test suites related to setting a Filecoin claim ID for a car replica in the carstore.
+abstract contract SetCarReplicaFilecoinClaimIdAssertionTestSuiteBase is
+    FilecoinClaimIdTestSuiteBase
 {
     constructor(
         ICarstore _carstore,
         ICarstoreAssertion _assertion
-    ) FilecoinDealIdTestSuiteBase(_carstore, _assertion) {}
+    ) FilecoinClaimIdTestSuiteBase(_carstore, _assertion) {}
 
-    /// @dev The main action of the test, where a Filecoin deal ID is set for a car replica.
+    /// @dev The main action of the test, where a Filecoin claim ID is set for a car replica.
     /// @param _cid The content ID of the car replica.
     /// @param _matchingId The matching ID of the car replica.
-    /// @param _filecoinDealId The Filecoin deal ID to be set for the car replica.
+    /// @param _claimId The Filecoin claim ID to be set for the car replica.
     function action(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal virtual override {
-        assertion.setCarReplicaFilecoinDealIdAssertion(
+        assertion.setCarReplicaFilecoinClaimIdAssertion(
             _cid,
             _matchingId,
-            _filecoinDealId
+            _claimId
         );
     }
 }

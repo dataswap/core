@@ -78,12 +78,12 @@ contract Generator {
         return nonce;
     }
 
-    /// @notice Generate an array of Filecoin deal IDs for testing.
-    /// @param _count The number of deal IDs to generate.
-    /// @return filecoinDealIds  An array of uint64 deal IDs.
-    function generateFilecoinDealIds(
+    /// @notice Generate an array of Filecoin claim IDs for testing.
+    /// @param _count The number of claim IDs to generate.
+    /// @return filecoinClaimIds  An array of uint64 claim IDs.
+    function generateFilecoinClaimIds(
         uint64 _count
-    ) external returns (uint64[] memory filecoinDealIds) {
+    ) external returns (uint64[] memory filecoinClaimIds) {
         uint64[] memory ids = new uint64[](_count);
         for (uint64 i = 0; i < _count; i++) {
             nonce++;
@@ -92,9 +92,9 @@ contract Generator {
         return ids;
     }
 
-    /// @notice Generate a Filecoin deal ID for testing.
-    /// @return A uint64 deal ID.
-    function generateFilecoinDealId() external returns (uint64) {
+    /// @notice Generate a Filecoin claim ID for testing.
+    /// @return A uint64 claim ID.
+    function generateFilecoinClaimId() external returns (uint64) {
         nonce++;
         return nonce;
     }

@@ -35,47 +35,47 @@ abstract contract MockFilecoinDealTestSuiteBase is
 
     /// @dev Called before running the test to set up the test scenario.
     /// @param _cid The CID (Content Identifier) of the replica.
-    /// @param _filecoinDealId The filecoin Deal ID.
+    /// @param _claimId The filecoin Deal ID.
     /// @param _state The filecoin Deal ID state.
     function before(
         bytes32 _cid,
-        uint64 _filecoinDealId,
+        uint64 _claimId,
         FilecoinType.DealState _state // solhint-disable-next-line
     ) internal virtual {}
 
     /// @dev The main action of the test, the mock Filecoin deal state for a replica.
     /// @param _cid The CID (Content Identifier) of the replica.
-    /// @param _filecoinDealId The filecoin Deal ID.
+    /// @param _claimId The filecoin Deal ID.
     /// @param _state The filecoin Deal ID state.
     function action(
         bytes32 _cid,
-        uint64 _filecoinDealId,
+        uint64 _claimId,
         FilecoinType.DealState _state
     ) internal virtual {
-        assertion.setMockDealStateAssertion(_cid, _filecoinDealId, _state);
+        assertion.setMockDealStateAssertion(_cid, _claimId, _state);
     }
 
     /// @dev Called after running the test to perform any necessary cleanup or validation.
     /// @param _cid The CID (Content Identifier) of the replica.
-    /// @param _filecoinDealId The filecoin Deal ID.
+    /// @param _claimId The filecoin Deal ID.
     /// @param _state The filecoin Deal ID state.
     function after_(
         bytes32 _cid,
-        uint64 _filecoinDealId,
+        uint64 _claimId,
         FilecoinType.DealState _state // solhint-disable-next-line
     ) internal virtual {}
 
     /// @dev Runs the test to add a car to the carstore.
     /// @param _cid The CID (Content Identifier) of the replica.
-    /// @param _filecoinDealId The filecoin Deal ID.
+    /// @param _claimId The filecoin Deal ID.
     /// @param _state The filecoin Deal ID state.
     function run(
         bytes32 _cid,
-        uint64 _filecoinDealId,
+        uint64 _claimId,
         FilecoinType.DealState _state
     ) public {
-        before(_cid, _filecoinDealId, _state);
-        action(_cid, _filecoinDealId, _state);
-        after_(_cid, _filecoinDealId, _state);
+        before(_cid, _claimId, _state);
+        action(_cid, _claimId, _state);
+        after_(_cid, _claimId, _state);
     }
 }

@@ -24,21 +24,21 @@ import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 interface IFilecoinAssertion {
     /// @notice Asserts the mock Filecoin deal state for a replica.
     /// @param _cid The CID (Content Identifier) of the replica.
-    /// @param _filecoinDealId The ID of the Filecoin storage deal.
+    /// @param _claimId The ID of the Filecoin storage deal.
     /// @param _expectState The expected state of the Filecoin storage deal.
     function getReplicaDealStateAssertion(
         bytes32 _cid,
-        uint64 _filecoinDealId,
+        uint64 _claimId,
         FilecoinType.DealState _expectState
     ) external;
 
     /// @dev This function does nothing and is for testing purposes only.
     /// @param _cid The CID of the replica.
-    /// @param _filecoinDealId The ID of the Filecoin storage deal.
+    /// @param _claimId The ID of the Filecoin storage deal.
     /// @param _state The state to set for mock purposes.
     function setMockDealStateAssertion(
         bytes32 _cid,
-        uint64 _filecoinDealId,
+        uint64 _claimId,
         FilecoinType.DealState _state
     ) external;
 }

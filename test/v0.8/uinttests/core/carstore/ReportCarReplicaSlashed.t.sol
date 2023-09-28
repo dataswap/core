@@ -27,7 +27,7 @@ contract ReportCarReplicaSlashedTest is Test, CarstoreTestSetup {
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) public {
         setup();
         ReportCarReplicaSlashedTestCaseWithSuccess testCase = new ReportCarReplicaSlashedTestCaseWithSuccess(
@@ -35,7 +35,7 @@ contract ReportCarReplicaSlashedTest is Test, CarstoreTestSetup {
                 assertion
             );
         // run testcase
-        testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
+        testCase.run(_cid, _datasetId, _size, _matchingId, _claimId);
     }
 
     /// @notice test case with invalid deal state
@@ -44,7 +44,7 @@ contract ReportCarReplicaSlashedTest is Test, CarstoreTestSetup {
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) public {
         setup();
         ReportCarReplicaSlashedTestCaseWithInvalidDealState testCase = new ReportCarReplicaSlashedTestCaseWithInvalidDealState(
@@ -52,7 +52,7 @@ contract ReportCarReplicaSlashedTest is Test, CarstoreTestSetup {
                 assertion
             );
         // run testcase
-        testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
+        testCase.run(_cid, _datasetId, _size, _matchingId, _claimId);
     }
 
     /// @notice test case with invalid id
@@ -61,7 +61,7 @@ contract ReportCarReplicaSlashedTest is Test, CarstoreTestSetup {
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) public {
         setup();
         ReportCarReplicaSlashedTestCaseWithInvalidId testCase = new ReportCarReplicaSlashedTestCaseWithInvalidId(
@@ -69,6 +69,6 @@ contract ReportCarReplicaSlashedTest is Test, CarstoreTestSetup {
                 assertion
             );
         // run testcase
-        testCase.run(_cid, _datasetId, _size, _matchingId, _filecoinDealId);
+        testCase.run(_cid, _datasetId, _size, _matchingId, _claimId);
     }
 }

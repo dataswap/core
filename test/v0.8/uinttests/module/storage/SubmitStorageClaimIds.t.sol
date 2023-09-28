@@ -17,18 +17,19 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {SubmitStorageDealIdsTestCaseWithSuccess} from "test/v0.8/testcases/module/storage/SubmitStorageDealIdsTestSuite.sol";
+import {SubmitStorageClaimIdsTestCaseWithSuccess} from "test/v0.8/testcases/module/storage/SubmitStorageClaimIdsTestSuite.sol";
 import {StorageTestSetup} from "test/v0.8/uinttests/module/storage/setup/StorageTestSetup.sol";
 
-contract SubmitStorageDealIdTest is Test, StorageTestSetup {
+contract SubmitStorageClaimIdTest is Test, StorageTestSetup {
     /// @notice test case with success
-    function testSubmitStorageDealIdsWithSuccess() public {
+    function testSubmitStorageClaimIdsWithSuccess() public {
         setup();
-        SubmitStorageDealIdsTestCaseWithSuccess testCase = new SubmitStorageDealIdsTestCaseWithSuccess(
+        SubmitStorageClaimIdsTestCaseWithSuccess testCase = new SubmitStorageClaimIdsTestCaseWithSuccess(
                 storages,
                 generator,
                 helpers,
-                assertion
+                assertion,
+                filecoin
             );
         testCase.run();
     }

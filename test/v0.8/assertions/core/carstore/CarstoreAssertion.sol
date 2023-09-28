@@ -110,18 +110,18 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
             CarReplicaType.State.Matched,
             0
         );
-        getCarReplicaFilecoinDealIdAssertion(_cid, _matchingId, 0);
+        getCarReplicaFilecoinClaimIdAssertion(_cid, _matchingId, 0);
         hasCarReplicaAssertion(_cid, _matchingId, true);
     }
 
     /// @notice Assertion for the `reportCarReplicaExpired` function.
     /// @param _cid The CID (Content Identifier) of the car.
     /// @param _matchingId The matching ID associated with the car replica.
-    /// @param _filecoinDealId The Filecoin deal ID associated with the car replica.
+    /// @param _claimId The Filecoin claim ID associated with the car replica.
     function reportCarReplicaExpiredAssertion(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) external {
         // Before reporting, check replica count, replica state, and filecoin deal state.
         uint16 beforeReplicasCount = carstore.getCarReplicasCount(_cid);
@@ -129,7 +129,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
             _cid,
             _matchingId,
             CarReplicaType.State.Stored,
-            _filecoinDealId
+            _claimId
         );
         getCarReplicaStateAssertion(
             _cid,
@@ -138,7 +138,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         );
 
         // Perform the action: report an expired car replica.
-        carstore.reportCarReplicaExpired(_cid, _matchingId, _filecoinDealId);
+        carstore.reportCarReplicaExpired(_cid, _matchingId, _claimId);
 
         // After reporting, check replica count, replica state, and filecoin deal state.
         getCarReplicasCountAssertion(_cid, beforeReplicasCount);
@@ -147,28 +147,24 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
             _cid,
             _matchingId,
             CarReplicaType.State.Expired,
-            _filecoinDealId
+            _claimId
         );
         getCarReplicaStateAssertion(
             _cid,
             _matchingId,
             CarReplicaType.State.Expired
         );
-        getCarReplicaFilecoinDealIdAssertion(
-            _cid,
-            _matchingId,
-            _filecoinDealId
-        );
+        getCarReplicaFilecoinClaimIdAssertion(_cid, _matchingId, _claimId);
     }
 
     /// @notice Assertion for the `reportCarReplicaSlashed` function.
     /// @param _cid The CID (Content Identifier) of the car.
     /// @param _matchingId The matching ID associated with the car replica.
-    /// @param _filecoinDealId The Filecoin deal ID associated with the car replica.
+    /// @param _claimId The Filecoin claim ID associated with the car replica.
     function reportCarReplicaSlashedAssertion(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) external {
         // Before reporting, check replica count, replica state, and filecoin deal state.
         uint16 beforeReplicasCount = carstore.getCarReplicasCount(_cid);
@@ -176,7 +172,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
             _cid,
             _matchingId,
             CarReplicaType.State.Stored,
-            _filecoinDealId
+            _claimId
         );
         getCarReplicaStateAssertion(
             _cid,
@@ -185,7 +181,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         );
 
         // Perform the action: report a slashed car replica.
-        carstore.reportCarReplicaSlashed(_cid, _matchingId, _filecoinDealId);
+        carstore.reportCarReplicaSlashed(_cid, _matchingId, _claimId);
 
         // After reporting, check replica count, replica state, and filecoin deal state.
         getCarReplicasCountAssertion(_cid, beforeReplicasCount);
@@ -194,52 +190,40 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
             _cid,
             _matchingId,
             CarReplicaType.State.Slashed,
-            _filecoinDealId
+            _claimId
         );
         getCarReplicaStateAssertion(
             _cid,
             _matchingId,
             CarReplicaType.State.Slashed
         );
-        getCarReplicaFilecoinDealIdAssertion(
-            _cid,
-            _matchingId,
-            _filecoinDealId
-        );
+        getCarReplicaFilecoinClaimIdAssertion(_cid, _matchingId, _claimId);
     }
 
-    /// @notice Assertion for the `setCarReplicaFilecoinDealId` function.
+    /// @notice Assertion for the `setCarReplicaClaimId` function.
     /// @param _cid The CID (Content Identifier) of the car.
     /// @param _matchingId The matching ID associated with the car replica.
-    /// @param _filecoinDealId The new Filecoin deal ID to set for the car replica.
-    function setCarReplicaFilecoinDealIdAssertion(
+    /// @param _claimId The new Filecoin claim ID to set for the car replica.
+    function setCarReplicaFilecoinClaimIdAssertion(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) external {
-        // Before setting, check replica count and the existing filecoin deal ID.
+        // Before setting, check replica count and the existing filecoin claim ID.
         uint16 beforeReplicasCount = carstore.getCarReplicasCount(_cid);
-        getCarReplicaFilecoinDealIdAssertion(_cid, _matchingId, 0);
+        getCarReplicaFilecoinClaimIdAssertion(_cid, _matchingId, 0);
 
-        // Perform the action: set the filecoin deal ID of a car replica.
-        carstore.setCarReplicaFilecoinDealId(
-            _cid,
-            _matchingId,
-            _filecoinDealId
-        );
+        // Perform the action: set the filecoin claim ID of a car replica.
+        carstore.setCarReplicaFilecoinClaimId(_cid, _matchingId, _claimId);
 
-        // After setting, check replica count, the new filecoin deal ID, and replica state.
+        // After setting, check replica count, the new filecoin claim ID, and replica state.
         getCarReplicasCountAssertion(_cid, beforeReplicasCount);
-        getCarReplicaFilecoinDealIdAssertion(
-            _cid,
-            _matchingId,
-            _filecoinDealId
-        );
+        getCarReplicaFilecoinClaimIdAssertion(_cid, _matchingId, _claimId);
         hasCarReplicaAssertion(_cid, _matchingId, true);
 
         if (
             FilecoinType.DealState.Stored ==
-            carstore.filecoin().getReplicaDealState(_cid, _filecoinDealId)
+            carstore.filecoin().getReplicaDealState(_cid, _claimId)
         ) {
             getCarReplicaStateAssertion(
                 _cid,
@@ -248,7 +232,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
             );
         } else if (
             FilecoinType.DealState.StorageFailed ==
-            carstore.filecoin().getReplicaDealState(_cid, _filecoinDealId)
+            carstore.filecoin().getReplicaDealState(_cid, _claimId)
         ) {
             getCarReplicaStateAssertion(
                 _cid,
@@ -303,24 +287,26 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
     /// @param _inputCid The CID (Content Identifier) of the car.
     /// @param _inputmatchingId The matching ID associated with the car replica.
     /// @param _expectState The expected state of the car replica.
-    /// @param _expectFilecoinDealId The expected Filecoin deal ID of the car replica.
+    /// @param _expectFilecoinClaimId The expected Filecoin claim ID of the car replica.
     function getCarReplicaAssertion(
         bytes32 _inputCid,
         uint64 _inputmatchingId,
         CarReplicaType.State _expectState,
-        uint64 _expectFilecoinDealId
+        uint64 _expectFilecoinClaimId
     ) public {
-        (CarReplicaType.State state, uint64 filecoinDealId) = carstore
-            .getCarReplica(_inputCid, _inputmatchingId);
+        (CarReplicaType.State state, uint64 claimId) = carstore.getCarReplica(
+            _inputCid,
+            _inputmatchingId
+        );
         assertEq(
             uint8(state),
             uint8(_expectState),
             "car replica state not matched"
         );
         assertEq(
-            filecoinDealId,
-            _expectFilecoinDealId,
-            "car replica filecoin deal id not matched"
+            claimId,
+            _expectFilecoinClaimId,
+            "car replica filecoin claim id not matched"
         );
     }
 
@@ -338,19 +324,19 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         );
     }
 
-    /// @notice Assertion for getting the Filecoin deal ID of a car replica.
+    /// @notice Assertion for getting the Filecoin claim ID of a car replica.
     /// @param _inputCid The CID (Content Identifier) of the car.
     /// @param _inputMatchingId The matching ID associated with the car replica.
-    /// @param _expectFilecoinDealId The expected Filecoin deal ID of the car replica.
-    function getCarReplicaFilecoinDealIdAssertion(
+    /// @param _expectFilecoinClaimId The expected Filecoin claim ID of the car replica.
+    function getCarReplicaFilecoinClaimIdAssertion(
         bytes32 _inputCid,
         uint64 _inputMatchingId,
-        uint64 _expectFilecoinDealId
+        uint64 _expectFilecoinClaimId
     ) public {
         assertEq(
-            carstore.getCarReplicaFilecoinDealId(_inputCid, _inputMatchingId),
-            _expectFilecoinDealId,
-            "car replica filecoin deal id not matched"
+            carstore.getCarReplicaFilecoinClaimId(_inputCid, _inputMatchingId),
+            _expectFilecoinClaimId,
+            "car replica filecoin claim id not matched"
         );
     }
 

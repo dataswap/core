@@ -26,9 +26,9 @@ library CarReplicaType {
         None, //justify if Replica exsits
         Matched, // Replica has been matched for storage
         Stored, // Replica has been successfully stored
-        StorageFailed, // The filecoin deal's verification failed.
-        Slashed, // The filecoin deal has been slashed.
-        Expired // The filecoin deal has expired.
+        StorageFailed, // The filecoin claim id's verification failed.
+        Slashed, // The filecoin storage has been slashed.
+        Expired // The filecoin storage has expired.
     }
 
     /// @notice Enum representing the events associated with car replicas.
@@ -36,13 +36,13 @@ library CarReplicaType {
         MatchingCompleted, // Matching for a replica has been completed
         StorageCompleted, // Storage for a replica has been completed
         StorageFailed, // Storage for a replica has failed
-        StorageDealExpired, // Storage deal for a replica has expired
+        StorageDealExpired, // Storage for a replica has expired
         StorageSlashed // Storage for a replica has been slashed
     }
 
     /// @notice Struct representing a car replica.
     struct Replica {
-        uint64 filecoinDealId; // ID of the Filecoin deal associated with the replica's storage
+        uint64 filecoinClaimId; // ID of the Filecoin claim associated with the replica's storage
         State state; // Current state of the replica
     }
 

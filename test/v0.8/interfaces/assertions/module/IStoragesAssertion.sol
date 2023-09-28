@@ -21,28 +21,32 @@ pragma solidity ^0.8.21;
 /// @dev This interface defines assertion methods for testing storage-related functionality.
 /// All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
 interface IStoragesAssertion {
-    /// @notice Asserts the submission of a storage deal ID for a car in a matching.
+    /// @notice Asserts the submission of a storage claim ID for a car in a matching.
     /// @param caller The caller's address.
     /// @param _matchingId The ID of the matching associated with the storage deal.
-    /// @param _cid The car CID for which the storage deal ID is submitted.
-    /// @param _filecoinDealId The Filecoin deal ID associated with the storage of the car.
-    function submitStorageDealIdAssertion(
+    /// @param _provider The storage provider for which to submit the storage deal.
+    /// @param _cid The car CID for which the storage claim ID is submitted.
+    /// @param _claimId The Filecoin claim ID associated with the storage of the car.
+    function submitStorageClaimIdAssertion(
         address caller,
         uint64 _matchingId,
+        uint64 _provider,
         bytes32 _cid,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) external;
 
-    /// @notice Asserts the submission of multiple storage deal IDs for cars in a matching.
+    /// @notice Asserts the submission of multiple storage claim IDs for cars in a matching.
     /// @param caller The caller's address.
     /// @param _matchingId The ID of the matching associated with the storage deals.
-    /// @param _cids The array of car CIDs for which storage deal IDs are submitted.
-    /// @param _filecoinDealIds The array of Filecoin deal IDs associated with the storage of the cars.
-    function submitStorageDealIdsAssertion(
+    /// @param _provider The storage provider for which to submit the storage deal.
+    /// @param _cids The array of car CIDs for which storage claim IDs are submitted.
+    /// @param _claimIds The array of Filecoin claim IDs associated with the storage of the cars.
+    function submitStorageClaimIdsAssertion(
         address caller,
         uint64 _matchingId,
+        uint64 _provider,
         bytes32[] memory _cids,
-        uint64[] memory _filecoinDealIds
+        uint64[] memory _claimIds
     ) external;
 
     /// @notice Asserts the retrieval of stored car CIDs in a matching.

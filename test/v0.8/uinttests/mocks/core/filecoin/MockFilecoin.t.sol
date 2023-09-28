@@ -26,7 +26,7 @@ contract MockFilecoinTest is Test, MockFilecoinSetup {
     /// @notice test case with success
     function testMockFilecoinTestCaseWithSuccess(
         bytes32 _cid,
-        uint64 _filecoinDealId,
+        uint64 _claimId,
         uint8 _state
     ) public {
         setup();
@@ -34,6 +34,6 @@ contract MockFilecoinTest is Test, MockFilecoinSetup {
         SetMockFilecoinDealStateTestCaseWithSuccess testCase = new SetMockFilecoinDealStateTestCaseWithSuccess(
                 assertion
             );
-        testCase.run(_cid, _filecoinDealId, FilecoinType.DealState(_state));
+        testCase.run(_cid, _claimId, FilecoinType.DealState(_state));
     }
 }

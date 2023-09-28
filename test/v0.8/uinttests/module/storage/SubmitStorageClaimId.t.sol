@@ -17,54 +17,58 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import "test/v0.8/testcases/module/storage/SubmitStorageDealIdTestSuite.sol";
+import "test/v0.8/testcases/module/storage/SubmitStorageClaimIdTestSuite.sol";
 import {StorageTestSetup} from "test/v0.8/uinttests/module/storage/setup/StorageTestSetup.sol";
 
-contract SubmitStorageDealIdTest is Test, StorageTestSetup {
+contract SubmitStorageClaimIdTest is Test, StorageTestSetup {
     /// @notice test case with success
-    function testSubmitStorageDealIdWithSuccess() public {
+    function testSubmitStorageClaimIdWithSuccess() public {
         setup();
-        SubmitStorageDealIdTestCaseWithSuccess testCase = new SubmitStorageDealIdTestCaseWithSuccess(
+        SubmitStorageClaimIdTestCaseWithSuccess testCase = new SubmitStorageClaimIdTestCaseWithSuccess(
                 storages,
                 generator,
                 helpers,
-                assertion
+                assertion,
+                filecoin
             );
         testCase.run();
     }
 
     /// @notice test case with invalid address
-    function testSubmitStorageDealIdWithInvalidAddress() public {
+    function testSubmitStorageClaimIdWithInvalidAddress() public {
         setup();
-        SubmitStorageDealIdTestCaseWithInvalidAddress testCase = new SubmitStorageDealIdTestCaseWithInvalidAddress(
+        SubmitStorageClaimIdTestCaseWithInvalidAddress testCase = new SubmitStorageClaimIdTestCaseWithInvalidAddress(
                 storages,
                 generator,
                 helpers,
-                assertion
+                assertion,
+                filecoin
             );
         testCase.run();
     }
 
     /// @notice test case with invalid cid
-    function testSubmitStorageDealIdWithInvalidCid() public {
+    function testSubmitStorageClaimIdWithInvalidCid() public {
         setup();
-        SubmitStorageDealIdTestCaseWithInvalidCid testCase = new SubmitStorageDealIdTestCaseWithInvalidCid(
+        SubmitStorageClaimIdTestCaseWithInvalidCid testCase = new SubmitStorageClaimIdTestCaseWithInvalidCid(
                 storages,
                 generator,
                 helpers,
-                assertion
+                assertion,
+                filecoin
             );
         testCase.run();
     }
 
     /// @notice test case with duplicate cid
-    function testSubmitStorageDealIdWithDuplicateCid() public {
+    function testSubmitStorageClaimIdWithDuplicateCid() public {
         setup();
-        SubmitStorageDealIdTestCaseWithDuplicateCid testCase = new SubmitStorageDealIdTestCaseWithDuplicateCid(
+        SubmitStorageClaimIdTestCaseWithDuplicateCid testCase = new SubmitStorageClaimIdTestCaseWithDuplicateCid(
                 storages,
                 generator,
                 helpers,
-                assertion
+                assertion,
+                filecoin
             );
         testCase.run();
     }

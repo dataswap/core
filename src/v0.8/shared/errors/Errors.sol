@@ -28,7 +28,7 @@ library Errors {
     error CarAlreadyExists(bytes32 _cid);
     error ReplicaNotExist(bytes32 _cid, uint64 _matchingId);
     error ReplicaAlreadyExists(bytes32 _cid, uint64 _matchingId);
-    error ReplicaFilecoinDealIdExists(bytes32 _cid, uint64 _matchingId);
+    error ReplicaFilecoinClaimIdExists(bytes32 _cid, uint64 _matchingId);
     error InvalidReplicaState(bytes32 _cid, uint64 _matchingId);
     error InvalidReplicaFilecoinDealState(bytes32 _cid, uint64 _filecoinId);
 
@@ -51,11 +51,11 @@ library Errors {
     );
 
     /// @notice storage errors
-    error StorageDealNotSuccessful(uint64 _filecoinDealId);
-    error StorageDealIdAlreadySet(
+    error StorageDealNotSuccessful(uint64 _claimId);
+    error StorageClaimIdAlreadySet(
         uint64 _matchingId,
         bytes32 _cid,
-        uint64 _filecoinDealId
+        uint64 _claimId
     );
 
     /// @notice datacap errors

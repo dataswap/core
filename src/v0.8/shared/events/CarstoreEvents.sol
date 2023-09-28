@@ -38,11 +38,11 @@ library CarstoreEvents {
     /// @param _matchingId Matching ID of the replica.
     event CarReplicaFailed(bytes32 indexed _cid, uint64 _matchingId);
 
-    /// @notice Emitted when the Filecoin deal ID is set for a replica's storage.
-    event CarReplicaFilecoinDealIdSet(
+    /// @notice Emitted when the Filecoin claim ID is set for a replica's storage.
+    event CarReplicaFilecoinClaimIdSet(
         bytes32 indexed _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     );
 
     /// @notice Report that storage of a replica has been slashed.

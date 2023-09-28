@@ -23,7 +23,7 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 
-/// @notice report car replica filecoin deal id  slashed test case,it should be success
+/// @notice report car replica filecoin claim id  slashed test case,it should be success
 contract ReportCarReplicaSlashedTestCaseWithSuccess is
     ReportCarReplicaSlashedTestSuiteBase
 {
@@ -39,23 +39,19 @@ contract ReportCarReplicaSlashedTestCaseWithSuccess is
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal virtual override {
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
-        vm.assume(_matchingId != 0 && _filecoinDealId != 0);
+        vm.assume(_matchingId != 0 && _claimId != 0);
         carstore.addCar(_cid, _datasetId, _size);
         carstore.addCarReplica(_cid, _matchingId);
-        carstore.setCarReplicaFilecoinDealId(
-            _cid,
-            _matchingId,
-            _filecoinDealId
-        );
+        carstore.setCarReplicaFilecoinClaimId(_cid, _matchingId, _claimId);
         carstore.filecoin().setMockDealState(FilecoinType.DealState.Slashed);
     }
 }
 
-/// @notice report car replica filecoin deal id  slahsed test case,it should be reverted due to invalid state
+/// @notice report car replica filecoin claim id  slahsed test case,it should be reverted due to invalid state
 contract ReportCarReplicaSlashedTestCaseWithInvalidDealState is
     ReportCarReplicaSlashedTestSuiteBase
 {
@@ -71,38 +67,34 @@ contract ReportCarReplicaSlashedTestCaseWithInvalidDealState is
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal virtual override {
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
-        vm.assume(_matchingId != 0 && _filecoinDealId != 0);
+        vm.assume(_matchingId != 0 && _claimId != 0);
         carstore.addCar(_cid, _datasetId, _size);
         carstore.addCarReplica(_cid, _matchingId);
-        carstore.setCarReplicaFilecoinDealId(
-            _cid,
-            _matchingId,
-            _filecoinDealId
-        );
+        carstore.setCarReplicaFilecoinClaimId(_cid, _matchingId, _claimId);
         carstore.filecoin().setMockDealState(FilecoinType.DealState.Stored);
     }
 
     function action(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal virtual override {
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.InvalidReplicaFilecoinDealState.selector,
                 _cid,
-                _filecoinDealId
+                _claimId
             )
         );
-        super.action(_cid, _matchingId, _filecoinDealId);
+        super.action(_cid, _matchingId, _claimId);
     }
 }
 
-/// @notice report car replica filecoin deal id  slahed test case,it should be reverted due to invalid id
+/// @notice report car replica filecoin claim id  slahed test case,it should be reverted due to invalid id
 contract ReportCarReplicaSlashedTestCaseWithInvalidId is
     ReportCarReplicaSlashedTestSuiteBase
 {
@@ -118,19 +110,19 @@ contract ReportCarReplicaSlashedTestCaseWithInvalidId is
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal virtual override {
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
-        vm.assume(_matchingId == 0 || _filecoinDealId == 0);
+        vm.assume(_matchingId == 0 || _claimId == 0);
     }
 
     function action(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) internal virtual override {
         vm.expectRevert();
-        super.action(_cid, _matchingId, _filecoinDealId);
+        super.action(_cid, _matchingId, _claimId);
     }
 }

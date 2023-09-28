@@ -41,16 +41,19 @@ contract StorageTestSetup {
     StoragesAssertion internal assertion;
     StoragesHelpers internal helpers;
     Generator internal generator = new Generator();
+    Roles internal role;
+    MockFilecoin internal filecoin;
 
     /// @dev Initialize the storages and helpers,assertion contracts.
     function setup() internal {
-        Roles role = new Roles();
+        role = new Roles();
         role.initialize();
         Filplus filplus = new Filplus();
         filplus.initialize(governanceContractAddresss, address(role));
 
-        MockFilecoin filecoin = new MockFilecoin();
+        filecoin = new MockFilecoin();
         filecoin.initialize(address(role));
+
         MockMerkleUtils merkleUtils = new MockMerkleUtils();
         merkleUtils.initialize(address(role));
 

@@ -75,28 +75,28 @@ library CarLIB {
         self.datasetId = _datasetId;
     }
 
-    /// @notice Set the replica filecoin deal ID for a car's replica.
-    /// @dev Requires non-zero matching ID and Filecoin deal ID, and that the replica exists.
-    ///      This should be called by an external  storage deal contract after a successful storage deal process.
+    /// @notice Set the replica filecoin claim ID for a car's replica.
+    /// @dev Requires non-zero matching ID and Filecoin claim ID, and that the replica exists.
+    ///      This should be called by an external storage deal contract after a successful storage deal process.
     /// @param self The reference to the car storage.
     /// @param _matchingId The matching ID of the replica.
-    /// @param _filecoinDealId The new Filecoin deal ID to set.
-    function _setReplicaFilecoinDealId(
+    /// @param _claimId The new Filecoin claim ID to set.
+    function _setReplicaFilecoinClaimId(
         CarReplicaType.Car storage self,
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId,
+        uint64 _claimId,
         IFilecoin _filecoin
     ) internal {
         require(_matchingId != 0, "Invalid matching id");
-        require(_filecoinDealId != 0, "Invalid filecoin deal id");
+        require(_claimId != 0, "Invalid filecoin claim id");
         require(_hasReplica(self, _matchingId), "Replica is not exists");
         CarReplicaType.Replica storage replica = self.replicas[_matchingId];
-        replica._setFilecoinDealId(_filecoinDealId);
+        replica._setFilecoinClaimId(_claimId);
 
         if (
             FilecoinType.DealState.Stored ==
-            _filecoin.getReplicaDealState(_cid, _filecoinDealId)
+            _filecoin.getReplicaDealState(_cid, _claimId)
         ) {
             _emitRepicaEvent(
                 self,
@@ -132,19 +132,19 @@ library CarLIB {
         return self.replicasCount;
     }
 
-    /// @notice Get the Filecoin deal ID associated with a specific replica of a car.
-    /// @dev Retrieves the Filecoin deal ID associated with the given matching ID of a replica.
+    /// @notice Get the Filecoin claim ID associated with a specific replica of a car.
+    /// @dev Retrieves the Filecoin claim ID associated with the given matching ID of a replica.
     /// @param self The reference to the car storage.
     /// @param _matchingId The matching ID of the replica.
-    /// @return The Filecoin deal ID of the replica.
-    function _getReplicaFilecoinDealId(
+    /// @return The Filecoin claim ID of the replica.
+    function _getReplicaFilecoinClaimId(
         CarReplicaType.Car storage self,
         uint64 _matchingId
     ) internal view returns (uint64) {
         require(_matchingId != 0, "Invalid matching id");
         require(_hasReplica(self, _matchingId), "Replica is not exists");
         CarReplicaType.Replica storage replica = self.replicas[_matchingId];
-        return replica.filecoinDealId;
+        return replica.filecoinClaimId;
     }
 
     /// @notice Get the state of a replica associated with a car.

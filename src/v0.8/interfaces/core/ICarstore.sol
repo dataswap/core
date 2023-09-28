@@ -43,7 +43,7 @@ interface ICarstoreReadOnly {
     /// @notice Get the replica details associated with a car.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    /// @return The dataset ID, state, and Filecoin deal ID of the replica.
+    /// @return The dataset ID, state, and Filecoin claim ID of the replica.
     function getCarReplica(
         bytes32 _cid,
         uint64 _matchingId
@@ -54,11 +54,11 @@ interface ICarstoreReadOnly {
     /// @return The count of replicas associated with the car.
     function getCarReplicasCount(bytes32 _cid) external view returns (uint16);
 
-    /// @notice Get the Filecoin deal ID associated with a specific replica of a car.
+    /// @notice Get the Filecoin claim ID associated with a specific replica of a car.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    /// @return The Filecoin deal ID of the replica.
-    function getCarReplicaFilecoinDealId(
+    /// @return The Filecoin claim ID of the replica.
+    function getCarReplicaFilecoinClaimId(
         bytes32 _cid,
         uint64 _matchingId
     ) external view returns (uint64);
@@ -136,7 +136,7 @@ interface ICarstore is ICarstoreReadOnly {
     function reportCarReplicaExpired(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) external;
 
     /// @notice Report that storage of a replica has been slashed.
@@ -146,17 +146,17 @@ interface ICarstore is ICarstoreReadOnly {
     function reportCarReplicaSlashed(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) external;
 
-    /// @notice Set the Filecoin deal ID for a replica's storage.
-    /// @dev This function allows setting the Filecoin deal ID for a specific replica's storage.
+    /// @notice Set the Filecoin claim ID for a replica's storage.
+    /// @dev This function allows setting the Filecoin claim ID for a specific replica's storage.
     /// @param _cid Car CID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    /// @param _filecoinDealId New Filecoin deal ID to set for the replica's storage.
-    function setCarReplicaFilecoinDealId(
+    /// @param _claimId New Filecoin claim ID to set for the replica's storage.
+    function setCarReplicaFilecoinClaimId(
         bytes32 _cid,
         uint64 _matchingId,
-        uint64 _filecoinDealId
+        uint64 _claimId
     ) external;
 }
