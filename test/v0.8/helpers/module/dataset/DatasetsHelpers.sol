@@ -64,6 +64,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
     ) public returns (uint64 datasetId) {
         uint64 datasetCount = datasets.datasetsCount();
         vm.prank(caller);
+        vm.deal(caller, 10 ether);
         datasets.submitDatasetMetadata(
             "title",
             "industry",
@@ -380,6 +381,14 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             _mappingFilesLeavesCount,
             true
         );
+        uint256 collateralRequirement = datasetsProof
+            .getDatasetAppendCollateral(datasetId);
+        vm.deal(address(this), 100 ether);
+        datasetsProof.appendDatasetCollateral{value: collateralRequirement}(
+            datasetId
+        );
+
+        datasetsProof.submitDatasetProofCompleted(datasetId);
         vm.startPrank(admin);
         datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(299));
         vm.stopPrank();
@@ -391,5 +400,10 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             datasets.governanceAddress(),
             datasetId
         );
+    }
+
+    /// @notice Get datasetsProof object
+    function getDatasetsProof() external view returns (IDatasetsProof) {
+        return datasetsProof;
     }
 }

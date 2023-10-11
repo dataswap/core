@@ -21,6 +21,7 @@ import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
 
 /// @title DatasetsTestSetup
@@ -91,6 +92,18 @@ contract DatasetsTestSetup is Test {
             "accessmethod",
             10,
             true
+        );
+
+        uint256 collateralRequirement = _datasetsHelpers
+            .getDatasetsProof()
+            .getDatasetAppendCollateral(datasetId);
+        vm.deal(address(this), 100 ether);
+        _datasetsHelpers.getDatasetsProof().appendDatasetCollateral{
+            value: collateralRequirement
+        }(datasetId);
+
+        _datasetsHelpers.getDatasetsProof().submitDatasetProofCompleted(
+            datasetId
         );
         _datasetsHelpers.submitDatasetVerification(address(99), datasetId);
 
@@ -176,6 +189,17 @@ contract DatasetsTestSetup is Test {
             true
         );
 
+        uint256 collateralRequirement = _datasetsHelpers
+            .getDatasetsProof()
+            .getDatasetAppendCollateral(datasetId);
+        vm.deal(address(this), 100 ether);
+        _datasetsHelpers.getDatasetsProof().appendDatasetCollateral{
+            value: collateralRequirement
+        }(datasetId);
+
+        _datasetsHelpers.getDatasetsProof().submitDatasetProofCompleted(
+            datasetId
+        );
         return datasetId;
     }
 }

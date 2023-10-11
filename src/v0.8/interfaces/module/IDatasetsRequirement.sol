@@ -33,7 +33,7 @@ interface IDatasetsRequirement {
         uint16[] memory _regions,
         uint16[] memory _countrys,
         uint32[][] memory _citys
-    ) external;
+    ) external payable;
 
     ///@notice Get dataset replicas count
     function getDatasetReplicasCount(
@@ -54,4 +54,9 @@ interface IDatasetsRequirement {
             uint16,
             uint32[] memory
         );
+
+    ///@notice Get dataset pre conditional
+    function getDatasetPreCollateralRequirements(
+        uint64 _datasetId
+    ) external view returns (uint256);
 }

@@ -42,6 +42,18 @@ library DatasetsEvents {
         address indexed _provider
     );
 
+    /// @notice Event emitted when a dataset has not enough collateral.
+    event CollateralNotEnough(
+        uint64 indexed _datasetId,
+        address indexed _provider
+    );
+
+    /// @notice Event emitted when a dataset has enough collateral.
+    event CollateralEnough(
+        uint64 indexed _datasetId,
+        address indexed _provider
+    );
+
     /// @notice Event emitted when a proof is submitted for a dataset.
     event DatasetProofSubmitted(
         uint64 indexed _datasetId,

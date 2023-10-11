@@ -42,6 +42,17 @@ interface IDatasetsProof {
         bool _completed
     ) external;
 
+    ///@notice Submit proof completed for a dataset
+    function submitDatasetProofCompleted(uint64 _datasetId) external;
+
+    /// @notice Append dataset collateral funds
+    function appendDatasetCollateral(uint64 _datasetId) external payable;
+
+    /// @notice Get dataset need append collateral funds
+    function getDatasetAppendCollateral(
+        uint64 _datasetId
+    ) external view returns (uint256);
+
     ///@notice Get dataset source CIDs
     function getDatasetProof(
         uint64 _datasetId,
@@ -80,6 +91,11 @@ interface IDatasetsProof {
         DatasetType.DataType _dataType
     ) external view returns (uint64);
 
+    ///@notice Get dataset minimum conditional
+    function getDatasetCollateralRequirement(
+        uint64 _datasetId
+    ) external view returns (uint256);
+
     ///@notice Check if a dataset has a car id
     function isDatasetContainsCar(
         uint64 _datasetId,
@@ -96,5 +112,11 @@ interface IDatasetsProof {
     function isDatasetProofSubmitter(
         uint64 _datasetId,
         address _submitter
+    ) external view returns (bool);
+
+    ///@notice Check if a dataset proof all completed
+    function isDatasetProofallCompleted(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType
     ) external view returns (bool);
 }
