@@ -1,0 +1,160 @@
+/*******************************************************************************
+ *   (c) 2023 Dataswap
+ *
+ *  Licensed under the GNU General Public License, Version 3.0 or later (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ********************************************************************************/
+// SPDX-License-Identifier: GPL-3.0-or-later
+pragma solidity ^0.8.21;
+
+// Importing Solidity libraries and contracts
+import {DSTest} from "ds-test/test.sol";
+import {Test} from "forge-std/Test.sol";
+
+import {EscrowType} from "src/v0.8/types/EscrowType.sol";
+import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
+import {IEscrowAssertion} from "test/v0.8/interfaces/assertions/core/IEscrowAssertion.sol";
+
+/// @notice This contract defines assertion functions for testing an IEscrow contract.
+/// @dev NOTE: All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
+
+contract EscrowAssertion is DSTest, Test, IEscrowAssertion {
+    IEscrow public escrow;
+
+    constructor(IEscrow _escrow) {
+        escrow = _escrow;
+    }
+
+    /// @dev Asserts the get owner created block number.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @param _created The owner created block number.
+    function getOwnerCreatedBlockNumberAssertion(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id,
+        uint64 _created
+    ) public {
+        assertEq(
+            escrow.getOwnerCreatedBlockNumber(_type, _owner, _id),
+            _created
+        );
+    }
+
+    /// @dev Asserts the get owner collateral funds.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @param _amount The collateral funds.
+    function getOwnerCollateralAssertion(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id,
+        uint256 _amount
+    ) public {
+        assertEq(escrow.getOwnerCollateral(_type, _owner, _id), _amount);
+    }
+
+    /// @dev Asserts the get owner total funds.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @param _total The total funds.
+    function getOwnerTotalAssertion(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id,
+        uint256 _total
+    ) public {
+        assertEq(escrow.getOwnerTotal(_type, _owner, _id), _total);
+    }
+
+    /// @dev Asserts the get owner lock funds.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @param _lock The lock funds.
+    function getOwnerLockAssertion(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id,
+        uint256 _lock
+    ) public {
+        assertEq(escrow.getOwnerLock(_type, _owner, _id), _lock);
+    }
+
+    /// @dev Asserts the get owner burned funds.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @param _burned The burned funds.
+    function getOwnerBurnedAssertion(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id,
+        uint256 _burned
+    ) public {
+        assertEq(escrow.getOwnerBurned(_type, _owner, _id), _burned);
+    }
+
+    /// @dev Asserts the get beneficiaries list.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @param _beneficiaries The beneficiary list.
+    function getBeneficiariesListAssertion(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id,
+        address[] memory _beneficiaries
+    ) public {
+        address[] memory benef = escrow.getBeneficiariesList(
+            _type,
+            _owner,
+            _id
+        );
+        for (uint i = 0; i < benef.length; i++) {
+            assertEq(benef[i], _beneficiaries[i]);
+        }
+    }
+
+    /// @dev Asserts the get beneficiary funds.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @param _beneficiary The beneficiary address for the payment credited funds.
+    function getBeneficiaryFundAssertion(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id,
+        address _beneficiary,
+        uint256 _total, // Total amount in fund account
+        uint256 _lock, // Lock amount in fund account for payment beneficiaries
+        uint256 _collateral, // Collateral amount in fund account for withdraw and punishment
+        uint256 _burned, // burned amount in fund account
+        uint64 _createdBlockNumber // Fund account created block number
+    ) public {
+        (
+            uint256 total,
+            uint256 lock,
+            uint256 collateral,
+            uint256 burned,
+            uint64 createdBlockNumber
+        ) = escrow.getBeneficiaryFund(_type, _owner, _id, _beneficiary);
+        assertEq(total, _total);
+        assertEq(lock, _lock);
+        assertEq(collateral, _collateral);
+        assertEq(burned, _burned);
+        assertEq(createdBlockNumber, _createdBlockNumber);
+    }
+}

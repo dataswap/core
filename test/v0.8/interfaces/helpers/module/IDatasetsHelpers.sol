@@ -19,6 +19,7 @@
 pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 
 /// @title IDatasetsHelpers
 /// @dev Interface for managing dataset-related operations.
@@ -157,4 +158,7 @@ interface IDatasetsHelpers {
         uint64 _sourceLeavesCount,
         uint64 _mappingFilesLeavesCount
     ) external returns (uint64 datasetId);
+
+    /// @notice Get DatasetsProof object
+    function getDatasetsProof() external view returns (IDatasetsProof);
 }

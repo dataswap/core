@@ -20,6 +20,7 @@ pragma solidity ^0.8.21;
 
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
@@ -31,6 +32,7 @@ import {DatasetReplicaRequirementLIB} from "src/v0.8/module/dataset/library/requ
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
+import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {GeolocationType} from "src/v0.8/types/GeolocationType.sol";
 
@@ -55,6 +57,8 @@ contract DatasetsRequirement is
     IRoles public roles;
     IFilplus private filplus;
     IDatasets private datasets;
+
+    IEscrow public escrow;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -63,10 +67,12 @@ contract DatasetsRequirement is
         address _governanceAddress,
         address _roles,
         address _filplus,
-        address _datasets
+        address _datasets,
+        address _escrow
     ) public initializer {
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
+        escrow = IEscrow(_escrow);
         filplus = IFilplus(_filplus);
         datasets = IDatasets(_datasets);
         __UUPSUpgradeable_init();
@@ -104,9 +110,20 @@ contract DatasetsRequirement is
         uint32[][] memory _citys
     )
         external
+        payable
         onlyDatasetState(datasets, _datasetId, DatasetType.State.None)
         onlyAddress(datasets.getDatasetMetadataSubmitter(_datasetId))
     {
+        uint256 preCollateral = getDatasetPreCollateralRequirements(_datasetId);
+        require(msg.value >= preCollateral, "Insufficient collateral funds");
+
+        escrow.collateral{value: msg.value}(
+            EscrowType.Type.DatacapCollateral,
+            msg.sender,
+            _datasetId,
+            preCollateral
+        );
+
         require(
             filplus.isCompliantRuleTotalReplicasPerDataset(
                 _dataPreparers,
@@ -180,5 +197,18 @@ contract DatasetsRequirement is
                 _datasetId
             ];
         return datasetReplicasRequirement.getDatasetReplicaRequirement(_index);
+    }
+
+    ///@notice Get dataset pre conditional
+    function getDatasetPreCollateralRequirements(
+        uint64 _datasetId
+    ) public view onlyNotZero(_datasetId) returns (uint256) {
+        (, , , , , , , , uint64 size, , ) = datasets.getDatasetMetadata(
+            _datasetId
+        );
+        // TODO: PRICE_PER_BYTE import from governance
+        uint64 PER_TIB_BYTE = (1024 * 1024 * 1024 * 1024);
+        uint256 PRICE_PER_BYTE = (1000000000000000000 / PER_TIB_BYTE);
+        return size * getDatasetReplicasCount(_datasetId) * PRICE_PER_BYTE;
     }
 }

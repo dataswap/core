@@ -175,4 +175,18 @@ library DatasetProofLIB {
         }
         return false;
     }
+
+    /// @notice Check if a dataset proof has completed
+    /// @param self The dataset from which to retrieve the source dataset proof.
+    /// @param _dataType The type of the dataset proof.
+    function isDatasetProofallCompleted(
+        DatasetType.DatasetProof storage self,
+        DatasetType.DataType _dataType
+    ) internal view returns (bool) {
+        if (_dataType == DatasetType.DataType.Source) {
+            return self.sourceProof.allCompleted;
+        } else {
+            return self.mappingFilesProof.allCompleted;
+        }
+    }
 }

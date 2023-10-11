@@ -28,6 +28,7 @@ import {DatasetsChallenge} from "src/v0.8/module/dataset/DatasetsChallenge.sol";
 import {Matchings} from "src/v0.8/module/matching/Matchings.sol";
 import {MatchingsTarget} from "src/v0.8/module/matching/MatchingsTarget.sol";
 import {MatchingsBids} from "src/v0.8/module/matching/MatchingsBids.sol";
+import {Escrow} from "src/v0.8/core/finance/Escrow.sol";
 import {MatchingsAssertion} from "test/v0.8/assertions/module/matching/MatchingsAssertion.sol";
 import {DatasetsHelpers} from "test/v0.8/helpers/module/dataset/DatasetsHelpers.sol";
 import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
@@ -61,14 +62,23 @@ contract MatchingTestSetup {
         Carstore carstore = new Carstore();
         carstore.initialize(address(role), address(filplus), address(filecoin));
 
+        Escrow escrow = new Escrow();
+        escrow.initialize(address(role));
+
         Datasets datasets = new Datasets();
-        datasets.initialize(governanceContractAddresss, address(role));
+        datasets.initialize(
+            governanceContractAddresss,
+            address(role),
+            address(escrow)
+        );
+
         DatasetsRequirement datasetsRequirement = new DatasetsRequirement();
         datasetsRequirement.initialize(
             governanceContractAddresss,
             address(role),
             address(filplus),
-            address(datasets)
+            address(datasets),
+            address(escrow)
         );
 
         DatasetsProof datasetsProof = new DatasetsProof();
@@ -78,7 +88,8 @@ contract MatchingTestSetup {
             address(filplus),
             address(carstore),
             address(datasets),
-            address(datasetsRequirement)
+            address(datasetsRequirement),
+            address(escrow)
         );
 
         DatasetsChallenge datasetsChallenge = new DatasetsChallenge();
@@ -88,6 +99,12 @@ contract MatchingTestSetup {
             address(datasetsProof),
             address(merkleUtils)
         );
+        escrow.setDependencies(
+            address(datasets),
+            address(datasetsProof),
+            address(datasetsRequirement)
+        );
+        datasets.setDatasetsProofAddress(address(datasetsProof));
 
         matchings = new Matchings();
         matchings.initialize(

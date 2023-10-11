@@ -45,6 +45,14 @@ library DatasetStateMachineLIB {
             if (currentState == DatasetType.State.MetadataSubmitted) {
                 newState = DatasetType.State.MetadataRejected;
             }
+        } else if (_event == DatasetType.Event.NotEnoughCollateral) {
+            if (currentState == DatasetType.State.MetadataApproved) {
+                newState = DatasetType.State.CollateralNotEnough;
+            }
+        } else if (_event == DatasetType.Event.EnoughCollateral) {
+            if (currentState == DatasetType.State.CollateralNotEnough) {
+                newState = DatasetType.State.MetadataApproved;
+            }
         } else if (_event == DatasetType.Event.SubmitDatasetProof) {
             if (currentState == DatasetType.State.MetadataApproved) {
                 newState = DatasetType.State.DatasetProofSubmitted;

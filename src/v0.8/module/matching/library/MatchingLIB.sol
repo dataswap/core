@@ -123,7 +123,7 @@ library MatchingLIB {
     /// @dev This function is used to complete a matching.
     function _reportMatchingHasWinner(
         MatchingType.Matching storage self
-    ) external {
+    ) internal {
         require(self.state == MatchingType.State.Closed, "Invalid state");
         self._emitMatchingEvent(MatchingType.Event.HasWinner);
     }
@@ -132,7 +132,7 @@ library MatchingLIB {
     /// @dev This function is used to complete a matching.
     function _reportMatchingNoWinner(
         MatchingType.Matching storage self
-    ) external {
+    ) internal {
         require(self.state == MatchingType.State.Closed, "Invalid state");
         self._emitMatchingEvent(MatchingType.Event.NoWinner);
     }

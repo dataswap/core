@@ -178,6 +178,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
 
         // Perform the action.
         vm.prank(caller);
+        vm.deal(caller, 10 ether);
         datasets.submitDatasetMetadata(
             _title,
             _industry,

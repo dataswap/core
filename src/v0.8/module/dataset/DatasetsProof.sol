@@ -20,6 +20,7 @@ pragma solidity ^0.8.21;
 
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
@@ -34,6 +35,7 @@ import {DatasetProofLIB} from "src/v0.8/module/dataset/library/proof/DatasetProo
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
+import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {GeolocationType} from "src/v0.8/types/GeolocationType.sol";
 
@@ -55,6 +57,7 @@ contract DatasetsProof is
 
     address public governanceAddress;
     IRoles public roles;
+    IEscrow public escrow;
     IFilplus private filplus;
     ICarstore private carstore;
     IDatasets private datasets;
@@ -70,10 +73,12 @@ contract DatasetsProof is
         address _filplus,
         address _carstore,
         address _datasets,
-        address _datasetsRequirement
+        address _datasetsRequirement,
+        address _escrow
     ) public initializer {
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
+        escrow = IEscrow(_escrow);
         filplus = IFilplus(_filplus);
         carstore = ICarstore(_carstore);
         datasets = IDatasets(_datasets);
@@ -143,10 +148,10 @@ contract DatasetsProof is
         datasetProof.addDatasetProofRoot(_dataType, _rootHash);
     }
 
-    ///@notice Submit proof for a dataset
+    ///@notice Internal submit proof for a dataset
     ///@dev Submit the proof of the dataset in batches,
     /// specifically by submitting the _leafHashes in the order of _leafIndexes.
-    function submitDatasetProof(
+    function _submitDatasetProof(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         bytes32[] memory _leafHashes,
@@ -154,14 +159,13 @@ contract DatasetsProof is
         uint64[] memory _leafSizes,
         bool _completed
     )
-        external
+        internal
         onlyDatasetState(
             datasets,
             _datasetId,
             DatasetType.State.MetadataApproved
         )
     {
-        //Note: params check in lib
         DatasetType.DatasetProof storage datasetProof = datasetProofs[
             _datasetId
         ];
@@ -190,7 +194,14 @@ contract DatasetsProof is
             size,
             _completed
         );
+    }
 
+    ///@notice Submit proof completed for a dataset
+    function submitDatasetProofCompleted(uint64 _datasetId) public {
+        //Note: params check in lib
+        DatasetType.DatasetProof storage datasetProof = datasetProofs[
+            _datasetId
+        ];
         if (
             datasetProof.sourceProof.allCompleted &&
             datasetProof.mappingFilesProof.allCompleted
@@ -204,9 +215,98 @@ contract DatasetsProof is
                 ),
                 "Invalid mappingFiles percentage"
             );
-            datasets.reportDatasetProofSubmitted(_datasetId);
-            emit DatasetsEvents.DatasetProofSubmitted(_datasetId, msg.sender);
+
+            uint256 collateralRequirement = getDatasetCollateralRequirement(
+                _datasetId
+            );
+            if (
+                escrow.getOwnerTotal(
+                    EscrowType.Type.DatacapCollateral,
+                    datasets.getDatasetMetadataSubmitter(_datasetId),
+                    _datasetId
+                ) < collateralRequirement
+            ) {
+                datasets.reportCollateralNotEnough(_datasetId);
+                emit DatasetsEvents.CollateralNotEnough(_datasetId, msg.sender);
+            } else {
+                // Update collateral funds to collateral requirement
+                escrow.emitCollateralEvent(
+                    EscrowType.Type.DatacapCollateral,
+                    datasets.getDatasetMetadataSubmitter(_datasetId),
+                    _datasetId,
+                    EscrowType.CollateralEvent.SyncCollateral
+                );
+
+                datasets.reportDatasetProofSubmitted(_datasetId);
+                emit DatasetsEvents.DatasetProofSubmitted(
+                    _datasetId,
+                    msg.sender
+                );
+            }
         }
+    }
+
+    ///@notice Submit proof for a dataset
+    ///@dev Submit the proof of the dataset in batches,
+    /// specifically by submitting the _leafHashes in the order of _leafIndexes.
+    function submitDatasetProof(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType,
+        bytes32[] memory _leafHashes,
+        uint64 _leafIndex,
+        uint64[] memory _leafSizes,
+        bool _completed
+    ) external {
+        _submitDatasetProof(
+            _datasetId,
+            _dataType,
+            _leafHashes,
+            _leafIndex,
+            _leafSizes,
+            _completed
+        );
+
+        if (_completed) {
+            submitDatasetProofCompleted(_datasetId);
+        }
+    }
+
+    /// @notice Append dataset collateral funds
+    function appendDatasetCollateral(uint64 _datasetId) public payable {
+        uint256 amount = msg.value;
+        uint256 appendCollateral = getDatasetAppendCollateral(_datasetId);
+        require(amount >= appendCollateral, "Insufficient collateral funds");
+
+        escrow.collateral{value: amount}(
+            EscrowType.Type.DatacapCollateral,
+            datasets.getDatasetMetadataSubmitter(_datasetId),
+            _datasetId,
+            appendCollateral
+        );
+
+        datasets.reportCollateralEnough(_datasetId);
+        emit DatasetsEvents.CollateralEnough(_datasetId, msg.sender);
+    }
+
+    /// @notice Get dataset need append collateral funds
+    function getDatasetAppendCollateral(
+        uint64 _datasetId
+    ) public view returns (uint256) {
+        uint256 collateralRequirement = getDatasetCollateralRequirement(
+            _datasetId
+        );
+        uint256 total = escrow.getOwnerTotal(
+            EscrowType.Type.DatacapCollateral,
+            datasets.getDatasetMetadataSubmitter(_datasetId),
+            _datasetId
+        );
+
+        uint256 appendCollateral = 0;
+        if (collateralRequirement > total) {
+            appendCollateral = collateralRequirement - total;
+        }
+
+        return appendCollateral;
     }
 
     ///@notice Get dataset source CIDs
@@ -273,6 +373,30 @@ contract DatasetsProof is
             _datasetId
         ];
         return datasetProof.getDatasetSize(_dataType);
+    }
+
+    ///@notice Get dataset minimum conditional
+    function getDatasetCollateralRequirement(
+        uint64 _datasetId
+    ) public view onlyNotZero(_datasetId) returns (uint256) {
+        // TODO: PRICE_PER_BYTE import from governance
+        uint64 PER_TIB_BYTE = (1024 * 1024 * 1024 * 1024);
+        uint256 PRICE_PER_BYTE = (1000000000000000000 / PER_TIB_BYTE);
+        return
+            getDatasetSize(_datasetId, DatasetType.DataType.Source) *
+            datasetsRequirement.getDatasetReplicasCount(_datasetId) *
+            PRICE_PER_BYTE;
+    }
+
+    ///@notice Check if a dataset proof all completed
+    function isDatasetProofallCompleted(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType
+    ) public view onlyNotZero(_datasetId) returns (bool) {
+        DatasetType.DatasetProof storage datasetProof = datasetProofs[
+            _datasetId
+        ];
+        return datasetProof.isDatasetProofallCompleted(_dataType);
     }
 
     ///@notice Check if a dataset has a cid

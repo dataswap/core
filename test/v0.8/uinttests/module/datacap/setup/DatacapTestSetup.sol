@@ -30,6 +30,7 @@ import {MatchingsTarget} from "src/v0.8/module/matching/MatchingsTarget.sol";
 import {MatchingsBids} from "src/v0.8/module/matching/MatchingsBids.sol";
 import {Storages} from "src/v0.8/module/storage/Storages.sol";
 import {Datacaps} from "src/v0.8/module/datacap/Datacaps.sol";
+import {Escrow} from "src/v0.8/core/finance/Escrow.sol";
 import {MatchingsAssertion} from "test/v0.8/assertions/module/matching/MatchingsAssertion.sol";
 import {DatacapsAssertion} from "test/v0.8/assertions/module/datacap/DatacapsAssertion.sol";
 import {DatasetsHelpers} from "test/v0.8/helpers/module/dataset/DatasetsHelpers.sol";
@@ -47,8 +48,27 @@ contract DatacapTestSetup {
     DatacapsAssertion assertion;
     DatacapsHelpers helpers;
 
-    /// @dev Initialize the Datacaps and assertion contracts.
-    function setup() internal {
+    struct LocalBaseData {
+        Roles role;
+        Filplus filplus;
+        MockFilecoin filecoin;
+        MockMerkleUtils merkleUtils;
+        Escrow escrow;
+    }
+
+    struct LocalData {
+        Carstore carstore;
+        Datasets datasets;
+        DatasetsRequirement datasetsRequirement;
+        DatasetsProof datasetsProof;
+        DatasetsChallenge datasetsChallenge;
+        Matchings matchings;
+        MatchingsTarget matchingsTarget;
+        MatchingsBids matchingsBids;
+        Storages storages;
+    }
+
+    function _setupBase() internal returns (LocalBaseData memory) {
         Roles role = new Roles();
         role.initialize();
         Filplus filplus = new Filplus();
@@ -59,50 +79,73 @@ contract DatacapTestSetup {
         MockMerkleUtils merkleUtils = new MockMerkleUtils();
         merkleUtils.initialize(address(role));
 
-        Carstore carstore = new Carstore();
-        carstore.initialize(address(role), address(filplus), address(filecoin));
+        Escrow escrow = new Escrow();
+        escrow.initialize(address(role));
 
+        return LocalBaseData(role, filplus, filecoin, merkleUtils, escrow);
+    }
+
+    function _setup() internal returns (LocalData memory) {
+        LocalBaseData memory baseData = _setupBase();
+        Carstore carstore = new Carstore();
+        carstore.initialize(
+            address(baseData.role),
+            address(baseData.filplus),
+            address(baseData.filecoin)
+        );
         Datasets datasets = new Datasets();
-        datasets.initialize(governanceContractAddresss, address(role));
+        datasets.initialize(
+            governanceContractAddresss,
+            address(baseData.role),
+            address(baseData.escrow)
+        );
 
         DatasetsRequirement datasetsRequirement = new DatasetsRequirement();
         datasetsRequirement.initialize(
             governanceContractAddresss,
-            address(role),
-            address(filplus),
-            address(datasets)
+            address(baseData.role),
+            address(baseData.filplus),
+            address(datasets),
+            address(baseData.escrow)
         );
 
         DatasetsProof datasetsProof = new DatasetsProof();
         datasetsProof.initialize(
             governanceContractAddresss,
-            address(role),
-            address(filplus),
+            address(baseData.role),
+            address(baseData.filplus),
             address(carstore),
             address(datasets),
-            address(datasetsRequirement)
+            address(datasetsRequirement),
+            address(baseData.escrow)
         );
 
         DatasetsChallenge datasetsChallenge = new DatasetsChallenge();
         datasetsChallenge.initialize(
             governanceContractAddresss,
-            address(role),
+            address(baseData.role),
             address(datasetsProof),
-            address(merkleUtils)
+            address(baseData.merkleUtils)
         );
+        baseData.escrow.setDependencies(
+            address(datasets),
+            address(datasetsProof),
+            address(datasetsRequirement)
+        );
+        datasets.setDatasetsProofAddress(address(datasetsProof));
 
         Matchings matchings = new Matchings();
         matchings.initialize(
             governanceContractAddresss,
-            address(role),
+            address(baseData.role),
             address(datasetsRequirement)
         );
 
         MatchingsTarget matchingsTarget = new MatchingsTarget();
         matchingsTarget.initialize(
             governanceContractAddresss,
-            address(role),
-            address(filplus),
+            address(baseData.role),
+            address(baseData.filplus),
             address(carstore),
             address(datasets),
             address(datasetsRequirement),
@@ -112,8 +155,8 @@ contract DatacapTestSetup {
         MatchingsBids matchingsBids = new MatchingsBids();
         matchingsBids.initialize(
             governanceContractAddresss,
-            address(role),
-            address(filplus),
+            address(baseData.role),
+            address(baseData.filplus),
             address(carstore),
             address(datasets),
             address(datasetsRequirement),
@@ -136,9 +179,9 @@ contract DatacapTestSetup {
         Storages storages = new Storages();
         storages.initialize(
             governanceContractAddresss,
-            address(role),
-            address(filplus),
-            address(filecoin),
+            address(baseData.role),
+            address(baseData.filplus),
+            address(baseData.filecoin),
             address(carstore),
             address(matchings),
             address(matchingsTarget),
@@ -148,9 +191,9 @@ contract DatacapTestSetup {
         datacaps = new Datacaps();
         datacaps.initialize(
             governanceContractAddresss,
-            address(role),
-            address(filplus),
-            address(filecoin),
+            address(baseData.role),
+            address(baseData.filplus),
+            address(baseData.filecoin),
             address(carstore),
             address(matchings),
             address(matchingsTarget),
@@ -158,36 +201,53 @@ contract DatacapTestSetup {
             address(storages)
         );
 
+        return
+            LocalData(
+                carstore,
+                datasets,
+                datasetsRequirement,
+                datasetsProof,
+                datasetsChallenge,
+                matchings,
+                matchingsTarget,
+                matchingsBids,
+                storages
+            );
+    }
+
+    /// @dev Initialize the Datacaps and assertion contracts.
+    function setup() internal {
+        LocalData memory data = _setup();
         MatchingsAssertion machingsAssertion = new MatchingsAssertion(
-            matchings,
-            matchingsTarget,
-            matchingsBids,
-            carstore
+            data.matchings,
+            data.matchingsTarget,
+            data.matchingsBids,
+            data.carstore
         );
         Generator generator = new Generator();
         DatasetsAssertion datasetAssertion = new DatasetsAssertion(
-            carstore,
-            datasets,
-            datasetsRequirement,
-            datasetsProof,
-            datasetsChallenge
+            data.carstore,
+            data.datasets,
+            data.datasetsRequirement,
+            data.datasetsProof,
+            data.datasetsChallenge
         );
         DatasetsHelpers datasetsHelpers = new DatasetsHelpers(
-            datasets,
-            datasetsRequirement,
-            datasetsProof,
-            datasetsChallenge,
+            data.datasets,
+            data.datasetsRequirement,
+            data.datasetsProof,
+            data.datasetsChallenge,
             generator,
             datasetAssertion
         );
 
         MatchingsHelpers matchingsHelpers = new MatchingsHelpers(
-            carstore,
-            datasets,
-            datasetsProof,
-            matchings,
-            matchingsTarget,
-            matchingsBids,
+            data.carstore,
+            data.datasets,
+            data.datasetsProof,
+            data.matchings,
+            data.matchingsTarget,
+            data.matchingsBids,
             datasetsHelpers,
             machingsAssertion
         );

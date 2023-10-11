@@ -94,6 +94,12 @@ interface IDatasets {
         uint64 _datasetId
     ) external view returns (bool);
 
+    /// @notice Report the dataset has not enough collateral.
+    function reportCollateralNotEnough(uint64 _datasetId) external;
+
+    /// @notice Report the dataset has enough collateral.
+    function reportCollateralEnough(uint64 _datasetId) external;
+
     /// @notice Report the dataset replica has already been submitted.
     function reportDatasetReplicaRequirementSubmitted(
         uint64 _datasetId

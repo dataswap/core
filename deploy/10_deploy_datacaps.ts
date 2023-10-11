@@ -10,12 +10,16 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     const filecoin = await deployments.get("Filecoin");
     const filplus = await deployments.get("Filplus");
     const carstore = await deployments.get("Carstore");
-    const datasets = await deployments.get("Datasets");
+
     const matchings = await deployments.get("Matchings");
-    await deployAndSaveContract("Storages", [governanceAddress, roles.address, filplus.address, filecoin.address, carstore.address, datasets.address, matchings.address], hre);
+    const matchingsTarget = await deployments.get("MatchingsTarget");
+    const matchingsBids = await deployments.get("MatchingsBids");
+    const storages = await deployments.get("Storages");
+    await deployAndSaveContract("Datacaps", [governanceAddress, roles.address, filplus.address, filecoin.address, carstore.address, matchings.address,
+        matchingsTarget.address, matchingsBids.address, storages.address], hre);
 };
 
 export default deployFunction;
 
-deployFunction.dependencies = ["Roles", "Filecoin", "Filplus", "Carstore", "Datasets", "Matchings"];
-deployFunction.tags = ["Storages"];
+deployFunction.dependencies = ["Roles", "Filecoin", "Filplus", "Carstore", "Matchings", "MatchingsTarget", "MatchingsBids", "Storages"];
+deployFunction.tags = ["Datacaps"];

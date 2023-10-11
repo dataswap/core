@@ -20,7 +20,9 @@ pragma solidity ^0.8.21;
 
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 ///shared
 import {DatasetsEvents} from "src/v0.8/shared/events/DatasetsEvents.sol";
 import {DatasetsModifiers} from "src/v0.8/shared/modifiers/DatasetsModifiers.sol";
@@ -31,6 +33,7 @@ import {DatasetAuditLIB} from "src/v0.8/module/dataset/library/metadata/DatasetA
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
+import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {GeolocationType} from "src/v0.8/types/GeolocationType.sol";
 
@@ -55,17 +58,30 @@ contract Datasets is
 
     address public governanceAddress;
     IRoles public roles;
+    IEscrow public escrow;
+    IDatasetsProof private datasetsProof;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
     /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
     function initialize(
         address _governanceAddress,
-        address _roles
+        address _roles,
+        address _escrow
     ) public initializer {
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
+        escrow = IEscrow(_escrow);
+
         __UUPSUpgradeable_init();
+    }
+
+    /// @notice setDatasetsProofAddress function to initialize the datasetsProof contract.
+    /// @dev After the contract is deployed, this function needs to be called manually!
+    function setDatasetsProofAddress(
+        address _datasetsProof
+    ) public onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
+        datasetsProof = IDatasetsProof(_datasetsProof);
     }
 
     /// @notice UUPS Upgradeable function to update the roles implementation
@@ -98,9 +114,28 @@ contract Datasets is
         onlyAddress(governanceAddress)
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        dataset.approveDataset();
+        uint256 funds = escrow.getOwnerTotal(
+            EscrowType.Type.DatacapCollateral,
+            dataset.metadata.submitter,
+            _datasetId
+        );
+        if (
+            funds >= datasetsProof.getDatasetCollateralRequirement(_datasetId)
+        ) {
+            // Update collateral funds to collateral requirement
+            escrow.emitCollateralEvent(
+                EscrowType.Type.DatacapCollateral,
+                dataset.metadata.submitter,
+                _datasetId,
+                EscrowType.CollateralEvent.SyncCollateral
+            );
 
-        emit DatasetsEvents.DatasetApproved(_datasetId);
+            dataset.approveDataset();
+            emit DatasetsEvents.DatasetApproved(_datasetId);
+        } else {
+            dataset.rejectDataset();
+            emit DatasetsEvents.DatasetRejected(_datasetId);
+        }
     }
 
     ///@notice Approve the metadata of a dataset.
@@ -114,8 +149,8 @@ contract Datasets is
         onlyAddress(governanceAddress)
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        dataset.approveDatasetMetadata();
 
+        dataset.approveDatasetMetadata();
         emit DatasetsEvents.DatasetMetadataApproved(_datasetId);
     }
 
@@ -170,6 +205,7 @@ contract Datasets is
     ) external onlyDatasetMetadataNotExsits(this, _accessMethod) {
         //Note: params check in lib
         datasetsCount++;
+
         DatasetType.Dataset storage dataset = datasets[datasetsCount];
         dataset.submitDatasetMetadata(
             _title,
@@ -269,6 +305,18 @@ contract Datasets is
     ) external {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset._emitDatasetEvent(DatasetType.Event.SubmitMetadata);
+    }
+
+    /// @notice Report the dataset has not enough collateral.
+    function reportCollateralNotEnough(uint64 _datasetId) external {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        dataset._emitDatasetEvent(DatasetType.Event.NotEnoughCollateral);
+    }
+
+    /// @notice Report the dataset has enough collateral.
+    function reportCollateralEnough(uint64 _datasetId) external {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        dataset._emitDatasetEvent(DatasetType.Event.EnoughCollateral);
     }
 
     /// @notice Report the dataset proof has already been submitted.
