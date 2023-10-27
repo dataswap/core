@@ -27,6 +27,8 @@ contract PauseMatchingTest is Test, MatchingTestSetup {
         setup();
         PauseTestCaseWithSuccess testCase = new PauseTestCaseWithSuccess(
             matchings,
+            matchingsTarget,
+            matchingsBids,
             helpers,
             assertion
         );
@@ -38,6 +40,8 @@ contract PauseMatchingTest is Test, MatchingTestSetup {
         setup();
         PauseTestCaseWithInvalidSender testCase = new PauseTestCaseWithInvalidSender(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );
@@ -49,6 +53,8 @@ contract PauseMatchingTest is Test, MatchingTestSetup {
         setup();
         PauseTestCaseWithInvalidState testCase = new PauseTestCaseWithInvalidState(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );
@@ -60,6 +66,8 @@ contract PauseMatchingTest is Test, MatchingTestSetup {
         setup();
         PauseTestCaseWithAlreadyPaused testCase = new PauseTestCaseWithAlreadyPaused(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );
@@ -71,6 +79,8 @@ contract PauseMatchingTest is Test, MatchingTestSetup {
         setup();
         PauseTestCaseWithAlreadyBidding testCase = new PauseTestCaseWithAlreadyBidding(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );

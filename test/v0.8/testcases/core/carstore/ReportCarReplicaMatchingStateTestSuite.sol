@@ -35,25 +35,26 @@ contract ReportCarReplicaMatchingStateTestCaseWithSuccess is
     {}
 
     function before(
-        bytes32 _cid,
+        bytes32 _hash,
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
         uint16 _replicaIndex
-    ) internal virtual override {
+    ) internal virtual override returns (uint64) {
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
         vm.assume(_matchingId != 0);
-        carstore.addCar(_cid, _datasetId, _size, 10);
+        uint64 _id = carstore.addCar(_hash, _datasetId, _size, 10);
         vm.assume(_replicaIndex < 10);
-        carstore.registCarReplica(_cid, _matchingId, _replicaIndex);
+        carstore.registCarReplica(_id, _matchingId, _replicaIndex);
+        return _id;
     }
 
     function action(
-        bytes32 _cid,
+        uint64 _id,
         uint64 _matchingId,
         bool _matchingState
     ) internal virtual override {
-        super.action(_cid, _matchingId, _matchingState);
+        super.action(_id, _matchingId, _matchingState);
     }
 }

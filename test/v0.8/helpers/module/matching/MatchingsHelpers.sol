@@ -25,28 +25,40 @@ import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
+import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
+import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 
 /// @title MatchingsHelpers contract for testing
 contract MatchingsHelpers is Test, IMatchingsHelpers {
+    ICarstore carstore;
     IMatchings matchings;
+    IMatchingsTarget matchingsTarget;
+    IMatchingsBids matchingsBids;
     IDatasetsHelpers datasetsHelpers;
     IMatchingsAssertion assertion;
     IDatasets public datasets;
     IDatasetsProof public datasetsProof;
 
     constructor(
+        ICarstore _carstore,
         IDatasets _datasets,
         IDatasetsProof _datasetsProof,
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IDatasetsHelpers _datasetsHelpers,
         IMatchingsAssertion _assertion
     ) {
+        carstore = _carstore;
         datasets = _datasets;
         datasetsProof = _datasetsProof;
         matchings = _matchings;
+        matchingsTarget = _matchingsTarget;
+        matchingsBids = _matchingsBids;
         datasetsHelpers = _datasetsHelpers;
         assertion = _assertion;
     }
@@ -77,20 +89,20 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
     function getDatasetCarsAndCarsCount(
         uint64 _datasetId,
         DatasetType.DataType _dataType
-    ) public view returns (bytes32[] memory cars, uint64 size) {
-        size = datasetsProof.getDatasetSize(_datasetId, _dataType);
+    ) public view returns (uint64[] memory, uint64) {
+        uint64 size = datasetsProof.getDatasetSize(_datasetId, _dataType);
         uint64 carsCount = datasetsProof.getDatasetCarsCount(
             _datasetId,
             _dataType
         );
-        cars = new bytes32[](carsCount);
+        bytes32[] memory cars = new bytes32[](carsCount);
         cars = datasetsProof.getDatasetCars(
             _datasetId,
             _dataType,
             0,
             carsCount
         );
-        return (cars, size);
+        return (carstore.getCarsIds(cars), size);
     }
 
     /// @notice Complete the matching workflow for testing.
@@ -107,7 +119,7 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
         datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
         vm.stopPrank();
 
-        (bytes32[] memory cars, ) = getDatasetCarsAndCarsCount(
+        (uint64[] memory cars, ) = getDatasetCarsAndCarsCount(
             datasetId,
             DatasetType.DataType.MappingFiles
         );
@@ -115,8 +127,6 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
         assertion.createMatchingAssertion(
             address(99),
             datasetId,
-            DatasetType.DataType.MappingFiles,
-            0,
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
@@ -125,13 +135,22 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
             0,
             "TEST"
         );
-
         matchingId = matchings.matchingsCount();
+        assertion.createTargetAssertion(
+            address(99),
+            matchingId,
+            datasetId,
+            DatasetType.DataType.MappingFiles,
+            0,
+            0
+        );
 
+        //uint64[] memory ids = carstore.getCarsIds(cars);
         assertion.publishMatchingAssertion(
             address(99),
             matchingId,
             datasetId,
+            cars,
             cars,
             true
         );
@@ -141,7 +160,7 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
         vm.stopPrank();
         vm.roll(101);
         vm.prank(address(199));
-        matchings.bidding(matchingId, 200);
+        matchingsBids.bidding(matchingId, 200);
 
         address initiator = matchings.getMatchingInitiator(matchingId);
         vm.roll(201);

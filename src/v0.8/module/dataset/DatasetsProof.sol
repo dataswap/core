@@ -29,7 +29,6 @@ import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 ///shared
 import {DatasetsEvents} from "src/v0.8/shared/events/DatasetsEvents.sol";
 import {DatasetsModifiers} from "src/v0.8/shared/modifiers/DatasetsModifiers.sol";
-import {DatasetsProofModifiers} from "src/v0.8/shared/modifiers/DatasetsModifiers.sol";
 /// library
 import {DatasetProofLIB} from "src/v0.8/module/dataset/library/proof/DatasetProofLIB.sol";
 
@@ -48,8 +47,7 @@ contract DatasetsProof is
     Initializable,
     UUPSUpgradeable,
     IDatasetsProof,
-    DatasetsModifiers,
-    DatasetsProofModifiers
+    DatasetsModifiers
 {
     using DatasetProofLIB for DatasetType.DatasetProof;
 
@@ -70,26 +68,10 @@ contract DatasetsProof is
         address _governanceAddress,
         address _roles,
         address _filplus,
-        address _filecoin,
         address _carstore,
         address _datasets,
         address _datasetsRequirement
     ) public initializer {
-        DatasetsModifiers.datasetsModifiersInitialize(
-            _roles,
-            _filplus,
-            _filecoin,
-            _carstore,
-            _datasets
-        );
-
-        DatasetsProofModifiers.datasetsProofModifiersInitialize(
-            _roles,
-            _filplus,
-            _filecoin,
-            _carstore,
-            address(this)
-        );
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
         filplus = IFilplus(_filplus);
@@ -107,7 +89,7 @@ contract DatasetsProof is
     )
         internal
         override
-        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+        onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
     {}
 
     /// @notice Returns the implementation contract
@@ -125,8 +107,16 @@ contract DatasetsProof is
         bytes32 _rootHash
     )
         external
-        onlyDatasetProofSubmitterOrSubmitterNotExsits(_datasetId, msg.sender)
-        onlyDatasetState(_datasetId, DatasetType.State.MetadataApproved)
+        onlyDatasetProofSubmitterOrSubmitterNotExsits(
+            this,
+            _datasetId,
+            msg.sender
+        )
+        onlyDatasetState(
+            datasets,
+            _datasetId,
+            DatasetType.State.MetadataApproved
+        )
     {
         //Note: params check in lib
         DatasetType.DatasetProof storage datasetProof = datasetProofs[
@@ -160,12 +150,16 @@ contract DatasetsProof is
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         bytes32[] memory _leafHashes,
-        uint64[] memory _leafIndexs,
+        uint64 _leafIndex,
         uint64[] memory _leafSizes,
         bool _completed
     )
         external
-        onlyDatasetState(_datasetId, DatasetType.State.MetadataApproved)
+        onlyDatasetState(
+            datasets,
+            _datasetId,
+            DatasetType.State.MetadataApproved
+        )
     {
         //Note: params check in lib
         DatasetType.DatasetProof storage datasetProof = datasetProofs[
@@ -178,18 +172,22 @@ contract DatasetsProof is
             "Invalid Dataset submitter"
         );
 
-        carstore.addCars(
+        uint16 replicaCount = datasetsRequirement.getDatasetReplicasCount(
+            _datasetId
+        );
+
+        (uint64[] memory leafIds, uint64 size) = carstore.addCars(
             _leafHashes,
             _datasetId,
             _leafSizes,
-            datasetsRequirement.getDatasetReplicasCount(_datasetId)
+            replicaCount
         );
 
         datasetProof.addDatasetProofBatch(
             _dataType,
-            _leafHashes,
-            _leafIndexs,
-            _leafSizes,
+            leafIds,
+            _leafIndex,
+            size,
             _completed
         );
 
@@ -221,7 +219,10 @@ contract DatasetsProof is
         DatasetType.DatasetProof storage datasetProof = datasetProofs[
             _datasetId
         ];
-        return datasetProof.getDatasetProof(_dataType, _index, _len);
+        return
+            carstore.getCarsHashs(
+                datasetProof.getDatasetProof(_dataType, _index, _len)
+            );
     }
 
     ///@notice Get dataset source CIDs
@@ -277,18 +278,18 @@ contract DatasetsProof is
     ///@notice Check if a dataset has a cid
     function isDatasetContainsCar(
         uint64 _datasetId,
-        bytes32 _cid
+        uint64 _id
     ) public view onlyNotZero(_datasetId) returns (bool) {
-        return _datasetId == carstore.getCarDatasetId(_cid);
+        return _datasetId == carstore.getCarDatasetId(_id);
     }
 
     ///@notice Check if a dataset has cids
     function isDatasetContainsCars(
         uint64 _datasetId,
-        bytes32[] memory _cids
+        uint64[] memory _ids
     ) external view onlyNotZero(_datasetId) returns (bool) {
-        for (uint64 i = 0; i < _cids.length; i++) {
-            if (!isDatasetContainsCar(_datasetId, _cids[i])) return false;
+        for (uint64 i = 0; i < _ids.length; i++) {
+            if (!isDatasetContainsCar(_datasetId, _ids[i])) return false;
         }
         return true;
     }

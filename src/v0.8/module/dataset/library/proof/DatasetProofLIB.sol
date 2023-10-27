@@ -36,7 +36,7 @@ library DatasetProofLIB {
         DatasetType.DatasetProof storage self,
         DatasetType.DataType _dataType,
         bytes32 _rootHash
-    ) external {
+    ) internal {
         DatasetType.Proof storage proof;
         if (_dataType == DatasetType.DataType.Source) {
             proof = self.sourceProof;
@@ -54,18 +54,17 @@ library DatasetProofLIB {
     /// @param self The dataset to which the proof will be submitted.
     /// @param _dataType The type of the dataset proof.
     /// @param _leafHashes The leaf hashes of the proof.
-    /// @param _leafIndexs The sizes of the leaf hashes.
-    /// @param _leafSizes The sizes of the leaf hashes.
+    /// @param _leafIndex The sizes of the leaf hashes.
+    /// @param _size The total size of the leaf hashes.
     /// @param _allCompleted A boolean indicating if the proof is completed.
     function addDatasetProofBatch(
         DatasetType.DatasetProof storage self,
         DatasetType.DataType _dataType,
-        bytes32[] calldata _leafHashes,
-        uint64[] calldata _leafIndexs,
-        uint64[] calldata _leafSizes,
+        uint64[] memory _leafHashes,
+        uint64 _leafIndex,
+        uint64 _size,
         bool _allCompleted
-    ) external {
-        require(_leafHashes.length == _leafSizes.length, "length must matched");
+    ) internal {
         DatasetType.Proof storage proof;
         if (_dataType == DatasetType.DataType.Source) {
             proof = self.sourceProof;
@@ -75,11 +74,9 @@ library DatasetProofLIB {
 
         if (proof.allCompleted == false && _allCompleted == true)
             proof.allCompleted = _allCompleted;
-        proof.addProofBatch(_leafHashes, _leafIndexs);
+        proof.addProofBatch(_leafHashes, _leafIndex);
 
-        for (uint64 i; i < _leafSizes.length; i++) {
-            proof.datasetSize += _leafSizes[i];
-        }
+        proof.datasetSize += _size;
     }
 
     /// @notice Get the source dataset proof from the submitted dataset proof.
@@ -94,7 +91,7 @@ library DatasetProofLIB {
         DatasetType.DataType _dataType,
         uint64 _index,
         uint64 _len
-    ) internal view returns (bytes32[] memory) {
+    ) internal view returns (uint64[] memory) {
         DatasetType.Proof storage proof;
         if (_dataType == DatasetType.DataType.Source) {
             proof = self.sourceProof;
@@ -116,13 +113,8 @@ library DatasetProofLIB {
         DatasetType.DataType _dataType,
         uint64 _index,
         uint64 _len
-    ) internal view returns (bytes32[] memory) {
-        bytes32[] memory hashes = getDatasetProof(
-            self,
-            _dataType,
-            _index,
-            _len
-        );
+    ) internal view returns (uint64[] memory) {
+        uint64[] memory hashes = getDatasetProof(self, _dataType, _index, _len);
         //TODO: hashes to cid
         return hashes;
     }

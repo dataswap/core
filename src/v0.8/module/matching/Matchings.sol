@@ -22,9 +22,10 @@ import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
-import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
-import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
+import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
+
 /// shared
 import {MatchingsEvents} from "src/v0.8/shared/events/MatchingsEvents.sol";
 import {MatchingsModifiers} from "src/v0.8/shared/modifiers/MatchingsModifiers.sol";
@@ -33,7 +34,6 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 /// library
 import {MatchingLIB} from "src/v0.8/module/matching/library/MatchingLIB.sol";
 import {MatchingStateMachineLIB} from "src/v0.8/module/matching/library/MatchingStateMachineLIB.sol";
-import {MatchingBidsLIB} from "src/v0.8/module/matching/library/MatchingBidsLIB.sol";
 import "src/v0.8/shared/utils/array/ArrayLIB.sol";
 
 /// type
@@ -60,9 +60,7 @@ contract Matchings is
     /// @notice  Use libraries for different matching functionalities
     using MatchingLIB for MatchingType.Matching;
     using MatchingStateMachineLIB for MatchingType.Matching;
-    using MatchingBidsLIB for MatchingType.Matching;
     using ArrayAddressLIB for address[];
-    using ArrayUint64LIB for uint64[];
 
     /// @notice  Declare private variables
     uint64 public matchingsCount;
@@ -70,11 +68,9 @@ contract Matchings is
 
     address private governanceAddress;
     IRoles private roles;
-    IFilplus private filplus;
-    ICarstore private carstore;
-    IDatasets public datasets;
     IDatasetsRequirement public datasetsRequirement;
-    IDatasetsProof public datasetsProof;
+    IMatchingsTarget public matchingsTarget;
+    IMatchingsBids public matchingsBids;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -83,27 +79,11 @@ contract Matchings is
     function initialize(
         address _governanceAddress,
         address _roles,
-        address _filplus,
-        address _filecoin,
-        address _carstore,
-        address _datasets,
-        address _datasetsRequirement,
-        address _datasetsProof
+        address _datasetsRequirement
     ) public initializer {
-        MatchingsModifiers.matchingsModifiersInitialize(
-            _roles,
-            _filplus,
-            _filecoin,
-            _carstore,
-            address(this)
-        );
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
-        filplus = IFilplus(_filplus);
-        carstore = ICarstore(_carstore);
-        datasets = IDatasets(_datasets);
         datasetsRequirement = IDatasetsRequirement(_datasetsRequirement);
-        datasetsProof = IDatasetsProof(_datasetsProof);
         __UUPSUpgradeable_init();
     }
 
@@ -114,7 +94,7 @@ contract Matchings is
     )
         internal
         override
-        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+        onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
     {}
 
     /// @notice Returns the implementation contract
@@ -122,72 +102,16 @@ contract Matchings is
         return _getImplementation();
     }
 
-    ///@dev update cars info to carStore before matching complete
-    function _beforeMatchingCompleted(uint64 _matchingId) internal {
-        bytes32[] memory cars = getMatchingCars(_matchingId);
-        for (uint64 i; i < cars.length; i++) {
-            carstore.reportCarReplicaMatchingState(cars[i], _matchingId, true);
-        }
-    }
-
-    ///@dev update cars info to carStore after matching failed
-    function _afterMatchingFailed(uint64 _matchingId) internal {
-        bytes32[] memory cars = getMatchingCars(_matchingId);
-        for (uint64 i; i < cars.length; i++) {
-            carstore.reportCarReplicaMatchingState(cars[i], _matchingId, false);
-        }
-    }
-
-    ///@dev update cars info  to carStore before bidding
-    function _beforeBidding(uint64 _matchingId) internal {
-        bytes32[] memory cars = getMatchingCars(_matchingId);
-        uint16 replicaIndex = getMatchingReplicaIndex(_matchingId);
-        for (uint64 i; i < cars.length; i++) {
-            carstore.registCarReplica(cars[i], _matchingId, replicaIndex);
-        }
-    }
-
-    /// @notice  Function for bidding on a matching
-    function bidding(
-        uint64 _matchingId,
-        uint256 _amount
-    ) external onlyRole(RolesType.STORAGE_PROVIDER) {
-        MatchingType.Matching storage matching = matchings[_matchingId];
-        matching._matchingBidding(_amount);
-        (, address[] memory sp, , , ) = datasetsRequirement
-            .getDatasetReplicaRequirement(
-                matching._getDatasetId(),
-                matching._getDatasetReplicaIndex()
-            );
-
-        if (sp.length > 0) {
-            require(sp.isContains(msg.sender), "Invalid SP submitter");
-        }
-
-        emit MatchingsEvents.MatchingBidPlaced(
-            _matchingId,
-            msg.sender,
-            _amount
-        );
-        if (
-            matching.bidSelectionRule ==
-            MatchingType.BidSelectionRule.ImmediateAtLeast ||
-            matching.bidSelectionRule ==
-            MatchingType.BidSelectionRule.ImmediateAtMost
-        ) {
-            if (!closeMatching(_matchingId)) {
-                revert Errors
-                    .NotCompliantRuleMatchingTargetMeetsFilPlusRequirements(
-                        _matchingId
-                    );
-            }
-        }
+    function initMatchings(
+        address _matchingsTarget,
+        address _matchingsBids
+    ) external onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
+        matchingsTarget = IMatchingsTarget(_matchingsTarget);
+        matchingsBids = IMatchingsBids(_matchingsBids);
     }
 
     /// @notice Function for create a new matching.
     /// @param _datasetId The dataset id to create matching.
-    /// @param _dataType Identify the data type of "cars", which can be either "Source" or "MappingFiles".
-    /// @param _associatedMappingFilesMatchingID The matching ID that associated with mapping files of dataset of _datasetId
     /// @param _bidSelectionRule The rules for determining the winning bid.
     /// @param _biddingDelayBlockCount The number of blocks to delay bidding.
     /// @param _biddingPeriodBlockCount The number of blocks for bidding period.
@@ -198,8 +122,6 @@ contract Matchings is
     /// @return The matchingId.
     function createMatching(
         uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _associatedMappingFilesMatchingID,
         MatchingType.BidSelectionRule _bidSelectionRule,
         uint64 _biddingDelayBlockCount,
         uint64 _biddingPeriodBlockCount,
@@ -207,7 +129,7 @@ contract Matchings is
         uint256 _biddingThreshold,
         uint16 _replicaIndex,
         string memory _additionalInfo
-    ) external onlyRole(RolesType.DATASET_PROVIDER) returns (uint64) {
+    ) external onlyRole(roles, RolesType.DATASET_PROVIDER) returns (uint64) {
         matchingsCount++;
         MatchingType.Matching storage matching = matchings[matchingsCount];
         require(
@@ -216,21 +138,13 @@ contract Matchings is
             "Invalid matching replica"
         );
 
+        ///TODO: the dp must by client or submit proof
         (address[] memory dp, , , , ) = datasetsRequirement
             .getDatasetReplicaRequirement(_datasetId, _replicaIndex);
 
         if (dp.length > 0) {
             require(dp.isContains(msg.sender), "Invalid DP submitter");
         }
-
-        matching.target = MatchingType.Target({
-            datasetId: _datasetId,
-            cars: new bytes32[](0),
-            size: 0,
-            dataType: _dataType,
-            associatedMappingFilesMatchingID: _associatedMappingFilesMatchingID,
-            replicaIndex: _replicaIndex
-        });
 
         matching.bidSelectionRule = _bidSelectionRule;
         matching.biddingDelayBlockCount = _biddingDelayBlockCount;
@@ -243,196 +157,71 @@ contract Matchings is
         return matchingsCount;
     }
 
-    /// @notice  Function for publishing a matching
-    /// @param _matchingId The matching id to publish cars.
-    /// @param _datasetId The dataset id of matching.
-    /// @param _cars The cars to publish.
-    /// @param complete If the publish is complete.
-    function publishMatching(
-        uint64 _matchingId,
-        uint64 _datasetId,
-        bytes32[] memory _cars,
-        bool complete
-    ) external onlyRole(RolesType.DATASET_PROVIDER) {
-        MatchingType.Matching storage matching = matchings[_matchingId];
-        uint64 _size = carstore.getCarsSize(_cars);
-        require(matching.initiator == msg.sender, "invalid sender");
-        (uint64 datasetId, , , , ) = getMatchingTarget(_matchingId);
-        require(datasetId == _datasetId, "invalid dataset id");
-
-        matching._updateTargetCars(_cars, _size);
-
-        require(
-            isMatchingTargetValid(
-                _datasetId,
-                _cars,
-                _size,
-                matching.target.dataType,
-                matching.target.associatedMappingFilesMatchingID
-            ),
-            "Target invalid"
-        );
-
-        if (complete) {
-            matching._publishMatching();
-            _beforeBidding(_matchingId);
-            emit MatchingsEvents.MatchingPublished(_matchingId, msg.sender);
-        }
-    }
-
-    /// @notice  Function for pausing a matching
+    /// @notice Function for pausing a matching
     function pauseMatching(
         uint64 _matchingId
-    )
-        external
-        onlyMatchingInitiator(_matchingId)
-        onlyMatchingState(_matchingId, MatchingType.State.InProgress)
-    {
+    ) external onlyMatchingInitiator(this, _matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        require(matching.pausedBlockCount == 0, "only can paused one time");
-        require(
-            uint8(block.number) <
-                matching.createdBlockNumber + matching.biddingDelayBlockCount,
-            "alreay bidding,can't pause."
-        );
         matching._pauseMatching();
         emit MatchingsEvents.MatchingPaused(_matchingId);
     }
 
-    /// @notice  Function for resuming a paused matching
+    /// @notice Function for resuming a paused matching
     function resumeMatching(
         uint64 _matchingId
-    )
-        external
-        onlyMatchingInitiator(_matchingId)
-        onlyMatchingState(_matchingId, MatchingType.State.Paused)
-    {
+    ) external onlyMatchingInitiator(this, _matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching._resumeMatching();
         emit MatchingsEvents.MatchingResumed(_matchingId);
     }
 
-    /// @notice  Function for canceling a matching
-    function cancelMatching(
+    /// @notice Function for publishing a matching
+    /// @param _matchingId The matching id to publish cars.
+    function reportPublishMatching(
         uint64 _matchingId
-    ) external onlyMatchingInitiator(_matchingId) {
+    ) external onlyMatchingsTarget(matchingsTarget, _matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        require(
-            uint8(block.number) <
-                matching.createdBlockNumber + matching.biddingDelayBlockCount,
-            "bid alreay start,can't cancel"
-        );
+        matching._publishMatching();
+    }
+
+    /// @notice Function for report canceling a matching
+    function reportCancelMatching(
+        uint64 _matchingId
+    ) external onlyMatchingsBids(matchingsBids, _matchingId) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
         matching._cancelMatching();
-        _afterMatchingFailed(_matchingId);
         emit MatchingsEvents.MatchingCancelled(_matchingId);
     }
 
-    /// @notice  Function for closing a matching and choosing a winner
-    function closeMatching(
+    /// @notice Function for closing a matching
+    function reportCloseMatching(
         uint64 _matchingId
-    )
-        public
-        onlyMatchingState(_matchingId, MatchingType.State.InProgress)
-        returns (bool)
-    {
+    ) external onlyMatchingsBids(matchingsBids, _matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        if (
-            matching.bidSelectionRule ==
-            MatchingType.BidSelectionRule.ImmediateAtLeast ||
-            matching.bidSelectionRule ==
-            MatchingType.BidSelectionRule.ImmediateAtMost
-        ) {
-            require(
-                block.number >=
-                    matching.createdBlockNumber +
-                        matching.biddingDelayBlockCount +
-                        matching.pausedBlockCount,
-                "Bidding too early"
-            );
-        } else {
-            require(
-                block.number >=
-                    matching.createdBlockNumber +
-                        matching.biddingDelayBlockCount +
-                        matching.biddingPeriodBlockCount +
-                        matching.pausedBlockCount,
-                "Bidding period not expired"
-            );
-        }
         matching._closeMatching();
-        address winner = matching._chooseMatchingWinner();
-
-        if (winner != address(0)) {
-            if (
-                !_isMatchingTargetMeetsFilPlusRequirements(_matchingId, winner)
-            ) {
-                matching._setMatchingBidderNotComplyFilplusRule(winner);
-                return false;
-            }
-
-            _beforeMatchingCompleted(_matchingId);
-            matching.winner = winner;
-            matching._emitMatchingEvent(MatchingType.Event.HasWinner);
-            emit MatchingsEvents.MatchingHasWinner(_matchingId, winner);
-        } else {
-            _afterMatchingFailed(_matchingId);
-            matching._emitMatchingEvent(MatchingType.Event.NoWinner);
-            emit MatchingsEvents.MatchingNoWinner(_matchingId);
-        }
-        return true;
+        emit MatchingsEvents.MatchingClosed(_matchingId);
     }
 
-    /// @notice  Function for getting bids in a matching
-    function getMatchingBids(
-        uint64 _matchingId
-    ) public view returns (address[] memory, uint256[] memory) {
-        MatchingType.Matching storage matching = matchings[_matchingId];
-        return matching._getMatchingBids();
-    }
-
-    /// @notice  Function for getting bid amount of a bidder in a matching
-    function getMatchingBidAmount(
+    /// @notice Function for report complete a matching with a winner
+    function reportMatchingHasWinner(
         uint64 _matchingId,
-        address _bidder
-    ) public view returns (uint256) {
+        address _winner
+    ) external onlyMatchingsBids(matchingsBids, _matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        return matching._getMatchingBidAmount(_bidder);
+        matching._reportMatchingHasWinner();
+        emit MatchingsEvents.MatchingHasWinner(_matchingId, _winner);
     }
 
-    /// @notice  Function for getting the count of bids in a matching
-    function getMatchingBidsCount(
+    /// @notice Function for report complete a matching without winner.
+    function reportMatchingNoWinner(
         uint64 _matchingId
-    ) public view returns (uint64) {
+    ) external onlyMatchingsBids(matchingsBids, _matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        return matching._getMatchingBidsCount();
+        matching._reportMatchingNoWinner();
+        emit MatchingsEvents.MatchingNoWinner(_matchingId);
     }
 
-    /// @notice Get the cars of a matching.
-    /// @param _matchingId The ID of the matching.
-    /// @return cars An array of CIDs representing the cars in the matching.
-    function getMatchingCars(
-        uint64 _matchingId
-    ) public view returns (bytes32[] memory) {
-        MatchingType.Matching storage matching = matchings[_matchingId];
-        return matching._getCars();
-    }
-
-    /// @notice Get the index of matching's replica.
-    /// @param _matchingId The ID of the matching.
-    /// @return index The index of the matching's replica.
-    function getMatchingReplicaIndex(
-        uint64 _matchingId
-    ) public view returns (uint16) {
-        MatchingType.Matching storage matching = matchings[_matchingId];
-        return matching.target.replicaIndex;
-    }
-
-    /// @notice  Function for getting the total data size of bids in a matching
-    function getMatchingSize(uint64 _matchingId) public view returns (uint64) {
-        (, , uint64 datasize, , ) = getMatchingTarget(_matchingId);
-        return datasize;
-    }
-
+    /// @notice Function for getting the initiator of a matching
     function getMatchingInitiator(
         uint64 _matchingId
     ) public view returns (address) {
@@ -440,7 +229,7 @@ contract Matchings is
         return matching.initiator;
     }
 
-    /// @notice  Function for getting the state of a matching
+    /// @notice Function for getting the state of a matching
     function getMatchingState(
         uint64 _matchingId
     ) public view returns (MatchingType.State) {
@@ -448,177 +237,50 @@ contract Matchings is
         return matching._getMatchingState();
     }
 
-    /// @notice Get the target information of a matching.
-    /// @param _matchingId The ID of the matching.
-    /// @return datasetID The ID of the associated dataset.
-    /// @return cars An array of CIDs representing the cars in the matching.
-    /// @return size The size of the matching.
-    /// @return dataType The data type of the matching.
-    /// @return associatedMappingFilesMatchingID The ID of the associated mapping files matching.
-    function getMatchingTarget(
+    /// @notice Function for getting the selection rule of a matching
+    function getBidSelectionRule(
         uint64 _matchingId
-    )
-        public
-        view
-        returns (
-            uint64 datasetID,
-            bytes32[] memory cars,
-            uint64 size,
-            DatasetType.DataType dataType,
-            uint64 associatedMappingFilesMatchingID
-        )
-    {
-        // Access the matching with the specified ID and retrieve the target information
+    ) public view returns (MatchingType.BidSelectionRule) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        return (
-            matching.target.datasetId,
-            matching.target.cars,
-            matching.target.size,
-            matching.target.dataType,
-            matching.target.associatedMappingFilesMatchingID
-        );
+        return matching.bidSelectionRule;
     }
 
-    /// @notice  Function for getting winner of a matching
-    function getMatchingWinner(
+    /// @notice Function for getting the threshold of a matching
+    function getBiddingThreshold(
         uint64 _matchingId
-    ) public view returns (address) {
+    ) public view returns (uint256) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        return matching.winner;
+        return matching.biddingThreshold;
     }
 
-    /// @notice  Function for getting winners of a matchings
-    function getMatchingWinners(
-        uint64[] memory _matchingIds
-    ) public view returns (address[] memory) {
-        (uint256 count, uint64[] memory matchingIds) = _matchingIds
-            .removeElement(0);
-        address[] memory winners = new address[](count);
-        for (uint64 i = 0; i < count; i++) {
-            winners[i] = getMatchingWinner(matchingIds[i]);
-        }
-        return winners;
-    }
-
-    /// @notice  Function for checking if a bidder has a bid in a matching
-    function hasMatchingBid(
-        uint64 _matchingId,
-        address _bidder
-    ) public view returns (bool) {
+    /// @notice Function for getting the start height of a matching
+    function getBiddingStartHeight(
+        uint64 _matchingId
+    ) public view returns (uint64) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        return matching._hasMatchingBid(_bidder);
+        return matching.createdBlockNumber + matching.biddingDelayBlockCount;
     }
 
-    /// @notice Check if a matching with the given matching ID contains a specific CID.
-    /// @param _matchingId The ID of the matching to check.
-    /// @param _cid The CID (Content Identifier) to check for.
-    /// @return True if the matching contains the specified CID, otherwise false.
-    function isMatchingContainsCar(
-        uint64 _matchingId,
-        bytes32 _cid
-    ) public view returns (bool) {
-        bytes32[] memory cids = getMatchingCars(_matchingId);
-        for (uint64 i = 0; i < cids.length; i++) {
-            if (_cid == cids[i]) return true;
-        }
-        return false;
-    }
-
-    /// @notice Check if a matching with the given matching ID contains multiple CIDs.
-    /// @param _matchingId The ID of the matching to check.
-    /// @param _cids An array of CIDs (Content Identifiers) to check for.
-    /// @return True if the matching contains all the specified CIDs, otherwise false.
-    function isMatchingContainsCars(
-        uint64 _matchingId,
-        bytes32[] memory _cids
-    ) public view returns (bool) {
-        for (uint64 i = 0; i < _cids.length; i++) {
-            if (isMatchingContainsCar(_matchingId, _cids[i])) return true;
-        }
-        return false;
-    }
-
-    /// @notice check is matching targe valid
-    function isMatchingTargetValid(
-        uint64 _datasetId,
-        bytes32[] memory _cars,
-        uint64 _size,
-        DatasetType.DataType _dataType,
-        uint64 _associatedMappingFilesMatchingID
-    ) public view returns (bool) {
-        require(
-            datasets.getDatasetState(_datasetId) ==
-                DatasetType.State.DatasetApproved,
-            "datasetId is not approved!"
-        );
-        require(
-            datasetsProof.isDatasetContainsCars(_datasetId, _cars),
-            "Invalid cids!"
-        );
-        require(_size > 0, "Invalid size!");
-
-        // Source data needs to ensure that the associated mapping files data has been stored
-        if (_dataType == DatasetType.DataType.Source) {
-            (, , , DatasetType.DataType dataType, ) = getMatchingTarget(
-                _associatedMappingFilesMatchingID
-            );
-
-            require(
-                dataType == DatasetType.DataType.MappingFiles,
-                "Need a associated matching"
-            );
-            require(
-                getMatchingState(_associatedMappingFilesMatchingID) ==
-                    MatchingType.State.Completed,
-                "datasetId is not completed!"
-            );
-        }
-        return true;
-    }
-
-    /// @notice Check if a matching meets the requirements of Fil+.
-    function _isMatchingTargetMeetsFilPlusRequirements(
-        uint64 _matchingId,
-        address candidate
-    ) internal view returns (bool) {
+    /// @notice Function for getting the after pause height of a matching
+    function getBiddingAfterPauseHeight(
+        uint64 _matchingId
+    ) public view returns (uint64) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        bytes32[] memory cars = getMatchingCars(_matchingId);
-        uint16 requirementReplicaCount = datasetsRequirement
-            .getDatasetReplicasCount(matching.target.datasetId);
-        for (uint64 i; i < cars.length; i++) {
-            address[] memory winners = getMatchingWinners(
-                carstore.getCarMatchingIds(cars[i])
-            );
+        return
+            matching.createdBlockNumber +
+            matching.biddingDelayBlockCount +
+            matching.pausedBlockCount;
+    }
 
-            uint256 alreadyStoredReplicasByWinner = winners.countOccurrences(
-                candidate
-            );
-
-            if (
-                !filplus.isCompliantRuleMaxReplicasPerSP(
-                    uint16(alreadyStoredReplicasByWinner + 1)
-                )
-            ) {
-                return false;
-            }
-
-            uint256 uniqueCount = winners.countUniqueElements();
-
-            if (winners.isContains(candidate)) {
-                uniqueCount++;
-            }
-
-            if (
-                !filplus.isCompliantRuleMinSPsPerDataset(
-                    requirementReplicaCount,
-                    uint16(winners.length),
-                    uint16(uniqueCount)
-                )
-            ) {
-                return false;
-            }
-        }
-
-        return true;
+    /// @notice Function for getting the end height of a matching
+    function getBiddingEndHeight(
+        uint64 _matchingId
+    ) public view returns (uint64) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        return
+            matching.createdBlockNumber +
+            matching.biddingDelayBlockCount +
+            matching.biddingPeriodBlockCount +
+            matching.pausedBlockCount;
     }
 }

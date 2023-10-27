@@ -21,7 +21,6 @@ pragma solidity ^0.8.21;
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
-import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 ///shared
@@ -64,17 +63,8 @@ contract DatasetsRequirement is
         address _governanceAddress,
         address _roles,
         address _filplus,
-        address _filecoin,
-        address _carstore,
         address _datasets
     ) public initializer {
-        DatasetsModifiers.datasetsModifiersInitialize(
-            _roles,
-            _filplus,
-            _filecoin,
-            _carstore,
-            address(_datasets)
-        );
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
         filplus = IFilplus(_filplus);
@@ -89,7 +79,7 @@ contract DatasetsRequirement is
     )
         internal
         override
-        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+        onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
     {}
 
     /// @notice Returns the implementation contract
@@ -114,7 +104,7 @@ contract DatasetsRequirement is
         uint32[][] memory _citys
     )
         external
-        onlyDatasetState(_datasetId, DatasetType.State.None)
+        onlyDatasetState(datasets, _datasetId, DatasetType.State.None)
         onlyAddress(datasets.getDatasetMetadataSubmitter(_datasetId))
     {
         require(

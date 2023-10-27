@@ -22,6 +22,6 @@ pragma solidity ^0.8.21;
 library StorageType {
     /// @notice Struct representing a storage deal.
     struct Storage {
-        bytes32[] doneCars;
+        uint64[] doneCars;
     }
 }

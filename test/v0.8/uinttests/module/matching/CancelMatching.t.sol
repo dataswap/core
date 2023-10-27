@@ -27,6 +27,8 @@ contract CancelMatchingTest is Test, MatchingTestSetup {
         setup();
         CancelTestCaseWithSuccess testCase = new CancelTestCaseWithSuccess(
             matchings,
+            matchingsTarget,
+            matchingsBids,
             helpers,
             assertion
         );
@@ -38,6 +40,8 @@ contract CancelMatchingTest is Test, MatchingTestSetup {
         setup();
         CancelTestCaseWithAfterStarted testCase = new CancelTestCaseWithAfterStarted(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );
@@ -49,6 +53,8 @@ contract CancelMatchingTest is Test, MatchingTestSetup {
         setup();
         CancelTestCaseWithInvalidState testCase = new CancelTestCaseWithInvalidState(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );
@@ -60,6 +66,8 @@ contract CancelMatchingTest is Test, MatchingTestSetup {
         setup();
         CancelTestCaseWithAtInvalidSender testCase = new CancelTestCaseWithAtInvalidSender(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );

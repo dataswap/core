@@ -24,13 +24,13 @@ library Errors {
     error ParamLengthMismatch(uint256 _expectedLength, uint256 _actualLength);
 
     /// @notice car errors
-    error CarNotExist(bytes32 _cid);
-    error CarAlreadyExists(bytes32 _cid);
-    error ReplicaNotExist(bytes32 _cid, uint64 _matchingId);
-    error ReplicaAlreadyExists(bytes32 _cid, uint64 _matchingId);
-    error ReplicaFilecoinClaimIdExists(bytes32 _cid, uint64 _matchingId);
-    error InvalidReplicaState(bytes32 _cid, uint64 _matchingId);
-    error InvalidReplicaFilecoinDealState(bytes32 _cid, uint64 _filecoinId);
+    error CarNotExist(uint64 _id);
+    error CarAlreadyExists(uint64 _id, bytes32 _hash);
+    error ReplicaNotExist(uint64 _id, uint64 _matchingId);
+    error ReplicaAlreadyExists(uint64 _id, uint64 _matchingId);
+    error ReplicaFilecoinClaimIdExists(uint64 _id, uint64 _matchingId);
+    error InvalidReplicaState(uint64 _id, uint64 _matchingId);
+    error InvalidReplicaFilecoinDealState(uint64 _id, uint64 _filecoinId);
 
     /// @notice Dataset errors
     error DatasetMetadataNotExist(string accessMethod);
@@ -49,6 +49,9 @@ library Errors {
         address expectedInitiator,
         address actualInitiator
     );
+
+    error NotMatchingsTarget(uint64 _matchingId, address actualAddress);
+    error NotMatchingsBids(uint64 _matchingId, address actualAddress);
 
     /// @notice storage errors
     error StorageDealNotSuccessful(uint64 _claimId);
@@ -74,6 +77,7 @@ library Errors {
     );
     error NotCompliantRuleMaxReplicasPerSP(address winner, bytes32 cid);
     error NotCompliantRuleMatchingTargetMeetsFilPlusRequirements(
-        uint64 matchingId
+        uint64 matchingId,
+        address winner
     );
 }

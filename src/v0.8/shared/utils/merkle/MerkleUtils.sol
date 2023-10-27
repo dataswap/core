@@ -17,6 +17,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {RolesModifiers} from "src/v0.8/shared/modifiers/RolesModifiers.sol";
 import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
@@ -30,9 +31,11 @@ contract MerkleUtils is
     IMerkleUtils,
     RolesModifiers
 {
+    IRoles private roles;
+
     /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
     function initialize(address _roles) public initializer {
-        RolesModifiers.rolesModifiersInitialize(_roles);
+        roles = IRoles(_roles);
         __UUPSUpgradeable_init();
     }
 
@@ -43,7 +46,7 @@ contract MerkleUtils is
     )
         internal
         override
-        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+        onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
     {}
 
     /// @notice Returns the implementation contract

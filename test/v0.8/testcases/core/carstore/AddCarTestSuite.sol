@@ -89,6 +89,7 @@ contract AddCarTestCaseWithCarAlreayExsit is AddCarTestSuiteBase {
         uint64 _size,
         uint16 _replicaCount
     ) internal virtual override {
+        vm.assume(_cid[0] != 0);
         vm.assume(_datasetId != 0 && _size != 0);
         vm.assume(_replicaCount > 0 && _replicaCount < 5);
         carstore.addCar(_cid, _datasetId, _size, _replicaCount);
@@ -100,8 +101,9 @@ contract AddCarTestCaseWithCarAlreayExsit is AddCarTestSuiteBase {
         uint64 _size,
         uint16 _replicaCount
     ) internal virtual override {
+        uint64 id = carstore.getCarId(_cid);
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.CarAlreadyExists.selector, _cid)
+            abi.encodeWithSelector(Errors.CarAlreadyExists.selector, id, _cid)
         );
         super.action(_cid, _datasetId, _size, _replicaCount);
     }

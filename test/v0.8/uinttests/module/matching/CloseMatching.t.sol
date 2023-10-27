@@ -27,6 +27,8 @@ contract CloseMatchingTest is Test, MatchingTestSetup {
         setup();
         CloseTestCaseWithSuccess testCase = new CloseTestCaseWithSuccess(
             matchings,
+            matchingsTarget,
+            matchingsBids,
             helpers,
             assertion
         );
@@ -38,6 +40,8 @@ contract CloseMatchingTest is Test, MatchingTestSetup {
         setup();
         CloseTestCaseWithInvalidState testCase = new CloseTestCaseWithInvalidState(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );
@@ -49,6 +53,8 @@ contract CloseMatchingTest is Test, MatchingTestSetup {
         setup();
         CloseTestCaseWithAtInvalidBlock testCase = new CloseTestCaseWithAtInvalidBlock(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );
@@ -57,6 +63,8 @@ contract CloseMatchingTest is Test, MatchingTestSetup {
         setup();
         testCase = new CloseTestCaseWithAtInvalidBlock(
             matchings,
+            matchingsTarget,
+            matchingsBids,
             helpers,
             assertion
         );

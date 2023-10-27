@@ -17,6 +17,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 import {RolesType} from "src/v0.8/types/RolesType.sol";
@@ -31,13 +32,14 @@ contract MockFilecoin is
     IFilecoin,
     RolesModifiers
 {
+    IRoles private roles;
     FilecoinType.DealState private mockDealState;
     //bytes private mockClaimData;
     mapping(uint64 => bytes) private mockClaimData; //matchingId=>Matchedstore
 
     /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
     function initialize(address _roles) public initializer {
-        RolesModifiers.rolesModifiersInitialize(_roles);
+        roles = IRoles(_roles);
         __UUPSUpgradeable_init();
     }
 
@@ -48,7 +50,7 @@ contract MockFilecoin is
     )
         internal
         override
-        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+        onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
     {}
 
     /// @notice Returns the implementation contract

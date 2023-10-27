@@ -41,7 +41,7 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
         address caller,
         uint64 _matchingId,
         uint64 _provider,
-        bytes32 _cid,
+        uint64 _cid,
         uint64 _claimId
     ) external {
         // Record the count of stored cars before the action.
@@ -67,7 +67,7 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
         address caller,
         uint64 _matchingId,
         uint64 _provider,
-        bytes32[] memory _cids,
+        uint64[] memory _cids,
         uint64[] memory _claimIds
     ) external {
         // Perform the action (submitting multiple storage claim IDs).
@@ -88,9 +88,9 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
     /// @param _expectCars An array of expected stored cars.
     function getStoredCarsAssertion(
         uint64 _matchingId,
-        bytes32[] memory _expectCars
+        uint64[] memory _expectCars
     ) public {
-        bytes32[] memory cars = storages.getStoredCars(_matchingId);
+        uint64[] memory cars = storages.getStoredCars(_matchingId);
         assertEq(cars.length, _expectCars.length);
         for (uint64 i = 0; i < cars.length; i++) {
             assertEq(cars[i], _expectCars[i]);

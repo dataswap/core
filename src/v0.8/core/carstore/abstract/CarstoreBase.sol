@@ -40,6 +40,7 @@ abstract contract CarstoreBase is Initializable, ICarstore, CarstoreModifiers {
     uint64 public carsCount;
     ///Car CID=> Car
     mapping(bytes32 => CarReplicaType.Car) internal cars;
+    mapping(uint64 => bytes32) internal carsIndexes;
 
     IRoles internal roles;
     IFilplus public filplus;
@@ -53,32 +54,50 @@ abstract contract CarstoreBase is Initializable, ICarstore, CarstoreModifiers {
         address _filplus,
         address _filecoin
     ) public virtual onlyInitializing {
-        CarstoreModifiers.carstoreModifiersInitialize(
-            _roles,
-            _filplus,
-            _filecoin,
-            address(this)
-        );
         roles = IRoles(_roles);
         filplus = IFilplus(_filplus);
         filecoin = IFilecoin(_filecoin);
     }
 
     /// @notice Post an event for a car's replica based on the matching ID, triggering state transitions.
-    /// @param _cid Car CID associated with the replica.
+    /// @param _id Car ID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
     /// @param _event Event to be posted.
     function _emitRepicaEvent(
-        bytes32 _cid,
+        uint64 _id,
         uint64 _matchingId,
         CarReplicaType.Event _event
     )
         internal
-        onlyCarExist(_cid)
+        onlyCarExist(this, _id)
         onlyNotZero(_matchingId)
-        onlyCarReplicaExist(_cid, _matchingId)
+        onlyCarReplicaExist(this, _id, _matchingId)
     {
-        CarReplicaType.Car storage car = cars[_cid];
+        CarReplicaType.Car storage car = _getCar(_id);
         car._emitRepicaEvent(_matchingId, _event);
+    }
+
+    /// @notice Get the car ID associated with a car.
+    /// @param _id Car ID to check.
+    /// @return The car struct.
+    function _getCar(
+        uint64 _id
+    ) internal view returns (CarReplicaType.Car storage) {
+        bytes32 cid = carsIndexes[_id];
+        return cars[cid];
+    }
+
+    /// @notice Get a hash of a car based on car id.
+    /// @param _id The car's id to get hash.
+    /// @return  The hash of the car.
+    function _getHash(uint64 _id) internal view returns (bytes32) {
+        return carsIndexes[_id];
+    }
+
+    /// @notice Get car's id based on car's hash.
+    /// @param _hash The car's hash to get ID.
+    /// @return  The id of the car.
+    function _getId(bytes32 _hash) internal view returns (uint64) {
+        return cars[_hash].id;
     }
 }

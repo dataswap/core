@@ -20,7 +20,7 @@ import {StoragesTestBase} from "test/v0.8/testcases/module/storage/abstract/Stor
 
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
-
+import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
 import {IStoragesHelpers} from "test/v0.8/interfaces/helpers/module/IStoragesHelpers.sol";
@@ -31,6 +31,7 @@ import {CidUtils} from "src/v0.8/shared/utils/cid/CidUtils.sol";
 ///@notice submit storage filecoin claim id test case with success
 contract SubmitStorageClaimIdTestCaseWithSuccess is StoragesTestBase {
     constructor(
+        ICarstore _carstore,
         IStorages _storages,
         Generator _generator,
         IStoragesHelpers _storagesHelpers,
@@ -38,6 +39,7 @@ contract SubmitStorageClaimIdTestCaseWithSuccess is StoragesTestBase {
         IFilecoin _filecoin
     )
         StoragesTestBase(
+            _carstore,
             _storages,
             _generator,
             _storagesHelpers,
@@ -52,20 +54,22 @@ contract SubmitStorageClaimIdTestCaseWithSuccess is StoragesTestBase {
     }
 
     function action(uint64 _matchingId) internal virtual override {
-        bytes32[] memory cars = storages.matchings().getMatchingCars(
+        uint64[] memory cars = storages.matchingsTarget().getMatchingCars(
             _matchingId
         );
-        bytes32 cid = cars[0];
+        uint64 id = cars[0];
         uint64 provider = 0;
-        bytes memory dataCid = CidUtils.hashToCID(cid);
+        bytes memory dataCid = CidUtils.hashToCID(carstore.getCarHash(id));
         uint64 claimId = storagesHelpers.generateFilecoinClaimId();
         filecoin.setMockClaimData(claimId, dataCid);
-        address winner = storages.matchings().getMatchingWinner(_matchingId);
+        address winner = storages.matchingsBids().getMatchingWinner(
+            _matchingId
+        );
         storagesAssertion.submitStorageClaimIdAssertion(
             winner,
             _matchingId,
             provider,
-            cid,
+            id,
             claimId
         );
     }
@@ -76,6 +80,7 @@ contract SubmitStorageClaimIdTestCaseWithSuccess is StoragesTestBase {
 ///@notice submit storage filecoin claim id test case with invalid address
 contract SubmitStorageClaimIdTestCaseWithInvalidAddress is StoragesTestBase {
     constructor(
+        ICarstore _carstore,
         IStorages _storages,
         Generator _generator,
         IStoragesHelpers _storagesHelpers,
@@ -83,6 +88,7 @@ contract SubmitStorageClaimIdTestCaseWithInvalidAddress is StoragesTestBase {
         IFilecoin _filecoin
     )
         StoragesTestBase(
+            _carstore,
             _storages,
             _generator,
             _storagesHelpers,
@@ -97,10 +103,10 @@ contract SubmitStorageClaimIdTestCaseWithInvalidAddress is StoragesTestBase {
     }
 
     function action(uint64 _matchingId) internal virtual override {
-        bytes32[] memory cars = storages.matchings().getMatchingCars(
+        uint64[] memory cars = storages.matchingsTarget().getMatchingCars(
             _matchingId
         );
-        bytes32 cid = cars[0];
+        uint64 id = cars[0];
         uint64 provider = 0;
         uint64 claimId = storagesHelpers.generateFilecoinClaimId();
         address winner = generator.generateAddress(100);
@@ -109,7 +115,7 @@ contract SubmitStorageClaimIdTestCaseWithInvalidAddress is StoragesTestBase {
             winner,
             _matchingId,
             provider,
-            cid,
+            id,
             claimId
         );
     }
@@ -118,6 +124,7 @@ contract SubmitStorageClaimIdTestCaseWithInvalidAddress is StoragesTestBase {
 ///@notice submit storage filecoin claim id test case with invalid cid
 contract SubmitStorageClaimIdTestCaseWithInvalidCid is StoragesTestBase {
     constructor(
+        ICarstore _carstore,
         IStorages _storages,
         Generator _generator,
         IStoragesHelpers _storagesHelpers,
@@ -125,6 +132,7 @@ contract SubmitStorageClaimIdTestCaseWithInvalidCid is StoragesTestBase {
         IFilecoin _filecoin
     )
         StoragesTestBase(
+            _carstore,
             _storages,
             _generator,
             _storagesHelpers,
@@ -139,14 +147,16 @@ contract SubmitStorageClaimIdTestCaseWithInvalidCid is StoragesTestBase {
     }
 
     function action(uint64 _matchingId) internal virtual override {
-        bytes32 cid = bytes32("0");
+        uint64 id = 1;
         uint64 provider = 0;
         uint64 claimId = storagesHelpers.generateFilecoinClaimId();
-        address winner = storages.matchings().getMatchingWinner(_matchingId);
+        address winner = storages.matchingsBids().getMatchingWinner(
+            _matchingId
+        );
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.ReplicaNotExist.selector,
-                cid,
+                id,
                 _matchingId
             )
         );
@@ -154,7 +164,7 @@ contract SubmitStorageClaimIdTestCaseWithInvalidCid is StoragesTestBase {
             winner,
             _matchingId,
             provider,
-            cid,
+            id,
             claimId
         );
     }
@@ -163,6 +173,7 @@ contract SubmitStorageClaimIdTestCaseWithInvalidCid is StoragesTestBase {
 ///@notice submit storage filecoin claim id test case with duplicate cid
 contract SubmitStorageClaimIdTestCaseWithDuplicateCid is StoragesTestBase {
     constructor(
+        ICarstore _carstore,
         IStorages _storages,
         Generator _generator,
         IStoragesHelpers _storagesHelpers,
@@ -170,6 +181,7 @@ contract SubmitStorageClaimIdTestCaseWithDuplicateCid is StoragesTestBase {
         IFilecoin _filecoin
     )
         StoragesTestBase(
+            _carstore,
             _storages,
             _generator,
             _storagesHelpers,
@@ -184,27 +196,29 @@ contract SubmitStorageClaimIdTestCaseWithDuplicateCid is StoragesTestBase {
     }
 
     function action(uint64 _matchingId) internal virtual override {
-        bytes32[] memory cars = storages.matchings().getMatchingCars(
+        uint64[] memory cars = storages.matchingsTarget().getMatchingCars(
             _matchingId
         );
-        bytes32 cid = cars[0];
+        uint64 id = cars[0];
         uint64 provider = 0;
-        bytes memory dataCid = CidUtils.hashToCID(cid);
+        bytes memory dataCid = CidUtils.hashToCID(carstore.getCarHash(id));
         uint64 claimId = storagesHelpers.generateFilecoinClaimId();
         filecoin.setMockClaimData(claimId, dataCid);
 
-        address winner = storages.matchings().getMatchingWinner(_matchingId);
+        address winner = storages.matchingsBids().getMatchingWinner(
+            _matchingId
+        );
         storagesAssertion.submitStorageClaimIdAssertion(
             winner,
             _matchingId,
             provider,
-            cid,
+            id,
             claimId
         );
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.ReplicaFilecoinClaimIdExists.selector,
-                cid,
+                id,
                 _matchingId
             )
         );
@@ -212,7 +226,7 @@ contract SubmitStorageClaimIdTestCaseWithDuplicateCid is StoragesTestBase {
             winner,
             _matchingId,
             provider,
-            cid,
+            id,
             claimId
         );
     }

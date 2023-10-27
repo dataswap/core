@@ -19,8 +19,6 @@
 pragma solidity ^0.8.21;
 
 ///interface
-import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 ///shared
@@ -31,96 +29,87 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
-contract CarstoreModifiers is Initializable, RolesModifiers, FilplusModifiers {
-    IRoles private roles;
-    IFilplus private filplus;
-    ICarstore private carstore;
-    IFilecoin private filecoin;
-
-    /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
-    function carstoreModifiersInitialize(
-        address _roles,
-        address _filplus,
-        address _filecoin,
-        address _carstore
-    ) public onlyInitializing {
-        RolesModifiers.rolesModifiersInitialize(_roles);
-        FilplusModifiers.filplusModifiersInitialize(_filplus);
-        roles = IRoles(_roles);
-        filplus = IFilplus(_filplus);
-        carstore = ICarstore(_carstore);
-        filecoin = IFilecoin(_filecoin);
-    }
-
-    /// @dev Modifier to ensure that a car with the given CID exists.
-    modifier onlyCarExist(bytes32 _cid) {
-        if (!carstore.hasCar(_cid)) {
-            revert Errors.CarNotExist(_cid);
+contract CarstoreModifiers is RolesModifiers, FilplusModifiers {
+    /// @dev Modifier to ensure that a car with the given ID exists.
+    modifier onlyCarExist(ICarstore _carstore, uint64 _id) {
+        if (!_carstore.hasCar(_id)) {
+            revert Errors.CarNotExist(_id);
         }
         _;
     }
 
-    /// @dev Modifier to ensure that a car with the given CID does not exist.
-    modifier onlyCarNotExist(bytes32 _cid) {
-        if (carstore.hasCar(_cid)) {
-            revert Errors.CarAlreadyExists(_cid);
+    /// @dev Modifier to ensure that a car with the given hash does not exist.
+    modifier onlyCarNotExist(ICarstore _carstore, bytes32 _hash) {
+        if (_carstore.hasCarHash(_hash)) {
+            revert Errors.CarAlreadyExists(_carstore.getCarId(_hash), _hash);
         }
         _;
     }
 
     /// @dev Modifier to ensure that a replica of a car exists.
-    modifier onlyCarReplicaExist(bytes32 _cid, uint64 _matchingId) {
-        if (!carstore.hasCarReplica(_cid, _matchingId)) {
-            revert Errors.ReplicaNotExist(_cid, _matchingId);
+    modifier onlyCarReplicaExist(
+        ICarstore _carstore,
+        uint64 _id,
+        uint64 _matchingId
+    ) {
+        if (!_carstore.hasCarReplica(_id, _matchingId)) {
+            revert Errors.ReplicaNotExist(_id, _matchingId);
         }
         _;
     }
 
     /// @dev Modifier to ensure that a replica of a car not exists.
-    modifier onlyCarReplicaNotExist(bytes32 _cid, uint64 _matchingId) {
-        if (carstore.hasCarReplica(_cid, _matchingId)) {
-            revert Errors.ReplicaAlreadyExists(_cid, _matchingId);
+    modifier onlyCarReplicaNotExist(
+        ICarstore _carstore,
+        uint64 _id,
+        uint64 _matchingId
+    ) {
+        if (_carstore.hasCarReplica(_id, _matchingId)) {
+            revert Errors.ReplicaAlreadyExists(_id, _matchingId);
         }
         _;
     }
 
     /// @dev Modifier to ensure that a replica of a car exists.
     modifier onlyUnsetCarReplicaFilecoinClaimId(
-        bytes32 _cid,
+        ICarstore _carstore,
+        uint64 _id,
         uint64 _matchingId
     ) {
-        if (carstore.getCarReplicaFilecoinClaimId(_cid, _matchingId) != 0) {
-            revert Errors.ReplicaFilecoinClaimIdExists(_cid, _matchingId);
+        if (_carstore.getCarReplicaFilecoinClaimId(_id, _matchingId) != 0) {
+            revert Errors.ReplicaFilecoinClaimIdExists(_id, _matchingId);
         }
         _;
     }
 
     /// @dev Modifier to ensure that a replica state before function do.
     modifier onlyCarReplicaState(
-        bytes32 _cid,
+        ICarstore _carstore,
+        uint64 _id,
         uint64 _matchingId,
         CarReplicaType.State _state
     ) {
-        if (_state != carstore.getCarReplicaState(_cid, _matchingId)) {
-            revert Errors.InvalidReplicaState(_cid, _matchingId);
+        if (_state != _carstore.getCarReplicaState(_id, _matchingId)) {
+            revert Errors.InvalidReplicaState(_id, _matchingId);
         }
         _;
     }
 
     /// @dev Modifier to ensure that a replica filecoin deal state before function do.
     modifier onlyCarReplicaFilecoinDealState(
-        bytes32 _cid,
+        ICarstore _carstore,
+        IFilecoin _filecoin,
+        uint64 _id,
         uint64 _claimId,
         FilecoinType.DealState _filecoinDealState
     ) {
         if (
-            _filecoinDealState != filecoin.getReplicaDealState(_cid, _claimId)
+            _filecoinDealState !=
+            _filecoin.getReplicaDealState(_carstore.getCarHash(_id), _claimId)
         ) {
-            revert Errors.InvalidReplicaFilecoinDealState(_cid, _claimId);
+            revert Errors.InvalidReplicaFilecoinDealState(_id, _claimId);
         }
         _;
     }

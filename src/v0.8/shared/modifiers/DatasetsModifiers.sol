@@ -18,10 +18,6 @@
 pragma solidity ^0.8.21;
 
 ///interface
-import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
-import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
-import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 ///shared
@@ -31,110 +27,63 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 ///types
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
-contract DatasetsModifiers is Initializable, CarstoreModifiers {
-    IRoles private roles;
-    IFilplus private filplus;
-    IFilecoin private filecoin;
-    ICarstore private carstore;
-    IDatasets private datasets;
-
-    /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
-    function datasetsModifiersInitialize(
-        address _roles,
-        address _filplus,
-        address _filecoin,
-        address _carstore,
-        address _datasets
-    ) public onlyInitializing {
-        CarstoreModifiers.carstoreModifiersInitialize(
-            _roles,
-            _filplus,
-            _filecoin,
-            _carstore
-        );
-        roles = IRoles(_roles);
-        filplus = IFilplus(_filplus);
-        carstore = ICarstore(_carstore);
-        datasets = IDatasets(_datasets);
-    }
-
+contract DatasetsModifiers is CarstoreModifiers {
     /// @dev Modifier to ensure that a dataset metadata  with the given accessMethod exists.
-    modifier onlyDatasetMetadataExsits(string memory _accessMethod) {
-        if (!datasets.hasDatasetMetadata(_accessMethod)) {
+    modifier onlyDatasetMetadataExsits(
+        IDatasets _datasets,
+        string memory _accessMethod
+    ) {
+        if (!_datasets.hasDatasetMetadata(_accessMethod)) {
             revert Errors.DatasetMetadataNotExist(_accessMethod);
         }
         _;
     }
 
     /// @dev Modifier to ensure that a dataset metadata with the given accessMethod not exists.
-    modifier onlyDatasetMetadataNotExsits(string memory _accessMethod) {
-        if (datasets.hasDatasetMetadata(_accessMethod)) {
+    modifier onlyDatasetMetadataNotExsits(
+        IDatasets _datasets,
+        string memory _accessMethod
+    ) {
+        if (_datasets.hasDatasetMetadata(_accessMethod)) {
             revert Errors.DatasetMetadataAlreadyExist(_accessMethod);
         }
         _;
     }
 
     /// @dev Modifier to ensure that dataset has the special state
-    modifier onlyDatasetState(uint64 _datasetId, DatasetType.State _state) {
-        if (_state != datasets.getDatasetState(_datasetId)) {
+    modifier onlyDatasetState(
+        IDatasets _datasets,
+        uint64 _datasetId,
+        DatasetType.State _state
+    ) {
+        if (_state != _datasets.getDatasetState(_datasetId)) {
             revert Errors.InvalidDatasetState(_datasetId);
         }
         _;
     }
-}
-
-/// @title storages
-/// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
-contract DatasetsProofModifiers is Initializable, CarstoreModifiers {
-    IRoles private roles;
-    IFilplus private filplus;
-    IFilecoin private filecoin;
-    ICarstore private carstore;
-    IDatasetsProof private datasetsProof;
-
-    /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
-    function datasetsProofModifiersInitialize(
-        address _roles,
-        address _filplus,
-        address _filecoin,
-        address _carstore,
-        address _datasetsProof
-    ) public onlyInitializing {
-        CarstoreModifiers.carstoreModifiersInitialize(
-            _roles,
-            _filplus,
-            _filecoin,
-            _carstore
-        );
-        roles = IRoles(_roles);
-        filplus = IFilplus(_filplus);
-        carstore = ICarstore(_carstore);
-        datasetsProof = IDatasetsProof(_datasetsProof);
-    }
 
     /// @notice The sender of the dataset proof transaction must be the submitter of the proof.
     modifier onlyDatasetProofSubmitterOrSubmitterNotExsits(
+        IDatasetsProof _datasetsProof,
         uint64 _datasetId,
         address _sender
     ) {
         if (
-            datasetsProof.getDatasetProofCount(
+            _datasetsProof.getDatasetProofCount(
                 _datasetId,
                 DatasetType.DataType.Source
             ) !=
             0 ||
-            datasetsProof.getDatasetProofCount(
+            _datasetsProof.getDatasetProofCount(
                 _datasetId,
                 DatasetType.DataType.MappingFiles
             ) !=
             0
         ) {
             if (
-                datasetsProof.isDatasetProofSubmitter(_datasetId, _sender) !=
+                _datasetsProof.isDatasetProofSubmitter(_datasetId, _sender) !=
                 true
             ) {
                 revert Errors.InvalidDatasetProofsSubmitter(

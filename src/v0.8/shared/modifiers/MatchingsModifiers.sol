@@ -18,59 +18,21 @@
 pragma solidity ^0.8.21;
 
 ///interface
-import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
-import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
-import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
+import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 ///shared
 import {CarstoreModifiers} from "src/v0.8/shared/modifiers/CarstoreModifiers.sol";
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 ///types
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
-contract MatchingsModifiers is Initializable, CarstoreModifiers {
-    IRoles private roles;
-    IFilplus private filplus;
-    IFilecoin private filecoin;
-    ICarstore private carstore;
-    IMatchings private matchings;
-
-    /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
-    function matchingsModifiersInitialize(
-        address _roles,
-        address _filplus,
-        address _filecoin,
-        address _carstore,
-        address _matchings
-    ) public onlyInitializing {
-        CarstoreModifiers.carstoreModifiersInitialize(
-            _roles,
-            _filplus,
-            _filecoin,
-            _carstore
-        );
-        roles = IRoles(_roles);
-        filplus = IFilplus(_filplus);
-        carstore = ICarstore(_carstore);
-        matchings = IMatchings(_matchings);
-    }
-
+contract MatchingsModifiers is CarstoreModifiers {
     /// @notice Modifier to restrict access to the matching initiator
-    modifier onlyMatchingContainsCar(uint64 _matchingId, bytes32 _cid) {
-        if (!matchings.isMatchingContainsCar(_matchingId, _cid)) {
-            revert Errors.ReplicaNotExist(_cid, _matchingId);
-        }
-        _;
-    }
-
-    /// @notice Modifier to restrict access to the matching initiator
-    modifier onlyMatchingInitiator(uint64 _matchingId) {
-        address initiator = matchings.getMatchingInitiator(_matchingId);
+    modifier onlyMatchingInitiator(IMatchings _matchings, uint64 _matchingId) {
+        address initiator = _matchings.getMatchingInitiator(_matchingId);
         if (initiator != msg.sender) {
             revert Errors.NotMatchingInitiator(
                 _matchingId,
@@ -82,8 +44,12 @@ contract MatchingsModifiers is Initializable, CarstoreModifiers {
     }
 
     /// @notice Modifier to restrict access based on matching state
-    modifier onlyMatchingState(uint64 _matchingId, MatchingType.State _state) {
-        MatchingType.State matchingState = matchings.getMatchingState(
+    modifier onlyMatchingState(
+        IMatchings _matchings,
+        uint64 _matchingId,
+        MatchingType.State _state
+    ) {
+        MatchingType.State matchingState = _matchings.getMatchingState(
             _matchingId
         );
         if (matchingState != _state) {
@@ -92,6 +58,39 @@ contract MatchingsModifiers is Initializable, CarstoreModifiers {
                 _state,
                 matchingState
             );
+        }
+        _;
+    }
+
+    /// @notice Modifier to restrict access to the matching target
+    modifier onlyMatchingsTarget(
+        IMatchingsTarget _matchingsTarget,
+        uint64 _matchingId
+    ) {
+        if (address(_matchingsTarget) != msg.sender) {
+            revert Errors.NotMatchingsTarget(_matchingId, msg.sender);
+        }
+        _;
+    }
+    /// @notice Modifier to restrict access to the matching target
+    modifier onlyMatchingsBids(
+        IMatchingsBids _matchingsBids,
+        uint64 _matchingId
+    ) {
+        if (address(_matchingsBids) != msg.sender) {
+            revert Errors.NotMatchingsTarget(_matchingId, msg.sender);
+        }
+        _;
+    }
+
+    /// @notice Modifier to restrict access to the matching initiator
+    modifier onlyMatchingContainsCar(
+        IMatchingsTarget _matchingsTarget,
+        uint64 _matchingId,
+        uint64 _id
+    ) {
+        if (!_matchingsTarget.isMatchingContainsCar(_matchingId, _id)) {
+            revert Errors.ReplicaNotExist(_id, _matchingId);
         }
         _;
     }

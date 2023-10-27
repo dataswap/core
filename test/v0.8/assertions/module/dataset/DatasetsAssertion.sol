@@ -20,6 +20,7 @@ pragma solidity ^0.8.21;
 import {DSTest} from "ds-test/test.sol";
 import {Test} from "forge-std/Test.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
 import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
@@ -29,6 +30,7 @@ import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatase
 /// @notice This contract defines assertion functions for testing an IDatasets contract.
 /// @dev NOTE: All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
 contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
+    ICarstore public carstore;
     IDatasets public datasets;
     IDatasetsRequirement public datasetsRequirement;
     IDatasetsProof public datasetsProof;
@@ -37,11 +39,13 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
     /// @notice Constructor that sets the address of the IDatasets contract.
     /// @param _datasets The address of the IDatasets contract.
     constructor(
+        ICarstore _carstore,
         IDatasets _datasets,
         IDatasetsRequirement _datasetsRequirement,
         IDatasetsProof _datasetsProof,
         IDatasetsChallenge _datasetsChallenge
     ) {
+        carstore = _carstore;
         datasets = _datasets;
         datasetsRequirement = _datasetsRequirement;
         datasetsProof = _datasetsProof;
@@ -283,7 +287,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
     /// @param _datasetId The ID of the dataset for which to submit proof.
     /// @param _dataType The data type of the proof.
     /// @param _leafHashes The leaf hashes of the proof.
-    /// @param _leafIndexs The indexes of leaf hashes.
+    /// @param _leafIndex The index of leaf hashes.
     /// @param _leafSizes The sizes of the leaf hashes.
     /// @param _completed A boolean indicating if the proof is completed.
     function submitDatasetProofAssertion(
@@ -291,7 +295,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         bytes32[] calldata _leafHashes,
-        uint64[] calldata _leafIndexs,
+        uint64 _leafIndex,
         uint64[] calldata _leafSizes,
         bool _completed
     ) external {
@@ -308,8 +312,9 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             _datasetId,
             _dataType
         );
-        isDatasetContainsCarAssertion(_datasetId, _leafHashes[0], false);
-        isDatasetContainsCarsAssertion(_datasetId, _leafHashes, false);
+        uint64[] memory _leafIds = carstore.getCarsIds(_leafHashes);
+        isDatasetContainsCarAssertion(_datasetId, _leafIds[0], false);
+        isDatasetContainsCarsAssertion(_datasetId, _leafIds, false);
 
         // Perform the action.
         vm.prank(caller);
@@ -317,7 +322,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             _datasetId,
             _dataType,
             _leafHashes,
-            _leafIndexs,
+            _leafIndex,
             _leafSizes,
             _completed
         );
@@ -394,8 +399,9 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         getDatasetProofSubmitterAssertion(_datasetId, caller);
 
         // Check if dataset contains car(s).
-        isDatasetContainsCarAssertion(_datasetId, _leafHashes[0], true);
-        isDatasetContainsCarsAssertion(_datasetId, _leafHashes, true);
+        uint64[] memory _leafIds = carstore.getCarsIds(_leafHashes);
+        isDatasetContainsCarAssertion(_datasetId, _leafIds[0], true);
+        isDatasetContainsCarsAssertion(_datasetId, _leafIds, true);
         isDatasetProofSubmitterAssertion(_datasetId, caller, true);
         /// @dev TODO:check state after submit proof,need add method in dataset interface:https://github.com/dataswap/core/issues/71
     }
@@ -766,15 +772,15 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
 
     /// @notice Assertion function for checking if a dataset contains a specific car (leaf hash).
     /// @param _datasetId The ID of the dataset.
-    /// @param _cid The car (leaf hash) to check.
+    /// @param _id The car (leaf hash) to check.
     /// @param _expectIsDatasetContainsCar The expected result, true if the car exists in the dataset, false otherwise.
     function isDatasetContainsCarAssertion(
         uint64 _datasetId,
-        bytes32 _cid,
+        uint64 _id,
         bool _expectIsDatasetContainsCar
     ) public {
         assertEq(
-            datasetsProof.isDatasetContainsCar(_datasetId, _cid),
+            datasetsProof.isDatasetContainsCar(_datasetId, _id),
             _expectIsDatasetContainsCar,
             "isDatasetContainsCar not matched"
         );
@@ -782,15 +788,15 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
 
     /// @notice Assertion function for checking if a dataset contains multiple cars (leaf hashes).
     /// @param _datasetId The ID of the dataset.
-    /// @param _cids The cars (leaf hashes) to check.
+    /// @param _ids The cars (leaf hashes) to check.
     /// @param _expectIsDatasetContainsCars The expected result, true if all the cars exist in the dataset, false otherwise.
     function isDatasetContainsCarsAssertion(
         uint64 _datasetId,
-        bytes32[] memory _cids,
+        uint64[] memory _ids,
         bool _expectIsDatasetContainsCars
     ) public {
         assertEq(
-            datasetsProof.isDatasetContainsCars(_datasetId, _cids),
+            datasetsProof.isDatasetContainsCars(_datasetId, _ids),
             _expectIsDatasetContainsCars,
             "isDatasetContainsCars not matched"
         );

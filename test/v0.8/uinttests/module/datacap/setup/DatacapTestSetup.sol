@@ -26,6 +26,8 @@ import {DatasetsRequirement} from "src/v0.8/module/dataset/DatasetsRequirement.s
 import {DatasetsProof} from "src/v0.8/module/dataset/DatasetsProof.sol";
 import {DatasetsChallenge} from "src/v0.8/module/dataset/DatasetsChallenge.sol";
 import {Matchings} from "src/v0.8/module/matching/Matchings.sol";
+import {MatchingsTarget} from "src/v0.8/module/matching/MatchingsTarget.sol";
+import {MatchingsBids} from "src/v0.8/module/matching/MatchingsBids.sol";
 import {Storages} from "src/v0.8/module/storage/Storages.sol";
 import {Datacaps} from "src/v0.8/module/datacap/Datacaps.sol";
 import {MatchingsAssertion} from "test/v0.8/assertions/module/matching/MatchingsAssertion.sol";
@@ -61,21 +63,13 @@ contract DatacapTestSetup {
         carstore.initialize(address(role), address(filplus), address(filecoin));
 
         Datasets datasets = new Datasets();
-        datasets.initialize(
-            governanceContractAddresss,
-            address(role),
-            address(filplus),
-            address(filecoin),
-            address(carstore)
-        );
+        datasets.initialize(governanceContractAddresss, address(role));
 
         DatasetsRequirement datasetsRequirement = new DatasetsRequirement();
         datasetsRequirement.initialize(
             governanceContractAddresss,
             address(role),
             address(filplus),
-            address(filecoin),
-            address(carstore),
             address(datasets)
         );
 
@@ -84,7 +78,6 @@ contract DatacapTestSetup {
             governanceContractAddresss,
             address(role),
             address(filplus),
-            address(filecoin),
             address(carstore),
             address(datasets),
             address(datasetsRequirement)
@@ -94,9 +87,6 @@ contract DatacapTestSetup {
         datasetsChallenge.initialize(
             governanceContractAddresss,
             address(role),
-            address(filplus),
-            address(filecoin),
-            address(carstore),
             address(datasetsProof),
             address(merkleUtils)
         );
@@ -105,12 +95,42 @@ contract DatacapTestSetup {
         matchings.initialize(
             governanceContractAddresss,
             address(role),
+            address(datasetsRequirement)
+        );
+
+        MatchingsTarget matchingsTarget = new MatchingsTarget();
+        matchingsTarget.initialize(
+            governanceContractAddresss,
+            address(role),
             address(filplus),
-            address(filecoin),
             address(carstore),
             address(datasets),
             address(datasetsRequirement),
             address(datasetsProof)
+        );
+
+        MatchingsBids matchingsBids = new MatchingsBids();
+        matchingsBids.initialize(
+            governanceContractAddresss,
+            address(role),
+            address(filplus),
+            address(carstore),
+            address(datasets),
+            address(datasetsRequirement),
+            address(datasetsProof)
+        );
+
+        matchings.initMatchings(
+            address(matchingsTarget),
+            address(matchingsBids)
+        );
+        matchingsTarget.initMatchings(
+            address(matchings),
+            address(matchingsBids)
+        );
+        matchingsBids.initMatchings(
+            address(matchings),
+            address(matchingsTarget)
         );
 
         Storages storages = new Storages();
@@ -120,7 +140,9 @@ contract DatacapTestSetup {
             address(filplus),
             address(filecoin),
             address(carstore),
-            address(matchings)
+            address(matchings),
+            address(matchingsTarget),
+            address(matchingsBids)
         );
 
         datacaps = new Datacaps();
@@ -131,15 +153,20 @@ contract DatacapTestSetup {
             address(filecoin),
             address(carstore),
             address(matchings),
+            address(matchingsTarget),
+            address(matchingsBids),
             address(storages)
         );
 
         MatchingsAssertion machingsAssertion = new MatchingsAssertion(
             matchings,
+            matchingsTarget,
+            matchingsBids,
             carstore
         );
         Generator generator = new Generator();
         DatasetsAssertion datasetAssertion = new DatasetsAssertion(
+            carstore,
             datasets,
             datasetsRequirement,
             datasetsProof,
@@ -155,9 +182,12 @@ contract DatacapTestSetup {
         );
 
         MatchingsHelpers matchingsHelpers = new MatchingsHelpers(
+            carstore,
             datasets,
             datasetsProof,
             matchings,
+            matchingsTarget,
+            matchingsBids,
             datasetsHelpers,
             machingsAssertion
         );

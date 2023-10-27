@@ -75,7 +75,7 @@ library DatasetType {
         bytes32 rootHash; // Root hash of the data's Merkle tree.
         bool allCompleted;
         uint64 leafHashesCount;
-        bytes32[] leafHashes; // Proof associated with the dataset.
+        uint64[] leafHashes; // Proof associated with the dataset.
     }
 
     struct DatasetProof {
@@ -94,7 +94,6 @@ library DatasetType {
     }
 
     /// @notice Struct representing verification details of a dataset.
-    /// @dev TODO: support batch submit likes DatasetProof
     struct ChallengeProof {
         uint64 randomSeed; // Random seed used for verification. This seed determines which nodes need to be challenged.
         Challenge[] challenges; // Merkle proof provided by the auditor to support their challenge.

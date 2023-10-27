@@ -22,19 +22,30 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
+import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 
 /// @title MatchingsAssertion Contract
 /// @notice This contract provides assertion functions to test the functionality of the IMatchings contract.
 contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     IMatchings public matchings;
+    IMatchingsTarget public matchingsTarget;
+    IMatchingsBids public matchingsBids;
     ICarstore public carstore;
 
     /// @notice Constructor to set the IMatchings contract address.
     /// @param _matchings The address of the IMatchings contract to test.
     /// @param _carstore The address of the ICarstore contract to test.
-    constructor(IMatchings _matchings, ICarstore _carstore) {
+    constructor(
+        IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
+        ICarstore _carstore
+    ) {
         matchings = _matchings;
+        matchingsTarget = _matchingsTarget;
+        matchingsBids = _matchingsBids;
         carstore = _carstore;
     }
 
@@ -48,13 +59,13 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         uint256 _amount
     ) external {
         // Before the action, get the existing bids and count.
-        (address[] memory bidders, uint256[] memory amounts) = matchings
+        (address[] memory bidders, uint256[] memory amounts) = matchingsBids
             .getMatchingBids(_matchingId);
-        uint64 oldBidsCount = matchings.getMatchingBidsCount(_matchingId);
+        uint64 oldBidsCount = matchingsBids.getMatchingBidsCount(_matchingId);
 
         // Perform the action
         vm.prank(caller);
-        matchings.bidding(_matchingId, _amount);
+        matchingsBids.bidding(_matchingId, _amount);
 
         // After the bidding action:
         // 1. Check the new bids and count.
@@ -80,8 +91,6 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     /// @notice Assertion function to test the 'createMatching' function of IMatchings contract.
     /// @param caller The address of the caller.
     /// @param _datasetId The ID of the dataset.
-    /// @param _dataType The data type of the matching.
-    /// @param _associatedMappingFilesMatchingID The associated mapping files matching ID.
     /// @param _bidSelectionRule The bid selection rule.
     /// @param _biddingDelayBlockCount The bidding delay block count.
     /// @param _biddingPeriodBlockCount The bidding period block count.
@@ -92,8 +101,6 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     function createMatchingAssertion(
         address caller,
         uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _associatedMappingFilesMatchingID,
         MatchingType.BidSelectionRule _bidSelectionRule,
         uint64 _biddingDelayBlockCount,
         uint64 _biddingPeriodBlockCount,
@@ -101,15 +108,13 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         uint256 _biddingThreshold,
         uint16 _replicaIndex,
         string memory _additionalInfo
-    ) external {
+    ) public {
         // Before the action, get the current number of matchings.
         uint64 oldMatchingsCount = matchings.matchingsCount();
         // Perform the action
         vm.prank(caller);
         uint64 _matchingId = matchings.createMatching(
             _datasetId,
-            _dataType,
-            _associatedMappingFilesMatchingID,
             _bidSelectionRule,
             _biddingDelayBlockCount,
             _biddingPeriodBlockCount,
@@ -123,34 +128,99 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         // Check if the number of matchings has increased.
         matchingsCountAssertion(oldMatchingsCount + 1);
 
+        getMatchingReplicaIndexAssertion(_matchingId, _replicaIndex);
+        getMatchingCarsAssertion(_matchingId, new uint64[](0));
+        getMatchingSizeAssertion(_matchingId, 0);
+        getMatchingInitiatorAssertion(_matchingId, caller);
+        getBidSelectionRuleAssertion(_matchingId, _bidSelectionRule);
+        getBiddingThresholdAssertion(_matchingId, _biddingThreshold);
+        getBiddingStartHeightAssertion(
+            _matchingId,
+            uint64(block.number) + _biddingDelayBlockCount
+        );
+        getBiddingAfterPauseHeightAssertion(
+            _matchingId,
+            uint64(block.number) + _biddingDelayBlockCount
+        );
+        getBiddingEndHeightAssertion(
+            _matchingId,
+            uint64(block.number) +
+                _biddingDelayBlockCount +
+                _biddingPeriodBlockCount
+        );
+    }
+
+    /// @notice Function for create a new matching target.
+    /// @param caller The address of the caller.
+    /// @param _matchingId The matching id to publish cars.
+    /// @param _datasetId The dataset id to create matching.
+    /// @param _dataType Identify the data type of "cars", which can be either "Source" or "MappingFiles".
+    /// @param _associatedMappingFilesMatchingID The matching ID that associated with mapping files of dataset of _datasetId
+    /// @param _replicaIndex The index of the replica in dataset.
+    function createTargetAssertion(
+        address caller,
+        uint64 _matchingId,
+        uint64 _datasetId,
+        DatasetType.DataType _dataType,
+        uint64 _associatedMappingFilesMatchingID,
+        uint16 _replicaIndex
+    ) public {
+        // Perform the action
+        vm.prank(caller);
+        matchingsTarget.createTarget(
+            _matchingId,
+            _datasetId,
+            _dataType,
+            _associatedMappingFilesMatchingID,
+            _replicaIndex
+        );
+
         // Check the details of the published matching.
         getMatchingTargetAssertion(
             _matchingId,
             _datasetId,
-            new bytes32[](0),
+            new uint64[](0),
             0,
             _dataType,
             _associatedMappingFilesMatchingID
         );
-        getMatchingReplicaIndexAssertion(_matchingId, _replicaIndex);
-        getMatchingCarsAssertion(_matchingId, new bytes32[](0));
-        getMatchingSizeAssertion(_matchingId, 0);
-        getMatchingInitiatorAssertion(_matchingId, caller);
+    }
+
+    /// @notice  Function for parse cars from indexes.
+    /// @param _starts The starts of cars to publish.
+    /// @param _ends The ends of cars to publish.
+    /// @param _expectCars The expected cars of the parsed.
+    function parseCarsAssertion(
+        uint64[] memory _starts,
+        uint64[] memory _ends,
+        uint64[] memory _expectCars
+    ) public {
+        uint64[] memory cars = matchingsTarget.parseCars(_starts, _ends);
+        assertEq(cars.length, _expectCars.length);
+        for (uint64 i = 0; i < cars.length; i++) {
+            assertEq(cars[i], _expectCars[i]);
+        }
     }
 
     /// @notice Assertion function to test the 'publishMatching' function of IMatchings contract.
     /// @param caller The address of the caller.
-    /// @param _matchingId The ID of the dataset.
-    /// @param _datasetId The ID of the dataset.
-    /// @param _cars An array of car IDs.
+    /// @param _matchingId The matching id to publish cars.
+    /// @param _datasetId The dataset id of matching.
+    /// @param _carsStarts The cars to publish.
+    /// @param _carsEnds The cars to publish.
     /// @param complete If the publish is complete.
     function publishMatchingAssertion(
         address caller,
         uint64 _matchingId,
         uint64 _datasetId,
-        bytes32[] memory _cars,
+        uint64[] memory _carsStarts,
+        uint64[] memory _carsEnds,
         bool complete
-    ) external {
+    ) public {
+        uint64[] memory _cars = matchingsTarget.parseCars(
+            _carsStarts,
+            _carsEnds
+        );
         uint64 _size = carstore.getCarsSize(_cars);
 
         (
@@ -159,7 +229,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
             ,
             DatasetType.DataType _dataType,
             uint64 _associatedMappingFilesMatchingID
-        ) = matchings.getMatchingTarget(_matchingId);
+        ) = matchingsTarget.getMatchingTarget(_matchingId);
 
         // Check if the matching target is valid.
         isMatchingTargetValidAssertion(
@@ -175,7 +245,13 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         isMatchingContainsCarsAssertion(_matchingId, _cars, false);
         // Perform the action
         vm.prank(caller);
-        matchings.publishMatching(_matchingId, _datasetId, _cars, complete);
+        matchingsTarget.publishMatching(
+            _matchingId,
+            _datasetId,
+            _carsStarts,
+            _carsEnds,
+            complete
+        );
 
         // After the action:
         // Check the details of the published matching.
@@ -218,7 +294,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     function resumeMatchingAssertion(
         address caller,
         uint64 _matchingId
-    ) external {
+    ) public {
         // Before the action, check the state of the matching.
         getMatchingStateAssertion(_matchingId, MatchingType.State.Paused);
 
@@ -236,11 +312,11 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     function cancelMatchingAssertion(
         address caller,
         uint64 _matchingId
-    ) external {
+    ) public {
         /// @dev TODO: should limit cancel state:https://github.com/dataswap/core/issues/51
         // Perform the action
         vm.prank(caller);
-        matchings.cancelMatching(_matchingId);
+        matchingsBids.cancelMatching(_matchingId);
 
         // After the action, check if the matching is cancelled.
         getMatchingStateAssertion(_matchingId, MatchingType.State.Cancelled);
@@ -254,16 +330,16 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         address caller,
         uint64 _matchingId,
         address _winner
-    ) external {
+    ) public {
         // Before the action, check the state of the matching.
         getMatchingStateAssertion(_matchingId, MatchingType.State.InProgress);
 
         // Perform the action
         vm.prank(caller);
-        matchings.closeMatching(_matchingId);
+        matchingsBids.closeMatching(_matchingId);
 
         // After the action, check the state and winner of the matching.
-        address winner = matchings.getMatchingWinner(_matchingId);
+        address winner = matchingsBids.getMatchingWinner(_matchingId);
         if (winner == address(0)) {
             getMatchingStateAssertion(_matchingId, MatchingType.State.Failed);
         } else {
@@ -289,7 +365,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         address[] memory _expectBidders,
         uint256[] memory _expectAmounts
     ) public {
-        (address[] memory bidders, uint256[] memory amounts) = matchings
+        (address[] memory bidders, uint256[] memory amounts) = matchingsBids
             .getMatchingBids(_matchingId);
         assertEq(bidders.length, _expectBidders.length);
         assertEq(amounts.length, _expectAmounts.length);
@@ -311,7 +387,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         uint256 _expectAmount
     ) public {
         assertEq(
-            matchings.getMatchingBidAmount(_matchingId, _bidder),
+            matchingsBids.getMatchingBidAmount(_matchingId, _bidder),
             _expectAmount
         );
     }
@@ -323,7 +399,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         uint64 _matchingId,
         uint64 _expectCount
     ) public {
-        assertEq(matchings.getMatchingBidsCount(_matchingId), _expectCount);
+        assertEq(matchingsBids.getMatchingBidsCount(_matchingId), _expectCount);
     }
 
     /// @notice Assertion function to test the 'getMatchingCars' function of IMatchings contract.
@@ -331,9 +407,9 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     /// @param _expectCars The expected array of car IDs.
     function getMatchingCarsAssertion(
         uint64 _matchingId,
-        bytes32[] memory _expectCars
+        uint64[] memory _expectCars
     ) public {
-        bytes32[] memory cars = matchings.getMatchingCars(_matchingId);
+        uint64[] memory cars = matchingsTarget.getMatchingCars(_matchingId);
         assertEq(cars.length, _expectCars.length);
         for (uint64 i = 0; i < cars.length; i++) {
             assertEq(cars[i], _expectCars[i]);
@@ -347,7 +423,10 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         uint64 _matchingId,
         uint16 _expectIndex
     ) public {
-        assertEq(matchings.getMatchingReplicaIndex(_matchingId), _expectIndex);
+        assertEq(
+            matchingsTarget.getMatchingReplicaIndex(_matchingId),
+            _expectIndex
+        );
     }
 
     /// @notice Assertion function to test the 'getMatchingSize' function of IMatchings contract.
@@ -357,7 +436,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         uint64 _matchingId,
         uint64 _expectSize
     ) public {
-        assertEq(matchings.getMatchingSize(_matchingId), _expectSize);
+        assertEq(matchingsTarget.getMatchingSize(_matchingId), _expectSize);
     }
 
     /// @notice Assertion function to test the 'getMatchingInitiator' function of IMatchings contract.
@@ -393,18 +472,18 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     function getMatchingTargetAssertion(
         uint64 _matchingId,
         uint64 _expectDatasetID,
-        bytes32[] memory _expectCars,
+        uint64[] memory _expectCars,
         uint64 _expectSize,
         DatasetType.DataType _expectDataType,
         uint64 _expectAssociatedMappingFilesMatchingID
     ) public {
         (
             uint64 datasetID,
-            bytes32[] memory cars,
+            uint64[] memory cars,
             uint64 size,
             DatasetType.DataType dataType,
             uint64 associatedMappingFilesMatchingID
-        ) = matchings.getMatchingTarget(_matchingId);
+        ) = matchingsTarget.getMatchingTarget(_matchingId);
         assertEq(datasetID, _expectDatasetID);
         assertEq(cars.length, _expectCars.length);
         assertEq(size, _expectSize);
@@ -425,7 +504,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         uint64 _matchingId,
         address _expectWinner
     ) public {
-        assertEq(matchings.getMatchingWinner(_matchingId), _expectWinner);
+        assertEq(matchingsBids.getMatchingWinner(_matchingId), _expectWinner);
     }
 
     /// @notice Assertion function to test the 'getMatchingWinners' function of IMatchings contract.
@@ -436,7 +515,9 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         address[] memory _expectWinners
     ) public {
         assertEq(_matchingIds.length, _expectWinners.length);
-        address[] memory winners = matchings.getMatchingWinners(_matchingIds);
+        address[] memory winners = matchingsBids.getMatchingWinners(
+            _matchingIds
+        );
         for (uint256 i = 0; i < _matchingIds.length; i++) {
             assertEq(winners[i], _expectWinners[i]);
         }
@@ -452,7 +533,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         bool _expectHasMatchingBid
     ) public {
         assertEq(
-            matchings.hasMatchingBid(_matchingId, _bidder),
+            matchingsBids.hasMatchingBid(_matchingId, _bidder),
             _expectHasMatchingBid
         );
     }
@@ -463,11 +544,11 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     /// @param _expectIsMatchingContainsCars The expected result of whether the matching contains the car.
     function isMatchingContainsCarAssertion(
         uint64 _matchingId,
-        bytes32 _cid,
+        uint64 _cid,
         bool _expectIsMatchingContainsCars
     ) public {
         assertEq(
-            matchings.isMatchingContainsCar(_matchingId, _cid),
+            matchingsTarget.isMatchingContainsCar(_matchingId, _cid),
             _expectIsMatchingContainsCars
         );
     }
@@ -478,11 +559,11 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     /// @param _expectIsMatchingContainsCars The expected result of whether the matching contains all the cars.
     function isMatchingContainsCarsAssertion(
         uint64 _matchingId,
-        bytes32[] memory _cids,
+        uint64[] memory _cids,
         bool _expectIsMatchingContainsCars
     ) public {
         assertEq(
-            matchings.isMatchingContainsCars(_matchingId, _cids),
+            matchingsTarget.isMatchingContainsCars(_matchingId, _cids),
             _expectIsMatchingContainsCars
         );
     }
@@ -496,14 +577,14 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     /// @param _expectIsMatchingTargetValid The expected result of whether the matching target is valid.
     function isMatchingTargetValidAssertion(
         uint64 _datasetId,
-        bytes32[] memory _cars,
+        uint64[] memory _cars,
         uint64 _size,
         DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID,
         bool _expectIsMatchingTargetValid
     ) public {
         assertEq(
-            matchings.isMatchingTargetValid(
+            matchingsTarget.isMatchingTargetValid(
                 _datasetId,
                 _cars,
                 _size,
@@ -512,6 +593,67 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
             ),
             _expectIsMatchingTargetValid
         );
+    }
+
+    /// @notice Function for getting the selection rule of a matching.
+    /// @param _matchingId The ID of the matching.
+    /// @param _expectBidSelectionRule The expected rule of bid selection of matching.
+    function getBidSelectionRuleAssertion(
+        uint64 _matchingId,
+        MatchingType.BidSelectionRule _expectBidSelectionRule
+    ) public {
+        MatchingType.BidSelectionRule _bidSelectionRule = matchings
+            .getBidSelectionRule(_matchingId);
+        assertEq(uint256(_bidSelectionRule), uint256(_expectBidSelectionRule));
+    }
+
+    /// @notice Function for getting the threshold of a matching
+    /// @param _matchingId The ID of the matching.
+    /// @param _expectBiddingThreshold The expected threshold of bid of matching.
+    function getBiddingThresholdAssertion(
+        uint64 _matchingId,
+        uint256 _expectBiddingThreshold
+    ) public {
+        assertEq(
+            matchings.getBiddingThreshold(_matchingId),
+            _expectBiddingThreshold
+        );
+    }
+
+    /// @notice Function for getting the start height of a matching
+    /// @param _matchingId The ID of the matching.
+    /// @param _expectStartHeight The expected start height of matching.
+    function getBiddingStartHeightAssertion(
+        uint64 _matchingId,
+        uint64 _expectStartHeight
+    ) public {
+        assertEq(
+            matchings.getBiddingStartHeight(_matchingId),
+            _expectStartHeight
+        );
+    }
+
+    /// @notice Function for getting the after pause height of a matching
+    /// @param _matchingId The ID of the matching.
+    /// @param _expectAfterPauseHeight The expected after pause height of matching.
+    function getBiddingAfterPauseHeightAssertion(
+        uint64 _matchingId,
+        uint64 _expectAfterPauseHeight
+    ) public {
+        assertEq(
+            matchings.getBiddingAfterPauseHeight(_matchingId),
+            _expectAfterPauseHeight
+        );
+    }
+
+    /// @notice Function for getting the end height of a matching
+    /// @param _matchingId The ID of the matching.
+    /// @param _expectEndHeight The expected end height of matching.
+    function getBiddingEndHeightAssertion(
+        uint64 _matchingId,
+        uint64 _expectEndHeight
+    ) public {
+        assertEq(matchings.getBiddingEndHeight(_matchingId), _expectEndHeight);
     }
 
     /// @notice Assertion function to test the count of matchings in the IMatchings contract.

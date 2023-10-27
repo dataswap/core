@@ -23,6 +23,7 @@ import {MarketTypes} from "@zondax/filecoin-solidity/contracts/v0.8/types/Market
 import {VerifRegTypes} from "@zondax/filecoin-solidity/contracts/v0.8/types/VerifRegTypes.sol";
 import {CommonTypes} from "@zondax/filecoin-solidity/contracts/v0.8/types/CommonTypes.sol";
 ///interface
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 ///type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
@@ -35,6 +36,7 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 /// @title Filecoin
 contract Filecoin is Initializable, UUPSUpgradeable, IFilecoin, RolesModifiers {
     FilecoinType.Network public network;
+    IRoles private roles;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -44,7 +46,7 @@ contract Filecoin is Initializable, UUPSUpgradeable, IFilecoin, RolesModifiers {
         address _roles
     ) public initializer {
         network = _network;
-        RolesModifiers.rolesModifiersInitialize(_roles);
+        roles = IRoles(_roles);
         __UUPSUpgradeable_init();
     }
 
@@ -55,7 +57,7 @@ contract Filecoin is Initializable, UUPSUpgradeable, IFilecoin, RolesModifiers {
     )
         internal
         override
-        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+        onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
     {}
 
     /// @notice Returns the implementation contract

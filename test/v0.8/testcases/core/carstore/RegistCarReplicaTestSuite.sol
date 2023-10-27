@@ -32,13 +32,14 @@ contract RegistCarReplicaTestCaseWithSuccess is RegistCarReplicaTestSuiteBase {
     {}
 
     function before(
-        bytes32 _cid,
+        bytes32 _hash,
         uint64 _matchingId,
         uint16 _replicaIndex
-    ) internal virtual override {
+    ) internal virtual override returns (uint64) {
         vm.assume(_matchingId != 0);
-        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024, 3);
+        uint64 _id = carstore.addCar(_hash, 1, 32 * 1024 * 1024 * 1024, 3);
         vm.assume(_replicaIndex < 3);
+        return _id;
     }
 }
 
@@ -54,22 +55,23 @@ contract RegistCarReplicaTestCaseWithInvalidId is
     {}
 
     function before(
-        bytes32 _cid,
+        bytes32 _hash,
         uint64 _matchingId,
         uint16 _replicaIndex
-    ) internal virtual override {
+    ) internal virtual override returns (uint64) {
         vm.assume(_matchingId == 0);
-        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024, 3);
+        uint64 _id = carstore.addCar(_hash, 1, 32 * 1024 * 1024 * 1024, 3);
         vm.assume(_replicaIndex < 3);
+        return _id;
     }
 
     function action(
-        bytes32 _cid,
+        uint64 _id,
         uint64 _matchingId,
         uint16 _replicaIndex
     ) internal virtual override {
         vm.expectRevert();
-        super.action(_cid, _matchingId, _replicaIndex);
+        super.action(_id, _matchingId, _replicaIndex);
     }
 }
 
@@ -85,22 +87,23 @@ contract RegistCarReplicaTestCaseWithCarNotExist is
     {}
 
     function before(
-        bytes32 /*_cid*/,
+        bytes32 /*_hash*/,
         uint64 _matchingId,
         uint16 /*_replicaIndex*/
-    ) internal virtual override {
+    ) internal virtual override returns (uint64) {
         vm.assume(_matchingId != 0);
+        return 100;
     }
 
     function action(
-        bytes32 _cid,
+        uint64 _id,
         uint64 _matchingId,
         uint16 _replicaIndex
     ) internal virtual override {
         vm.expectRevert(
-            abi.encodeWithSelector(Errors.CarNotExist.selector, _cid)
+            abi.encodeWithSelector(Errors.CarNotExist.selector, _id)
         );
-        super.action(_cid, _matchingId, _replicaIndex);
+        super.action(_id, _matchingId, _replicaIndex);
     }
 }
 
@@ -116,29 +119,30 @@ contract RegistCarReplicaTestCaseWithReplicaAlreadyExists is
     {}
 
     function before(
-        bytes32 _cid,
+        bytes32 _hash,
         uint64 _matchingId,
         uint16 _replicaIndex
-    ) internal virtual override {
+    ) internal virtual override returns (uint64) {
         vm.assume(_matchingId != 0);
-        carstore.addCar(_cid, 1, 32 * 1024 * 1024 * 1024, 3);
+        uint64 _id = carstore.addCar(_hash, 1, 32 * 1024 * 1024 * 1024, 3);
         vm.assume(_replicaIndex < 3);
-        carstore.registCarReplica(_cid, _matchingId, _replicaIndex);
-        carstore.reportCarReplicaMatchingState(_cid, _matchingId, true);
+        carstore.registCarReplica(_id, _matchingId, _replicaIndex);
+        carstore.reportCarReplicaMatchingState(_id, _matchingId, true);
+        return _id;
     }
 
     function action(
-        bytes32 _cid,
+        uint64 _id,
         uint64 _matchingId,
         uint16 _replicaIndex
     ) internal virtual override {
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.ReplicaAlreadyExists.selector,
-                _cid,
+                _id,
                 _matchingId
             )
         );
-        super.action(_cid, _matchingId, _replicaIndex);
+        super.action(_id, _matchingId, _replicaIndex);
     }
 }

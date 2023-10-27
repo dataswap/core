@@ -31,7 +31,7 @@ interface IStoragesAssertion {
         address caller,
         uint64 _matchingId,
         uint64 _provider,
-        bytes32 _cid,
+        uint64 _cid,
         uint64 _claimId
     ) external;
 
@@ -45,7 +45,7 @@ interface IStoragesAssertion {
         address caller,
         uint64 _matchingId,
         uint64 _provider,
-        bytes32[] memory _cids,
+        uint64[] memory _cids,
         uint64[] memory _claimIds
     ) external;
 
@@ -54,7 +54,7 @@ interface IStoragesAssertion {
     /// @param _expectCars The expected array of stored car CIDs.
     function getStoredCarsAssertion(
         uint64 _matchingId,
-        bytes32[] memory _expectCars
+        uint64[] memory _expectCars
     ) external;
 
     /// @notice Asserts the retrieval of the count of stored cars in a matching.
