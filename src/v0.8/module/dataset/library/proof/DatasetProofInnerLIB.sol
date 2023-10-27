@@ -69,17 +69,16 @@ library DatasetProofInnerLIB {
     /// @dev This function allows setting a specific proof batch in a dataset proof.
     /// @param self The dataset proof to which the proof batch will be added.
     /// @param _leafHashes Array of leaf hashes representing items in the data.
-    /// @param _leafIndexs The sizes of the leaf hashes.
+    /// @param _leafIndex The sizes of the leaf hashes.
     function addProofBatch(
         DatasetType.Proof storage self,
-        bytes32[] calldata _leafHashes,
-        uint64[] calldata _leafIndexs
-    ) external {
+        uint64[] memory _leafHashes,
+        uint64 _leafIndex
+    ) internal {
+        uint64 index = _leafIndex;
         for (uint64 i; i < _leafHashes.length; i++) {
-            require(
-                _leafIndexs[i] == self.leafHashesCount,
-                "index must match Count"
-            );
+            require(index == self.leafHashesCount, "index must match Count");
+            index++;
             self.leafHashesCount++;
             self.leafHashes.push(_leafHashes[i]);
         }
@@ -92,7 +91,7 @@ library DatasetProofInnerLIB {
         DatasetType.Proof storage self,
         uint64 _index,
         uint64 _len
-    ) internal view returns (bytes32[] memory) {
+    ) internal view returns (uint64[] memory) {
         require(
             _index + _len <= self.leafHashes.length,
             "Index+len out of bounds"
@@ -101,7 +100,7 @@ library DatasetProofInnerLIB {
             self.leafHashesCount == self.leafHashes.length,
             "length must matched"
         );
-        bytes32[] memory result = new bytes32[](_len);
+        uint64[] memory result = new uint64[](_len);
         for (uint64 i = 0; i < _len; i++) {
             result[i] = self.leafHashes[i + _index];
         }

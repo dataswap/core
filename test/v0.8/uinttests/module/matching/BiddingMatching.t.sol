@@ -27,6 +27,8 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
         setup();
         BiddingTestCaseWithSuccess testCase = new BiddingTestCaseWithSuccess(
             matchings,
+            matchingsTarget,
+            matchingsBids,
             helpers,
             assertion
         );
@@ -38,6 +40,8 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
         setup();
         BiddingTestCaseWithInvlalidRole testCase = new BiddingTestCaseWithInvlalidRole(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );
@@ -49,6 +53,8 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
         setup();
         BiddingTestCaseWithInvlalidAmount testCase = new BiddingTestCaseWithInvlalidAmount(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );
@@ -57,6 +63,8 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
         setup();
         testCase = new BiddingTestCaseWithInvlalidAmount(
             matchings,
+            matchingsTarget,
+            matchingsBids,
             helpers,
             assertion
         );
@@ -68,6 +76,8 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
         setup();
         BiddingTestCaseWithInvlalidDuplicateBid testCase = new BiddingTestCaseWithInvlalidDuplicateBid(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );
@@ -79,6 +89,8 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
         setup();
         BiddingTestCaseWithInvlalidState testCase = new BiddingTestCaseWithInvlalidState(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );
@@ -90,6 +102,8 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
         setup();
         BiddingTestCaseWithNotStart testCase = new BiddingTestCaseWithNotStart(
             matchings,
+            matchingsTarget,
+            matchingsBids,
             helpers,
             assertion
         );
@@ -101,6 +115,8 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
         setup();
         BiddingTestCaseWithBidIsEnd testCase = new BiddingTestCaseWithBidIsEnd(
             matchings,
+            matchingsTarget,
+            matchingsBids,
             helpers,
             assertion
         );
@@ -112,6 +128,8 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
         setup();
         BiddingTestCaseWithInvalidStorageProvider testCase = new BiddingTestCaseWithInvalidStorageProvider(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );

@@ -120,7 +120,7 @@ interface IDatasetsAssertion {
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         bytes32[] calldata _leafHashes,
-        uint64[] calldata _leafIndexs,
+        uint64 _leafIndex,
         uint64[] calldata _leafSizes,
         bool _completed
     ) external;
@@ -257,21 +257,21 @@ interface IDatasetsAssertion {
 
     /// @notice Asserts whether a dataset contains a specific car.
     /// @param _datasetId The ID of the dataset to check.
-    /// @param _cid The CID of the car to check.
+    /// @param _id The hash of the car to check.
     /// @param _expectIsDatasetContainsCar The expected result (true if the dataset contains the car, false otherwise).
     function isDatasetContainsCarAssertion(
         uint64 _datasetId,
-        bytes32 _cid,
+        uint64 _id,
         bool _expectIsDatasetContainsCar
     ) external;
 
     /// @notice Asserts whether a dataset contains a list of cars.
     /// @param _datasetId The ID of the dataset to check.
-    /// @param _cids The list of CIDs to check.
+    /// @param _ids The list of hashs to check.
     /// @param _expectIsDatasetContainsCars The expected result (true if the dataset contains all the cars, false otherwise).
     function isDatasetContainsCarsAssertion(
         uint64 _datasetId,
-        bytes32[] memory _cids,
+        uint64[] memory _ids,
         bool _expectIsDatasetContainsCars
     ) external;
 

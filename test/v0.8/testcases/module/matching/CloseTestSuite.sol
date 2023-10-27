@@ -19,6 +19,8 @@ pragma solidity ^0.8.21;
 import {ControlTestSuiteBase} from "test/v0.8/testcases/module/matching/abstract/ControlTestSuiteBase.sol";
 import {MatchingsTestBase} from "test/v0.8/testcases/module/matching/abstract/MatchingsTestBase.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
+import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
@@ -30,10 +32,18 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 contract CloseTestCaseWithSuccess is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        ControlTestSuiteBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before(
@@ -54,7 +64,7 @@ contract CloseTestCaseWithSuccess is ControlTestSuiteBase {
         vm.stopPrank();
         vm.roll(101);
         vm.prank(address(199));
-        matchings.bidding(matchingId, 200);
+        matchingsBids.bidding(matchingId, 200);
         return matchingId;
     }
 
@@ -76,10 +86,18 @@ contract CloseTestCaseWithSuccess is ControlTestSuiteBase {
 contract CloseTestCaseWithInvalidState is MatchingsTestBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        MatchingsTestBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        MatchingsTestBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64) {
@@ -98,8 +116,6 @@ contract CloseTestCaseWithInvalidState is MatchingsTestBase {
         matchingsAssertion.createMatchingAssertion(
             address(99),
             datasetId,
-            DatasetType.DataType.MappingFiles,
-            0,
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
@@ -108,7 +124,17 @@ contract CloseTestCaseWithInvalidState is MatchingsTestBase {
             0,
             "TEST"
         );
-        return matchings.matchingsCount();
+        uint64 matchingId = matchings.matchingsCount();
+
+        matchingsAssertion.createTargetAssertion(
+            address(99),
+            matchingId,
+            datasetId,
+            DatasetType.DataType.MappingFiles,
+            0,
+            0
+        );
+        return matchingId;
     }
 
     function action(uint64 _matchingId) internal virtual override {
@@ -127,10 +153,18 @@ contract CloseTestCaseWithInvalidState is MatchingsTestBase {
 contract CloseTestCaseWithAtInvalidBlock is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        ControlTestSuiteBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before(

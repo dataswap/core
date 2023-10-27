@@ -20,38 +20,12 @@ pragma solidity ^0.8.21;
 
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {MatchingStateMachineLIB} from "src/v0.8/module/matching/library/MatchingStateMachineLIB.sol";
-import {MatchingBidsLIB} from "src/v0.8/module/matching/library/MatchingBidsLIB.sol";
 
 /// @title Matching Library
 /// @notice This library provides functions for managing matchings and their states.
 /// @dev This library is used to manage the lifecycle and states of matchings.
 library MatchingLIB {
     using MatchingStateMachineLIB for MatchingType.Matching;
-    using MatchingBidsLIB for MatchingType.Matching;
-
-    /// @notice Get the cars of a matching.
-    /// @return cars An array of CIDs representing the cars in the matching.
-    function _getCars(
-        MatchingType.Matching storage self
-    ) internal view returns (bytes32[] memory) {
-        return self.target.cars;
-    }
-
-    /// @notice Get datasetId of matching.
-    /// @dev This function is used to get dataset id of matching.
-    function _getDatasetId(
-        MatchingType.Matching storage self
-    ) internal view returns (uint64) {
-        return self.target.datasetId;
-    }
-
-    /// @notice Get replica index of matching.
-    /// @dev This function is used to get dataset's replica index of matching.
-    function _getDatasetReplicaIndex(
-        MatchingType.Matching storage self
-    ) internal view returns (uint64) {
-        return self.target.replicaIndex;
-    }
 
     /// @notice Publish a matching.
     /// @dev This function is used to publish a matching and initiate the matching process.
@@ -68,31 +42,14 @@ library MatchingLIB {
         require(self.state == MatchingType.State.InProgress, "Invalid state");
         require(self.pausedBlockCount == 0, "only can paused one time");
         //@dev:NOTE: here set pausedBlockNumber as pausedBlockCount,will correct in resume
+        require(
+            uint64(block.number) <
+                self.createdBlockNumber + self.biddingDelayBlockCount,
+            "alreay bidding,can't pause."
+        );
+
         self.pausedBlockCount = uint64(block.number);
         self._emitMatchingEvent(MatchingType.Event.Pause);
-    }
-
-    /// @notice Push a car to matching.
-    /// @dev This function is used to push a car to target of matching.
-    function _pushCar(
-        MatchingType.Matching storage self,
-        bytes32 _car
-    ) internal {
-        require(self.state == MatchingType.State.None, "Invalid state");
-        self.target.cars.push(_car);
-    }
-
-    /// @notice Update cars and size of a matching target.
-    /// @dev This function is used to update cars and size of target of matching.
-    function _updateTargetCars(
-        MatchingType.Matching storage self,
-        bytes32[] memory _cars,
-        uint64 _size
-    ) internal {
-        for (uint64 i = 0; i < _cars.length; i++) {
-            _pushCar(self, _cars[i]);
-        }
-        self.target.size += _size;
     }
 
     /// @notice Report that a pause has expired.
@@ -124,6 +81,11 @@ library MatchingLIB {
                 self.state == MatchingType.State.Paused,
             "Invalid state"
         );
+        require(
+            uint64(block.number) <
+                self.createdBlockNumber + self.biddingDelayBlockCount,
+            "bid alreay start,can't cancel"
+        );
         self._emitMatchingEvent(MatchingType.Event.Cancel);
     }
 
@@ -131,6 +93,47 @@ library MatchingLIB {
     /// @dev This function is used to close a matching and choose a winner based on the specified rule.
     function _closeMatching(MatchingType.Matching storage self) internal {
         require(self.state == MatchingType.State.InProgress, "Invalid state");
+        if (
+            self.bidSelectionRule ==
+            MatchingType.BidSelectionRule.ImmediateAtLeast ||
+            self.bidSelectionRule ==
+            MatchingType.BidSelectionRule.ImmediateAtMost
+        ) {
+            require(
+                block.number >=
+                    self.createdBlockNumber +
+                        self.biddingDelayBlockCount +
+                        self.pausedBlockCount,
+                "Bidding too early"
+            );
+        } else {
+            require(
+                block.number >=
+                    self.createdBlockNumber +
+                        self.biddingDelayBlockCount +
+                        self.biddingPeriodBlockCount +
+                        self.pausedBlockCount,
+                "Bidding period not expired"
+            );
+        }
         self._emitMatchingEvent(MatchingType.Event.Close);
+    }
+
+    /// @notice Report a matching is completed with winner.
+    /// @dev This function is used to complete a matching.
+    function _reportMatchingHasWinner(
+        MatchingType.Matching storage self
+    ) external {
+        require(self.state == MatchingType.State.Closed, "Invalid state");
+        self._emitMatchingEvent(MatchingType.Event.HasWinner);
+    }
+
+    /// @notice Report a matching is completed without winner.
+    /// @dev This function is used to complete a matching.
+    function _reportMatchingNoWinner(
+        MatchingType.Matching storage self
+    ) external {
+        require(self.state == MatchingType.State.Closed, "Invalid state");
+        self._emitMatchingEvent(MatchingType.Event.NoWinner);
     }
 }

@@ -27,6 +27,8 @@ contract ResumeMatchingTest is Test, MatchingTestSetup {
         setup();
         ResumeTestCaseWithSuccess testCase = new ResumeTestCaseWithSuccess(
             matchings,
+            matchingsTarget,
+            matchingsBids,
             helpers,
             assertion
         );
@@ -38,6 +40,8 @@ contract ResumeMatchingTest is Test, MatchingTestSetup {
         setup();
         ResumeTestCaseWithInvalidState testCase = new ResumeTestCaseWithInvalidState(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );
@@ -49,6 +53,8 @@ contract ResumeMatchingTest is Test, MatchingTestSetup {
         setup();
         ResumeTestCaseWithInvalidSender testCase = new ResumeTestCaseWithInvalidSender(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );

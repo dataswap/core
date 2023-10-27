@@ -26,6 +26,8 @@ import {DatasetsRequirement} from "src/v0.8/module/dataset/DatasetsRequirement.s
 import {DatasetsProof} from "src/v0.8/module/dataset/DatasetsProof.sol";
 import {DatasetsChallenge} from "src/v0.8/module/dataset/DatasetsChallenge.sol";
 import {Matchings} from "src/v0.8/module/matching/Matchings.sol";
+import {MatchingsTarget} from "src/v0.8/module/matching/MatchingsTarget.sol";
+import {MatchingsBids} from "src/v0.8/module/matching/MatchingsBids.sol";
 import {Storages} from "src/v0.8/module/storage/Storages.sol";
 import {MatchingsAssertion} from "test/v0.8/assertions/module/matching/MatchingsAssertion.sol";
 import {StoragesAssertion} from "test/v0.8/assertions/module/storage/StoragesAssertion.sol";
@@ -46,6 +48,7 @@ contract StorageTestSetup {
     Generator internal generator = new Generator();
     Roles internal role;
     MockFilecoin internal filecoin;
+    Carstore carstore;
 
     /// @dev Initialize the storages and helpers,assertion contracts.
     function setup() internal {
@@ -60,24 +63,16 @@ contract StorageTestSetup {
         MockMerkleUtils merkleUtils = new MockMerkleUtils();
         merkleUtils.initialize(address(role));
 
-        Carstore carstore = new Carstore();
+        carstore = new Carstore();
         carstore.initialize(address(role), address(filplus), address(filecoin));
         Datasets datasets = new Datasets();
-        datasets.initialize(
-            governanceContractAddresss,
-            address(role),
-            address(filplus),
-            address(filecoin),
-            address(carstore)
-        );
+        datasets.initialize(governanceContractAddresss, address(role));
 
         DatasetsRequirement datasetsRequirement = new DatasetsRequirement();
         datasetsRequirement.initialize(
             governanceContractAddresss,
             address(role),
             address(filplus),
-            address(filecoin),
-            address(carstore),
             address(datasets)
         );
 
@@ -86,7 +81,6 @@ contract StorageTestSetup {
             governanceContractAddresss,
             address(role),
             address(filplus),
-            address(filecoin),
             address(carstore),
             address(datasets),
             address(datasetsRequirement)
@@ -96,9 +90,6 @@ contract StorageTestSetup {
         datasetsChallenge.initialize(
             governanceContractAddresss,
             address(role),
-            address(filplus),
-            address(filecoin),
-            address(carstore),
             address(datasetsProof),
             address(merkleUtils)
         );
@@ -107,12 +98,42 @@ contract StorageTestSetup {
         matchings.initialize(
             governanceContractAddresss,
             address(role),
+            address(datasetsRequirement)
+        );
+
+        MatchingsTarget matchingsTarget = new MatchingsTarget();
+        matchingsTarget.initialize(
+            governanceContractAddresss,
+            address(role),
             address(filplus),
-            address(filecoin),
             address(carstore),
             address(datasets),
             address(datasetsRequirement),
             address(datasetsProof)
+        );
+
+        MatchingsBids matchingsBids = new MatchingsBids();
+        matchingsBids.initialize(
+            governanceContractAddresss,
+            address(role),
+            address(filplus),
+            address(carstore),
+            address(datasets),
+            address(datasetsRequirement),
+            address(datasetsProof)
+        );
+
+        matchings.initMatchings(
+            address(matchingsTarget),
+            address(matchingsBids)
+        );
+        matchingsTarget.initMatchings(
+            address(matchings),
+            address(matchingsBids)
+        );
+        matchingsBids.initMatchings(
+            address(matchings),
+            address(matchingsTarget)
         );
         storages = new Storages();
         storages.initialize(
@@ -121,16 +142,21 @@ contract StorageTestSetup {
             address(filplus),
             address(filecoin),
             address(carstore),
-            address(matchings)
+            address(matchings),
+            address(matchingsTarget),
+            address(matchingsBids)
         );
 
         MatchingsAssertion machingsAssertion = new MatchingsAssertion(
             matchings,
+            matchingsTarget,
+            matchingsBids,
             carstore
         );
         assertion = new StoragesAssertion(storages);
 
         DatasetsAssertion datasetAssertion = new DatasetsAssertion(
+            carstore,
             datasets,
             datasetsRequirement,
             datasetsProof,
@@ -145,9 +171,12 @@ contract StorageTestSetup {
             datasetAssertion
         );
         MatchingsHelpers matchingsHelpers = new MatchingsHelpers(
+            carstore,
             datasets,
             datasetsProof,
             matchings,
+            matchingsTarget,
+            matchingsBids,
             datasetsHelpers,
             machingsAssertion
         );

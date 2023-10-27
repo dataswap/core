@@ -20,6 +20,7 @@ import {StoragesTestBase} from "test/v0.8/testcases/module/storage/abstract/Stor
 
 import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
 
+import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
 import {IStoragesHelpers} from "test/v0.8/interfaces/helpers/module/IStoragesHelpers.sol";
@@ -31,6 +32,7 @@ import {CidUtils} from "src/v0.8/shared/utils/cid/CidUtils.sol";
 ///@notice submit storage filecoin claim ids test case with success
 contract SubmitStorageClaimIdsTestCaseWithSuccess is StoragesTestBase {
     constructor(
+        ICarstore _carstore,
         IStorages _storages,
         Generator _generator,
         IStoragesHelpers _storagesHelpers,
@@ -38,6 +40,7 @@ contract SubmitStorageClaimIdsTestCaseWithSuccess is StoragesTestBase {
         IFilecoin _filecoin
     )
         StoragesTestBase(
+            _carstore,
             _storages,
             _generator,
             _storagesHelpers,
@@ -52,7 +55,7 @@ contract SubmitStorageClaimIdsTestCaseWithSuccess is StoragesTestBase {
     }
 
     function action(uint64 _matchingId) internal virtual override {
-        bytes32[] memory cars = storages.matchings().getMatchingCars(
+        uint64[] memory cars = storages.matchingsTarget().getMatchingCars(
             _matchingId
         );
         uint64 provider = 0;
@@ -63,11 +66,15 @@ contract SubmitStorageClaimIdsTestCaseWithSuccess is StoragesTestBase {
         assertEq(cars.length, claimIds.length);
 
         for (uint64 i = 0; i < cars.length; i++) {
-            bytes memory dataCid = CidUtils.hashToCID(cars[i]);
+            bytes memory dataCid = CidUtils.hashToCID(
+                carstore.getCarHash(cars[i])
+            );
             filecoin.setMockClaimData(claimIds[i], dataCid);
         }
 
-        address winner = storages.matchings().getMatchingWinner(_matchingId);
+        address winner = storages.matchingsBids().getMatchingWinner(
+            _matchingId
+        );
         storagesAssertion.isAllStoredDoneAssertion(_matchingId, false);
         storagesAssertion.submitStorageClaimIdsAssertion(
             winner,

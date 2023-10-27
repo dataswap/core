@@ -25,44 +25,44 @@ library CarstoreEvents {
 
     /// @notice Emitted when a replica is registed to a car.
     event CarReplicaRegisted(
-        bytes32 indexed _cid,
+        uint64 indexed _id,
         uint64 _matchingId,
         uint16 _replicaIndex
     );
 
     /// @notice Report that matching for a replica has failed.
     /// @dev This function allows reporting that the matching for a replica has failed.
-    /// @param _cid Car CID associated with the replica.
+    /// @param _id Car ID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
     /// @param _matchingState Matching state of the replica.
     event CarReplicaMatchingState(
-        bytes32 indexed _cid,
+        uint64 indexed _id,
         uint64 _matchingId,
         string _matchingState
     );
 
     /// @notice Report that storage deal for a replica has expired.
     /// @dev This function allows reporting that the storage deal for a replica has expired.
-    /// @param _cid Car CID associated with the replica.
+    /// @param _id Car ID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    event CarReplicaExpired(bytes32 indexed _cid, uint64 _matchingId);
+    event CarReplicaExpired(uint64 indexed _id, uint64 _matchingId);
 
     /// @notice Report that storage of a replica has failed.
     /// @dev This function allows reporting that the storage of a replica has failed.
-    /// @param _cid Car CID associated with the replica.
+    /// @param _id Car ID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    event CarReplicaFailed(bytes32 indexed _cid, uint64 _matchingId);
+    event CarReplicaFailed(uint64 indexed _id, uint64 _matchingId);
 
     /// @notice Emitted when the Filecoin claim ID is set for a replica's storage.
     event CarReplicaFilecoinClaimIdSet(
-        bytes32 indexed _cid,
+        uint64 indexed _id,
         uint64 _matchingId,
         uint64 _claimId
     );
 
     /// @notice Report that storage of a replica has been slashed.
     /// @dev This function allows reporting that the storage of a replica has been slashed.
-    /// @param _cid Car CID associated with the replica.
+    /// @param _id Car ID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    event CarReplicaSlashed(bytes32 indexed _cid, uint64 _matchingId);
+    event CarReplicaSlashed(uint64 indexed _id, uint64 _matchingId);
 }

@@ -19,6 +19,8 @@ pragma solidity ^0.8.21;
 import {ControlTestSuiteBase} from "test/v0.8/testcases/module/matching/abstract/ControlTestSuiteBase.sol";
 import {MatchingsTestBase} from "test/v0.8/testcases/module/matching/abstract/MatchingsTestBase.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
+import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
@@ -31,10 +33,18 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 contract PauseTestCaseWithSuccess is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        ControlTestSuiteBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function action(
@@ -51,10 +61,18 @@ contract PauseTestCaseWithSuccess is ControlTestSuiteBase {
 contract PauseTestCaseWithInvalidSender is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        ControlTestSuiteBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function action(
@@ -79,10 +97,18 @@ contract PauseTestCaseWithInvalidSender is ControlTestSuiteBase {
 contract PauseTestCaseWithInvalidState is MatchingsTestBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        MatchingsTestBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        MatchingsTestBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64) {
@@ -101,8 +127,6 @@ contract PauseTestCaseWithInvalidState is MatchingsTestBase {
         matchingsAssertion.createMatchingAssertion(
             address(99),
             datasetId,
-            DatasetType.DataType.MappingFiles,
-            0,
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
@@ -111,7 +135,17 @@ contract PauseTestCaseWithInvalidState is MatchingsTestBase {
             0,
             "TEST"
         );
-        return matchings.matchingsCount();
+        uint64 matchingId = matchings.matchingsCount();
+
+        matchingsAssertion.createTargetAssertion(
+            address(99),
+            matchingId,
+            datasetId,
+            DatasetType.DataType.MappingFiles,
+            0,
+            0
+        );
+        return matchingId;
     }
 
     function action(uint64 _matchingId) internal virtual override {
@@ -126,10 +160,18 @@ contract PauseTestCaseWithInvalidState is MatchingsTestBase {
 contract PauseTestCaseWithAlreadyPaused is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        ControlTestSuiteBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function action(
@@ -149,10 +191,18 @@ contract PauseTestCaseWithAlreadyPaused is ControlTestSuiteBase {
 contract PauseTestCaseWithAlreadyBidding is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        ControlTestSuiteBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function action(

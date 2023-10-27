@@ -16,9 +16,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {MatchingsTestBase} from "test/v0.8/testcases/module/matching/abstract/MatchingsTestBase.sol";
 
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
+import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
@@ -30,10 +33,18 @@ import {MatchingsEvents} from "src/v0.8/shared/events/MatchingsEvents.sol";
 contract PublishMatchingTestCaseWithSuccess is MatchingsTestBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        MatchingsTestBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        MatchingsTestBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64) {
@@ -52,8 +63,6 @@ contract PublishMatchingTestCaseWithSuccess is MatchingsTestBase {
         matchingsAssertion.createMatchingAssertion(
             address(99),
             datasetId,
-            DatasetType.DataType.MappingFiles,
-            0,
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
@@ -62,20 +71,24 @@ contract PublishMatchingTestCaseWithSuccess is MatchingsTestBase {
             0,
             "TEST"
         );
+        uint64 matchingId = matchings.matchingsCount();
+
+        matchingsAssertion.createTargetAssertion(
+            address(99),
+            matchingId,
+            datasetId,
+            DatasetType.DataType.MappingFiles,
+            0,
+            0
+        );
+
         return datasetId;
     }
 
     function action(uint64 _datasetId) internal virtual override {
-        uint64 carsCount = matchingsHelpers.datasetsProof().getDatasetCarsCount(
+        (uint64[] memory cars, ) = matchingsHelpers.getDatasetCarsAndCarsCount(
             _datasetId,
             DatasetType.DataType.MappingFiles
-        );
-        bytes32[] memory cars = new bytes32[](carsCount);
-        cars = matchingsHelpers.datasetsProof().getDatasetCars(
-            _datasetId,
-            DatasetType.DataType.MappingFiles,
-            0,
-            carsCount
         );
 
         uint64 matchingId = matchings.matchingsCount();
@@ -86,6 +99,7 @@ contract PublishMatchingTestCaseWithSuccess is MatchingsTestBase {
             matchingId,
             _datasetId,
             cars,
+            cars,
             true
         );
     }
@@ -95,10 +109,18 @@ contract PublishMatchingTestCaseWithSuccess is MatchingsTestBase {
 contract PublishMatchingTestCaseWithInvalidRole is MatchingsTestBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        MatchingsTestBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        MatchingsTestBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64) {
@@ -117,8 +139,6 @@ contract PublishMatchingTestCaseWithInvalidRole is MatchingsTestBase {
         matchingsAssertion.createMatchingAssertion(
             address(99),
             datasetId,
-            DatasetType.DataType.MappingFiles,
-            0,
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
@@ -127,20 +147,23 @@ contract PublishMatchingTestCaseWithInvalidRole is MatchingsTestBase {
             0,
             "TEST"
         );
+        uint64 matchingId = matchings.matchingsCount();
+
+        matchingsAssertion.createTargetAssertion(
+            address(99),
+            matchingId,
+            datasetId,
+            DatasetType.DataType.MappingFiles,
+            0,
+            0
+        );
         return datasetId;
     }
 
     function action(uint64 _datasetId) internal virtual override {
-        uint64 carsCount = matchingsHelpers.datasetsProof().getDatasetCarsCount(
+        (uint64[] memory cars, ) = matchingsHelpers.getDatasetCarsAndCarsCount(
             _datasetId,
             DatasetType.DataType.MappingFiles
-        );
-        bytes32[] memory cars = new bytes32[](carsCount);
-        cars = matchingsHelpers.datasetsProof().getDatasetCars(
-            _datasetId,
-            DatasetType.DataType.MappingFiles,
-            0,
-            carsCount
         );
 
         uint64 matchingId = matchings.matchingsCount();
@@ -162,6 +185,7 @@ contract PublishMatchingTestCaseWithInvalidRole is MatchingsTestBase {
             matchingId,
             _datasetId,
             cars,
+            cars,
             true
         );
     }
@@ -171,10 +195,18 @@ contract PublishMatchingTestCaseWithInvalidRole is MatchingsTestBase {
 contract PublishMatchingTestCaseWithInvalidSender is MatchingsTestBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        MatchingsTestBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        MatchingsTestBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64) {
@@ -193,8 +225,6 @@ contract PublishMatchingTestCaseWithInvalidSender is MatchingsTestBase {
         matchingsAssertion.createMatchingAssertion(
             address(99),
             datasetId,
-            DatasetType.DataType.MappingFiles,
-            0,
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
@@ -203,22 +233,24 @@ contract PublishMatchingTestCaseWithInvalidSender is MatchingsTestBase {
             0,
             "TEST"
         );
+        uint64 matchingId = matchings.matchingsCount();
+
+        matchingsAssertion.createTargetAssertion(
+            address(99),
+            matchingId,
+            datasetId,
+            DatasetType.DataType.MappingFiles,
+            0,
+            0
+        );
         return datasetId;
     }
 
     function action(uint64 _datasetId) internal virtual override {
-        uint64 carsCount = matchingsHelpers.datasetsProof().getDatasetCarsCount(
+        (uint64[] memory cars, ) = matchingsHelpers.getDatasetCarsAndCarsCount(
             _datasetId,
             DatasetType.DataType.MappingFiles
         );
-        bytes32[] memory cars = new bytes32[](carsCount);
-        cars = matchingsHelpers.datasetsProof().getDatasetCars(
-            _datasetId,
-            DatasetType.DataType.MappingFiles,
-            0,
-            carsCount
-        );
-
         uint64 matchingId = matchings.matchingsCount();
 
         address admin = matchingsHelpers.datasets().roles().getRoleMember(
@@ -232,11 +264,19 @@ contract PublishMatchingTestCaseWithInvalidSender is MatchingsTestBase {
         );
         vm.stopPrank();
 
-        vm.expectRevert(bytes("invalid sender"));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.NotMatchingInitiator.selector,
+                matchingId,
+                address(99),
+                address(98)
+            )
+        );
         matchingsAssertion.publishMatchingAssertion(
             address(98),
             matchingId,
             _datasetId,
+            cars,
             cars,
             true
         );
@@ -247,10 +287,18 @@ contract PublishMatchingTestCaseWithInvalidSender is MatchingsTestBase {
 contract PublishMatchingTestCaseWithInvalidDataset is MatchingsTestBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        MatchingsTestBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        MatchingsTestBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64) {
@@ -269,8 +317,6 @@ contract PublishMatchingTestCaseWithInvalidDataset is MatchingsTestBase {
         matchingsAssertion.createMatchingAssertion(
             address(99),
             datasetId,
-            DatasetType.DataType.MappingFiles,
-            0,
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
@@ -279,26 +325,35 @@ contract PublishMatchingTestCaseWithInvalidDataset is MatchingsTestBase {
             0,
             "TEST"
         );
+        uint64 matchingId = matchings.matchingsCount();
+
+        matchingsAssertion.createTargetAssertion(
+            address(99),
+            matchingId,
+            datasetId,
+            DatasetType.DataType.MappingFiles,
+            0,
+            0
+        );
         return datasetId;
     }
 
     function action(uint64 _datasetId) internal virtual override {
-        uint64 carsCount = matchingsHelpers.datasetsProof().getDatasetCarsCount(
+        (uint64[] memory cars, ) = matchingsHelpers.getDatasetCarsAndCarsCount(
             _datasetId,
             DatasetType.DataType.MappingFiles
         );
-        bytes32[] memory cars = matchingsHelpers.datasetsProof().getDatasetCars(
-            _datasetId,
-            DatasetType.DataType.MappingFiles,
-            0,
-            carsCount
-        );
-
         uint64 matchingId = matchings.matchingsCount();
 
         vm.prank(address(99));
         vm.expectRevert(bytes("invalid dataset id"));
-        matchings.publishMatching(matchingId, _datasetId + 1, cars, true);
+        matchingsTarget.publishMatching(
+            matchingId,
+            _datasetId + 1,
+            cars,
+            cars,
+            true
+        );
     }
 }
 
@@ -306,10 +361,18 @@ contract PublishMatchingTestCaseWithInvalidDataset is MatchingsTestBase {
 contract PublishMatchingTestCaseWithInvalidDataPreparer is MatchingsTestBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        MatchingsTestBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        MatchingsTestBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64) {
@@ -333,8 +396,6 @@ contract PublishMatchingTestCaseWithInvalidDataPreparer is MatchingsTestBase {
         matchingsAssertion.createMatchingAssertion(
             address(100),
             _datasetId,
-            DatasetType.DataType.MappingFiles,
-            0,
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
@@ -350,10 +411,18 @@ contract PublishMatchingTestCaseWithInvalidDataPreparer is MatchingsTestBase {
 contract PublishMatchingTestCaseWithInvalidReplica is MatchingsTestBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        MatchingsTestBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        MatchingsTestBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64) {
@@ -377,8 +446,6 @@ contract PublishMatchingTestCaseWithInvalidReplica is MatchingsTestBase {
         matchingsAssertion.createMatchingAssertion(
             address(100),
             _datasetId,
-            DatasetType.DataType.MappingFiles,
-            0,
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,

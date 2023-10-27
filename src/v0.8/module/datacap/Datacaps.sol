@@ -23,6 +23,8 @@ import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
+import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
 
@@ -61,6 +63,8 @@ contract Datacaps is
     IFilecoin private filecoin;
     ICarstore private carstore;
     IMatchings private matchings;
+    IMatchingsTarget private matchingsTarget;
+    IMatchingsBids private matchingsBids;
     IStorages public storages;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
@@ -74,22 +78,18 @@ contract Datacaps is
         address _filecoin,
         address _carstore,
         address _matchings,
+        address _matchingsTarget,
+        address _matchingsBids,
         address _storages
     ) public initializer {
-        DatacapsModifiers.datacapsModifiersInitialize(
-            _roles,
-            _filplus,
-            _filecoin,
-            _carstore,
-            _matchings,
-            _storages,
-            address(this)
-        );
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
         filplus = IFilplus(_filplus);
+        filecoin = IFilecoin(_filecoin);
         carstore = ICarstore(_carstore);
         matchings = IMatchings(_matchings);
+        matchingsTarget = IMatchingsTarget(_matchingsTarget);
+        matchingsBids = IMatchingsBids(_matchingsBids);
         storages = IStorages(_storages);
         __UUPSUpgradeable_init();
     }
@@ -101,7 +101,7 @@ contract Datacaps is
     )
         internal
         override
-        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+        onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
     {}
 
     /// @notice Returns the implementation contract
@@ -132,7 +132,7 @@ contract Datacaps is
         external
         onlyAddress(matchings.getMatchingInitiator(_matchingId))
         onlyNotZeroAddress(matchings.getMatchingInitiator(_matchingId))
-        validNextDatacapAllocation(_matchingId)
+        validNextDatacapAllocation(this, _matchingId)
         returns (uint64)
     {
         uint64 remainingUnallocatedDatacap = getRemainingUnallocatedDatacap(
@@ -191,7 +191,7 @@ contract Datacaps is
     function getTotalDatacapAllocationRequirement(
         uint64 _matchingId
     ) public view returns (uint64) {
-        return matchings.getMatchingSize(_matchingId);
+        return matchingsTarget.getMatchingSize(_matchingId);
     }
 
     /// @dev Gets the remaining datacap size needed to be allocated for a matching process.

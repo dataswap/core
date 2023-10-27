@@ -20,11 +20,11 @@ pragma solidity ^0.8.21;
 library StoragesEvents {
     /// @dev Submits a Filecoin claim ID for a matched store after successful matching.
     /// @param _matchingId The ID of the matching store.
-    /// @param _cid The CID of the file.
+    /// @param _id The ID of the file.
     /// @param _claimId The Filecoin claim ID.
     event StorageClaimIdSubmitted(
         uint64 indexed _matchingId,
-        bytes32 indexed _cid,
+        uint64 indexed _id,
         uint64 _claimId
     );
 }

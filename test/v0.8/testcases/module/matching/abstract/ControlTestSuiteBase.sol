@@ -18,6 +18,8 @@ pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
+import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
@@ -30,6 +32,8 @@ import {RolesType} from "src/v0.8/types/RolesType.sol";
 /// The `after_` function can be used for cleanup or post-action code.
 abstract contract ControlTestSuiteBase is Test {
     IMatchings internal matchings;
+    IMatchingsTarget internal matchingsTarget;
+    IMatchingsBids internal matchingsBids;
     IMatchingsHelpers internal matchingsHelpers;
     IMatchingsAssertion internal matchingsAssertion;
 
@@ -39,10 +43,14 @@ abstract contract ControlTestSuiteBase is Test {
     /// @param _matchingsAssertion The address of the IMatchingsAssertion contract.
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     ) {
         matchings = _matchings;
+        matchingsTarget = _matchingsTarget;
+        matchingsBids = _matchingsBids;
         matchingsHelpers = _matchingsHelpers;
         matchingsAssertion = _matchingsAssertion;
     }
@@ -72,7 +80,7 @@ abstract contract ControlTestSuiteBase is Test {
         vm.stopPrank();
 
         // Get dataset cars and their count
-        (bytes32[] memory cars, ) = matchingsHelpers.getDatasetCarsAndCarsCount(
+        (uint64[] memory cars, ) = matchingsHelpers.getDatasetCarsAndCarsCount(
             datasetId,
             DatasetType.DataType.MappingFiles
         );
@@ -80,8 +88,6 @@ abstract contract ControlTestSuiteBase is Test {
         matchingsAssertion.createMatchingAssertion(
             address(99),
             datasetId,
-            DatasetType.DataType.MappingFiles,
-            0,
             _bidRule,
             100,
             100,
@@ -93,11 +99,21 @@ abstract contract ControlTestSuiteBase is Test {
 
         uint64 matchingId = matchings.matchingsCount();
 
+        matchingsAssertion.createTargetAssertion(
+            address(99),
+            matchingId,
+            datasetId,
+            DatasetType.DataType.MappingFiles,
+            0,
+            0
+        );
+
         // Publish a matching with specific parameters
         matchingsAssertion.publishMatchingAssertion(
             address(99),
             matchingId,
             datasetId,
+            cars,
             cars,
             true
         );

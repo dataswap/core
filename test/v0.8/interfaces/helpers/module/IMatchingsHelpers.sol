@@ -43,7 +43,7 @@ interface IMatchingsHelpers {
     function getDatasetCarsAndCarsCount(
         uint64 _datasetId,
         DatasetType.DataType _dataType
-    ) external returns (bytes32[] memory, uint64);
+    ) external returns (uint64[] memory, uint64);
 
     /// @notice Complete the workflow for a matching.
     /// @return datasetId The ID of the dataset associated with the completed matching.

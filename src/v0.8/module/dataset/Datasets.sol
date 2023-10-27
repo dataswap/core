@@ -61,18 +61,8 @@ contract Datasets is
     /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
     function initialize(
         address _governanceAddress,
-        address _roles,
-        address _filplus,
-        address _filecoin,
-        address _carstore
+        address _roles
     ) public initializer {
-        DatasetsModifiers.datasetsModifiersInitialize(
-            _roles,
-            _filplus,
-            _filecoin,
-            _carstore,
-            address(this)
-        );
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
         __UUPSUpgradeable_init();
@@ -85,7 +75,7 @@ contract Datasets is
     )
         internal
         override
-        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+        onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
     {}
 
     /// @notice Returns the implementation contract
@@ -100,7 +90,11 @@ contract Datasets is
     )
         external
         onlyNotZero(_datasetId)
-        onlyDatasetState(_datasetId, DatasetType.State.DatasetProofSubmitted)
+        onlyDatasetState(
+            this,
+            _datasetId,
+            DatasetType.State.DatasetProofSubmitted
+        )
         onlyAddress(governanceAddress)
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
@@ -116,7 +110,7 @@ contract Datasets is
     )
         external
         onlyNotZero(_datasetId)
-        onlyDatasetState(_datasetId, DatasetType.State.MetadataSubmitted)
+        onlyDatasetState(this, _datasetId, DatasetType.State.MetadataSubmitted)
         onlyAddress(governanceAddress)
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
@@ -132,7 +126,7 @@ contract Datasets is
     )
         external
         onlyNotZero(_datasetId)
-        onlyDatasetState(_datasetId, DatasetType.State.MetadataSubmitted)
+        onlyDatasetState(this, _datasetId, DatasetType.State.MetadataSubmitted)
         onlyAddress(governanceAddress)
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
@@ -148,7 +142,11 @@ contract Datasets is
     )
         external
         onlyNotZero(_datasetId)
-        onlyDatasetState(_datasetId, DatasetType.State.DatasetProofSubmitted)
+        onlyDatasetState(
+            this,
+            _datasetId,
+            DatasetType.State.DatasetProofSubmitted
+        )
         onlyAddress(governanceAddress)
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
@@ -169,7 +167,7 @@ contract Datasets is
         uint64 _sizeInBytes,
         bool _isPublic,
         uint64 _version
-    ) external onlyDatasetMetadataNotExsits(_accessMethod) {
+    ) external onlyDatasetMetadataNotExsits(this, _accessMethod) {
         //Note: params check in lib
         datasetsCount++;
         DatasetType.Dataset storage dataset = datasets[datasetsCount];

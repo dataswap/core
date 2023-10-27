@@ -19,6 +19,8 @@ pragma solidity ^0.8.21;
 import {Test} from "forge-std/Test.sol";
 import {TestCaseBase} from "test/v0.8/testcases/module/abstract/TestCaseBase.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
+import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
 
@@ -28,6 +30,8 @@ import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsH
 /// The `after_` function can be used for cleanup or post-action code.
 abstract contract MatchingsTestBase is TestCaseBase, Test {
     IMatchings internal matchings;
+    IMatchingsTarget internal matchingsTarget;
+    IMatchingsBids internal matchingsBids;
     IMatchingsHelpers internal matchingsHelpers;
     IMatchingsAssertion internal matchingsAssertion;
 
@@ -37,10 +41,14 @@ abstract contract MatchingsTestBase is TestCaseBase, Test {
     /// @param _matchingsAssertion The address of the IMatchingsAssertion contract.
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     ) {
         matchings = _matchings;
+        matchingsTarget = _matchingsTarget;
+        matchingsBids = _matchingsBids;
         matchingsHelpers = _matchingsHelpers;
         matchingsAssertion = _matchingsAssertion;
     }

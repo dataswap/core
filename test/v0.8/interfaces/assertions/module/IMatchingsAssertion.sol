@@ -37,8 +37,6 @@ interface IMatchingsAssertion {
     /// @notice Assertion function to test the 'publishMatching' function of IMatchings contract.
     /// @param caller The address of the caller.
     /// @param _datasetId The ID of the dataset.
-    /// @param _dataType The data type of the matching.
-    /// @param _associatedMappingFilesMatchingID The associated mapping files matching ID.
     /// @param _bidSelectionRule The bid selection rule.
     /// @param _biddingDelayBlockCount The bidding delay block count.
     /// @param _biddingPeriodBlockCount The bidding period block count.
@@ -48,8 +46,6 @@ interface IMatchingsAssertion {
     function createMatchingAssertion(
         address caller,
         uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _associatedMappingFilesMatchingID,
         MatchingType.BidSelectionRule _bidSelectionRule,
         uint64 _biddingDelayBlockCount,
         uint64 _biddingPeriodBlockCount,
@@ -59,17 +55,45 @@ interface IMatchingsAssertion {
         string memory _additionalInfo
     ) external;
 
+    /// @notice Function for create a new matching target.
+    /// @param caller The address of the caller.
+    /// @param _matchingId The matching id to publish cars.
+    /// @param _datasetId The dataset id to create matching.
+    /// @param _dataType Identify the data type of "cars", which can be either "Source" or "MappingFiles".
+    /// @param _associatedMappingFilesMatchingID The matching ID that associated with mapping files of dataset of _datasetId
+    /// @param _replicaIndex The index of the replica in dataset.
+    function createTargetAssertion(
+        address caller,
+        uint64 _matchingId,
+        uint64 _datasetId,
+        DatasetType.DataType _dataType,
+        uint64 _associatedMappingFilesMatchingID,
+        uint16 _replicaIndex
+    ) external;
+
+    /// @notice  Function for parse cars from indexes.
+    /// @param _starts The starts of cars to publish.
+    /// @param _ends The ends of cars to publish.
+    /// @param _expectCars The expected cars of the parsed.
+    function parseCarsAssertion(
+        uint64[] memory _starts,
+        uint64[] memory _ends,
+        uint64[] memory _expectCars
+    ) external;
+
     /// @notice Assertion function to test the 'publishMatching' function of IMatchings contract.
     /// @param caller The address of the caller.
-    /// @param _matchingId The ID of the dataset.
-    /// @param _datasetId The ID of the dataset.
-    /// @param _cars An array of car IDs.
+    /// @param _matchingId The matching id to publish cars.
+    /// @param _datasetId The dataset id of matching.
+    /// @param _carsStarts The cars to publish.
+    /// @param _carsEnds The cars to publish.
     /// @param complete If the publish is complete.
     function publishMatchingAssertion(
         address caller,
         uint64 _matchingId,
         uint64 _datasetId,
-        bytes32[] memory _cars,
+        uint64[] memory _carsStarts,
+        uint64[] memory _carsEnds,
         bool complete
     ) external;
 
@@ -140,7 +164,7 @@ interface IMatchingsAssertion {
     /// @param _expectCars The expected array of car CIDs.
     function getMatchingCarsAssertion(
         uint64 _matchingId,
-        bytes32[] memory _expectCars
+        uint64[] memory _expectCars
     ) external;
 
     /// @notice Get the index of matching's replica.
@@ -185,7 +209,7 @@ interface IMatchingsAssertion {
     function getMatchingTargetAssertion(
         uint64 _matchingId,
         uint64 _expectDatasetID,
-        bytes32[] memory _expectCars,
+        uint64[] memory _expectCars,
         uint64 _expectSize,
         DatasetType.DataType _expectDataType,
         uint64 _expectAssociatedMappingFilesMatchingID
@@ -223,7 +247,7 @@ interface IMatchingsAssertion {
     /// @param _expectIsMatchingContainsCars The expected result indicating whether the matching contains the specified car CID.
     function isMatchingContainsCarAssertion(
         uint64 _matchingId,
-        bytes32 _cid,
+        uint64 _cid,
         bool _expectIsMatchingContainsCars
     ) external;
 
@@ -233,7 +257,7 @@ interface IMatchingsAssertion {
     /// @param _expectIsMatchingContainsCars The expected result indicating whether the matching contains all the specified car CIDs.
     function isMatchingContainsCarsAssertion(
         uint64 _matchingId,
-        bytes32[] memory _cids,
+        uint64[] memory _cids,
         bool _expectIsMatchingContainsCars
     ) external;
 
@@ -246,11 +270,51 @@ interface IMatchingsAssertion {
     /// @param _expectIsMatchingTargetValid The expected result indicating whether the target is valid for a matching.
     function isMatchingTargetValidAssertion(
         uint64 _datasetId,
-        bytes32[] memory _cars,
+        uint64[] memory _cars,
         uint64 _size,
         DatasetType.DataType _dataType,
         uint64 _associatedMappingFilesMatchingID,
         bool _expectIsMatchingTargetValid
+    ) external;
+
+    /// @notice Function for getting the selection rule of a matching.
+    /// @param _matchingId The ID of the matching.
+    /// @param _expectBidSelectionRule The expected rule of bid selection of matching.
+    function getBidSelectionRuleAssertion(
+        uint64 _matchingId,
+        MatchingType.BidSelectionRule _expectBidSelectionRule
+    ) external;
+
+    /// @notice Function for getting the threshold of a matching
+    /// @param _matchingId The ID of the matching.
+    /// @param _expectBiddingThreshold The expected threshold of bid of matching.
+    function getBiddingThresholdAssertion(
+        uint64 _matchingId,
+        uint256 _expectBiddingThreshold
+    ) external;
+
+    /// @notice Function for getting the start height of a matching
+    /// @param _matchingId The ID of the matching.
+    /// @param _expectStartHeight The expected start height of matching.
+    function getBiddingStartHeightAssertion(
+        uint64 _matchingId,
+        uint64 _expectStartHeight
+    ) external;
+
+    /// @notice Function for getting the after pause height of a matching
+    /// @param _matchingId The ID of the matching.
+    /// @param _expectAfterPauseHeight The expected after pause height of matching.
+    function getBiddingAfterPauseHeightAssertion(
+        uint64 _matchingId,
+        uint64 _expectAfterPauseHeight
+    ) external;
+
+    /// @notice Function for getting the end height of a matching
+    /// @param _matchingId The ID of the matching.
+    /// @param _expectEndHeight The expected end height of matching.
+    function getBiddingEndHeightAssertion(
+        uint64 _matchingId,
+        uint64 _expectEndHeight
     ) external;
 
     /// @notice Asserts the count of matchings.

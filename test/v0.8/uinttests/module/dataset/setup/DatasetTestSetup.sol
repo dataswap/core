@@ -55,21 +55,13 @@ contract DatasetTestSetup {
         Carstore carstore = new Carstore();
         carstore.initialize(address(role), address(filplus), address(filecoin));
         datasets = new Datasets();
-        datasets.initialize(
-            governanceContractAddresss,
-            address(role),
-            address(filplus),
-            address(filecoin),
-            address(carstore)
-        );
+        datasets.initialize(governanceContractAddresss, address(role));
 
         datasetsRequirement = new DatasetsRequirement();
         datasetsRequirement.initialize(
             governanceContractAddresss,
             address(role),
             address(filplus),
-            address(filecoin),
-            address(carstore),
             address(datasets)
         );
 
@@ -78,7 +70,6 @@ contract DatasetTestSetup {
             governanceContractAddresss,
             address(role),
             address(filplus),
-            address(filecoin),
             address(carstore),
             address(datasets),
             address(datasetsRequirement)
@@ -88,14 +79,12 @@ contract DatasetTestSetup {
         datasetsChallenge.initialize(
             governanceContractAddresss,
             address(role),
-            address(filplus),
-            address(filecoin),
-            address(carstore),
             address(datasetsProof),
             address(merkleUtils)
         );
 
         assertion = new DatasetsAssertion(
+            carstore,
             datasets,
             datasetsRequirement,
             datasetsProof,

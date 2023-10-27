@@ -37,7 +37,7 @@ interface IDatasetsProof {
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         bytes32[] memory _leafHashes,
-        uint64[] memory _leafIndexs,
+        uint64 _leafIndex,
         uint64[] memory _leafSizes,
         bool _completed
     ) external;
@@ -80,16 +80,16 @@ interface IDatasetsProof {
         DatasetType.DataType _dataType
     ) external view returns (uint64);
 
-    ///@notice Check if a dataset has a cid
+    ///@notice Check if a dataset has a car id
     function isDatasetContainsCar(
         uint64 _datasetId,
-        bytes32 _cid
+        uint64 _id
     ) external returns (bool);
 
-    ///@notice Check if a dataset has cids
+    ///@notice Check if a dataset has car ids
     function isDatasetContainsCars(
         uint64 _datasetId,
-        bytes32[] memory _cids
+        uint64[] memory _ids
     ) external view returns (bool);
 
     ///@notice Check if a dataset has submitter

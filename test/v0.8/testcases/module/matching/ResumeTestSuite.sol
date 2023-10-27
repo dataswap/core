@@ -19,6 +19,8 @@ pragma solidity ^0.8.21;
 import {ControlTestSuiteBase} from "test/v0.8/testcases/module/matching/abstract/ControlTestSuiteBase.sol";
 
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
+import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
@@ -31,10 +33,18 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 contract ResumeTestCaseWithSuccess is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        ControlTestSuiteBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function action(
@@ -53,10 +63,18 @@ contract ResumeTestCaseWithSuccess is ControlTestSuiteBase {
 contract ResumeTestCaseWithInvalidState is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        ControlTestSuiteBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function action(
@@ -74,10 +92,18 @@ contract ResumeTestCaseWithInvalidState is ControlTestSuiteBase {
 contract ResumeTestCaseWithInvalidSender is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        ControlTestSuiteBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function action(

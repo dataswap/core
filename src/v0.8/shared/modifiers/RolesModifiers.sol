@@ -20,19 +20,14 @@ pragma solidity ^0.8.21;
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {CommonModifiers} from "src/v0.8/shared/modifiers/CommonModifiers.sol";
 
-import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
 /// @title RolesModifier
-contract RolesModifiers is Initializable, CommonModifiers {
-    IRoles private roles;
-    
-    function rolesModifiersInitialize(address _roles) public onlyInitializing {
-        roles = IRoles(_roles);
-    }
-
-    modifier onlyRole(bytes32 _role) {
+contract RolesModifiers is CommonModifiers {
+    modifier onlyRole(IRoles _roles, bytes32 _role) {
         // roles.checkRole(_role);
-        require(roles.hasRole(_role, msg.sender), "Only allowed role can call");
+        require(
+            _roles.hasRole(_role, msg.sender),
+            "Only allowed role can call"
+        );
         _;
     }
 }

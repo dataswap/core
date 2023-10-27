@@ -35,20 +35,21 @@ contract ReportCarReplicaExpiredTestCaseWithSuccess is
     {}
 
     function before(
-        bytes32 _cid,
+        bytes32 _hash,
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
         uint64 _claimId
-    ) internal virtual override {
+    ) internal virtual override returns (uint64) {
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
         vm.assume(_matchingId != 0 && _claimId != 0);
-        carstore.addCar(_cid, _datasetId, _size, 3);
-        carstore.registCarReplica(_cid, _matchingId, 0);
-        carstore.reportCarReplicaMatchingState(_cid, _matchingId, true);
-        carstore.setCarReplicaFilecoinClaimId(_cid, _matchingId, _claimId);
+        uint64 _id = carstore.addCar(_hash, _datasetId, _size, 3);
+        carstore.registCarReplica(_id, _matchingId, 0);
+        carstore.reportCarReplicaMatchingState(_id, _matchingId, true);
+        carstore.setCarReplicaFilecoinClaimId(_id, _matchingId, _claimId);
         carstore.filecoin().setMockDealState(FilecoinType.DealState.Expired);
+        return _id;
     }
 }
 
@@ -64,35 +65,36 @@ contract ReportCarReplicaExpiredTestCaseWithInvalidDealState is
     {}
 
     function before(
-        bytes32 _cid,
+        bytes32 _hash,
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
         uint64 _claimId
-    ) internal virtual override {
+    ) internal virtual override returns (uint64) {
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
         vm.assume(_matchingId != 0 && _claimId != 0);
-        carstore.addCar(_cid, _datasetId, _size, 3);
-        carstore.registCarReplica(_cid, _matchingId, 0);
-        carstore.reportCarReplicaMatchingState(_cid, _matchingId, true);
-        carstore.setCarReplicaFilecoinClaimId(_cid, _matchingId, _claimId);
+        uint64 _id = carstore.addCar(_hash, _datasetId, _size, 3);
+        carstore.registCarReplica(_id, _matchingId, 0);
+        carstore.reportCarReplicaMatchingState(_id, _matchingId, true);
+        carstore.setCarReplicaFilecoinClaimId(_id, _matchingId, _claimId);
         carstore.filecoin().setMockDealState(FilecoinType.DealState.Stored);
+        return _id;
     }
 
     function action(
-        bytes32 _cid,
+        uint64 _id,
         uint64 _matchingId,
         uint64 _claimId
     ) internal virtual override {
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.InvalidReplicaFilecoinDealState.selector,
-                _cid,
+                _id,
                 _claimId
             )
         );
-        super.action(_cid, _matchingId, _claimId);
+        super.action(_id, _matchingId, _claimId);
     }
 }
 
@@ -108,23 +110,24 @@ contract ReportCarReplicaExpiredTestCaseWithInvalidId is
     {}
 
     function before(
-        bytes32 /*_cid*/,
+        bytes32 /*_hash*/,
         uint64 _datasetId,
         uint64 _size,
         uint64 _matchingId,
         uint64 _claimId
-    ) internal virtual override {
+    ) internal virtual override returns (uint64) {
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
         vm.assume(_matchingId == 0 || _claimId == 0);
+        return 100;
     }
 
     function action(
-        bytes32 _cid,
+        uint64 _id,
         uint64 _matchingId,
         uint64 _claimId
     ) internal virtual override {
         vm.expectRevert();
-        super.action(_cid, _matchingId, _claimId);
+        super.action(_id, _matchingId, _claimId);
     }
 }

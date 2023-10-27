@@ -38,6 +38,8 @@ library MatchingsEvents {
     // Event emitted when a matching is cancelled
     event MatchingCancelled(uint64 indexed _matchingId);
 
+    event MatchingClosed(uint64 indexed _matchingId);
+
     // Event emitted when a matching has a winner
     event MatchingHasWinner(
         uint64 indexed _matchingId,

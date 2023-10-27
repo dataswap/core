@@ -87,7 +87,7 @@ contract SubmitProofTestCaseWithSuccess is DatasetsTestBase {
             _datasetId,
             DatasetType.DataType.Source,
             sourceLeavesHashes,
-            sourceLeavesIndexs,
+            sourceLeavesIndexs[0],
             sourceLeavesSizes,
             false
         );
@@ -113,7 +113,7 @@ contract SubmitProofTestCaseWithSuccess is DatasetsTestBase {
             _datasetId,
             DatasetType.DataType.Source,
             sourceLeavesHashes,
-            sourceLeavesIndexs,
+            sourceLeavesIndexs[0],
             sourceLeavesSizes,
             true
         );
@@ -180,7 +180,7 @@ contract SubmitProofTestCaseWithInvalidSubmitter is DatasetsTestBase {
             _datasetId,
             DatasetType.DataType.Source,
             sourceLeavesHashes,
-            sourceLeavesIndexs,
+            sourceLeavesIndexs[0],
             sourceLeavesSizes,
             false
         );
@@ -207,7 +207,7 @@ contract SubmitProofTestCaseWithInvalidSubmitter is DatasetsTestBase {
             _datasetId,
             DatasetType.DataType.Source,
             sourceLeavesHashes,
-            sourceLeavesIndexs,
+            sourceLeavesIndexs[0],
             sourceLeavesSizes,
             true
         );
@@ -274,7 +274,7 @@ contract SubmitProofTestCaseWithInvalidIndex is DatasetsTestBase {
             _datasetId,
             DatasetType.DataType.Source,
             sourceLeavesHashes,
-            sourceLeavesIndexs,
+            sourceLeavesIndexs[0],
             sourceLeavesSizes,
             false
         );
@@ -301,7 +301,7 @@ contract SubmitProofTestCaseWithInvalidIndex is DatasetsTestBase {
             _datasetId,
             DatasetType.DataType.Source,
             sourceLeavesHashes,
-            sourceLeavesIndexs,
+            sourceLeavesIndexs[0],
             sourceLeavesSizes,
             true
         );
@@ -367,7 +367,7 @@ contract SubmitProofTestCaseWithInvalidProportion is DatasetsTestBase {
             _datasetId,
             DatasetType.DataType.Source,
             sourceLeavesHashes,
-            sourceLeavesIndexs,
+            sourceLeavesIndexs[0],
             sourceLeavesSizes,
             true
         );
@@ -389,7 +389,7 @@ contract SubmitProofTestCaseWithInvalidProportion is DatasetsTestBase {
             _datasetId,
             DatasetType.DataType.MappingFiles,
             sourceLeavesHashes,
-            sourceLeavesIndexs,
+            sourceLeavesIndexs[0],
             sourceLeavesSizes,
             true
         );

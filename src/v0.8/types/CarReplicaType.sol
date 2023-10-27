@@ -50,6 +50,7 @@ library CarReplicaType {
 
     /// @notice Struct representing a car and its associated replicas.
     struct Car {
+        uint64 id; // The id associated with the car.
         uint64 datasetId; // Index of approved dataset
         uint64 size; //car size
         mapping(uint64 => uint16) replicaIndex; // Mapping from matchingId => Replica index

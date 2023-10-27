@@ -23,13 +23,14 @@ import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
 /// @title IMatchings
 interface IMatchings {
-    /// @notice  Function for bidding on a matching
-    function bidding(uint64 _matchingId, uint256 _amount) external;
+    /// @notice  Function for init matchings instance.
+    function initMatchings(
+        address _matchingsTarget,
+        address _matchingsBids
+    ) external;
 
     /// @notice Function for create a new matching.
     /// @param _datasetId The dataset id to create matching.
-    /// @param _dataType Identify the data type of "cars", which can be either "Source" or "MappingFiles".
-    /// @param _associatedMappingFilesMatchingID The matching ID that associated with mapping files of dataset of _datasetId
     /// @param _bidSelectionRule The rules for determining the winning bid.
     /// @param _biddingDelayBlockCount The number of blocks to delay bidding.
     /// @param _biddingPeriodBlockCount The number of blocks for bidding period.
@@ -40,8 +41,6 @@ interface IMatchings {
     /// @return The matchingId.
     function createMatching(
         uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _associatedMappingFilesMatchingID,
         MatchingType.BidSelectionRule _bidSelectionRule,
         uint64 _biddingDelayBlockCount,
         uint64 _biddingPeriodBlockCount,
@@ -51,60 +50,39 @@ interface IMatchings {
         string memory _additionalInfo
     ) external returns (uint64);
 
-    /// @notice  Function for publishing a matching
-    /// @param _matchingId The matching id to publish cars.
-    /// @param _datasetId The dataset id of matching.
-    /// @param _cars The cars to publish.
-    /// @param complete If the publish is complete.
-    function publishMatching(
-        uint64 _matchingId,
-        uint64 _datasetId,
-        bytes32[] memory _cars,
-        bool complete
-    ) external;
-
-    /// @notice  Function for pausing a matching
+    /// @notice Function for pausing a matching
+    /// @param _matchingId The matching id.
     function pauseMatching(uint64 _matchingId) external;
 
-    /// @notice  Function for resuming a paused matching
+    /// @notice Function for resuming a paused matching
+    /// @param _matchingId The matching id.
     function resumeMatching(uint64 _matchingId) external;
 
-    /// @notice  Function for canceling a matching
-    function cancelMatching(uint64 _matchingId) external;
+    /// @notice Function for report publishing a matching
+    /// @param _matchingId The matching id to publish cars.
+    function reportPublishMatching(uint64 _matchingId) external;
 
-    /// @notice  Function for closing a matching and choosing a winner
-    function closeMatching(uint64 _matchingId) external returns (bool);
+    /// @notice Function for report canceling a matching
+    /// @param _matchingId The matching id.
+    function reportCancelMatching(uint64 _matchingId) external;
 
-    /// @notice  Function for getting bids in a matching
-    function getMatchingBids(
-        uint64 _matchingId
-    ) external view returns (address[] memory, uint256[] memory);
+    /// @notice Function for report closing a matching
+    /// @param _matchingId The matching id.
+    function reportCloseMatching(uint64 _matchingId) external;
 
-    /// @notice  Function for getting bid amount of a bidder in a matching
-    function getMatchingBidAmount(
+    /// @notice Function for report complete with a winner
+    /// @param _matchingId The matching id.
+    /// @param _winner The winner of bids of matching.
+    function reportMatchingHasWinner(
         uint64 _matchingId,
-        address _bidder
-    ) external view returns (uint256);
+        address _winner
+    ) external;
 
-    /// @notice  Function for getting the count of bids in a matching
-    function getMatchingBidsCount(
-        uint64 _matchingId
-    ) external view returns (uint64);
+    /// @notice Function for report complete a matching without winner
+    /// @param _matchingId The matching id.
+    function reportMatchingNoWinner(uint64 _matchingId) external;
 
-    /// @notice  Function for getting the count of bids in a matching
-    function getMatchingCars(
-        uint64 _matchingId
-    ) external view returns (bytes32[] memory);
-
-    /// @notice Get the index of matching's replica.
-    function getMatchingReplicaIndex(
-        uint64 _matchingId
-    ) external view returns (uint16);
-
-    /// @notice get matchings size
-    function getMatchingSize(uint64 _matchingId) external view returns (uint64);
-
-    /// @notice get matchings initiator
+    /// @notice Function for getting matchings initiator
     function getMatchingInitiator(
         uint64 _matchingId
     ) external view returns (address);
@@ -114,68 +92,30 @@ interface IMatchings {
         uint64 _matchingId
     ) external view returns (MatchingType.State);
 
-    /// @notice Get the target information of a matching.
-    /// @param _matchingId The ID of the matching.
-    /// @return datasetID The ID of the associated dataset.
-    /// @return cars An array of CIDs representing the cars in the matching.
-    /// @return size The size of the matching.
-    /// @return dataType The data type of the matching.
-    /// @return associatedMappingFilesMatchingID The ID of the associated mapping files matching.
-    function getMatchingTarget(
+    /// @notice  Function for getting the bid selection rule of a matching
+    function getBidSelectionRule(
         uint64 _matchingId
-    )
-        external
-        view
-        returns (
-            uint64 datasetID,
-            bytes32[] memory cars,
-            uint64 size,
-            DatasetType.DataType dataType,
-            uint64 associatedMappingFilesMatchingID
-        );
+    ) external view returns (MatchingType.BidSelectionRule);
 
-    /// @notice  Function for getting winner of a matching
-    function getMatchingWinner(
+    /// @notice  Function for getting the bid threshold of a matching
+    function getBiddingThreshold(
         uint64 _matchingId
-    ) external view returns (address);
+    ) external view returns (uint256);
 
-    /// @notice  Function for getting winners of a matchings
-    function getMatchingWinners(
-        uint64[] memory _matchingIds
-    ) external view returns (address[] memory);
+    /// @notice  Function for getting the start height of a matching
+    function getBiddingStartHeight(
+        uint64 _matchingId
+    ) external view returns (uint64);
 
-    /// @notice  Function for checking if a bidder has a bid in a matching
-    function hasMatchingBid(
-        uint64 _matchingId,
-        address _bidder
-    ) external view returns (bool);
+    /// @notice  Function for getting the after pause height of a matching
+    function getBiddingAfterPauseHeight(
+        uint64 _matchingId
+    ) external view returns (uint64);
 
-    /// @notice Check if a matching with the given matching ID contains a specific CID.
-    /// @param _matchingId The ID of the matching to check.
-    /// @param _cid The CID (Content Identifier) to check for.
-    /// @return True if the matching contains the specified CID, otherwise false.
-    function isMatchingContainsCar(
-        uint64 _matchingId,
-        bytes32 _cid
-    ) external view returns (bool);
-
-    /// @notice Check if a matching with the given matching ID contains multiple CIDs.
-    /// @param _matchingId The ID of the matching to check.
-    /// @param _cids An array of CIDs (Content Identifiers) to check for.
-    /// @return True if the matching contains all the specified CIDs, otherwise false.
-    function isMatchingContainsCars(
-        uint64 _matchingId,
-        bytes32[] memory _cids
-    ) external view returns (bool);
-
-    /// @notice check is matching targe valid
-    function isMatchingTargetValid(
-        uint64 _datasetId,
-        bytes32[] memory _cars,
-        uint64 _size,
-        DatasetType.DataType _dataType,
-        uint64 _associatedMappingFilesMatchingID
-    ) external view returns (bool);
+    /// @notice  Function for getting the end height of a matching
+    function getBiddingEndHeight(
+        uint64 _matchingId
+    ) external view returns (uint64);
 
     // Default getter functions for public variables
     function matchingsCount() external view returns (uint64);

@@ -62,18 +62,9 @@ contract DatasetsChallenge is
     function initialize(
         address _governanceAddress,
         address _roles,
-        address _filplus,
-        address _filecoin,
-        address _carstore,
         address _datasetProof,
         address _merkleUtils
     ) public initializer {
-        CarstoreModifiers.carstoreModifiersInitialize(
-            _roles,
-            _filplus,
-            _filecoin,
-            _carstore
-        );
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
         datasetProof = IDatasetsProof(_datasetProof);
@@ -88,7 +79,7 @@ contract DatasetsChallenge is
     )
         internal
         override
-        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+        onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
     {}
 
     /// @notice Returns the implementation contract
@@ -105,7 +96,7 @@ contract DatasetsChallenge is
         bytes32[] memory _leaves,
         bytes32[][] memory _siblings,
         uint32[] memory _paths
-    ) external onlyRole(RolesType.DATASET_AUDITOR) {
+    ) external onlyRole(roles, RolesType.DATASET_AUDITOR) {
         DatasetType.DatasetChallengeProof
             storage datasetChallengeProof = datasetChallengeProofs[_datasetId];
         bytes32[] memory roots = _getChallengeRoots(

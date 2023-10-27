@@ -84,7 +84,6 @@ library CarLIB {
         require(_hasReplica(self, _matchingId), "Replica is not exists");
         uint16 index = self.replicaIndex[_matchingId];
         CarReplicaType.Replica storage replica = self.replicas[index];
-        require(replica._isMatchingValid(_matchingId), "Invalid matching id");
 
         replica._emitEvent(_event);
     }
@@ -123,7 +122,6 @@ library CarLIB {
         require(_hasReplica(self, _matchingId), "Replica is not exists");
         uint16 index = self.replicaIndex[_matchingId];
         CarReplicaType.Replica storage replica = self.replicas[index];
-        require(replica._isMatchingValid(_matchingId), "Invalid matching id");
 
         replica._setFilecoinClaimId(_claimId);
 
@@ -160,7 +158,7 @@ library CarLIB {
     /// @return The matching ids of the car's replica.
     function _getMatchingIds(
         CarReplicaType.Car storage self
-    ) public view returns (uint64[] memory) {
+    ) internal view returns (uint64[] memory) {
         uint64[] memory matchings = new uint64[](self.replicas.length);
         for (uint64 i = 0; i < self.replicas.length; i++) {
             if (self.replicas[i]._isStateValid()) {

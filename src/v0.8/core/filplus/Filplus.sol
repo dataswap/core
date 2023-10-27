@@ -19,6 +19,7 @@
 pragma solidity ^0.8.21;
 
 ///interface
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 ///shared
 import {FilplusEvents} from "src/v0.8/shared/events/FilplusEvents.sol";
@@ -34,7 +35,7 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     using ArrayUint16LIB for uint16[];
     using ArrayUint32LIB for uint32[];
-
+    IRoles private roles;
     // solhint-disable-next-line
     address public GOVERNANCE_ADDRESS; //The address of the governance contract.
 
@@ -72,6 +73,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         address payable _governanceAddress,
         address _roles
     ) public initializer {
+        roles = IRoles(_roles);
         GOVERNANCE_ADDRESS = _governanceAddress;
 
         //defalut dataset region rules
@@ -90,7 +92,6 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         datacapRulesMaxAllocatedSizePerTime = 50 * 1024 * 1024 * 1024 * 1024; //50TB
         datacapRulesMaxRemainingPercentageForNext = 20; //20%
 
-        RolesModifiers.rolesModifiersInitialize(_roles);
         __UUPSUpgradeable_init();
     }
 
@@ -101,7 +102,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     )
         internal
         override
-        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+        onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
     {}
 
     /// @notice Returns the implementation contract

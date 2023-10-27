@@ -23,6 +23,7 @@ import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
 import {IStoragesHelpers} from "test/v0.8/interfaces/helpers/module/IStoragesHelpers.sol";
+import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 
 /// @title StoragesTestBase
 /// @dev Base contract for storages test suites. Storages test suites consist of three steps: before, action, and after.
@@ -30,24 +31,27 @@ import {IStoragesHelpers} from "test/v0.8/interfaces/helpers/module/IStoragesHel
 /// The `after_` function can be used for cleanup or post-action code.
 abstract contract StoragesTestBase is TestCaseBase, Test {
     Generator internal generator;
-
+    ICarstore carstore;
     IStorages internal storages;
     IStoragesHelpers internal storagesHelpers;
     IStoragesAssertion internal storagesAssertion;
     IFilecoin internal filecoin;
 
     /// @dev Constructor to initialize the StoragesTestBase with the required contracts.
+    /// @param _carstore The address of the ICarstore contract.
     /// @param _storages The address of the IStorages contract.
     /// @param _generator The random generator contract.
     /// @param _storagesHelpers The address of the IStoragesHelpers contract.
     /// @param _storagesAssertion The address of the IStoragesAssertion contract.
     constructor(
+        ICarstore _carstore,
         IStorages _storages,
         Generator _generator,
         IStoragesHelpers _storagesHelpers,
         IStoragesAssertion _storagesAssertion,
         IFilecoin _filecoin
     ) {
+        carstore = _carstore;
         storages = _storages;
         generator = _generator;
         storagesHelpers = _storagesHelpers;

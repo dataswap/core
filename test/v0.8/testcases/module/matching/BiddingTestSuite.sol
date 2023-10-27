@@ -16,9 +16,12 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {MatchingsTestBase} from "test/v0.8/testcases/module/matching/abstract/MatchingsTestBase.sol";
 import {ControlTestSuiteBase} from "test/v0.8/testcases/module/matching/abstract/ControlTestSuiteBase.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
+import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
@@ -30,10 +33,18 @@ import {MatchingsEvents} from "src/v0.8/shared/events/MatchingsEvents.sol";
 contract BiddingTestCaseWithSuccess is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        ControlTestSuiteBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before(
@@ -74,10 +85,18 @@ contract BiddingTestCaseWithSuccess is ControlTestSuiteBase {
 contract BiddingTestCaseWithInvlalidRole is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        ControlTestSuiteBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before(
@@ -112,10 +131,18 @@ contract BiddingTestCaseWithInvlalidRole is ControlTestSuiteBase {
 contract BiddingTestCaseWithInvlalidAmount is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        ControlTestSuiteBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before(
@@ -158,10 +185,18 @@ contract BiddingTestCaseWithInvlalidAmount is ControlTestSuiteBase {
 contract BiddingTestCaseWithInvlalidDuplicateBid is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        ControlTestSuiteBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before(
@@ -190,7 +225,7 @@ contract BiddingTestCaseWithInvlalidDuplicateBid is ControlTestSuiteBase {
         matchingsAssertion.biddingAssertion(address(199), _matchingId, _amount);
         vm.prank(address(199));
         vm.expectRevert(bytes("Invalid amount"));
-        matchings.bidding(_matchingId, _amount);
+        matchingsBids.bidding(_matchingId, _amount);
     }
 }
 
@@ -198,10 +233,18 @@ contract BiddingTestCaseWithInvlalidDuplicateBid is ControlTestSuiteBase {
 contract BiddingTestCaseWithInvlalidState is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        ControlTestSuiteBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before(
@@ -224,8 +267,6 @@ contract BiddingTestCaseWithInvlalidState is ControlTestSuiteBase {
         matchingsAssertion.createMatchingAssertion(
             address(99),
             datasetId,
-            DatasetType.DataType.MappingFiles,
-            0,
             _bidRule,
             100,
             100,
@@ -234,7 +275,19 @@ contract BiddingTestCaseWithInvlalidState is ControlTestSuiteBase {
             0,
             "TEST"
         );
-        return matchings.matchingsCount();
+
+        uint64 matchingId = matchings.matchingsCount();
+
+        matchingsAssertion.createTargetAssertion(
+            address(99),
+            matchingId,
+            datasetId,
+            DatasetType.DataType.MappingFiles,
+            0,
+            0
+        );
+
+        return matchingId;
     }
 
     function action(
@@ -252,7 +305,14 @@ contract BiddingTestCaseWithInvlalidState is ControlTestSuiteBase {
         );
         vm.stopPrank();
         vm.roll(101);
-        vm.expectRevert(bytes("Invalid state"));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                Errors.InvalidMatchingState.selector,
+                _matchingId,
+                MatchingType.State.InProgress,
+                MatchingType.State.None
+            )
+        );
         matchingsAssertion.biddingAssertion(address(199), _matchingId, _amount);
     }
 }
@@ -261,10 +321,18 @@ contract BiddingTestCaseWithInvlalidState is ControlTestSuiteBase {
 contract BiddingTestCaseWithNotStart is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        ControlTestSuiteBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before(
@@ -299,10 +367,18 @@ contract BiddingTestCaseWithNotStart is ControlTestSuiteBase {
 contract BiddingTestCaseWithBidIsEnd is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        ControlTestSuiteBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before(
@@ -337,10 +413,18 @@ contract BiddingTestCaseWithBidIsEnd is ControlTestSuiteBase {
 contract BiddingTestCaseWithInvalidStorageProvider is ControlTestSuiteBase {
     constructor(
         IMatchings _matchings,
+        IMatchingsTarget _matchingsTarget,
+        IMatchingsBids _matchingsBids,
         IMatchingsHelpers _matchingsHelpers,
         IMatchingsAssertion _matchingsAssertion
     )
-        ControlTestSuiteBase(_matchings, _matchingsHelpers, _matchingsAssertion) // solhint-disable-next-line
+        ControlTestSuiteBase(
+            _matchings,
+            _matchingsTarget,
+            _matchingsBids,
+            _matchingsHelpers,
+            _matchingsAssertion
+        ) // solhint-disable-next-line
     {}
 
     function before(

@@ -26,6 +26,8 @@ contract PublishMatchingTest is Test, MatchingTestSetup {
         setup();
         PublishMatchingTestCaseWithSuccess testCase = new PublishMatchingTestCaseWithSuccess(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );
@@ -37,6 +39,8 @@ contract PublishMatchingTest is Test, MatchingTestSetup {
         setup();
         PublishMatchingTestCaseWithInvalidRole testCase = new PublishMatchingTestCaseWithInvalidRole(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );
@@ -48,6 +52,8 @@ contract PublishMatchingTest is Test, MatchingTestSetup {
         setup();
         PublishMatchingTestCaseWithInvalidSender testCase = new PublishMatchingTestCaseWithInvalidSender(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );
@@ -59,6 +65,8 @@ contract PublishMatchingTest is Test, MatchingTestSetup {
         setup();
         PublishMatchingTestCaseWithInvalidDataset testCase = new PublishMatchingTestCaseWithInvalidDataset(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );
@@ -70,6 +78,8 @@ contract PublishMatchingTest is Test, MatchingTestSetup {
         setup();
         PublishMatchingTestCaseWithInvalidDataPreparer testCase = new PublishMatchingTestCaseWithInvalidDataPreparer(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );
@@ -81,6 +91,8 @@ contract PublishMatchingTest is Test, MatchingTestSetup {
         setup();
         PublishMatchingTestCaseWithInvalidReplica testCase = new PublishMatchingTestCaseWithInvalidReplica(
                 matchings,
+                matchingsTarget,
+                matchingsBids,
                 helpers,
                 assertion
             );

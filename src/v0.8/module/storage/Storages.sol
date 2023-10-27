@@ -20,6 +20,8 @@ import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
+import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 /// shared
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
@@ -51,6 +53,8 @@ contract Storages is
     IFilecoin private filecoin;
     ICarstore private carstore;
     IMatchings public matchings;
+    IMatchingsTarget public matchingsTarget;
+    IMatchingsBids public matchingsBids;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -61,22 +65,18 @@ contract Storages is
         address _filplus,
         address _filecoin,
         address _carstore,
-        address _matchings
+        address _matchings,
+        address _matchingsTarget,
+        address _matchingsBids
     ) public initializer {
-        StoragesModifiers.storagesModifiersInitialize(
-            _roles,
-            _filplus,
-            _filecoin,
-            _carstore,
-            _matchings,
-            address(this)
-        );
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
         filplus = IFilplus(_filplus);
         filecoin = IFilecoin(_filecoin);
         carstore = ICarstore(_carstore);
         matchings = IMatchings(_matchings);
+        matchingsTarget = IMatchingsTarget(_matchingsTarget);
+        matchingsBids = IMatchingsBids(_matchingsBids);
         __UUPSUpgradeable_init();
     }
 
@@ -87,7 +87,7 @@ contract Storages is
     )
         internal
         override
-        onlyRole(RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
+        onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
     {}
 
     /// @notice Returns the implementation contract
@@ -98,22 +98,21 @@ contract Storages is
     /// @dev Submits a Filecoin claim Id for a matchedstore after successful matching.
     /// @param _matchingId The ID of the matching.
     /// @param _provider A provider of storage provider of matching.
-    /// @param _cid The content identifier of the matched data.
+    /// @param _id The content identifier of the matched data.
     /// @param _claimId The ID of the successful Filecoin storage deal.
     function submitStorageClaimId(
         uint64 _matchingId,
         uint64 _provider,
-        bytes32 _cid,
+        uint64 _id,
         uint64 _claimId
     )
         public
-        onlyAddress(matchings.getMatchingWinner(_matchingId))
-        onlyMatchingContainsCar(_matchingId, _cid)
-        onlyUnsetCarReplicaFilecoinClaimId(_cid, _matchingId)
+        onlyAddress(matchingsBids.getMatchingWinner(_matchingId))
+        onlyUnsetCarReplicaFilecoinClaimId(carstore, _id, _matchingId)
     {
         require(
             CarReplicaType.State.Matched ==
-                carstore.getCarReplicaState(_cid, _matchingId),
+                carstore.getCarReplicaState(_id, _matchingId),
             "Invalid Replica State"
         );
 
@@ -123,50 +122,42 @@ contract Storages is
             _provider,
             _claimId
         );
-        bytes memory cid = CidUtils.hashToCID(_cid);
+        bytes32 _hash = carstore.getCarHash(_id);
+        bytes memory cid = CidUtils.hashToCID(_hash);
 
         require(keccak256(dataCid) == keccak256(cid), "cid mismatch");
 
-        storage_.doneCars.push(_cid);
+        storage_.doneCars.push(_id);
 
         /// Note:set claim id in carstore berfore submitClaimid
-        carstore.setCarReplicaFilecoinClaimId(_cid, _matchingId, _claimId);
+        carstore.setCarReplicaFilecoinClaimId(_id, _matchingId, _claimId);
 
-        emit StoragesEvents.StorageClaimIdSubmitted(
-            _matchingId,
-            _cid,
-            _claimId
-        );
+        emit StoragesEvents.StorageClaimIdSubmitted(_matchingId, _id, _claimId);
     }
 
     /// @dev Submits multiple Filecoin claim Ids for a matchedstore after successful matching.
     /// @param _matchingId The ID of the matching.
     /// @param _provider A provider of storage provider of matching.
-    /// @param _cids An array of content identifiers of the matched data.
+    /// @param _ids An array of content identifiers of the matched data.
     /// @param _claimIds An array of IDs of successful Filecoin storage deals.
     function submitStorageClaimIds(
         uint64 _matchingId,
         uint64 _provider,
-        bytes32[] memory _cids,
+        uint64[] memory _ids,
         uint64[] memory _claimIds
     ) external {
-        if (_cids.length != _claimIds.length) {
-            revert Errors.ParamLengthMismatch(_cids.length, _claimIds.length);
+        if (_ids.length != _claimIds.length) {
+            revert Errors.ParamLengthMismatch(_ids.length, _claimIds.length);
         }
-        for (uint64 i = 0; i < _cids.length; i++) {
-            submitStorageClaimId(
-                _matchingId,
-                _provider,
-                _cids[i],
-                _claimIds[i]
-            );
+        for (uint64 i = 0; i < _ids.length; i++) {
+            submitStorageClaimId(_matchingId, _provider, _ids[i], _claimIds[i]);
         }
     }
 
     /// @dev Gets the list of done cars in the matchedstore.
     function getStoredCars(
         uint64 _matchingId
-    ) public view returns (bytes32[] memory) {
+    ) public view returns (uint64[] memory) {
         StorageType.Storage storage storage_ = storages[_matchingId];
         return storage_.doneCars;
     }
@@ -194,12 +185,12 @@ contract Storages is
     /// @dev Gets the car size in the matchedstore.
     function getStoredCarSize(
         uint64 _matchingId,
-        bytes32 _cid
+        uint64 _id
     ) public view returns (uint64) {
         StorageType.Storage storage storage_ = storages[_matchingId];
         for (uint64 i = 0; i < storage_.doneCars.length; i++) {
-            if (storage_.doneCars[i] == _cid) {
-                return carstore.getCarSize(_cid);
+            if (storage_.doneCars[i] == _id) {
+                return carstore.getCarSize(_id);
             }
         }
         return 0;
@@ -210,6 +201,6 @@ contract Storages is
         StorageType.Storage storage storage_ = storages[_matchingId];
         return
             storage_.doneCars.length ==
-            matchings.getMatchingCars(_matchingId).length;
+            matchingsTarget.getMatchingCars(_matchingId).length;
     }
 }

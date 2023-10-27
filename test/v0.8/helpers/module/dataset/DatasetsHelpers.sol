@@ -206,7 +206,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             _datasetId,
             _dataType,
             leavesHashes,
-            leavesIndexs,
+            leavesIndexs[0],
             leavesSizes,
             _complete
         );
