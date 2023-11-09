@@ -24,7 +24,7 @@ import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 /// @title IMatchings
 interface IMatchings {
     /// @notice  Function for init matchings instance.
-    function initMatchings(
+    function initDependencies(
         address _matchingsTarget,
         address _matchingsBids
     ) external;
@@ -114,6 +114,16 @@ interface IMatchings {
 
     /// @notice  Function for getting the end height of a matching
     function getBiddingEndHeight(
+        uint64 _matchingId
+    ) external view returns (uint64);
+
+    /// @notice  Function for getting the storage completion period blocks in a matching
+    function getMatchingStorageCompletionHeight(
+        uint64 _matchingId
+    ) external view returns (uint64);
+
+    /// @notice  Function for getting the matching creation block number
+    function getMatchingCreatedHeight(
         uint64 _matchingId
     ) external view returns (uint64);
 

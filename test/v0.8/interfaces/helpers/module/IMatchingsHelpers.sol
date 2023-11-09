@@ -20,6 +20,7 @@ pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 
 /// @title IMatchingsHelpers
@@ -55,4 +56,6 @@ interface IMatchingsHelpers {
     function datasets() external returns (IDatasets);
 
     function datasetsProof() external returns (IDatasetsProof);
+
+    function matchings() external returns (IMatchings);
 }

@@ -29,18 +29,19 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 
 // type
 import {EscrowType} from "src/v0.8/types/EscrowType.sol";
-import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
 // interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
-import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
+import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
 import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
-import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
 
 // shared
+import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {EscrowEvents} from "src/v0.8/shared/events/EscrowEvents.sol";
 import {EscrowLIB} from "src/v0.8/core/finance/library/EscrowLIB.sol";
+import {ConditionalEscrowLIB} from "src/v0.8/core/finance/library/ConditionalEscrowLIB.sol";
 
 /// @title Escrow
 /// @dev Base escrow contract, holds funds designated for a payee until they withdraw them.
@@ -51,12 +52,12 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         private escrowAccount; // mapping(type, mapping(payee, mapping(id, Escrow)))
 
     IRoles private roles;
-    IDatasets private datasets;
+    IStorages private storages;
+    IDatacaps private datacaps;
     IDatasetsProof private datasetsProof;
-    IDatasetsRequirement private datasetsRequirement;
-    uint256 public constant PER_DAY_BLOCKNUMBER = 2880;
+
     address payable public constant BURN_ADDRESS =
-        payable(0xff00000000000000000000000000000000000063); // Filecoin burn address
+        payable(0xff00000000000000000000000000000000000063); // Filecoin burn address. TODO: BURN_ADDRESS import from governance
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -68,14 +69,14 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
 
     /// @notice Set dependencies function to initialize the depend contract.
     /// @dev After the contract is deployed, this function needs to be called manually!
-    function setDependencies(
-        address _datasets,
+    function initDependencies(
         address _datasetsProof,
-        address _datasetsRequirement
+        address _storages,
+        address _datacaps
     ) public onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
-        datasets = IDatasets(_datasets);
+        storages = IStorages(_storages);
+        datacaps = IDatacaps(_datacaps);
         datasetsProof = IDatasetsProof(_datasetsProof);
-        datasetsRequirement = IDatasetsRequirement(_datasetsRequirement);
     }
 
     /// @notice UUPS Upgradeable function to update the roles implementation
@@ -115,8 +116,68 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         emit EscrowEvents.Collateral(_type, _owner, _id, _amount);
     }
 
+    /// @dev Records the sent amount as credit for future payment withdraw.
+    /// Note Called by the payer to store the sent amount as credit to be pulled.
+    /// Funds sent in this way are stored in an intermediate {Escrow} contract, so
+    /// there is no danger of them being spent before withdrawal.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @param _amount The collateral funds.
+    /// @notice Emits a {Payment} event upon successful credit recording.
+    function payment(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id,
+        uint256 _amount
+    ) public payable {
+        uint256 total = msg.value;
+        escrowAccount[_type][_owner][_id].deposit(total);
+        escrowAccount[_type][_owner][_id].payment(_amount);
+
+        emit EscrowEvents.Payment(_type, _owner, _id, _amount);
+    }
+
+    /// @dev Records the sent amount as credit for future payment withdraw.
+    /// Note Called by the payer to store the sent amount as credit to be pulled.
+    /// Funds sent in this way are stored in an intermediate {Escrow} contract, so
+    /// there is no danger of them being spent before withdrawal.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @param _beneficiary The beneficiary address for the payment credited funds.
+    /// @param _amount The collateral funds.
+    /// @notice Emits a {PaymentSingleBeneficiary} event upon successful credit recording.
+    function paymentSingleBeneficiary(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id,
+        address _beneficiary,
+        uint256 _amount
+    ) public payable {
+        uint256 total = msg.value;
+        if (total < _amount) {
+            revert Errors.ExceedValidPaymentAmount(total, _amount);
+        }
+
+        escrowAccount[_type][_owner][_id].deposit(total);
+        escrowAccount[_type][_owner][_id].payment(_amount);
+        escrowAccount[_type][_owner][_id].paymentAddbeneficiary(
+            _beneficiary,
+            _amount
+        );
+
+        emit EscrowEvents.PaymentSingleBeneficiary(
+            _type,
+            _owner,
+            _id,
+            _beneficiary,
+            _amount
+        );
+    }
+
     /// @notice Withdraw funds authorized for an address.
-    /// @dev This function allows the owner to initiate a withdrawal of authorized funds.
+    /// @dev This function allows anyone to initiate a withdrawal of authorized funds.
     /// @param _type The Escrow type for the credited funds.
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
@@ -132,64 +193,8 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         emit EscrowEvents.Withdrawn(_type, _owner, _id, amount);
     }
 
-    /// @dev Records the sent amount as credit for future payment withdraw.
-    /// Note Called by the payer to store the sent amount as credit to be pulled.
-    /// Funds sent in this way are stored in an intermediate {Escrow} contract, so
-    /// there is no danger of them being spent before withdrawal.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    /// @param _amount The collateral funds.
-    /// @notice Emits a {PaymentCollateral} event upon successful credit recording.
-    function paymentCollateral(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id,
-        uint256 _amount
-    ) public payable {
-        uint256 total = msg.value;
-        escrowAccount[_type][_owner][_id].deposit(total);
-        escrowAccount[_type][_owner][_id].paymentCollateral(_amount);
-
-        emit EscrowEvents.PaymentCollateral(_type, _owner, _id, _amount);
-    }
-
-    /// @dev Records the sent amount as credit for future payment withdraw.
-    /// Note Called by the payer to store the sent amount as credit to be pulled.
-    /// Funds sent in this way are stored in an intermediate {Escrow} contract, so
-    /// there is no danger of them being spent before withdrawal.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    /// @param _beneficiary The beneficiary address for the payment credited funds.
-    /// @param _amount The collateral funds.
-    /// @notice Emits a {PaymentSingleBeneficiaryCollateral} event upon successful credit recording.
-    function paymentSingleBeneficiaryCollateral(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id,
-        address _beneficiary,
-        uint256 _amount
-    ) public payable {
-        uint256 total = msg.value;
-        require(total >= _amount, "Exceeds the amount of payment");
-        escrowAccount[_type][_owner][_id].deposit(total);
-        escrowAccount[_type][_owner][_id].paymentCollateral(_amount);
-        escrowAccount[_type][_owner][_id].paymentAddbeneficiary(
-            _beneficiary,
-            _amount
-        );
-
-        emit EscrowEvents.PaymentSingleBeneficiaryCollateral(
-            _type,
-            _owner,
-            _id,
-            _beneficiary,
-            _amount
-        );
-    }
-
     /// @notice Payment withdraw funds authorized for an address.
+    /// @dev This function allows anyone to initiate a withdrawal of authorized funds.
     /// @param _type The Escrow type for the credited funds.
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
@@ -215,16 +220,111 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         );
     }
 
-    /// @notice Post an event for collateral type.
+    /// @notice Payment transfer funds from locked to unlocked.Only total data prepare fee allowed transfer.
     /// @param _type The Escrow type for the credited funds.
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
-    function emitCollateralEvent(
+    /// @param _amount The payment transfer credited funds.
+    /// @notice Emits a {PaymentTransfer} event upon successful credit recording.
+    function paymentTransfer(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id,
+        uint256 _amount
+    ) external onlyAddress(_owner) {
+        if (_type != EscrowType.Type.TotalDataPrepareFeeByClient) {
+            revert Errors.OnlySpecifyTypeAllowedTransfer();
+        }
+
+        escrowAccount[_type][_owner][_id].paymentTransfer(_amount);
+
+        emit EscrowEvents.PaymentTransfer(_type, _owner, _id, _amount);
+    }
+
+    /// @notice Refund funds authorized for an address.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @notice Emits a {PaymentRefund} event upon successful credit recording.
+    function paymentRefund(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id
+    ) external {
+        if (
+            ConditionalEscrowLIB.isPaymentAllowRefund(
+                _type,
+                _owner,
+                _id,
+                storages
+            ) != true
+        ) {
+            revert Errors.NotRefundableAmount();
+        }
+
+        address[] storage beneficiaries = escrowAccount[_type][_owner][_id]
+            .beneficiariesList;
+        uint256 amount = 0;
+        // Refund beneficiaries lock funds.
+        for (uint i = 0; i < beneficiaries.length; i++) {
+            amount = escrowAccount[_type][_owner][_id].paymentRefund(
+                beneficiaries[i]
+            );
+
+            emit EscrowEvents.PaymentRefund(
+                _type,
+                _owner,
+                _id,
+                beneficiaries[i],
+                amount
+            );
+        }
+
+        // Refund without beneficiary lock funds.
+        amount = escrowAccount[_type][_owner][_id]
+            .paymentRefundWithoutBeneficiary();
+        if (amount != 0) {
+            emit EscrowEvents.PaymentRefund(
+                _type,
+                _owner,
+                _id,
+                address(0),
+                amount
+            );
+        }
+    }
+
+    /// @notice Redeem funds authorized for an address.
+    /// Redeem the collateral funds after the collateral expires.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @notice Emits a {UpdateCollateral} event upon successful credit recording.
+    function collateralRedeem(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id
+    ) external {
+        // Update collateral funds
+        emitCollateralUpdate(
+            _type,
+            _owner,
+            _id,
+            EscrowType.CollateralEvent.SyncCollateral
+        );
+    }
+
+    /// @notice Post an event for collateral type. Called by internal contract. TODO: Add Permission control
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @param _event The collateral event type.
+    function emitCollateralUpdate(
         EscrowType.Type _type,
         address _owner,
         uint64 _id,
         EscrowType.CollateralEvent _event
-    ) external {
+    ) public {
         if (_event == EscrowType.CollateralEvent.SyncBurn) {
             uint256 amount = _syncBurn(_type, _owner, _id);
             _updateBurn(_type, payable(_owner), _id, amount);
@@ -234,35 +334,23 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         }
     }
 
-    /// @notice Post an event for payment type.
+    /// @notice Post an event for payment type. Called by internal contract. TODO: Add Permission control
     /// @param _type The Escrow type for the credited funds.
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
     /// @param _beneficiary The beneficiary address for the payment credited funds.
-    function emitPaymentEvent(
+    /// @param _event The payment event type.
+    function emitPaymentUpdate(
         EscrowType.Type _type,
         address _owner,
         uint64 _id,
         address _beneficiary,
         EscrowType.PaymentEvent _event
     ) external {
-        if (_event == EscrowType.PaymentEvent.SyncPaymentRefund) {
-            uint256 amount = _syncPaymentRefund(
-                _type,
-                _owner,
-                _id,
-                _beneficiary
-            );
-            _updatePaymentRefund(_type, _owner, _id, _beneficiary, amount);
-        } else if (_event == EscrowType.PaymentEvent.SyncPaymentCollateral) {
-            uint256 amount = _syncPaymentCollateral(
-                _type,
-                _owner,
-                _id,
-                _beneficiary
-            );
-            _updatePaymentCollateral(_type, _owner, _id, _beneficiary, amount);
-        } else if (_event == EscrowType.PaymentEvent.SyncPaymentBeneficiaries) {
+        if (_event == EscrowType.PaymentEvent.SyncPaymentLock) {
+            uint256 amount = _syncPaymentLock(_type, _owner, _id, _beneficiary);
+            _updatePaymentLock(_type, _owner, _id, _beneficiary, amount);
+        } else if (_event == EscrowType.PaymentEvent.SyncPaymentBeneficiary) {
             uint256 amount = _syncPaymentBeneficiary(
                 _type,
                 _owner,
@@ -270,7 +358,161 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
                 _beneficiary
             );
             _updatePaymentBeneficiary(_type, _owner, _id, _beneficiary, amount);
+        } else if (_event == EscrowType.PaymentEvent.AddPaymentSubAccount) {
+            uint256 amount = _getPaymentSubAccountAmount(
+                _type,
+                _owner,
+                _id,
+                _beneficiary
+            );
+            _addPaymentSubAccount(_type, _owner, _id, _beneficiary, amount);
         }
+    }
+
+    /// @dev Determines the amount available for collateral based on escrow type, owner, and ID.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    function _syncCollateral(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id
+    ) internal view returns (uint256) {
+        uint256 collateralAmount = escrowAccount[_type][_owner][_id]
+            .owner
+            .collateral;
+
+        if (collateralAmount != 0) {
+            if (_type == EscrowType.Type.DatacapCollateral) {
+                collateralAmount = ConditionalEscrowLIB.datacapCollateral(
+                    _id,
+                    storages,
+                    datasetsProof,
+                    getOwnerCreatedBlockNumber(_type, _owner, _id),
+                    getOwnerTotal(_type, _owner, _id)
+                );
+            } else if (_type == EscrowType.Type.DatacapChunkCollateral) {
+                collateralAmount =
+                    ConditionalEscrowLIB.datacapChunkCollateral(_id, datacaps) -
+                    escrowAccount[_type][_owner][_id].owner.burned;
+            }
+        }
+
+        return collateralAmount;
+    }
+
+    /// @dev Handles the logic for burning funds based on escrow type, owner, and ID.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    function _syncBurn(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id
+    ) internal view returns (uint256) {
+        // Burns only once
+        if (escrowAccount[_type][_owner][_id].owner.burned == 0) {
+            if (_type == EscrowType.Type.DatacapChunkCollateral) {
+                return ConditionalEscrowLIB.datacapChunkBurn(_id, datacaps);
+            }
+        }
+
+        return 0;
+    }
+
+    /// @dev Handles the logic for payments based on escrow type, owner, ID, and beneficiary.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @param _beneficiary The beneficiary address for the payment credited funds.
+    function _syncPaymentLock(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id,
+        address _beneficiary
+    ) internal view returns (uint256) {
+        uint256 lockAmount = escrowAccount[_type][_owner][_id]
+            .beneficiaries[_beneficiary]
+            .lock;
+
+        if (lockAmount != 0) {
+            if (_type == EscrowType.Type.DataPrepareFeeByProvider) {
+                lockAmount = ConditionalEscrowLIB.providerLockPayment(
+                    _id,
+                    storages
+                );
+            } else if (_type == EscrowType.Type.DataPrepareFeeByClient) {
+                lockAmount = ConditionalEscrowLIB.clientLockPayment(
+                    _id,
+                    storages
+                );
+            } else if (_type == EscrowType.Type.DatasetAuditFee) {
+                lockAmount = 0; // data audit fees needn't lock payment
+            }
+        }
+
+        return lockAmount;
+    }
+
+    /// @dev Handles the logic for synchronize payment beneficiary based on escrow type, owner, ID.
+    function _syncPaymentBeneficiary(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id,
+        address _beneficiary
+    ) internal view returns (uint256) {
+        if (_type == EscrowType.Type.DataPrepareFeeByProvider) {
+            return
+                ConditionalEscrowLIB.paymentBeneficiaryAmountByProvider(
+                    _owner,
+                    _id,
+                    _beneficiary,
+                    escrowAccount[_type][_owner][_id].owner.lock,
+                    storages
+                );
+        } else if (_type == EscrowType.Type.DatasetAuditFee) {
+            return
+                ConditionalEscrowLIB.paymentBeneficiaryAmountDataAuditFee(
+                    _id,
+                    datasetsProof
+                );
+        }
+
+        return 0;
+    }
+
+    /// @dev Handles the logic for synchronize sub payment account based on escrow type, owner, ID.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @param _beneficiary The beneficiary address for the payment credited funds.
+    function _getPaymentSubAccountAmount(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id, // matchingId
+        address _beneficiary
+    ) internal view returns (uint256) {
+        if (_type == EscrowType.Type.TotalDataPrepareFeeByClient) {
+            if (
+                _beneficiary != storages.matchings().getMatchingInitiator(_id)
+            ) {
+                revert Errors.BeneficiaryIsInvalid(_beneficiary);
+            }
+
+            uint64 datasetId = storages.matchingsTarget().getMatchingDatasetId(
+                _id
+            );
+            return
+                ConditionalEscrowLIB.clientSubPaymentAccount(
+                    _id,
+                    datasetId,
+                    getOwnerLock(_type, _owner, datasetId),
+                    datasetsProof,
+                    storages
+                );
+        }
+
+        return 0;
     }
 
     /// @notice Update collateral funds authorized for an address.
@@ -279,7 +521,7 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
     /// @param _amount The collateral funds.
-    /// @notice Emits a {UpdateCollateral} event upon successful withdrawal.
+    /// @notice Emits a {UpdateCollateral} event upon success.
     function _updateCollateral(
         EscrowType.Type _type,
         address _owner,
@@ -297,7 +539,7 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
     /// @param _amount The burn funds.
-    /// @notice Emits a {Burn} event upon successful withdrawal.
+    /// @notice Emits a {Burn} event upon success.
     function _updateBurn(
         EscrowType.Type _type,
         address payable _owner,
@@ -310,51 +552,26 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         emit EscrowEvents.Burn(_type, _owner, _id, _amount);
     }
 
-    /// @notice Burn funds authorized for an address.
-    /// @dev This function allows burn funds.Triggered by business conditions
+    /// @notice Update payment allow withdraw funds authorized for an address.
+    /// @dev This function allows withdraw funds.Triggered by business conditions
     /// @param _type The Escrow type for the credited funds.
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
     /// @param _amount The burn funds.
-    /// @notice Emits a {Burn} event upon successful withdrawal.
-    function _updatePaymentCollateral(
+    /// @notice Emits a {UpdatePaymentLock} event upon success.
+    function _updatePaymentLock(
         EscrowType.Type _type,
         address _owner,
         uint64 _id,
         address _beneficiary,
         uint256 _amount
     ) internal {
-        escrowAccount[_type][_owner][_id].updatePaymentCollateral(
+        escrowAccount[_type][_owner][_id].updatePaymentLock(
             _beneficiary,
             _amount
         );
 
-        emit EscrowEvents.UpdatePaymentCollateral(
-            _type,
-            _owner,
-            _id,
-            _beneficiary,
-            _amount
-        );
-    }
-
-    /// @notice Refund funds authorized for an address.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    /// @param _beneficiary The beneficiary address for the payment credited funds.
-    /// @param _amount The refund funds.
-    /// @notice Emits a {PaymentRefund} event upon successful credit recording.
-    function _updatePaymentRefund(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id,
-        address _beneficiary,
-        uint256 _amount
-    ) internal {
-        escrowAccount[_type][_owner][_id].paymentRefund(_beneficiary, _amount);
-
-        emit EscrowEvents.PaymentRefund(
+        emit EscrowEvents.UpdatePaymentLock(
             _type,
             _owner,
             _id,
@@ -391,129 +608,54 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         );
     }
 
-    /// @dev Determines the amount available for collateral based on escrow type, owner, and ID.
+    /// @notice Update payment sub-account authorized for an address.
     /// @param _type The Escrow type for the credited funds.
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
-    function _syncCollateral(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id
-    ) internal view returns (uint256) {
-        if (_type == EscrowType.Type.DatacapCollateral) {
-            return _datacapCollateral(_owner, _id);
-        } else if (_type == EscrowType.Type.DatacapChunkCollateral) {
-            // TODO: Implement logic to retrieve allowed withdrawal funds from the datacap contract.
-            return 0;
-        } else {
-            return 0;
-        }
-    }
-
-    /// @dev Handles the logic for burning funds based on escrow type, owner, and ID.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    function _syncBurn(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id
-    ) internal view returns (uint256) {
-        // TODO:
-        return getOwnerCollateral(_type, _owner, _id); // Burn all collateral
-    }
-
-    /// @dev Handles the logic for collateral payments based on escrow type, owner, ID, and beneficiary.
-    function _syncPaymentCollateral(
-        EscrowType.Type /*_type*/,
-        address /*_owner*/,
-        uint64 /*_id*/,
-        address /*_beneficiary*/
-    ) internal pure returns (uint256) {
-        // TODO:
-        return 0; // Release all collateral
-    }
-
-    /// @dev Handles the logic for refunding payments based on escrow type, owner, ID, and beneficiary.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    function _syncPaymentRefund(
+    /// @param _beneficiary The beneficiary address for the payment credited funds.
+    /// @param _amount The payment amount of beneficiaries.
+    /// @notice Emits a {UpdatePaymentSubAccount} event upon successful credit recording.
+    function _addPaymentSubAccount(
         EscrowType.Type _type,
         address _owner,
         uint64 _id,
-        address /*_beneficiary*/
-    ) internal view returns (uint256) {
-        // TODO:
-        return getOwnerCollateral(_type, _owner, _id); // Refund all payment for test
-    }
-
-    /// @dev Handles the logic for synchronize payment beneficiary based on escrow type, owner, ID.
-    function _syncPaymentBeneficiary(
-        EscrowType.Type /*_type*/,
-        address /*_owner*/,
-        uint64 /*_id*/,
-        address /*_beneficiary*/
-    ) internal pure returns (uint256) {
-        // TODO:
-        return 0;
-    }
-
-    /// @dev Determines the amount available for collateral from a DatacapCollateral
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    function _datacapCollateral(
-        address _owner,
-        uint64 _id
-    ) internal view returns (uint256) {
-        uint256 collateralFunds = 0;
-
-        // Check the dataset's status:
-        // - If it's in the 'MetadataRejected' status,
-        // - or if it's not in the 'MetadataApproved' status and has been staked for over 180 days,
-        // - or if it has been mortgaged for over 365 days, the funds are eligible for withdrawal.
-        DatasetType.State datasetState = datasets.getDatasetState(_id);
-        uint64 createBlockNumber = getOwnerCreatedBlockNumber(
-            EscrowType.Type.DatacapCollateral,
-            _owner,
-            _id
-        );
-
+        address _beneficiary,
+        uint256 _amount
+    ) internal {
         if (
-            (datasetState == DatasetType.State.MetadataRejected) ||
-            (datasetState != DatasetType.State.DatasetApproved &&
-                block.number >
-                (createBlockNumber + PER_DAY_BLOCKNUMBER * 180)) ||
-            block.number > (createBlockNumber + PER_DAY_BLOCKNUMBER * 365)
-        ) {
-            return collateralFunds; // Release all collateral funds
-        }
-
-        // Check the datasetProof's status:
-        // - If it's in the 'allCompleted' status,
-        // - it's all proof completed collateral funds
-        if (
-            datasetsProof.isDatasetProofallCompleted(
-                _id,
-                DatasetType.DataType.Source
-            )
-        ) {
-            collateralFunds = datasetsProof.getDatasetCollateralRequirement(
+            getOwnerCreatedBlockNumber(
+                EscrowType.Type.DataPrepareFeeByClient,
+                _owner,
                 _id
-            );
-        } else {
-            // Others are pre collateral funds
-            collateralFunds = datasetsRequirement
-                .getDatasetPreCollateralRequirements(_id);
+            ) != 0
+        ) {
+            revert Errors.SubAccountAlreadyExist(_owner);
         }
 
-        uint256 total = getOwnerTotal(
-            EscrowType.Type.DatacapCollateral,
+        uint64 datasetId = storages.matchingsTarget().getMatchingDatasetId(_id);
+        EscrowType.Escrow storage escrow = escrowAccount[_type][_owner][
+            datasetId
+        ];
+        if (escrow.owner.lock < _amount) {
+            revert Errors.ExceedValidPaymentAmount(escrow.owner.lock, _amount);
+        }
+        escrow.owner.total -= _amount;
+        escrow.owner.lock -= _amount;
+
+        EscrowType.Escrow storage newEscrow = escrowAccount[
+            EscrowType.Type.DataPrepareFeeByClient
+        ][_owner][_id];
+        newEscrow.deposit(_amount);
+        newEscrow.payment(_amount);
+        newEscrow.paymentAddbeneficiary(_beneficiary, _amount);
+
+        emit EscrowEvents.UpdatePaymentSubAccount(
+            _type,
             _owner,
-            _id
+            _id,
+            _beneficiary,
+            _amount
         );
-        require(total >= collateralFunds, "Insufficient collateral funds");
-        return collateralFunds;
     }
 
     /// @notice Get owner created block number.

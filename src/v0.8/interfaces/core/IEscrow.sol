@@ -38,8 +38,20 @@ interface IEscrow {
         uint256 _amount
     ) external payable;
 
+    /// @notice Redeem funds authorized for an address.
+    /// Redeem the collateral funds after the collateral expires.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @notice Emits a {UpdateCollateral} event upon successful credit recording.
+    function collateralRedeem(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id
+    ) external;
+
     /// @notice Withdraw funds authorized for an address.
-    /// @dev This function allows the owner to initiate a withdrawal of authorized funds.
+    /// @dev This function allows anyone to initiate a withdrawal of authorized funds.
     /// @param _type The Escrow type for the credited funds.
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
@@ -58,8 +70,8 @@ interface IEscrow {
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
     /// @param _amount The collateral funds.
-    /// @notice Emits a {PaymentCollateral} event upon successful credit recording.
-    function paymentCollateral(
+    /// @notice Emits a {Payment} event upon successful credit recording.
+    function payment(
         EscrowType.Type _type,
         address _owner,
         uint64 _id,
@@ -75,8 +87,8 @@ interface IEscrow {
     /// @param _id The business id associated with the credited funds.
     /// @param _beneficiary The beneficiary address for the payment credited funds.
     /// @param _amount The collateral funds.
-    /// @notice Emits a {PaymentSingleBeneficiaryCollateral} event upon successful credit recording.
-    function paymentSingleBeneficiaryCollateral(
+    /// @notice Emits a {PaymentSingleBeneficiary} event upon successful credit recording.
+    function paymentSingleBeneficiary(
         EscrowType.Type _type,
         address _owner,
         uint64 _id,
@@ -85,6 +97,7 @@ interface IEscrow {
     ) external payable;
 
     /// @notice Payment withdraw funds authorized for an address.
+    /// @dev This function allows anyone to initiate a withdrawal of authorized funds.
     /// @param _type The Escrow type for the credited funds.
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
@@ -97,23 +110,47 @@ interface IEscrow {
         address _beneficiary
     ) external;
 
-    /// @notice Post an event for collateral type.
+    /// @notice Payment transfer funds from locked to unlocked.Only total data prepare fee allowed.
     /// @param _type The Escrow type for the credited funds.
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
-    function emitCollateralEvent(
+    /// @param _amount The payment transfer credited funds.
+    /// @notice Emits a {PaymentTransfer} event upon successful credit recording.
+    function paymentTransfer(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id,
+        uint256 _amount
+    ) external;
+
+    /// @notice Refund funds authorized for an address.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @notice Emits a {PaymentRefund} event upon successful credit recording.
+    function paymentRefund(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id
+    ) external;
+
+    /// @notice Post an update event for collateral type. Called by internal contract.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    function emitCollateralUpdate(
         EscrowType.Type _type,
         address _owner,
         uint64 _id,
         EscrowType.CollateralEvent _event
     ) external;
 
-    /// @notice Post an event for payment type.
+    /// @notice Post an event for payment type. Called by internal contract
     /// @param _type The Escrow type for the credited funds.
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
     /// @param _beneficiary The beneficiary address for the payment credited funds.
-    function emitPaymentEvent(
+    function emitPaymentUpdate(
         EscrowType.Type _type,
         address _owner,
         uint64 _id,

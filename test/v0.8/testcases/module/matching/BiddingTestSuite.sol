@@ -224,8 +224,9 @@ contract BiddingTestCaseWithInvlalidDuplicateBid is ControlTestSuiteBase {
         vm.roll(101);
         matchingsAssertion.biddingAssertion(address(199), _matchingId, _amount);
         vm.prank(address(199));
+        vm.deal(address(199), 200 ether);
         vm.expectRevert(bytes("Invalid amount"));
-        matchingsBids.bidding(_matchingId, _amount);
+        matchingsBids.bidding{value: _amount}(_matchingId, _amount);
     }
 }
 
@@ -270,7 +271,7 @@ contract BiddingTestCaseWithInvlalidState is ControlTestSuiteBase {
             _bidRule,
             100,
             100,
-            100,
+            1000,
             100,
             0,
             "TEST"

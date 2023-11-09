@@ -47,9 +47,14 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
         // Record the count of stored cars before the action.
         uint64 oldDoneCount = storages.getStoredCarCount(_matchingId);
         uint64 oldtotalStoredSize = storages.getTotalStoredSize(_matchingId);
+        uint64[] memory cid = new uint64[](1);
+        uint64[] memory claimId = new uint64[](1);
+        cid[0] = _cid;
+        claimId[0] = _claimId;
+
         // Perform the action (submitting a storage claim ID).
         vm.prank(caller);
-        storages.submitStorageClaimId(_matchingId, _provider, _cid, _claimId);
+        storages.submitStorageClaimIds(_matchingId, _provider, cid, claimId);
 
         // Assert that the count of stored cars has increased by one after the action.
         getStoredCarCountAssertion(_matchingId, oldDoneCount + 1);

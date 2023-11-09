@@ -24,6 +24,7 @@ import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
 import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
 import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 
@@ -60,8 +61,9 @@ contract DatasetsProof is
     IEscrow public escrow;
     IFilplus private filplus;
     ICarstore private carstore;
-    IDatasets private datasets;
-    IDatasetsRequirement private datasetsRequirement;
+    IDatasets public datasets;
+    IDatasetsChallenge public datasetsChallenge;
+    IDatasetsRequirement public datasetsRequirement;
 
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
@@ -82,9 +84,18 @@ contract DatasetsProof is
         filplus = IFilplus(_filplus);
         carstore = ICarstore(_carstore);
         datasets = IDatasets(_datasets);
+
         datasetsRequirement = IDatasetsRequirement(_datasetsRequirement);
 
         __UUPSUpgradeable_init();
+    }
+
+    /// @notice initDependencies function to initialize the datasetsChallenge contract.
+    /// @dev After the contract is deployed, this function needs to be called manually!
+    function initDependencies(
+        address _datasetsChallenge
+    ) public onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
+        datasetsChallenge = IDatasetsChallenge(_datasetsChallenge);
     }
 
     /// @notice UUPS Upgradeable function to update the roles implementation
@@ -219,18 +230,28 @@ contract DatasetsProof is
             uint256 collateralRequirement = getDatasetCollateralRequirement(
                 _datasetId
             );
+            uint256 datasetAuditorFee = getDatasetDataAuditorFeesRequirement(
+                _datasetId
+            );
             if (
                 escrow.getOwnerTotal(
                     EscrowType.Type.DatacapCollateral,
                     datasets.getDatasetMetadataSubmitter(_datasetId),
                     _datasetId
-                ) < collateralRequirement
+                ) <
+                collateralRequirement ||
+                escrow.getOwnerLock(
+                    EscrowType.Type.DatasetAuditFee,
+                    datasets.getDatasetMetadataSubmitter(_datasetId),
+                    _datasetId
+                ) <
+                datasetAuditorFee
             ) {
-                datasets.reportCollateralNotEnough(_datasetId);
-                emit DatasetsEvents.CollateralNotEnough(_datasetId, msg.sender);
+                datasets.reportFundsNotEnough(_datasetId);
+                emit DatasetsEvents.FundsNotEnough(_datasetId, msg.sender);
             } else {
                 // Update collateral funds to collateral requirement
-                escrow.emitCollateralEvent(
+                escrow.emitCollateralUpdate(
                     EscrowType.Type.DatacapCollateral,
                     datasets.getDatasetMetadataSubmitter(_datasetId),
                     _datasetId,
@@ -271,24 +292,52 @@ contract DatasetsProof is
         }
     }
 
-    /// @notice Append dataset collateral funds
-    function appendDatasetCollateral(uint64 _datasetId) public payable {
-        uint256 amount = msg.value;
-        uint256 appendCollateral = getDatasetAppendCollateral(_datasetId);
-        require(amount >= appendCollateral, "Insufficient collateral funds");
-
-        escrow.collateral{value: amount}(
-            EscrowType.Type.DatacapCollateral,
-            datasets.getDatasetMetadataSubmitter(_datasetId),
-            _datasetId,
-            appendCollateral
+    /// @notice Append dataset escrow funds. include datacap collateral and dataset auditor calculate fees.
+    function appendDatasetFunds(
+        uint64 _datasetId,
+        uint256 _datacapCollateral,
+        uint256 _dataAuditorFees
+    )
+        public
+        payable
+        onlyAddress(datasets.getDatasetMetadataSubmitter(_datasetId))
+    {
+        require(
+            _datacapCollateral == getDatasetAppendCollateral(_datasetId),
+            "Insufficient collateral funds"
+        );
+        require(
+            _dataAuditorFees ==
+                getDatasetDataAuditorFeesRequirement(_datasetId),
+            "Insufficient dataset auditor funds"
+        );
+        require(
+            msg.value >= _datacapCollateral + _dataAuditorFees,
+            "Insufficient msg.value funds"
         );
 
-        datasets.reportCollateralEnough(_datasetId);
-        emit DatasetsEvents.CollateralEnough(_datasetId, msg.sender);
+        uint256 totalCollateral = msg.value - _dataAuditorFees;
+        // Append datacap collateral escrow
+        escrow.collateral{value: totalCollateral}(
+            EscrowType.Type.DatacapCollateral,
+            msg.sender,
+            _datasetId,
+            _datacapCollateral
+        );
+
+        // dataset auditor calculate fees escrow
+        escrow.payment{value: _dataAuditorFees}(
+            EscrowType.Type.DatasetAuditFee,
+            msg.sender,
+            _datasetId,
+            _dataAuditorFees
+        );
+
+        datasets.reportFundsEnough(_datasetId);
+        emit DatasetsEvents.FundsEnough(_datasetId, msg.sender);
     }
 
-    /// @notice Get dataset need append collateral funds
+    /// @notice Get the dataset requires append collateral funds
     function getDatasetAppendCollateral(
         uint64 _datasetId
     ) public view returns (uint256) {
@@ -386,6 +435,29 @@ contract DatasetsProof is
             getDatasetSize(_datasetId, DatasetType.DataType.Source) *
             datasetsRequirement.getDatasetReplicasCount(_datasetId) *
             PRICE_PER_BYTE;
+    }
+
+    /// @notice Get the dataset requires funding for dataset auditor fees
+    function getDatasetDataAuditorFeesRequirement(
+        uint64 _datasetId
+    ) public view onlyNotZero(_datasetId) returns (uint256) {
+        // TODO: CHALLENGE_PROOFS_SUBMIT_COUNT, PRICE_PER_POINT import from governance
+        uint64 CHALLENGE_PROOFS_SUBMIT_COUNT = 10;
+        uint256 PRICE_PER_POINT = (1000000000000000000 / 1000);
+        return
+            datasetsChallenge.getChallengeCount(_datasetId) *
+            CHALLENGE_PROOFS_SUBMIT_COUNT *
+            PRICE_PER_POINT;
+    }
+
+    /// @notice Get an audit fee
+    function getDatasetDataAuditorFees(
+        uint64 _datasetId
+    ) public view onlyNotZero(_datasetId) returns (uint256) {
+        // TODO: PRICE_PER_POINT import from governance
+        uint256 PRICE_PER_POINT = (1000000000000000000 / 1000);
+        return
+            datasetsChallenge.getChallengeCount(_datasetId) * PRICE_PER_POINT;
     }
 
     ///@notice Check if a dataset proof all completed

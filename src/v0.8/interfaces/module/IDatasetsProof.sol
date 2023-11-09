@@ -21,6 +21,9 @@ pragma solidity ^0.8.21;
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
+import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
+import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
 
 /// @title IDatasetsProof
 interface IDatasetsProof {
@@ -45,11 +48,25 @@ interface IDatasetsProof {
     ///@notice Submit proof completed for a dataset
     function submitDatasetProofCompleted(uint64 _datasetId) external;
 
-    /// @notice Append dataset collateral funds
-    function appendDatasetCollateral(uint64 _datasetId) external payable;
+    /// @notice Append dataset escrow funds. include datacap collateral and dataset auditor calculate fees.
+    function appendDatasetFunds(
+        uint64 _datasetId,
+        uint256 _datacapCollateral,
+        uint256 _dataAuditorFees
+    ) external payable;
 
     /// @notice Get dataset need append collateral funds
     function getDatasetAppendCollateral(
+        uint64 _datasetId
+    ) external view returns (uint256);
+
+    /// @notice Get the dataset requires funding for dataset auditor fees
+    function getDatasetDataAuditorFeesRequirement(
+        uint64 _datasetId
+    ) external view returns (uint256);
+
+    /// @notice Get an audit fee
+    function getDatasetDataAuditorFees(
         uint64 _datasetId
     ) external view returns (uint256);
 
@@ -69,6 +86,7 @@ interface IDatasetsProof {
         uint64 _len
     ) external view returns (bytes32[] memory);
 
+    ///@notice Get dataset proof count
     function getDatasetProofCount(
         uint64 _datasetId,
         DatasetType.DataType _dataType
@@ -119,4 +137,13 @@ interface IDatasetsProof {
         uint64 _datasetId,
         DatasetType.DataType _dataType
     ) external view returns (bool);
+
+    ///@notice get datasets instance
+    function datasets() external view returns (IDatasets);
+
+    ///@notice get datasetsChallenge instance
+    function datasetsChallenge() external view returns (IDatasetsChallenge);
+
+    ///@notice get datasetsRequirement instance
+    function datasetsRequirement() external view returns (IDatasetsRequirement);
 }

@@ -24,7 +24,10 @@ import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 /// @title IMatchingsTarget
 interface IMatchingsTarget {
     /// @notice  Function for init matchings instance.
-    function initMatchings(address _matchings, address _matchingsBids) external;
+    function initDependencies(
+        address _matchings,
+        address _matchingsBids
+    ) external;
 
     /// @notice Function for create a new matching target.
     /// @param _matchingId The matching id to publish cars.
@@ -62,6 +65,11 @@ interface IMatchingsTarget {
         uint64[] memory _carsEnds,
         bool complete
     ) external;
+
+    /// @notice Function for getting subsidy amount in a matching
+    function getMatchingSubsidy(
+        uint64 _matchingId
+    ) external view returns (uint256);
 
     /// @notice  Function for getting the count of bids in a matching
     function getMatchingCars(

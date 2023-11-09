@@ -79,6 +79,7 @@ library MatchingType {
         DatasetType.DataType dataType; // Type of data associated with the matching
         uint64 associatedMappingFilesMatchingID; // ID of the matching associated with mapping files
         uint16 replicaIndex; // index of dataset's replica
+        uint256 subsidy; // subsidy amount
     }
 
     /// @notice Struct representing a bid in a matching.

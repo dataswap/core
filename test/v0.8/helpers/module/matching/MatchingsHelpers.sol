@@ -35,7 +35,7 @@ import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 /// @title MatchingsHelpers contract for testing
 contract MatchingsHelpers is Test, IMatchingsHelpers {
     ICarstore carstore;
-    IMatchings matchings;
+    IMatchings public matchings;
     IMatchingsTarget matchingsTarget;
     IMatchingsBids matchingsBids;
     IDatasetsHelpers datasetsHelpers;
@@ -130,7 +130,7 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
-            100,
+            10000,
             100,
             0,
             "TEST"
@@ -160,7 +160,8 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
         vm.stopPrank();
         vm.roll(101);
         vm.prank(address(199));
-        matchingsBids.bidding(matchingId, 200);
+        vm.deal(address(199), 200 ether);
+        matchingsBids.bidding{value: 200}(matchingId, 200);
 
         address initiator = matchings.getMatchingInitiator(matchingId);
         vm.roll(201);

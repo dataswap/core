@@ -20,6 +20,7 @@ pragma solidity ^0.8.21;
 
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
 import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
@@ -32,6 +33,7 @@ import {DatasetChallengeProofLIB} from "src/v0.8/module/dataset/library/challeng
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
+import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {GeolocationType} from "src/v0.8/types/GeolocationType.sol";
 
@@ -53,6 +55,7 @@ contract DatasetsChallenge is
 
     address public governanceAddress;
     IRoles public roles;
+    IEscrow public escrow;
     IMerkleUtils public merkleUtils;
     IDatasetsProof public datasetProof;
     /// @dev This empty reserved space is put in place to allow future versions to add new
@@ -63,10 +66,12 @@ contract DatasetsChallenge is
         address _governanceAddress,
         address _roles,
         address _datasetProof,
-        address _merkleUtils
+        address _merkleUtils,
+        address _escrow
     ) public initializer {
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
+        escrow = IEscrow(_escrow);
         datasetProof = IDatasetsProof(_datasetProof);
         merkleUtils = IMerkleUtils(_merkleUtils);
         __UUPSUpgradeable_init();
@@ -97,6 +102,13 @@ contract DatasetsChallenge is
         bytes32[][] memory _siblings,
         uint32[] memory _paths
     ) external onlyRole(roles, RolesType.DATASET_AUDITOR) {
+        // TODO: CHALLENGE_PROOFS_SUBMIT_COUNT import from governance
+        uint64 CHALLENGE_PROOFS_SUBMIT_COUNT = 10;
+        require(
+            getDatasetChallengeProofsCount(_datasetId) <=
+                CHALLENGE_PROOFS_SUBMIT_COUNT,
+            "exceeds maximum challenge proofs count"
+        );
         DatasetType.DatasetChallengeProof
             storage datasetChallengeProof = datasetChallengeProofs[_datasetId];
         bytes32[] memory roots = _getChallengeRoots(
@@ -112,6 +124,24 @@ contract DatasetsChallenge is
             roots,
             merkleUtils
         );
+
+        // Add dataset auditor to beneficiary list
+        escrow.emitPaymentUpdate(
+            EscrowType.Type.DatasetAuditFee,
+            datasetProof.datasets().getDatasetMetadataSubmitter(_datasetId),
+            _datasetId,
+            msg.sender,
+            EscrowType.PaymentEvent.SyncPaymentBeneficiary
+        );
+        // Allow payment
+        escrow.emitPaymentUpdate(
+            EscrowType.Type.DatasetAuditFee,
+            datasetProof.datasets().getDatasetMetadataSubmitter(_datasetId),
+            _datasetId,
+            msg.sender,
+            EscrowType.PaymentEvent.SyncPaymentLock
+        );
+
         emit DatasetsEvents.DatasetChallengeProofsSubmitted(
             _datasetId,
             msg.sender

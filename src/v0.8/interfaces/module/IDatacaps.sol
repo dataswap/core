@@ -18,11 +18,32 @@ import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 /// @title IDatacap
 /// @dev Interface for managing the allocation of datacap for matched data storage.
 interface IDatacaps {
+    /// @notice Add collateral funds for allocating datacap chunk
+    /// @param _matchingId The ID of the matching
+    function addDatacapChunkCollateral(uint64 _matchingId) external payable;
+
     /// @dev Requests the allocation of matched datacap for a matching process.
     /// @param _matchingId The ID of the matching process.
     function requestAllocateDatacap(
         uint64 _matchingId
     ) external returns (uint64);
+
+    /// @notice Get the updated collateral funds for datacap chunk based on real-time business data
+    /// @param _matchingId The ID of the matching
+    /// @return The updated collateral funds required
+    function updatedDatacapChunkCollateralFunds(
+        uint64 _matchingId
+    ) external view returns (uint256);
+
+    /// @notice Get the updated burn funds for datacap chunk based on real-time business data
+    /// @param _matchingId The ID of the matching
+    /// @return The updated burn funds required
+    function updatedDatacapChunkBurnFunds(
+        uint64 _matchingId
+    ) external view returns (uint256);
+
+    /// @notice Get collateral funds requirement for allocate chunk datacap
+    function getCollateralRequirement() external returns (uint256);
 
     /// @dev Gets the allocated matched datacap for a storage.
     /// @param _matchingId The ID of the matching process.

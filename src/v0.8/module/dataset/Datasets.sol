@@ -76,9 +76,9 @@ contract Datasets is
         __UUPSUpgradeable_init();
     }
 
-    /// @notice setDatasetsProofAddress function to initialize the datasetsProof contract.
+    /// @notice initDependencies function to initialize the datasetsProof contract.
     /// @dev After the contract is deployed, this function needs to be called manually!
-    function setDatasetsProofAddress(
+    function initDependencies(
         address _datasetsProof
     ) public onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
         datasetsProof = IDatasetsProof(_datasetsProof);
@@ -123,7 +123,7 @@ contract Datasets is
             funds >= datasetsProof.getDatasetCollateralRequirement(_datasetId)
         ) {
             // Update collateral funds to collateral requirement
-            escrow.emitCollateralEvent(
+            escrow.emitCollateralUpdate(
                 EscrowType.Type.DatacapCollateral,
                 dataset.metadata.submitter,
                 _datasetId,
@@ -222,6 +222,23 @@ contract Datasets is
         emit DatasetsEvents.DatasetMetadataSubmitted(datasetsCount, msg.sender);
     }
 
+    /// @notice Update dataset usedSizeInBytes. only called by matching contract. TODO: Need to add permission control
+    function addDatasetUsedSize(
+        uint64 _datasetId,
+        uint64 _size
+    ) public onlyNotZero(_datasetId) {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        dataset.usedSizeInBytes += _size;
+    }
+
+    /// @notice Get dataset usedSizeInBytes.
+    function getDatasetUsedSize(
+        uint64 _datasetId
+    ) public view onlyNotZero(_datasetId) returns (uint64) {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        return dataset.usedSizeInBytes;
+    }
+
     ///@notice Get dataset metadata
     function getDatasetMetadata(
         uint64 _datasetId
@@ -308,13 +325,13 @@ contract Datasets is
     }
 
     /// @notice Report the dataset has not enough collateral.
-    function reportCollateralNotEnough(uint64 _datasetId) external {
+    function reportFundsNotEnough(uint64 _datasetId) external {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset._emitDatasetEvent(DatasetType.Event.NotEnoughCollateral);
     }
 
     /// @notice Report the dataset has enough collateral.
-    function reportCollateralEnough(uint64 _datasetId) external {
+    function reportFundsEnough(uint64 _datasetId) external {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset._emitDatasetEvent(DatasetType.Event.EnoughCollateral);
     }

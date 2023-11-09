@@ -18,24 +18,13 @@
 
 pragma solidity ^0.8.21;
 
+import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
 import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 
 /// @title Interface for Matchedstores contract
 interface IStorages {
-    /// @dev Submits a Filecoin claim Id for a matchedstore after successful matching.
-    /// @param _matchingId The ID of the matching.
-    /// @param _provider A provider of storage provider of matching.
-    /// @param _id The content identifier of the matched data.
-    /// @param _claimId The ID of the successful Filecoin storage deal.
-    function submitStorageClaimId(
-        uint64 _matchingId,
-        uint64 _provider,
-        uint64 _id,
-        uint64 _claimId
-    ) external;
-
     /// @dev Submits multiple Filecoin claim Ids for a matchedstore after successful matching.
     /// @param _matchingId The ID of the matching.
     /// @param _provider A provider of storage provider of matching.
@@ -78,10 +67,28 @@ interface IStorages {
         uint64 _id
     ) external view returns (uint64);
 
+    /// @dev Get the collateral amount
+    function getProviderLockPayment(
+        uint64 _matchingId
+    ) external view returns (uint256);
+
+    /// @dev Get the client allow payment amount
+    function getClientLockPayment(
+        uint64 _matchingId
+    ) external view returns (uint256);
+
     /// @dev Checks if all cars are done in the matchedstore.
     /// @param _matchingId The ID of the matching.
     /// @return True if all cars are done in the matchedstore, otherwise false.
     function isAllStoredDone(uint64 _matchingId) external view returns (bool);
+
+    /// @dev Checks if store expiration in the matchedstore.
+    function isStorageExpiration(
+        uint64 _matchingId
+    ) external view returns (bool);
+
+    ///@notice get datasets instance
+    function datasets() external view returns (IDatasets);
 
     ///@notice get matchings instance
     function matchings() external view returns (IMatchings);

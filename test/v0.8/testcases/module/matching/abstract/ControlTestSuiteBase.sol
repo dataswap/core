@@ -91,7 +91,7 @@ abstract contract ControlTestSuiteBase is Test {
             _bidRule,
             100,
             100,
-            100,
+            1000,
             100,
             0,
             "TEST"

@@ -29,7 +29,7 @@ library DatasetType {
         MetadataSubmitted, // Metadata submitted but not approved.
         MetadataApproved, // Metadata has been approved.
         MetadataRejected, // Metadata submission has been rejected.
-        CollateralNotEnough, // Not enough collateral when submit proof or challenge proof.
+        FundsNotEnough, // Not enough collateral when submit proof or challenge proof.
         DatasetProofSubmitted, // Proof of dataset submitted.
         DatasetApproved // Dataset has been approved.
     }
@@ -69,6 +69,7 @@ library DatasetType {
 
     struct Dataset {
         Metadata metadata;
+        uint64 usedSizeInBytes; // Already matching size.
         State state; // Current state of the dataset.
     }
 

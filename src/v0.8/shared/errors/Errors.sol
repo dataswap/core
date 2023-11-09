@@ -80,4 +80,16 @@ library Errors {
         uint64 matchingId,
         address winner
     );
+
+    /// @notice escrow errors
+    error ExceedValidPaymentAmount(uint256 total, uint256 payment);
+    error ExceedValidTransferAmount(uint256 total, uint256 transfer);
+    error ExceedValidRefundAmount(uint256 total, uint256 refund);
+    error ExceedValidBurnAmount(uint256 total, uint256 burn);
+    error ExceedValidCollateralAmount(uint256 total, uint256 collateral);
+    error BeneficiaryAlreadyExist(address);
+    error BeneficiaryIsInvalid(address);
+    error OnlySpecifyTypeAllowedTransfer();
+    error SubAccountAlreadyExist(address);
+    error NotRefundableAmount();
 }

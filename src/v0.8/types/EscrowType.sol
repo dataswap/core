@@ -25,24 +25,25 @@ library EscrowType {
     enum Type {
         DatacapCollateral, // The storage client collateral.
         DatacapChunkCollateral, // The storage provider collateral.
-        DataAuditCollateral, // The data auditor collateral, for dispute
+        DataAuditCollateral, // The dataset auditor collateral, for dispute
         DataPrepareCollateral, // The data preparer collateral,for dispute
-        DataAuditFee, // The data auditor calculate fees.
-        DataPrepareFeeByClient, // The data preparer calculate fees paid by storage client.
+        DatasetAuditFee, // The dataset auditor calculate fees.
+        TotalDataPrepareFeeByClient, // The data preparer calculate fees of dataset paid by storage client.
+        DataPrepareFeeByClient, // The data preparer calculate fees of matching paid by storage client.
         DataPrepareFeeByProvider // The data preparer calculate fees paid by storage provider.
     }
 
-    /// @notice Enum representing the events related to collateral management.
+    /// @notice Enum representing the events related to collateral management.Triggered by business contract
     enum CollateralEvent {
-        SyncBurn, // Escrow synchronize collateral burn event.
-        SyncCollateral // Escrow synchronize collateral event.
+        SyncBurn, // Escrow synchronize collateral burn amount.
+        SyncCollateral // Escrow synchronize collateral amount.
     }
 
-    /// @notice Enum representing the events related to payment management.
+    /// @notice Enum representing the events related to payment management.Triggered by business contract
     enum PaymentEvent {
-        SyncPaymentRefund, // Escrow synchronize payment refund event.
-        SyncPaymentCollateral, // Escrow synchronize payment collateral event.
-        SyncPaymentBeneficiaries // Escrow synchronize payment beneficiaries list.
+        SyncPaymentLock, // Escrow synchronize allow payment amount.
+        SyncPaymentBeneficiary, // Escrow synchronize payment beneficiaries list.
+        AddPaymentSubAccount // Escrow synchronize sub payment account.
     }
 
     /// @notice Struct the beneficiary of escrow

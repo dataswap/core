@@ -47,10 +47,6 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 /// @title Matchings Base Contract
 /// @notice This contract serves as the base for managing matchings, their states, and associated actions.
 /// @dev This contract is intended to be inherited by specific matching-related contracts.
-///      TODO: Missing fund proccess,need add later https://github.com/dataswap/core/issues/20
-///            1 bidder(when bidding) and initiator(when publish) should transfer FIL to payable function
-///            2 proccess the fund after matched
-///            3 proccess the fund after matchedsotre,step by step
 contract Matchings is
     Initializable,
     UUPSUpgradeable,
@@ -102,7 +98,7 @@ contract Matchings is
         return _getImplementation();
     }
 
-    function initMatchings(
+    function initDependencies(
         address _matchingsTarget,
         address _matchingsBids
     ) external onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
@@ -282,5 +278,21 @@ contract Matchings is
             matching.biddingDelayBlockCount +
             matching.biddingPeriodBlockCount +
             matching.pausedBlockCount;
+    }
+
+    /// @notice  Function for getting the storage completion period blocks in a matching
+    function getMatchingStorageCompletionHeight(
+        uint64 _matchingId
+    ) public view returns (uint64) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        return matching.storageCompletionPeriodBlocks;
+    }
+
+    /// @notice  Function for getting the matching creation block number
+    function getMatchingCreatedHeight(
+        uint64 _matchingId
+    ) public view returns (uint64) {
+        MatchingType.Matching storage matching = matchings[_matchingId];
+        return matching.createdBlockNumber;
     }
 }

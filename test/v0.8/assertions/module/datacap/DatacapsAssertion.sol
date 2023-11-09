@@ -51,6 +51,10 @@ contract DatacapsAssertion is DSTest, Test, IDatacapsAssertion {
             oldAllocatedDatacap + oldRemainingUnallocatedDatacap
         );
 
+        vm.deal(address(this), 200 ether);
+        uint256 amount = datacaps.getCollateralRequirement();
+        datacaps.addDatacapChunkCollateral{value: amount}(_matchingId);
+
         // Perform the action.
         vm.prank(caller);
         uint64 addDatacap = datacaps.requestAllocateDatacap(_matchingId);

@@ -79,14 +79,27 @@ contract WithdrawTestCaseWithSuccess is EscrowTestSuiteBase {
             0
         );
         vm.roll(100 + 2880 * 365 + 100);
-        escrow.emitCollateralEvent(
+        escrow.collateralRedeem(EscrowType.Type.DatacapCollateral, _owner, _id);
+        assertion.getOwnerTotalAssertion(
             EscrowType.Type.DatacapCollateral,
             _owner,
             _id,
-            EscrowType.CollateralEvent.SyncCollateral
+            1
+        );
+        assertion.getOwnerCollateralAssertion(
+            EscrowType.Type.DatacapCollateral,
+            _owner,
+            _id,
+            0
         );
         /// NOTE: filecoin paymentWithdraw does not support testing,following test code is reserved for backup
         // escrow.withdraw(EscrowType.Type.DatacapCollateral, _owner, _id);
+        //         assertion.getOwnerTotalAssertion(
+        //     EscrowType.Type.DatacapCollateral,
+        //     _owner,
+        //     _id,
+        //     0
+        // );
         // assertion.getOwnerCollateralAssertion(
         //     EscrowType.Type.DatacapCollateral,
         //     _owner,

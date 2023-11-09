@@ -19,6 +19,7 @@
 pragma solidity ^0.8.21;
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
@@ -39,6 +40,7 @@ import "src/v0.8/shared/utils/array/ArrayLIB.sol";
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
+import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
@@ -48,10 +50,6 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 /// @title Matchings Base Contract
 /// @notice This contract serves as the base for managing matchings, their states, and associated actions.
 /// @dev This contract is intended to be inherited by specific matching-related contracts.
-///      TODO: Missing fund proccess,need add later https://github.com/dataswap/core/issues/20
-///            1 bidder(when bidding) and initiator(when publish) should transfer FIL to payable function
-///            2 proccess the fund after matched
-///            3 proccess the fund after matchedsotre,step by step
 contract MatchingsBids is
     Initializable,
     UUPSUpgradeable,
@@ -68,6 +66,7 @@ contract MatchingsBids is
 
     address private governanceAddress;
     IRoles private roles;
+    IEscrow public escrow;
     IFilplus private filplus;
     ICarstore private carstore;
     IDatasets public datasets;
@@ -87,10 +86,12 @@ contract MatchingsBids is
         address _carstore,
         address _datasets,
         address _datasetsRequirement,
-        address _datasetsProof
+        address _datasetsProof,
+        address _escrow
     ) public initializer {
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
+        escrow = IEscrow(_escrow);
         filplus = IFilplus(_filplus);
         carstore = ICarstore(_carstore);
         datasets = IDatasets(_datasets);
@@ -114,7 +115,7 @@ contract MatchingsBids is
         return _getImplementation();
     }
 
-    function initMatchings(
+    function initDependencies(
         address _matchings,
         address _matchingsTarget
     ) external onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
@@ -128,12 +129,16 @@ contract MatchingsBids is
         uint256 _amount
     )
         external
+        payable
         onlyRole(roles, RolesType.STORAGE_PROVIDER)
         onlyMatchingState(matchings, _matchingId, MatchingType.State.InProgress)
     {
         MatchingType.MatchingBids storage bids = matchingBids[_matchingId];
         MatchingType.BidSelectionRule bidSelectionRule = matchings
             .getBidSelectionRule(_matchingId);
+
+        _processPaymentEscrow(_matchingId, _amount, bidSelectionRule);
+
         bids._matchingBidding(
             bidSelectionRule,
             matchings.getBiddingThreshold(_matchingId),
@@ -162,6 +167,31 @@ contract MatchingsBids is
             bidSelectionRule == MatchingType.BidSelectionRule.ImmediateAtMost
         ) {
             closeMatching(_matchingId);
+        }
+    }
+
+    /// @dev Process payment fund escrow
+    function _processPaymentEscrow(
+        uint64 _matchingId,
+        uint256 _amount,
+        MatchingType.BidSelectionRule _bidSelectionRule
+    ) internal {
+        // Payment only when HighestBid
+        if (_bidSelectionRule == MatchingType.BidSelectionRule.HighestBid) {
+            uint256 hasBid = escrow.getOwnerLock(
+                EscrowType.Type.DataPrepareFeeByProvider,
+                msg.sender,
+                _matchingId
+            );
+            require(_amount > hasBid, "Invalid amount");
+
+            // Payment amount to escrow contract
+            escrow.payment{value: msg.value}(
+                EscrowType.Type.DataPrepareFeeByProvider,
+                msg.sender,
+                _matchingId,
+                _amount - hasBid
+            );
         }
     }
 
@@ -238,6 +268,15 @@ contract MatchingsBids is
 
             _beforeMatchingCompleted(_matchingId);
             bids.winner = winner;
+
+            escrow.emitPaymentUpdate(
+                EscrowType.Type.DataPrepareFeeByProvider,
+                winner,
+                _matchingId,
+                matchings.getMatchingInitiator(_matchingId),
+                EscrowType.PaymentEvent.SyncPaymentBeneficiary
+            );
+
             matchings.reportMatchingHasWinner(_matchingId, winner);
         } else {
             _afterMatchingFailed(_matchingId);

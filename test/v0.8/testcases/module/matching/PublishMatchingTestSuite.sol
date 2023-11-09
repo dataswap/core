@@ -66,7 +66,7 @@ contract PublishMatchingTestCaseWithSuccess is MatchingsTestBase {
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
-            100,
+            1000,
             100,
             0,
             "TEST"
@@ -142,7 +142,7 @@ contract PublishMatchingTestCaseWithInvalidRole is MatchingsTestBase {
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
-            100,
+            1000,
             100,
             0,
             "TEST"
@@ -228,7 +228,7 @@ contract PublishMatchingTestCaseWithInvalidSender is MatchingsTestBase {
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
-            100,
+            1000,
             100,
             0,
             "TEST"
@@ -320,7 +320,7 @@ contract PublishMatchingTestCaseWithInvalidDataset is MatchingsTestBase {
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
-            100,
+            1000,
             100,
             0,
             "TEST"
@@ -399,7 +399,7 @@ contract PublishMatchingTestCaseWithInvalidDataPreparer is MatchingsTestBase {
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
-            100,
+            1000,
             100,
             0,
             "TEST"
@@ -449,7 +449,7 @@ contract PublishMatchingTestCaseWithInvalidReplica is MatchingsTestBase {
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
-            100,
+            1000,
             100,
             10,
             "TEST"
