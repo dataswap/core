@@ -23,8 +23,8 @@ import {IEscrowAssertion} from "test/v0.8/interfaces/assertions/core/IEscrowAsse
 
 import {EscrowTestSuiteBase} from "test/v0.8/testcases/core/escrow/abstract/EscrowTestSuiteBase.sol";
 
-/// @notice Collateral test case,it should be success
-contract CollateralTestCaseWithSuccess is EscrowTestSuiteBase {
+/// @notice PaymentTransfer test case,it should be success
+contract PaymentTransferTestCaseWithSuccess is EscrowTestSuiteBase {
     constructor(
         IDatasets _datasets,
         IEscrow _escrow,
@@ -33,7 +33,7 @@ contract CollateralTestCaseWithSuccess is EscrowTestSuiteBase {
         EscrowTestSuiteBase(_datasets, _escrow, _assertion) // solhint-disable-next-line
     {}
 
-    /// @dev The main action of the test, where the owner collateral funds.
+    /// @dev The main action of the test, where the owner payment funds.
     /// @param _owner The destination address of the funds.
     /// @param _id The business id.
     function action(
@@ -41,43 +41,52 @@ contract CollateralTestCaseWithSuccess is EscrowTestSuiteBase {
         uint64 _id
     ) internal virtual override {
         vm.deal(address(this), 10 ether);
-        assertion.getOwnerTotalAssertion(
-            EscrowType.Type.DatacapCollateral,
-            _owner,
-            _id,
-            0
-        );
-        assertion.getOwnerCollateralAssertion(
-            EscrowType.Type.DatacapCollateral,
-            _owner,
-            _id,
-            0
-        );
 
-        escrow.collateral{value: 1 ether}(
-            EscrowType.Type.DatacapCollateral,
+        escrow.payment{value: 1}(
+            EscrowType.Type.TotalDataPrepareFeeByClient,
             _owner,
             _id,
             1
         );
 
         assertion.getOwnerTotalAssertion(
-            EscrowType.Type.DatacapCollateral,
-            _owner,
-            _id,
-            1000000000000000000
-        );
-        assertion.getOwnerCollateralAssertion(
-            EscrowType.Type.DatacapCollateral,
+            EscrowType.Type.TotalDataPrepareFeeByClient,
             _owner,
             _id,
             1
+        );
+        assertion.getOwnerLockAssertion(
+            EscrowType.Type.TotalDataPrepareFeeByClient,
+            _owner,
+            _id,
+            1
+        );
+
+        vm.prank(_owner);
+        escrow.paymentTransfer(
+            EscrowType.Type.TotalDataPrepareFeeByClient,
+            _owner,
+            _id,
+            1
+        );
+
+        assertion.getOwnerTotalAssertion(
+            EscrowType.Type.TotalDataPrepareFeeByClient,
+            _owner,
+            _id,
+            1
+        );
+        assertion.getOwnerLockAssertion(
+            EscrowType.Type.TotalDataPrepareFeeByClient,
+            _owner,
+            _id,
+            0
         );
     }
 }
 
-/// @notice Collateral test case,it should be fail
-contract CollateralTestCaseWithFail is EscrowTestSuiteBase {
+/// @notice PaymentTransfer test case,it should be fail
+contract PaymentTransferTestCaseWithFail is EscrowTestSuiteBase {
     constructor(
         IDatasets _datasets,
         IEscrow _escrow,
@@ -86,16 +95,24 @@ contract CollateralTestCaseWithFail is EscrowTestSuiteBase {
         EscrowTestSuiteBase(_datasets, _escrow, _assertion) // solhint-disable-next-line
     {}
 
-    /// @dev The main action of the test, where the owner collateral funds.
+    /// @dev The main action of the test, where the owner payment funds.
     /// @param _owner The destination address of the funds.
     /// @param _id The business id.
     function action(
         address payable _owner,
         uint64 _id
     ) internal virtual override {
+        vm.deal(address(this), 10 ether);
+        escrow.payment{value: 1}(
+            EscrowType.Type.DataPrepareFeeByProvider,
+            _owner,
+            _id,
+            1
+        );
+        vm.prank(_owner);
         vm.expectRevert();
-        escrow.collateral{value: 1}(
-            EscrowType.Type.DatacapCollateral,
+        escrow.paymentTransfer(
+            EscrowType.Type.DataPrepareFeeByProvider,
             _owner,
             _id,
             1

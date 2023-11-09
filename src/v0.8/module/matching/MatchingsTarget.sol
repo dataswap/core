@@ -19,6 +19,7 @@
 pragma solidity ^0.8.21;
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
@@ -38,6 +39,7 @@ import "src/v0.8/shared/utils/array/ArrayLIB.sol";
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
+import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
@@ -47,10 +49,6 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 /// @title Matchings Base Contract
 /// @notice This contract serves as the base for managing matchings, their states, and associated actions.
 /// @dev This contract is intended to be inherited by specific matching-related contracts.
-///      TODO: Missing fund proccess,need add later https://github.com/dataswap/core/issues/20
-///            1 bidder(when bidding) and initiator(when publish) should transfer FIL to payable function
-///            2 proccess the fund after matched
-///            3 proccess the fund after matchedsotre,step by step
 contract MatchingsTarget is
     Initializable,
     UUPSUpgradeable,
@@ -66,6 +64,7 @@ contract MatchingsTarget is
 
     address private governanceAddress;
     IRoles private roles;
+    IEscrow public escrow;
     IFilplus private filplus;
     ICarstore private carstore;
     IDatasets public datasets;
@@ -85,10 +84,12 @@ contract MatchingsTarget is
         address _carstore,
         address _datasets,
         address _datasetsRequirement,
-        address _datasetsProof
+        address _datasetsProof,
+        address _escrow
     ) public initializer {
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
+        escrow = IEscrow(_escrow);
         filplus = IFilplus(_filplus);
         carstore = ICarstore(_carstore);
         datasets = IDatasets(_datasets);
@@ -113,7 +114,7 @@ contract MatchingsTarget is
         return _getImplementation();
     }
 
-    function initMatchings(
+    function initDependencies(
         address _matchings,
         address _matchingsBids
     ) external onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
@@ -183,6 +184,41 @@ contract MatchingsTarget is
         return _cars;
     }
 
+    /// @notice  Internal function for after publishing a matching
+    /// @param _matchingId The matching id to publish cars.
+    /// @param _target The matching target object contract.
+    function _afterCompletePublish(
+        uint64 _matchingId,
+        MatchingType.MatchingTarget storage _target
+    ) internal {
+        _beforeBidding(_matchingId);
+        matchings.reportPublishMatching(_matchingId);
+
+        address datasetInitiator = datasets.getDatasetMetadataSubmitter(
+            _matchingId
+        );
+        address matchingInitiator = matchings.getMatchingInitiator(_matchingId);
+        // Emit Synchronize matching payment sub account
+        escrow.emitPaymentUpdate(
+            EscrowType.Type.TotalDataPrepareFeeByClient,
+            datasetInitiator,
+            _matchingId,
+            matchingInitiator,
+            EscrowType.PaymentEvent.AddPaymentSubAccount
+        );
+
+        (uint256 total, , , , ) = escrow.getBeneficiaryFund(
+            EscrowType.Type.TotalDataPrepareFeeByClient,
+            datasetInitiator,
+            _matchingId,
+            matchingInitiator
+        );
+        _target._updateSubsidy(total); // update subsidy amount
+
+        // update dataset used size
+        datasets.addDatasetUsedSize(_matchingId, getMatchingSize(_matchingId));
+    }
+
     /// @notice  Function for publishing a matching
     /// @param _matchingId The matching id to publish cars.
     /// @param _datasetId The dataset id of matching.
@@ -224,10 +260,17 @@ contract MatchingsTarget is
         );
 
         if (complete) {
-            _beforeBidding(_matchingId);
-            matchings.reportPublishMatching(_matchingId);
+            _afterCompletePublish(_matchingId, target);
             emit MatchingsEvents.MatchingPublished(_matchingId, msg.sender);
         }
+    }
+
+    /// @notice Function for getting subsidy amount in a matching
+    function getMatchingSubsidy(
+        uint64 _matchingId
+    ) public view returns (uint256) {
+        MatchingType.MatchingTarget storage target = targets[_matchingId];
+        return target._getMatchingSubsidy();
     }
 
     /// @notice Get the cars of a matching.

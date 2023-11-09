@@ -20,4 +20,7 @@ pragma solidity ^0.8.21;
 library DatacapsEvents {
     ///notice:  Event emitted when datacap is allocated to a matching
     event DatacapAllocated(uint64 indexed matchingId, uint64 allocatedCapacity);
+
+    ///notice:  Event emitted when chunk datacap is collateral to a matching
+    event DatacapChunkCollateral(uint64 indexed, address, uint256, uint256);
 }

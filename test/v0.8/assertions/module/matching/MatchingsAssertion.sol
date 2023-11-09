@@ -65,7 +65,8 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
 
         // Perform the action
         vm.prank(caller);
-        matchingsBids.bidding(_matchingId, _amount);
+        vm.deal(address(caller), _amount);
+        matchingsBids.bidding{value: _amount}(_matchingId, _amount);
 
         // After the bidding action:
         // 1. Check the new bids and count.

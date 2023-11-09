@@ -43,13 +43,13 @@ library DatasetsEvents {
     );
 
     /// @notice Event emitted when a dataset has not enough collateral.
-    event CollateralNotEnough(
+    event FundsNotEnough(
         uint64 indexed _datasetId,
         address indexed _provider
     );
 
     /// @notice Event emitted when a dataset has enough collateral.
-    event CollateralEnough(
+    event FundsEnough(
         uint64 indexed _datasetId,
         address indexed _provider
     );

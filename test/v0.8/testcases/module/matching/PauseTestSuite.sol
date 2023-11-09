@@ -130,7 +130,7 @@ contract PauseTestCaseWithInvalidState is MatchingsTestBase {
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
-            100,
+            1000,
             100,
             0,
             "TEST"

@@ -12,10 +12,11 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     const datasets = await deployments.get("Datasets");
     const datasetsRequirement = await deployments.get("DatasetsRequirement");
     const datasetsProof = await deployments.get("DatasetsProof");
-    await deployAndSaveContract("MatchingsBids", [governanceAddress, roles.address, filplus.address, carstore.address, datasets.address, datasetsRequirement.address, datasetsProof.address], hre);
+    const escrow = await deployments.get("Escrow");
+    await deployAndSaveContract("MatchingsBids", [governanceAddress, roles.address, filplus.address, carstore.address, datasets.address, datasetsRequirement.address, datasetsProof.address, escrow.address], hre);
 };
 
 export default deployFunction;
 
-deployFunction.dependencies = ["Roles", "Filplus", "Carstore", "Datasets", "DatasetsRequirement", "DatasetsProof"];
+deployFunction.dependencies = ["Roles", "Filplus", "Carstore", "Datasets", "DatasetsRequirement", "DatasetsProof", "Escrow"];
 deployFunction.tags = ["MatchingsBids"];

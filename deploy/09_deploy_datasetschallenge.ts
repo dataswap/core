@@ -9,10 +9,11 @@ const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnviro
     const roles = await deployments.get("Roles");
     const datasetsProof = await deployments.get("DatasetsProof");
     const merkleUtils = await deployments.get("MerkleUtils");
-    await deployAndSaveContract("DatasetsChallenge", [governanceAddress, roles.address, datasetsProof.address, merkleUtils.address], hre);
+    const escrow = await deployments.get("Escrow");
+    await deployAndSaveContract("DatasetsChallenge", [governanceAddress, roles.address, datasetsProof.address, merkleUtils.address, escrow.address], hre);
 };
 
 export default deployFunction;
 
-deployFunction.dependencies = ["Roles", "DatasetsProof", "MerkleUtils"];
+deployFunction.dependencies = ["Roles", "DatasetsProof", "MerkleUtils", "Escrow"];
 deployFunction.tags = ["DatasetsChallenge"];

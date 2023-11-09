@@ -54,6 +54,14 @@ interface IDatasets {
         uint64 _version
     ) external;
 
+    /// @notice Update dataset usedSizeInBytes. only called by matching contract. TODO: Need to add permission control
+    function addDatasetUsedSize(uint64 _datasetId, uint64 _size) external;
+
+    /// @notice Get dataset usedSizeInBytes.
+    function getDatasetUsedSize(
+        uint64 _datasetId
+    ) external view returns (uint64);
+
     ///@notice Get dataset metadata
     function getDatasetMetadata(
         uint64 _datasetId
@@ -95,10 +103,10 @@ interface IDatasets {
     ) external view returns (bool);
 
     /// @notice Report the dataset has not enough collateral.
-    function reportCollateralNotEnough(uint64 _datasetId) external;
+    function reportFundsNotEnough(uint64 _datasetId) external;
 
     /// @notice Report the dataset has enough collateral.
-    function reportCollateralEnough(uint64 _datasetId) external;
+    function reportFundsEnough(uint64 _datasetId) external;
 
     /// @notice Report the dataset replica has already been submitted.
     function reportDatasetReplicaRequirementSubmitted(

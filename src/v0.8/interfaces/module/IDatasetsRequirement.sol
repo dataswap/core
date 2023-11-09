@@ -24,15 +24,23 @@ import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
 
 /// @title IDatasetsRequirement
 interface IDatasetsRequirement {
-    ///@notice Submit storage requirement for a dataset
-    ///        Note: submmiter of dataset can submit dataset storage requirement
+    ///@notice Submit replica requirement for a dataset
+    ///        Note: submmiter of dataset can submit dataset replica requirement
+    /// @param _datasetId The ID of the dataset for which proof is submitted.
+    /// @param _dataPreparers The client specified data preparer, which the client can either specify or not, but the parameter cannot be empty.
+    /// @param _storageProviders The client specified storage provider, which the client can either specify or not, but the parameter cannot be empty.
+    /// @param _regions The region specified by the client, and the client must specify a region for the replicas.
+    /// @param _countrys The country specified by the client, and the client must specify a country for the replicas.
+    /// @param _citys The citys specified by the client, when the country of a replica is duplicated, citys must be specified and cannot be empty.
+    /// @param _amount The data preparer calculate fees.
     function submitDatasetReplicaRequirements(
         uint64 _datasetId,
         address[][] memory _dataPreparers,
         address[][] memory _storageProviders,
         uint16[] memory _regions,
         uint16[] memory _countrys,
-        uint32[][] memory _citys
+        uint32[][] memory _citys,
+        uint256 _amount
     ) external payable;
 
     ///@notice Get dataset replicas count

@@ -16,27 +16,17 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {Roles} from "src/v0.8/core/access/Roles.sol";
-import {Filplus} from "src/v0.8/core/filplus/Filplus.sol";
+import {BaseTestSetup} from "test/v0.8/uinttests/helpers/BaseTestSetup.sol";
 import {FilplusAssertion} from "test/v0.8/assertions/core/filplus/FilplusAssertion.sol";
-import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
 
 /// @title FilplusTestSetup
 /// @notice This contract is used for setting up the filplus contract for testing.
-contract FilplusTestSetup {
-    Filplus public filplus;
+contract FilplusTestSetup is BaseTestSetup {
     FilplusAssertion assertion;
-    Generator generator;
-    address payable governanceContractAddresss;
 
     /// @dev Initialize the filplus and assertion contracts.
     function setup() internal {
-        Roles role = new Roles();
-        role.initialize();
-        governanceContractAddresss = payable(address(uint160(1)));
-        generator = new Generator();
-        filplus = new Filplus();
-        filplus.initialize(governanceContractAddresss, address(role));
+        enhanceSetup();
         assertion = new FilplusAssertion(filplus);
     }
 }

@@ -52,7 +52,8 @@ contract DatasetsTestSetup is Test {
     ///@notice Setup source dataset conditions for dataset test caset.
     function datasetTestSetup(
         IDatasetsHelpers _datasetsHelpers,
-        IDatasets _datasets
+        IDatasets _datasets,
+        IDatasetsProof _datasetsProof
     ) public returns (uint64 id) {
         uint64 datasetId = _datasetsHelpers.submitDatasetMetadata(
             address(9),
@@ -97,10 +98,16 @@ contract DatasetsTestSetup is Test {
         uint256 collateralRequirement = _datasetsHelpers
             .getDatasetsProof()
             .getDatasetAppendCollateral(datasetId);
-        vm.deal(address(this), 100 ether);
-        _datasetsHelpers.getDatasetsProof().appendDatasetCollateral{
-            value: collateralRequirement
-        }(datasetId);
+        uint256 datasetAuditorFee = _datasetsHelpers
+            .getDatasetsProof()
+            .getDatasetDataAuditorFeesRequirement(datasetId);
+        vm.deal(address(9), 1000 ether);
+        vm.prank(address(9));
+        _datasetsProof.appendDatasetFunds{value: 1000 ether}(
+            datasetId,
+            collateralRequirement,
+            datasetAuditorFee
+        );
 
         _datasetsHelpers.getDatasetsProof().submitDatasetProofCompleted(
             datasetId
@@ -148,7 +155,8 @@ contract DatasetsTestSetup is Test {
     ///@notice Setup verification conditions for dataset test caset.
     function verificationTestSetup(
         IDatasetsHelpers _datasetsHelpers,
-        IDatasets _datasets
+        IDatasets _datasets,
+        IDatasetsProof _datasetsProof
     ) public returns (uint64 id) {
         uint64 datasetId = _datasetsHelpers.submitDatasetMetadata(
             address(9),
@@ -192,10 +200,16 @@ contract DatasetsTestSetup is Test {
         uint256 collateralRequirement = _datasetsHelpers
             .getDatasetsProof()
             .getDatasetAppendCollateral(datasetId);
-        vm.deal(address(this), 100 ether);
-        _datasetsHelpers.getDatasetsProof().appendDatasetCollateral{
-            value: collateralRequirement
-        }(datasetId);
+        uint256 datasetAuditorFee = _datasetsHelpers
+            .getDatasetsProof()
+            .getDatasetDataAuditorFeesRequirement(datasetId);
+        vm.deal(address(9), 1000 ether);
+        vm.prank(address(9));
+        _datasetsProof.appendDatasetFunds{value: 1000 ether}(
+            datasetId,
+            collateralRequirement,
+            datasetAuditorFee
+        );
 
         _datasetsHelpers.getDatasetsProof().submitDatasetProofCompleted(
             datasetId

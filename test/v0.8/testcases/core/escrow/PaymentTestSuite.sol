@@ -42,18 +42,116 @@ contract PaymentTestCaseWithSuccess is EscrowTestSuiteBase {
     ) internal virtual override {
         vm.deal(address(this), 10 ether);
         address beneficiary = address(100);
-        escrow.paymentSingleBeneficiaryCollateral{value: 1}(
-            EscrowType.Type.DataAuditFee,
+
+        assertion.getOwnerTotalAssertion(
+            EscrowType.Type.DatasetAuditFee,
+            _owner,
+            _id,
+            0
+        );
+        assertion.getOwnerCollateralAssertion(
+            EscrowType.Type.DatasetAuditFee,
+            _owner,
+            _id,
+            0
+        );
+        assertion.getOwnerLockAssertion(
+            EscrowType.Type.DatasetAuditFee,
+            _owner,
+            _id,
+            0
+        );
+
+        vm.roll(100);
+        escrow.paymentSingleBeneficiary{value: 1 ether}(
+            EscrowType.Type.DatasetAuditFee,
             _owner,
             _id,
             beneficiary,
             1
         );
-        escrow.paymentCollateral{value: 1}(
-            EscrowType.Type.DataAuditFee,
+
+        assertion.getOwnerTotalAssertion(
+            EscrowType.Type.DatasetAuditFee,
+            _owner,
+            _id,
+            1000000000000000000
+        );
+        assertion.getOwnerCollateralAssertion(
+            EscrowType.Type.DatasetAuditFee,
+            _owner,
+            _id,
+            0
+        );
+        assertion.getOwnerLockAssertion(
+            EscrowType.Type.DatasetAuditFee,
             _owner,
             _id,
             1
+        );
+
+        address[] memory beneficiaries = new address[](1);
+        beneficiaries[0] = beneficiary;
+        assertion.getBeneficiariesListAssertion(
+            EscrowType.Type.DatasetAuditFee,
+            _owner,
+            _id,
+            beneficiaries
+        );
+        assertion.getBeneficiaryFundAssertion(
+            EscrowType.Type.DatasetAuditFee,
+            _owner,
+            _id,
+            beneficiary,
+            1,
+            1,
+            0,
+            0,
+            100
+        );
+
+        escrow.payment{value: 1 ether}(
+            EscrowType.Type.DatasetAuditFee,
+            _owner,
+            _id,
+            10
+        );
+
+        assertion.getOwnerTotalAssertion(
+            EscrowType.Type.DatasetAuditFee,
+            _owner,
+            _id,
+            2000000000000000000
+        );
+        assertion.getOwnerCollateralAssertion(
+            EscrowType.Type.DatasetAuditFee,
+            _owner,
+            _id,
+            0
+        );
+        assertion.getOwnerLockAssertion(
+            EscrowType.Type.DatasetAuditFee,
+            _owner,
+            _id,
+            11
+        );
+
+        assertion.getBeneficiariesListAssertion(
+            EscrowType.Type.DatasetAuditFee,
+            _owner,
+            _id,
+            beneficiaries
+        );
+        assertion.getBeneficiaryFundAssertion(
+            EscrowType.Type.DatasetAuditFee,
+            _owner,
+            _id,
+            beneficiary,
+            1,
+            1,
+            0,
+            0,
+            100
         );
     }
 }
@@ -77,8 +175,8 @@ contract PaymentTestCaseWithFail is EscrowTestSuiteBase {
     ) internal virtual override {
         vm.expectRevert();
         address beneficiary = address(100);
-        escrow.paymentSingleBeneficiaryCollateral{value: 1}(
-            EscrowType.Type.DataAuditFee,
+        escrow.paymentSingleBeneficiary{value: 1}(
+            EscrowType.Type.DatasetAuditFee,
             _owner,
             _id,
             beneficiary,

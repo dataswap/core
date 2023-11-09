@@ -64,7 +64,8 @@ contract CloseTestCaseWithSuccess is ControlTestSuiteBase {
         vm.stopPrank();
         vm.roll(101);
         vm.prank(address(199));
-        matchingsBids.bidding(matchingId, 200);
+        vm.deal(address(199), 200 ether);
+        matchingsBids.bidding{value: 200}(matchingId, 200);
         return matchingId;
     }
 
@@ -119,7 +120,7 @@ contract CloseTestCaseWithInvalidState is MatchingsTestBase {
             MatchingType.BidSelectionRule.HighestBid,
             100,
             100,
-            100,
+            1000,
             100,
             0,
             "TEST"

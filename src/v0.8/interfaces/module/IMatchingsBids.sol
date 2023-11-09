@@ -24,13 +24,13 @@ import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 /// @title IMatchingsBid
 interface IMatchingsBids {
     /// @notice  Function for init matchings instance.
-    function initMatchings(
+    function initDependencies(
         address _matchings,
         address _matchingsTarget
     ) external;
 
     /// @notice  Function for bidding on a matching
-    function bidding(uint64 _matchingId, uint256 _amount) external;
+    function bidding(uint64 _matchingId, uint256 _amount) external payable;
 
     /// @notice  Function for canceling a matching
     function cancelMatching(uint64 _matchingId) external;

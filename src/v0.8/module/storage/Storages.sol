@@ -16,9 +16,11 @@ pragma solidity ^0.8.21;
 
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
+import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
 import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
@@ -30,9 +32,10 @@ import {StoragesModifiers} from "src/v0.8/shared/modifiers/StoragesModifiers.sol
 import {CidUtils} from "src/v0.8/shared/utils/cid/CidUtils.sol";
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
-import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
+import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 import {StorageType} from "src/v0.8/types/StorageType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -49,8 +52,10 @@ contract Storages is
 
     address private governanceAddress;
     IRoles private roles;
+    IEscrow private escrow;
     IFilplus private filplus;
     IFilecoin private filecoin;
+    IDatasets public datasets;
     ICarstore private carstore;
     IMatchings public matchings;
     IMatchingsTarget public matchingsTarget;
@@ -67,12 +72,16 @@ contract Storages is
         address _carstore,
         address _matchings,
         address _matchingsTarget,
-        address _matchingsBids
+        address _matchingsBids,
+        address _escrow,
+        address _datasets
     ) public initializer {
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
+        escrow = IEscrow(_escrow);
         filplus = IFilplus(_filplus);
         filecoin = IFilecoin(_filecoin);
+        datasets = IDatasets(_datasets);
         carstore = ICarstore(_carstore);
         matchings = IMatchings(_matchings);
         matchingsTarget = IMatchingsTarget(_matchingsTarget);
@@ -100,13 +109,13 @@ contract Storages is
     /// @param _provider A provider of storage provider of matching.
     /// @param _id The content identifier of the matched data.
     /// @param _claimId The ID of the successful Filecoin storage deal.
-    function submitStorageClaimId(
+    function _submitStorageClaimId(
         uint64 _matchingId,
         uint64 _provider,
         uint64 _id,
         uint64 _claimId
     )
-        public
+        internal
         onlyAddress(matchingsBids.getMatchingWinner(_matchingId))
         onlyUnsetCarReplicaFilecoinClaimId(carstore, _id, _matchingId)
     {
@@ -146,12 +155,36 @@ contract Storages is
         uint64[] memory _ids,
         uint64[] memory _claimIds
     ) external {
+        require(isStorageExpiration(_matchingId) != true, "Storage expiration");
         if (_ids.length != _claimIds.length) {
             revert Errors.ParamLengthMismatch(_ids.length, _claimIds.length);
         }
         for (uint64 i = 0; i < _ids.length; i++) {
-            submitStorageClaimId(_matchingId, _provider, _ids[i], _claimIds[i]);
+            _submitStorageClaimId(
+                _matchingId,
+                _provider,
+                _ids[i],
+                _claimIds[i]
+            );
         }
+
+        // Notify the escrow contract to update the payment amount
+        escrow.emitPaymentUpdate(
+            EscrowType.Type.DataPrepareFeeByProvider,
+            matchingsBids.getMatchingWinner(_matchingId),
+            _matchingId,
+            matchings.getMatchingInitiator(_matchingId),
+            EscrowType.PaymentEvent.SyncPaymentLock
+        );
+
+        uint64 datasetId = matchingsTarget.getMatchingDatasetId(_matchingId);
+        escrow.emitPaymentUpdate(
+            EscrowType.Type.DataPrepareFeeByClient,
+            datasets.getDatasetMetadataSubmitter(datasetId),
+            _matchingId,
+            matchings.getMatchingInitiator(_matchingId),
+            EscrowType.PaymentEvent.SyncPaymentLock
+        );
     }
 
     /// @dev Gets the list of done cars in the matchedstore.
@@ -196,11 +229,53 @@ contract Storages is
         return 0;
     }
 
+    /// @dev Get the provider allow payment amount
+    function getProviderLockPayment(
+        uint64 _matchingId
+    ) public view returns (uint256) {
+        uint64 storedSize = getTotalStoredSize(_matchingId);
+        (, , uint64 totalSize, , ) = matchingsTarget.getMatchingTarget(
+            _matchingId
+        );
+        uint256 totalPayment = matchingsBids.getMatchingBidAmount(
+            _matchingId,
+            matchingsBids.getMatchingWinner(_matchingId)
+        );
+        return (totalPayment / totalSize) * (totalSize - storedSize);
+    }
+
+    /// @dev Get the client allow payment amount
+    function getClientLockPayment(
+        uint64 _matchingId
+    ) public view returns (uint256) {
+        uint64 storedSize = getTotalStoredSize(_matchingId);
+        (, , uint64 totalSize, , ) = matchingsTarget.getMatchingTarget(
+            _matchingId
+        );
+        uint256 totalPayment = matchingsTarget.getMatchingSubsidy(_matchingId);
+        return (totalPayment / totalSize) * (totalSize - storedSize);
+    }
+
     /// @dev Checks if all cars are done in the matchedstore.
     function isAllStoredDone(uint64 _matchingId) public view returns (bool) {
         StorageType.Storage storage storage_ = storages[_matchingId];
         return
             storage_.doneCars.length ==
             matchingsTarget.getMatchingCars(_matchingId).length;
+    }
+
+    /// @dev Checks if store expiration in the matchedstore.
+    function isStorageExpiration(
+        uint64 _matchingId
+    ) public view returns (bool) {
+        if (
+            block.number >
+            matchings.getMatchingCreatedHeight(_matchingId) +
+                matchings.getMatchingStorageCompletionHeight(_matchingId)
+        ) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

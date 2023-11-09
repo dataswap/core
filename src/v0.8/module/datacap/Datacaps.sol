@@ -19,6 +19,7 @@ pragma solidity ^0.8.21;
 
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
@@ -29,6 +30,7 @@ import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
 
 import {RolesType} from "src/v0.8/types/RolesType.sol";
+import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 
 /// shared
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
@@ -59,6 +61,7 @@ contract Datacaps is
     mapping(uint64 => uint64) private allocatedDatacaps;
     address private governanceAddress;
     IRoles private roles;
+    IEscrow private escrow;
     IFilplus private filplus;
     IFilecoin private filecoin;
     ICarstore private carstore;
@@ -66,6 +69,7 @@ contract Datacaps is
     IMatchingsTarget private matchingsTarget;
     IMatchingsBids private matchingsBids;
     IStorages public storages;
+
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -80,10 +84,12 @@ contract Datacaps is
         address _matchings,
         address _matchingsTarget,
         address _matchingsBids,
-        address _storages
+        address _storages,
+        address _escrow
     ) public initializer {
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
+        escrow = IEscrow(_escrow);
         filplus = IFilplus(_filplus);
         filecoin = IFilecoin(_filecoin);
         carstore = ICarstore(_carstore);
@@ -107,6 +113,34 @@ contract Datacaps is
     /// @notice Returns the implementation contract
     function getImplementation() external view returns (address) {
         return _getImplementation();
+    }
+
+    /// @notice Add collateral funds for allocating datacap chunk
+    /// @param _matchingId The ID of the matching
+    function addDatacapChunkCollateral(uint64 _matchingId) public payable {
+        uint256 requirement = getCollateralRequirement();
+        address winner = matchingsBids.getMatchingWinner(_matchingId);
+        uint256 currentFunds = escrow.getOwnerCollateral(
+            EscrowType.Type.DatacapChunkCollateral,
+            winner,
+            _matchingId
+        );
+        uint256 requiredFunds = requirement - currentFunds;
+        require(msg.value >= requiredFunds, "Insufficient collateral funds");
+
+        escrow.collateral{value: msg.value}(
+            EscrowType.Type.DatacapChunkCollateral,
+            winner,
+            _matchingId,
+            requiredFunds
+        );
+
+        emit DatacapsEvents.DatacapChunkCollateral(
+            _matchingId,
+            winner,
+            msg.value,
+            requiredFunds
+        );
     }
 
     /// @dev Internal function to allocate matched datacap.
@@ -135,6 +169,14 @@ contract Datacaps is
         validNextDatacapAllocation(this, _matchingId)
         returns (uint64)
     {
+        uint256 currentFunds = escrow.getOwnerCollateral(
+            EscrowType.Type.DatacapChunkCollateral,
+            matchingsBids.getMatchingWinner(_matchingId),
+            _matchingId
+        );
+        uint256 requirement = getCollateralRequirement();
+        require(currentFunds >= requirement, "Insufficient collateral funds");
+
         uint64 remainingUnallocatedDatacap = getRemainingUnallocatedDatacap(
             _matchingId
         );
@@ -163,6 +205,74 @@ contract Datacaps is
             );
             return maxAllocateCapacityPreTime;
         }
+    }
+
+    /// @notice Get collateral funds requirement for allocate chunk datacap
+    function getCollateralRequirement() public view returns (uint256) {
+        // TODO: PRICE_PER_BYTE import from governance
+        uint64 PER_TIB_BYTE = (1024 * 1024 * 1024 * 1024);
+        uint256 PRICE_PER_BYTE = (1000000000000000000 / PER_TIB_BYTE);
+        return filplus.datacapRulesMaxAllocatedSizePerTime() * PRICE_PER_BYTE;
+    }
+
+    /// @notice Get the updated collateral funds for datacap chunk based on real-time business data
+    /// @param _matchingId The ID of the matching
+    /// @return The updated collateral funds required
+    function updatedDatacapChunkCollateralFunds(
+        uint64 _matchingId
+    ) public view returns (uint256) {
+        uint256 availableFunds = escrow.getOwnerCollateral(
+            EscrowType.Type.DatacapChunkCollateral,
+            matchingsBids.getMatchingWinner(_matchingId),
+            _matchingId
+        );
+
+        if (storages.isStorageExpiration(_matchingId) == true) {
+            uint64 matchingSize = matchingsTarget.getMatchingSize(_matchingId);
+            uint64 storedSize = storages.getTotalStoredSize(_matchingId);
+
+            // TODO: PRICE_PER_BYTE import from governance
+            uint64 PER_TIB_BYTE = (1024 * 1024 * 1024 * 1024);
+            uint256 PRICE_PER_BYTE = (1000000000000000000 / PER_TIB_BYTE);
+            uint256 requiredFunds = (matchingSize - storedSize) *
+                PRICE_PER_BYTE;
+
+            if (requiredFunds < availableFunds) return requiredFunds;
+        }
+
+        return availableFunds;
+    }
+
+    /// @notice Get the updated burn funds for datacap chunk based on real-time business data
+    /// @param _matchingId The ID of the matching
+    /// @return The updated burn funds required
+    function updatedDatacapChunkBurnFunds(
+        uint64 _matchingId
+    ) public view returns (uint256) {
+        if (storages.isStorageExpiration(_matchingId) == true) {
+            uint64 matchingSize = matchingsTarget.getMatchingSize(_matchingId);
+            uint64 storedSize = storages.getTotalStoredSize(_matchingId);
+
+            // TODO: PRICE_PER_BYTE import from governance
+            uint64 PER_TIB_BYTE = (1024 * 1024 * 1024 * 1024);
+            uint256 PRICE_PER_BYTE = (1000000000000000000 / PER_TIB_BYTE);
+            uint256 requiredFunds = (matchingSize - storedSize) *
+                PRICE_PER_BYTE;
+
+            uint256 availableFunds = escrow.getOwnerCollateral(
+                EscrowType.Type.DatacapChunkCollateral,
+                matchingsBids.getMatchingWinner(_matchingId),
+                _matchingId
+            );
+
+            if (requiredFunds < availableFunds) {
+                return requiredFunds;
+            } else {
+                return availableFunds;
+            }
+        }
+
+        return 0;
     }
 
     /// @dev Gets the allocated matched datacap for a matching process.

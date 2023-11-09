@@ -47,10 +47,10 @@ library DatasetStateMachineLIB {
             }
         } else if (_event == DatasetType.Event.NotEnoughCollateral) {
             if (currentState == DatasetType.State.MetadataApproved) {
-                newState = DatasetType.State.CollateralNotEnough;
+                newState = DatasetType.State.FundsNotEnough;
             }
         } else if (_event == DatasetType.Event.EnoughCollateral) {
-            if (currentState == DatasetType.State.CollateralNotEnough) {
+            if (currentState == DatasetType.State.FundsNotEnough) {
                 newState = DatasetType.State.MetadataApproved;
             }
         } else if (_event == DatasetType.Event.SubmitDatasetProof) {

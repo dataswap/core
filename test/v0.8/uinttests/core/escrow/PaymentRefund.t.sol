@@ -17,37 +17,39 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import "test/v0.8/testcases/core/escrow/PaymentWithdrawTestSuite.sol";
+import "test/v0.8/testcases/core/escrow/PaymentRefundTestSuite.sol";
 import {EscrowTestSetup} from "test/v0.8/uinttests/core/escrow/setup/EscrowTestSetup.sol";
 
-contract PaymentWithdrawTest is Test, EscrowTestSetup {
+contract PaymentRefundTest is Test, EscrowTestSetup {
     /// @notice test case with success
-    function testPaymentWithdrawWithSuccess(
+    function testPaymentRefundWithSuccess(
         address payable _owner,
         uint64 _id
     ) public {
         setup();
-        PaymentWithdrawTestCaseWithSuccess testCase = new PaymentWithdrawTestCaseWithSuccess(
+        PaymentRefundTestCaseWithSuccess testCase = new PaymentRefundTestCaseWithSuccess(
                 datasets,
                 escrow,
                 assertion,
                 storagesHelpers,
-                matchings,
-                matchingsBids
+                carstore,
+                storages,
+                filecoin
             );
         testCase.run(_owner, _id);
     }
 
     /// @notice test case with fail
-    function testPaymentWithdrawWithFail(
+    function testPaymentRefundWithFail(
         address payable _owner,
         uint64 _id
     ) public {
         setup();
-        PaymentWithdrawTestCaseWithFail testCase = new PaymentWithdrawTestCaseWithFail(
+        PaymentRefundTestCaseWithFail testCase = new PaymentRefundTestCaseWithFail(
                 datasets,
                 escrow,
-                assertion
+                assertion,
+                matchingsHelpers
             );
         testCase.run(_owner, _id);
     }

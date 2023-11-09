@@ -230,7 +230,8 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             _storageProviders,
             _regions,
             _countrys,
-            _citys
+            _citys,
+            0
         );
         getDatasetStateAssertion(
             _datasetId,

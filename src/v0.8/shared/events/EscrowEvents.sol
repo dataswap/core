@@ -80,7 +80,20 @@ library EscrowEvents {
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
     /// @param _attoFILAmount The amount of attoFIL.
-    event PaymentCollateral(
+    event Payment(
+        EscrowType.Type _type,
+        address indexed _owner,
+        uint64 _id,
+        uint256 _attoFILAmount
+    );
+
+    /// @notice Report a payment transfer event.
+    /// @dev This function allows report the payment transfer event of a specific amount in attoFIL.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @param _attoFILAmount The amount of attoFIL.
+    event PaymentTransfer(
         EscrowType.Type _type,
         address indexed _owner,
         uint64 _id,
@@ -94,7 +107,7 @@ library EscrowEvents {
     /// @param _id The business id associated with the credited funds.
     /// @param _beneficiary The beneficiary address for the payment credited funds.
     /// @param _attoFILAmount The amount of attoFIL.
-    event PaymentSingleBeneficiaryCollateral(
+    event PaymentSingleBeneficiary(
         EscrowType.Type _type,
         address indexed _owner,
         uint64 _id,
@@ -117,14 +130,29 @@ library EscrowEvents {
         uint256 _attoFILAmount
     );
 
-    /// @notice Report a UpdatePaymentCollateral made by a _beneficiary.
+    /// @notice Report a UpdatePaymentLock made by a _beneficiary.
     /// @dev This function allows report the payment collateral event of a specific amount in attoFIL.
     /// @param _type The Escrow type for the credited funds.
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
     /// @param _beneficiary The beneficiary address for the payment credited funds.
     /// @param _attoFILAmount The amount of attoFIL.
-    event UpdatePaymentCollateral(
+    event UpdatePaymentLock(
+        EscrowType.Type _type,
+        address indexed _owner,
+        uint64 _id,
+        address indexed _beneficiary,
+        uint256 _attoFILAmount
+    );
+
+    /// @notice Report a UpdatePaymentSubAccount.
+    /// @dev This function allows report the payment collateral event of a specific amount in attoFIL.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    /// @param _beneficiary The beneficiary address for the payment credited funds.
+    /// @param _attoFILAmount The amount of attoFIL.
+    event UpdatePaymentSubAccount(
         EscrowType.Type _type,
         address indexed _owner,
         uint64 _id,

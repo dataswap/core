@@ -18,6 +18,11 @@
 
 pragma solidity ^0.8.21;
 
+import {SendAPI} from "@zondax/filecoin-solidity/contracts/v0.8/SendAPI.sol";
+import {FilAddresses} from "@zondax/filecoin-solidity/contracts/v0.8/utils/FilAddresses.sol";
+
+import {EscrowType} from "src/v0.8/types/EscrowType.sol";
+import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {MatchingStateMachineLIB} from "src/v0.8/module/matching/library/MatchingStateMachineLIB.sol";
 
@@ -68,14 +73,16 @@ library MatchingBidsLIB {
                     "Invalid amount"
                 );
             }
-        }
 
-        MatchingType.Bid memory _bid = MatchingType.Bid(
-            msg.sender,
-            _amount,
-            true
-        );
-        self.bids.push(_bid);
+            _updateMatchingBidAmount(self, msg.sender, _amount);
+        } else {
+            MatchingType.Bid memory _bid = MatchingType.Bid(
+                msg.sender,
+                _amount,
+                true
+            );
+            self.bids.push(_bid);
+        }
     }
 
     /// @notice justify is has a winner for a closed matching.
@@ -147,6 +154,23 @@ library MatchingBidsLIB {
         for (uint64 i = uint64(self.bids.length - 1); i >= 0; i--) {
             if (_bidder == self.bids[i].bidder) {
                 self.bids[i].complyFilplusRule = false;
+            }
+        }
+    }
+
+    /// @notice Update the bid amount of a bidder in the matching.
+    /// @dev This function retrieves the bid amount of a bidder.
+    /// @param self The bids in the matching.
+    /// @param _bidder The address of the bidder.
+    /// @param _amount The bid amount.
+    function _updateMatchingBidAmount(
+        MatchingType.MatchingBids storage self,
+        address _bidder,
+        uint256 _amount
+    ) internal {
+        for (uint64 i = uint64(self.bids.length - 1); i >= 0; i--) {
+            if (_bidder == self.bids[i].bidder) {
+                self.bids[i].bid = _amount;
             }
         }
     }
