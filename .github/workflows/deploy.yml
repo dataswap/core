@@ -1,0 +1,33 @@
+name: Deploy Contract
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Dependencies
+        run: |
+          npm install -g hardhat
+        id: intsalldepends
+
+      - name: Set up Environment Variables
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          CALIBRATION_RPC_URL: ${{ secrets.CALIBRATION_RPC_URL }}
+          DEPLOYER_ADDRESS: ${{ secrets.DEPLOYER_ADDRESS }}
+
+        run: |
+          npx hardhat deploy --network ${{ secrets.DEPLOY_NETWORK }}
