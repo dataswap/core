@@ -23,7 +23,8 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm install -g hardhat
+          yarn install
+          npm install --save-dev hardhat
         id: intsalldepends
 
       - name: Set up Environment Variables
@@ -31,8 +32,5 @@ jobs:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           CALIBRATION_RPC_URL: ${{ secrets.CALIBRATION_RPC_URL }}
           DEPLOYER_ADDRESS: ${{ secrets.DEPLOYER_ADDRESS }}
-        run: |
-          echo $PRIVATE_KEY $CALIBRATION_RPC_URL $DEPLOYER_ADDRESS
-      - name: depyloy contract
         run: |
           npx hardhat deploy --network ${{ secrets.DEPLOY_NETWORK }}
