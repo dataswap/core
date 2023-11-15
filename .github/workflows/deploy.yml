@@ -2,6 +2,9 @@ name: Deploy Contract
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - feat/CD#78
 
 jobs:
   deploy:
