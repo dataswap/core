@@ -31,6 +31,8 @@ jobs:
           PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
           CALIBRATION_RPC_URL: ${{ secrets.CALIBRATION_RPC_URL }}
           DEPLOYER_ADDRESS: ${{ secrets.DEPLOYER_ADDRESS }}
-
+        run: |
+          echo $PRIVATE_KEY $CALIBRATION_RPC_URL $DEPLOYER_ADDRESS
+      - name: depyloy contract
         run: |
           npx hardhat deploy --network ${{ secrets.DEPLOY_NETWORK }}
