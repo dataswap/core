@@ -3,11 +3,14 @@ import { HardhatRuntimeEnvironment } from "hardhat/types";
 
 enum Network {
 	Mainnet,
+	Localnet,
 	CalibrationTestnet
 }
 
 export const getFilecoinNetwork = async (chainId: number): Promise<Network> => {
-	if (chainId == 314159) {
+	if (chainId == 31415926) {
+		return Network.Localnet;
+	} else if (chainId == 314159) {
 		return Network.CalibrationTestnet;
 	} else {
 		return Network.Mainnet;

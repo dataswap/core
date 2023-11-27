@@ -197,6 +197,7 @@ contract Datasets is
     ///@notice Submit metadata for a dataset
     ///        Note:anyone can submit dataset metadata
     function submitDatasetMetadata(
+        uint64 _client,
         string memory _title,
         string memory _industry,
         string memory _name,
@@ -206,12 +207,17 @@ contract Datasets is
         uint64 _sizeInBytes,
         bool _isPublic,
         uint64 _version
-    ) external onlyDatasetMetadataNotExsits(this, _accessMethod) {
+    )
+        external
+        onlyDatasetMetadataNotExsits(this, _accessMethod)
+        returns (uint64)
+    {
         //Note: params check in lib
         datasetsCount++;
 
         DatasetType.Dataset storage dataset = datasets[datasetsCount];
         dataset.submitDatasetMetadata(
+            _client,
             _title,
             _industry,
             _name,
@@ -224,6 +230,7 @@ contract Datasets is
         );
 
         emit DatasetsEvents.DatasetMetadataSubmitted(datasetsCount, msg.sender);
+        return datasetsCount;
     }
 
     /// @notice Update dataset usedSizeInBytes. only called by matching contract. TODO: Need to add permission control
@@ -290,6 +297,14 @@ contract Datasets is
     ) public view returns (address) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         return dataset.getDatasetMetadataSubmitter();
+    }
+
+    /// @notice Get client of dataset's metadata
+    function getDatasetMetadataClient(
+        uint64 _datasetId
+    ) public view returns (uint64) {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        return dataset.getDatasetMetadataClient();
     }
 
     ///@notice Get dataset state

@@ -188,6 +188,7 @@ contract BaseTestSetup {
             address(filplus),
             address(filecoin),
             address(carstore),
+            address(datasets),
             address(matchings),
             address(matchingsTarget),
             address(matchingsBids),
@@ -200,5 +201,6 @@ contract BaseTestSetup {
             address(storages),
             address(datacaps)
         );
+        filecoin.initDependencies(address(datacaps));
     }
 }

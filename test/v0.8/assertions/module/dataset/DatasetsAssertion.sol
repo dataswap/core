@@ -150,6 +150,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
 
     /// @notice Assertion function for submitting dataset metadata.
     /// @param caller The address of the caller.
+    /// @param _client The client id of the dataset.
     /// @param _title The title of the dataset.
     /// @param _industry The industry of the dataset.
     /// @param _name The name of the dataset.
@@ -161,6 +162,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
     /// @param _version The version of the dataset.
     function submitDatasetMetadataAssertion(
         address caller,
+        uint64 _client,
         string memory _title,
         string memory _industry,
         string memory _name,
@@ -180,6 +182,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         vm.prank(caller);
         vm.deal(caller, 10 ether);
         datasets.submitDatasetMetadata(
+            _client,
             _title,
             _industry,
             _name,
@@ -202,7 +205,9 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             address(caller),
             uint64(block.number)
         );
+
         getDatasetMetadataSubmitterAssertion(newDatasetsCount, address(caller));
+        getDatasetMetadataClientAssertion(newDatasetsCount, _client);
     }
 
     /// @notice Assertion function for submitting dataset replica requirement.
@@ -504,6 +509,17 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
     ) public {
         address submitter = datasets.getDatasetMetadataSubmitter(_datasetId);
         assertEq(submitter, _expectSubmitter, "submitter not matched");
+    }
+
+    /// @notice Assertion function for getting dataset metadata's client.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _expectClient The expected client id.
+    function getDatasetMetadataClientAssertion(
+        uint64 _datasetId,
+        uint64 _expectClient
+    ) public {
+        uint64 client = datasets.getDatasetMetadataClient(_datasetId);
+        assertEq(client, _expectClient, "client not matched");
     }
 
     /// @notice Assertion function for getting dataset proof.

@@ -4,5 +4,11 @@ test = "test/v0.8"
 out = "out"
 cache_path = 'cache-foundry'
 libs = ['node_modules', "lib"]
-
+[profile.default.optimizer_details]
+#constantOptimizer = true
+yul = false
+# this sets the `yulDetails` of the `optimizer_details` for the `default` profile
+#[profile.default.optimizer_details.yulDetails]
+#stackAllocation = true
+#optimizerSteps = 'dhfoDgvulfnTUtnIf'
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config

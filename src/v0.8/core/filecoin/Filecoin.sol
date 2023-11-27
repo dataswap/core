@@ -17,11 +17,13 @@
 
 pragma solidity ^0.8.21;
 
-import {MarketAPI} from "@zondax/filecoin-solidity/contracts/v0.8/MarketAPI.sol";
-import {VerifRegAPI} from "@zondax/filecoin-solidity/contracts/v0.8/VerifRegAPI.sol";
-import {MarketTypes} from "@zondax/filecoin-solidity/contracts/v0.8/types/MarketTypes.sol";
-import {VerifRegTypes} from "@zondax/filecoin-solidity/contracts/v0.8/types/VerifRegTypes.sol";
-import {CommonTypes} from "@zondax/filecoin-solidity/contracts/v0.8/types/CommonTypes.sol";
+import {MarketAPI} from "src/v0.8/vendor/filecoin-solidity/contracts/v0.8/MarketAPI.sol";
+import {VerifRegAPI} from "src/v0.8/vendor/filecoin-solidity/contracts/v0.8/VerifRegAPI.sol";
+import {FilAddresses} from "src/v0.8/vendor/filecoin-solidity/contracts/v0.8/utils/FilAddresses.sol";
+import {BigInts} from "src/v0.8/vendor/filecoin-solidity/contracts/v0.8/utils/BigInts.sol";
+import {MarketTypes} from "src/v0.8/vendor/filecoin-solidity/contracts/v0.8/types/MarketTypes.sol";
+import {VerifRegTypes} from "src/v0.8/vendor/filecoin-solidity/contracts/v0.8/types/VerifRegTypes.sol";
+import {CommonTypes} from "src/v0.8/vendor/filecoin-solidity/contracts/v0.8/types/CommonTypes.sol";
 ///interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
@@ -37,6 +39,7 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 contract Filecoin is Initializable, UUPSUpgradeable, IFilecoin, RolesModifiers {
     FilecoinType.Network public network;
     IRoles private roles;
+    address private datacapAddress;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -63,6 +66,27 @@ contract Filecoin is Initializable, UUPSUpgradeable, IFilecoin, RolesModifiers {
     /// @notice Returns the implementation contract
     function getImplementation() external view returns (address) {
         return _getImplementation();
+    }
+
+    /// @notice The function to init the dependencies of a filecoin.
+    function initDependencies(
+        address _datacap
+    ) external onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
+        datacapAddress = _datacap;
+    }
+
+    /// @notice The function to allocate the datacap of a storage deal.
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __allocateDatacap(
+        uint64 client,
+        uint256 _size
+    ) external onlyAddress(datacapAddress) {
+        VerifRegTypes.AddVerifiedClientParams memory params = VerifRegTypes
+            .AddVerifiedClientParams(
+                FilAddresses.fromActorID(client),
+                BigInts.fromUint256(_size)
+            );
+        VerifRegAPI.addVerifiedClient(params);
     }
 
     /// @notice Internal function to get the state of a Filecoin storage deal for a replica.

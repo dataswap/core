@@ -23,6 +23,7 @@ import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
+import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
 import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
@@ -65,6 +66,7 @@ contract Datacaps is
     IFilplus private filplus;
     IFilecoin private filecoin;
     ICarstore private carstore;
+    IDatasets private datasets;
     IMatchings private matchings;
     IMatchingsTarget private matchingsTarget;
     IMatchingsBids private matchingsBids;
@@ -81,6 +83,7 @@ contract Datacaps is
         address _filplus,
         address _filecoin,
         address _carstore,
+        address _datasets,
         address _matchings,
         address _matchingsTarget,
         address _matchingsBids,
@@ -93,6 +96,7 @@ contract Datacaps is
         filplus = IFilplus(_filplus);
         filecoin = IFilecoin(_filecoin);
         carstore = ICarstore(_carstore);
+        datasets = IDatasets(_datasets);
         matchings = IMatchings(_matchings);
         matchingsTarget = IMatchingsTarget(_matchingsTarget);
         matchingsBids = IMatchingsBids(_matchingsBids);
@@ -146,16 +150,14 @@ contract Datacaps is
     /// @dev Internal function to allocate matched datacap.
     // solhint-disable-next-line
     function _allocateDatacap(
-        uint64 /*_matchingId*/,
-        uint64 /*_size*/ // solhint-disable-next-line
+        uint64 _matchingId,
+        uint64 _size // solhint-disable-next-line
     ) internal {
-        // DataCapTypes.TransferParams memory params = DataCapTypes.TransferParams(
-        //     FilAddresses.fromEthAddress(_to),
-        //     BigInts.fromUint256(_size),
-        //     ""
-        // );
-        // DataCapAPI.transfer(params);
-        //TODO: logic https://github.com/dataswap/core/issues/30
+        (uint64 datasetId, , , , , , ) = matchingsTarget.getMatchingTarget(
+            _matchingId
+        );
+        uint64 client = datasets.getDatasetMetadataClient(datasetId);
+        filecoin.__allocateDatacap(client, uint256(_size));
     }
 
     /// @dev Requests the allocation of matched datacap for a matching process.
