@@ -49,6 +49,7 @@ contract SubmitMetadataTestCaseWithSuccess is DatasetsTestBase {
     function action(uint64 /*_id*/) internal virtual override {
         datasetsAssertion.submitDatasetMetadataAssertion(
             address(9),
+            875,
             "a",
             "b",
             "c",
@@ -85,6 +86,7 @@ contract SubmitMetadataTestCaseWithDuplicate is DatasetsTestBase {
     function action(uint64 /*_id*/) internal virtual override {
         datasetsAssertion.submitDatasetMetadataAssertion(
             address(9),
+            875,
             "a",
             "b",
             "c",
@@ -103,6 +105,7 @@ contract SubmitMetadataTestCaseWithDuplicate is DatasetsTestBase {
         );
         datasetsAssertion.submitDatasetMetadataAssertion(
             address(9),
+            875,
             "a",
             "b",
             "c",

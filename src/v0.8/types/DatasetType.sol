@@ -61,6 +61,7 @@ library DatasetType {
         string source; // Source of the dataset.
         string accessMethod; // Method of accessing the dataset (e.g., URL, API).
         address submitter; // Address of the dataset's submitter.
+        uint64 client; // Filecoin actor id of the dataset's client.
         uint64 createdBlockNumber; // Block number at which the dataset was created.
         uint64 sizeInBytes; // Size of the dataset in bytes.
         bool isPublic; // Boolean indicating if the dataset is public.

@@ -43,6 +43,7 @@ interface IDatasets {
     ///@notice Submit metadata for a dataset
     ///        Note:anyone can submit dataset metadata
     function submitDatasetMetadata(
+        uint64 _client,
         string memory _title,
         string memory _industry,
         string memory _name,
@@ -52,7 +53,7 @@ interface IDatasets {
         uint64 _sizeInBytes,
         bool _isPublic,
         uint64 _version
-    ) external;
+    ) external returns (uint64);
 
     /// @notice Update dataset usedSizeInBytes. only called by matching contract. TODO: Need to add permission control
     function addDatasetUsedSize(uint64 _datasetId, uint64 _size) external;
@@ -86,6 +87,11 @@ interface IDatasets {
     function getDatasetMetadataSubmitter(
         uint64 _datasetId
     ) external view returns (address);
+
+    /// @notice Get client of dataset's metadata
+    function getDatasetMetadataClient(
+        uint64 _datasetId
+    ) external view returns (uint64);
 
     ///@notice Get dataset state
     function getDatasetState(

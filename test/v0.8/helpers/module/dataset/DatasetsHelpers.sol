@@ -66,6 +66,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         vm.prank(caller);
         vm.deal(caller, 10 ether);
         datasets.submitDatasetMetadata(
+            875,
             "title",
             "industry",
             "name",

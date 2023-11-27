@@ -98,6 +98,7 @@ contract Matchings is
         return _getImplementation();
     }
 
+    /// @notice The function to init the dependencies of a matchings.
     function initDependencies(
         address _matchingsTarget,
         address _matchingsBids

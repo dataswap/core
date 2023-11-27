@@ -54,6 +54,7 @@ interface IDatasetsAssertion {
 
     /// @notice Asserts the submission of dataset metadata.
     /// @param caller The caller's address.
+    /// @param _client The client id of the dataset.
     /// @param _title The title of the dataset.
     /// @param _industry The industry category of the dataset.
     /// @param _name The name of the dataset.
@@ -65,6 +66,7 @@ interface IDatasetsAssertion {
     /// @param _version The version of the dataset.
     function submitDatasetMetadataAssertion(
         address caller,
+        uint64 _client,
         string memory _title,
         string memory _industry,
         string memory _name,

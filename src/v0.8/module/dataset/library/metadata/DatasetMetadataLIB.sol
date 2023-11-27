@@ -84,6 +84,7 @@ library DatasetMetadataLIB {
     /// @param _version Version number of the dataset.
     function submitDatasetMetadata(
         DatasetType.Dataset storage self,
+        uint64 _client,
         string memory _title,
         string memory _industry,
         string memory _name,
@@ -111,6 +112,7 @@ library DatasetMetadataLIB {
         self.metadata.source = _source;
         self.metadata.accessMethod = _accessMethod;
         self.metadata.submitter = msg.sender;
+        self.metadata.client = _client;
         self.metadata.createdBlockNumber = uint64(block.number);
         self.metadata.sizeInBytes = _sizeInBytes;
         self.metadata.isPublic = _isPublic;
@@ -129,6 +131,20 @@ library DatasetMetadataLIB {
         );
 
         return (self.metadata.submitter);
+    }
+
+    /// @notice Gets the client  for a dataset.
+    /// @dev This function requires that metadata has been submitted before.
+    /// @param self The metadata object to retrieve the metadata details from.
+    function getDatasetMetadataClient(
+        DatasetType.Dataset storage self
+    ) internal view returns (uint64 client) {
+        require(
+            bytes(self.metadata.title).length > 0,
+            "Metadata does not exist"
+        );
+
+        return (self.metadata.client);
     }
 
     /// @notice Checks if an access method for a dataset has been submitted.

@@ -107,7 +107,7 @@ contract Storages is
     /// @dev Submits a Filecoin claim Id for a matchedstore after successful matching.
     /// @param _matchingId The ID of the matching.
     /// @param _provider A provider of storage provider of matching.
-    /// @param _id The content identifier of the matched data.
+    /// @param _id The car id of the matched data.
     /// @param _claimId The ID of the successful Filecoin storage deal.
     function _submitStorageClaimId(
         uint64 _matchingId,

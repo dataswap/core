@@ -22,6 +22,13 @@ import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 
 /// @title IFilplus
 interface IFilecoin {
+    /// @notice The function to init the dependencies of a filecoin.
+    function initDependencies(address _datacap) external;
+
+    /// @notice The function to allocate the datacap of a storage deal.
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __allocateDatacap(uint64 client, uint256 _size) external;
+
     /// @notice The function to get the state of a Filecoin storage deal for a replica.
     function getReplicaDealState(
         bytes32 _cid,

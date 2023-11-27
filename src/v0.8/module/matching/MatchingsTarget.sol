@@ -114,6 +114,7 @@ contract MatchingsTarget is
         return _getImplementation();
     }
 
+    /// @notice The function to init the dependencies of a matchingsTarget.
     function initDependencies(
         address _matchings,
         address _matchingsBids
@@ -361,14 +362,26 @@ contract MatchingsTarget is
 
         // Source data needs to ensure that the associated mapping files data has been stored
         if (_dataType == DatasetType.DataType.Source) {
-            (, , , DatasetType.DataType dataType, , , ) = getMatchingTarget(
-                _associatedMappingFilesMatchingID
-            );
+            (
+                ,
+                uint64[] memory mappingsCars,
+                ,
+                DatasetType.DataType dataType,
+                ,
+                ,
+
+            ) = getMatchingTarget(_associatedMappingFilesMatchingID);
 
             require(
                 dataType == DatasetType.DataType.MappingFiles,
                 "Need a associated matching"
             );
+
+            require(
+                datasetsProof.isDatasetContainsCars(_datasetId, mappingsCars),
+                "Invalid mapping files cars"
+            );
+
             require(
                 matchings.getMatchingState(_associatedMappingFilesMatchingID) ==
                     MatchingType.State.Completed,

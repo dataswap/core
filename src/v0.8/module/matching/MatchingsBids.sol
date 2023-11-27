@@ -115,6 +115,7 @@ contract MatchingsBids is
         return _getImplementation();
     }
 
+    /// @notice The function to init the dependencies of a matchingsBids.
     function initDependencies(
         address _matchings,
         address _matchingsTarget
@@ -226,7 +227,11 @@ contract MatchingsBids is
             _matchingId
         );
         for (uint64 i; i < cars.length; i++) {
-            carstore.__reportCarReplicaMatchingState(cars[i], _matchingId, false);
+            carstore.__reportCarReplicaMatchingState(
+                cars[i],
+                _matchingId,
+                false
+            );
         }
     }
 
@@ -236,7 +241,11 @@ contract MatchingsBids is
             _matchingId
         );
         for (uint64 i; i < cars.length; i++) {
-            carstore.__reportCarReplicaMatchingState(cars[i], _matchingId, true);
+            carstore.__reportCarReplicaMatchingState(
+                cars[i],
+                _matchingId,
+                true
+            );
         }
     }
 

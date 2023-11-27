@@ -30,6 +30,8 @@ rm -rf $SCRIPTPATH/abi/src
 PACKAGE_JSON_PATH=$SCRIPTPATH/package.json
 NEW_VERSION=$(jq -r '.version' "$PACKAGE_JSON_PATH")
 
+npm publish
+
 NEW_TAG=v$NEW_VERSION
 
 git tag -a $NEW_TAG -m "Release version $NEW_VERSION"

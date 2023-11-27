@@ -17,8 +17,8 @@ task("upgrade", "Upgrade a contract")
   .addParam("name", "The new implementation contract name")
   .setAction(async (taskArgs, hre) => {
     const newImplementationContract = await hre.ethers.getContractFactory(taskArgs.name as string);
-    await hre.upgrades.upgradeProxy(taskArgs.address, newImplementationContract);
-    console.log(`Contract upgraded to new implementation: ${taskArgs.name}`);
+    const upgradedProxy = await hre.upgrades.upgradeProxy(taskArgs.address, newImplementationContract);
+    console.log(`Contract upgraded to new implementation: ${taskArgs.name} address: ${upgradedProxy.address}`);
   });
 
 task("getProxyAddress", "Get a contract proxy address")
@@ -74,11 +74,18 @@ const config: HardhatUserConfig = {
     localnet: {
       url: "http://127.0.0.1:1234/rpc/v1",
       chainId: 31415926,
-      accounts: [`${process.env.PRIVATE_KEY}`],
+      accounts: [
+        `${process.env.PRIVATE_KEY}`,
+        `${process.env.PRIVATE_KEY_METADATASUBMITTER}`,
+        `${process.env.PRIVATE_KEY_PROOFSUBMITTER}`,
+        `${process.env.PRIVATE_KEY_DATASETAUDITOR}`,
+        `${process.env.PRIVATE_KEY_BIDDER}`
+      ],
       saveDeployments: true,
       // gasPrice: 100000000,
       // gasMultiplier: 8000,
       live: true,
+      timeout: 1000000,
     },
     filecoin: {
       url: `${process.env.FILECOIN_MAINNET_RPC_URL}`,
@@ -91,7 +98,13 @@ const config: HardhatUserConfig = {
     calibration: {
       url: `${process.env.CALIBRATION_RPC_URL}`,
       chainId: 314159,
-      accounts: [`${process.env.PRIVATE_KEY}`],
+      accounts: [
+        `${process.env.PRIVATE_KEY}`,
+        `${process.env.PRIVATE_KEY_METADATASUBMITTER}`,
+        `${process.env.PRIVATE_KEY_PROOFSUBMITTER}`,
+        `${process.env.PRIVATE_KEY_DATASETAUDITOR}`,
+        `${process.env.PRIVATE_KEY_BIDDER}`
+      ],
       //ledgerAccounts: [`${process.env.DEPLOYER_ADDRESS}`],
       live: true,
       saveDeployments: true,

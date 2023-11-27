@@ -34,6 +34,7 @@ contract MockFilecoin is
 {
     IRoles private roles;
     FilecoinType.DealState private mockDealState;
+    address datacapAddress;
     //bytes private mockClaimData;
     mapping(uint64 => bytes) private mockClaimData; //matchingId=>Matchedstore
 
@@ -52,6 +53,16 @@ contract MockFilecoin is
         override
         onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) // solhint-disable-next-line
     {}
+
+    /// @notice The function to init the dependencies of a filecoin.
+    function initDependencies(
+        address _datacap
+    ) external onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
+        datacapAddress = _datacap;
+    }
+
+    /// @notice The function to allocate the datacap of a storage deal.
+    function __allocateDatacap(uint64 client, uint256 _size) external {}
 
     /// @notice Returns the implementation contract
     function getImplementation() external view returns (address) {

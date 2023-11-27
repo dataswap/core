@@ -23,7 +23,7 @@ import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
 /// @title IMatchings
 interface IMatchings {
-    /// @notice  Function for init matchings instance.
+    /// @notice The function to init the dependencies of a matchings.
     function initDependencies(
         address _matchingsTarget,
         address _matchingsBids
