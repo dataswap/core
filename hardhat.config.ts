@@ -20,6 +20,14 @@ task("upgrade", "Upgrade a contract")
     console.log(`Contract upgraded to new implementation: ${taskArgs.name}`);
   });
 
+task("getProxyAddress", "Get a contract proxy address")
+  .addParam("type", "The deployment network")
+  .addParam("name", "The new implementation contract name")
+  .setAction(async (taskArgs, hre) => {
+    const dynamicJson = await import('./deployments' + '/' + taskArgs.type + '/' + taskArgs.name + '.json');
+    console.log(dynamicJson.default.address);
+  });
+
 
 function getRemappings() {
   return fs
