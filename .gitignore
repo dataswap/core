@@ -2,6 +2,7 @@
 cache-foundry/
 out/
 bin/
+abi/
 
 # Ignores development broadcast logs
 !/broadcast

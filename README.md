@@ -61,8 +61,20 @@ npx hardhat upgrade --address [contract address] --name [contract name] --networ
 
 ## Usage
 
+### Installation
+#### via yarn
+```
+$ yar add @dataswapcore/contracts --save
+```
+
+#### via npm
+```
+$ npm install @dataswapcore/contracts --save
+```
+#### import
+The solidity smart contracts themselves can be imported via the src directory of @dataswapcore/contracts:
 ```shell
-To be added
+import '@dataswapcore/contracts/src/v0.8/module/dataset/Datasets.sol';
 ```
 
 ## Development
