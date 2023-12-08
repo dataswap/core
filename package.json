@@ -1,8 +1,8 @@
 {
   "license": "MIT",
   "dependencies": {
-    "@openzeppelin/contracts": "^4.9.3",
-    "@openzeppelin/contracts-upgradeable": "^4.9.3",
+    "@openzeppelin/contracts": "4.9.3",
+    "@openzeppelin/contracts-upgradeable": "4.9.3",
     "@zondax/filecoin-solidity": "^4.0.3"
   },
   "devDependencies": {
@@ -14,8 +14,8 @@
     "@nomicfoundation/hardhat-toolbox": "^2.0.0",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
     "@nomiclabs/hardhat-etherscan": "^3.0.0",
-    "@openzeppelin/hardhat-upgrades": "^1.24.0",
-    "@openzeppelin/upgrades-core": "^1.25.0",
+    "@openzeppelin/hardhat-upgrades": "1.24.0",
+    "@openzeppelin/upgrades-core": "1.25.0",
     "@typechain/ethers-v5": "^10.2.0",
     "@typechain/hardhat": "^6.1.5",
     "@types/chai": "^4.2.0",
