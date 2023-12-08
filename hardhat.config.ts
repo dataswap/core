@@ -4,6 +4,7 @@ import "@nomiclabs/hardhat-ethers";
 import "@openzeppelin/hardhat-upgrades";
 import "@nomicfoundation/hardhat-ledger";
 import "@nomicfoundation/hardhat-toolbox";
+import "hardhat-abi-exporter"
 
 import { HardhatUserConfig, task } from "hardhat/config";
 

@@ -1,9 +1,30 @@
 {
-  "license": "MIT",
+  "name": "@dataswapcore/contracts",
+  "version": "0.1.0",
+  "description": "Dataswap core contracts",
+  "license": "GPL-3.0",
+  "private": false,
+  "author": "Dataswap devs",
+  "files": [
+    "src/",
+    "abi/"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dataswap/core.git"
+  },
+  "keywords": [
+    "dataswap"
+  ],
   "dependencies": {
     "@openzeppelin/contracts": "4.9.3",
     "@openzeppelin/contracts-upgradeable": "4.9.3",
-    "@zondax/filecoin-solidity": "^4.0.3"
+    "@zondax/filecoin-solidity": "^4.0.3",
+    "global": "^4.4.0",
+    "hardhat-abi-exporter": "2.10.1"
   },
   "devDependencies": {
     "@glif/filecoin-address": "^2.0.43",
