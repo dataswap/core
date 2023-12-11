@@ -24,6 +24,13 @@ import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 /// @title ICarstoreReadOnly
 /// @notice This interface defines the functions for get car status.
 interface ICarstoreReadOnly {
+    /// @notice Get the car information associated with a car.
+    /// @param _id Car ID to check.
+    /// @return The car information.
+    function getCar(
+        uint64 _id
+    ) external view returns (bytes32, uint64, uint64, uint16, uint64[] memory);
+
     /// @notice Get the dataset ID associated with a car.
     /// @param _id Car ID to check.
     /// @return The car size of the car.
@@ -154,7 +161,7 @@ interface ICarstore is ICarstoreReadOnly {
     /// @param _size car size.
     /// @param _replicaCount count of car's replicas.
     /// @return The id of the car.
-    function addCar(
+    function __addCar(
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size,
@@ -168,7 +175,7 @@ interface ICarstore is ICarstoreReadOnly {
     /// @param _sizes car size array.
     /// @param _replicaCount count of car's replicas.
     /// @return The ids of the cars and the size.
-    function addCars(
+    function __addCars(
         bytes32[] memory _cids,
         uint64 _datasetId,
         uint64[] memory _sizes,
@@ -180,7 +187,7 @@ interface ICarstore is ICarstoreReadOnly {
     /// @param _id Car ID to which the replica will be added.
     /// @param _matchingId Matching ID for the new replica.
     /// @param _replicaIndex The index of the replica.
-    function registCarReplica(
+    function __registCarReplica(
         uint64 _id,
         uint64 _matchingId,
         uint16 _replicaIndex
@@ -191,7 +198,7 @@ interface ICarstore is ICarstoreReadOnly {
     /// @param _id Car ID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
     /// @param _matchingState Matching's state of the replica, true for success ,false for failed.
-    function reportCarReplicaMatchingState(
+    function __reportCarReplicaMatchingState(
         uint64 _id,
         uint64 _matchingId,
         bool _matchingState
@@ -201,7 +208,7 @@ interface ICarstore is ICarstoreReadOnly {
     /// @dev This function allows reporting that the storage deal for a replica has expired.
     /// @param _id Car ID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    function reportCarReplicaExpired(
+    function __reportCarReplicaExpired(
         uint64 _id,
         uint64 _matchingId,
         uint64 _claimId
@@ -211,7 +218,7 @@ interface ICarstore is ICarstoreReadOnly {
     /// @dev This function allows reporting that the storage of a replica has been slashed.
     /// @param _id Car ID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    function reportCarReplicaSlashed(
+    function __reportCarReplicaSlashed(
         uint64 _id,
         uint64 _matchingId,
         uint64 _claimId
@@ -222,7 +229,7 @@ interface ICarstore is ICarstoreReadOnly {
     /// @param _id Car ID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
     /// @param _claimId New Filecoin claim ID to set for the replica's storage.
-    function setCarReplicaFilecoinClaimId(
+    function __setCarReplicaFilecoinClaimId(
         uint64 _id,
         uint64 _matchingId,
         uint64 _claimId

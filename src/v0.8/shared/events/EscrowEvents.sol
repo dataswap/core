@@ -152,12 +152,14 @@ library EscrowEvents {
     /// @param _id The business id associated with the credited funds.
     /// @param _beneficiary The beneficiary address for the payment credited funds.
     /// @param _attoFILAmount The amount of attoFIL.
+    /// @param _subAccountType The sub account type.
     event UpdatePaymentSubAccount(
         EscrowType.Type _type,
         address indexed _owner,
         uint64 _id,
         address indexed _beneficiary,
-        uint256 _attoFILAmount
+        uint256 _attoFILAmount,
+        EscrowType.Type _subAccountType
     );
 
     /// @notice Report a UpdatePaymentBeneficiaries.

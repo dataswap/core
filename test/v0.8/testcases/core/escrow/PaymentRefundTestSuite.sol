@@ -75,83 +75,72 @@ contract PaymentRefundTestCaseWithSuccess is EscrowTestSuiteBase {
             filecoin.setMockClaimData(claimIds[i], dataCid);
         }
         vm.deal(address(this), 10 ether);
-
+        vm.roll(10);
         escrow.payment{value: 1 ether}(
             EscrowType.Type.DataPrepareFeeByProvider,
             _owner,
             matchingId,
             1000000000000000000
         );
-
-        assertion.getOwnerTotalAssertion(
-            EscrowType.Type.DataPrepareFeeByProvider,
-            _owner,
-            matchingId,
-            1000000000000000000
-        );
-        assertion.getOwnerLockAssertion(
-            EscrowType.Type.DataPrepareFeeByProvider,
-            _owner,
-            matchingId,
-            1000000000000000000
-        );
-
         escrow.payment{value: 1 ether}(
             EscrowType.Type.TotalDataPrepareFeeByClient,
             _owner,
             datasetId,
             1000000000000000000
         );
-
-        assertion.getOwnerTotalAssertion(
+        assertion.getOwnerFundAssertion(
+            EscrowType.Type.DataPrepareFeeByProvider,
+            _owner,
+            matchingId,
+            1000000000000000000,
+            1000000000000000000,
+            0,
+            0,
+            10
+        );
+        assertion.getOwnerFundAssertion(
             EscrowType.Type.TotalDataPrepareFeeByClient,
             _owner,
             datasetId,
-            1000000000000000000
-        );
-        assertion.getOwnerLockAssertion(
-            EscrowType.Type.TotalDataPrepareFeeByClient,
-            _owner,
-            datasetId,
-            1000000000000000000
+            1000000000000000000,
+            1000000000000000000,
+            0,
+            0,
+            10
         );
 
-        escrow.emitPaymentUpdate(
+        escrow.__emitPaymentUpdate(
             EscrowType.Type.TotalDataPrepareFeeByClient,
             _owner,
             matchingId,
             storages.matchings().getMatchingInitiator(matchingId),
             EscrowType.PaymentEvent.AddPaymentSubAccount
         );
-        uint256 amount = escrow.getOwnerTotal(
+        (uint256 amount, , , , ) = escrow.getOwnerFund(
             EscrowType.Type.TotalDataPrepareFeeByClient,
             _owner,
             datasetId
         );
-        assertion.getOwnerTotalAssertion(
-            EscrowType.Type.TotalDataPrepareFeeByClient,
-            _owner,
-            datasetId,
-            amount
-        );
-        assertion.getOwnerLockAssertion(
-            EscrowType.Type.TotalDataPrepareFeeByClient,
-            _owner,
-            datasetId,
-            amount
-        );
 
-        assertion.getOwnerTotalAssertion(
-            EscrowType.Type.DataPrepareFeeByClient,
+        assertion.getOwnerFundAssertion(
+            EscrowType.Type.TotalDataPrepareFeeByClient,
             _owner,
-            matchingId,
-            1000000000000000000 - amount
+            datasetId,
+            amount,
+            amount,
+            0,
+            0,
+            10
         );
-        assertion.getOwnerLockAssertion(
+        assertion.getOwnerFundAssertion(
             EscrowType.Type.DataPrepareFeeByClient,
             _owner,
             matchingId,
-            1000000000000000000 - amount
+            1000000000000000000 - amount,
+            1000000000000000000 - amount,
+            0,
+            0,
+            10
         );
 
         vm.roll(100000);
@@ -161,17 +150,15 @@ contract PaymentRefundTestCaseWithSuccess is EscrowTestSuiteBase {
             matchingId
         );
 
-        assertion.getOwnerTotalAssertion(
+        assertion.getOwnerFundAssertion(
             EscrowType.Type.DataPrepareFeeByProvider,
             _owner,
             matchingId,
-            1000000000000000000
-        );
-        assertion.getOwnerLockAssertion(
-            EscrowType.Type.DataPrepareFeeByProvider,
-            _owner,
-            matchingId,
-            0
+            1000000000000000000,
+            0,
+            0,
+            0,
+            10
         );
 
         escrow.paymentRefund(
@@ -180,17 +167,15 @@ contract PaymentRefundTestCaseWithSuccess is EscrowTestSuiteBase {
             matchingId
         );
 
-        assertion.getOwnerTotalAssertion(
+        assertion.getOwnerFundAssertion(
             EscrowType.Type.DataPrepareFeeByClient,
             _owner,
             matchingId,
-            1000000000000000000 - amount
-        );
-        assertion.getOwnerLockAssertion(
-            EscrowType.Type.DataPrepareFeeByClient,
-            _owner,
-            matchingId,
-            0
+            1000000000000000000 - amount,
+            0,
+            0,
+            0,
+            10
         );
     }
 }
@@ -223,7 +208,7 @@ contract PaymentRefundTestCaseWithFail is EscrowTestSuiteBase {
             datasetId,
             1
         );
-        escrow.emitPaymentUpdate(
+        escrow.__emitPaymentUpdate(
             EscrowType.Type.TotalDataPrepareFeeByClient,
             _owner,
             matchingId,

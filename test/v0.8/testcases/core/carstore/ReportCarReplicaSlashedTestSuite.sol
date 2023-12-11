@@ -44,10 +44,10 @@ contract ReportCarReplicaSlashedTestCaseWithSuccess is
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
         vm.assume(_matchingId != 0 && _claimId != 0);
-        uint64 _id = carstore.addCar(_hash, _datasetId, _size, 3);
-        carstore.registCarReplica(_id, _matchingId, 0);
-        carstore.reportCarReplicaMatchingState(_id, _matchingId, true);
-        carstore.setCarReplicaFilecoinClaimId(_id, _matchingId, _claimId);
+        uint64 _id = carstore.__addCar(_hash, _datasetId, _size, 3);
+        carstore.__registCarReplica(_id, _matchingId, 0);
+        carstore.__reportCarReplicaMatchingState(_id, _matchingId, true);
+        carstore.__setCarReplicaFilecoinClaimId(_id, _matchingId, _claimId);
         carstore.filecoin().setMockDealState(FilecoinType.DealState.Slashed);
         return _id;
     }
@@ -74,10 +74,10 @@ contract ReportCarReplicaSlashedTestCaseWithInvalidDealState is
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
         vm.assume(_matchingId != 0 && _claimId != 0);
-        uint64 _id = carstore.addCar(_hash, _datasetId, _size, 3);
-        carstore.registCarReplica(_id, _matchingId, 0);
-        carstore.reportCarReplicaMatchingState(_id, _matchingId, true);
-        carstore.setCarReplicaFilecoinClaimId(_id, _matchingId, _claimId);
+        uint64 _id = carstore.__addCar(_hash, _datasetId, _size, 3);
+        carstore.__registCarReplica(_id, _matchingId, 0);
+        carstore.__reportCarReplicaMatchingState(_id, _matchingId, true);
+        carstore.__setCarReplicaFilecoinClaimId(_id, _matchingId, _claimId);
         carstore.filecoin().setMockDealState(FilecoinType.DealState.Stored);
         return _id;
     }

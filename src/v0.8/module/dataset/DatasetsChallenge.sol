@@ -126,7 +126,7 @@ contract DatasetsChallenge is
         );
 
         // Add dataset auditor to beneficiary list
-        escrow.emitPaymentUpdate(
+        escrow.__emitPaymentUpdate(
             EscrowType.Type.DatasetAuditFee,
             datasetProof.datasets().getDatasetMetadataSubmitter(_datasetId),
             _datasetId,
@@ -134,7 +134,7 @@ contract DatasetsChallenge is
             EscrowType.PaymentEvent.SyncPaymentBeneficiary
         );
         // Allow payment
-        escrow.emitPaymentUpdate(
+        escrow.__emitPaymentUpdate(
             EscrowType.Type.DatasetAuditFee,
             datasetProof.datasets().getDatasetMetadataSubmitter(_datasetId),
             _datasetId,

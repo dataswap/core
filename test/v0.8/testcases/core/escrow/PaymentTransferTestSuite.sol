@@ -41,7 +41,7 @@ contract PaymentTransferTestCaseWithSuccess is EscrowTestSuiteBase {
         uint64 _id
     ) internal virtual override {
         vm.deal(address(this), 10 ether);
-
+        vm.roll(10);
         escrow.payment{value: 1}(
             EscrowType.Type.TotalDataPrepareFeeByClient,
             _owner,
@@ -49,17 +49,15 @@ contract PaymentTransferTestCaseWithSuccess is EscrowTestSuiteBase {
             1
         );
 
-        assertion.getOwnerTotalAssertion(
+        assertion.getOwnerFundAssertion(
             EscrowType.Type.TotalDataPrepareFeeByClient,
             _owner,
             _id,
-            1
-        );
-        assertion.getOwnerLockAssertion(
-            EscrowType.Type.TotalDataPrepareFeeByClient,
-            _owner,
-            _id,
-            1
+            1,
+            1,
+            0,
+            0,
+            10
         );
 
         vm.prank(_owner);
@@ -70,17 +68,15 @@ contract PaymentTransferTestCaseWithSuccess is EscrowTestSuiteBase {
             1
         );
 
-        assertion.getOwnerTotalAssertion(
+        assertion.getOwnerFundAssertion(
             EscrowType.Type.TotalDataPrepareFeeByClient,
             _owner,
             _id,
-            1
-        );
-        assertion.getOwnerLockAssertion(
-            EscrowType.Type.TotalDataPrepareFeeByClient,
-            _owner,
-            _id,
-            0
+            1,
+            0,
+            0,
+            0,
+            10
         );
     }
 }

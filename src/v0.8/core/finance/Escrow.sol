@@ -306,7 +306,7 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         uint64 _id
     ) external {
         // Update collateral funds
-        emitCollateralUpdate(
+        __emitCollateralUpdate(
             _type,
             _owner,
             _id,
@@ -319,7 +319,7 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
     /// @param _event The collateral event type.
-    function emitCollateralUpdate(
+    function __emitCollateralUpdate(
         EscrowType.Type _type,
         address _owner,
         uint64 _id,
@@ -340,7 +340,7 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
     /// @param _id The business id associated with the credited funds.
     /// @param _beneficiary The beneficiary address for the payment credited funds.
     /// @param _event The payment event type.
-    function emitPaymentUpdate(
+    function __emitPaymentUpdate(
         EscrowType.Type _type,
         address _owner,
         uint64 _id,
@@ -365,7 +365,14 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
                 _id,
                 _beneficiary
             );
-            _addPaymentSubAccount(_type, _owner, _id, _beneficiary, amount);
+            _addPaymentSubAccount(
+                _type,
+                _owner,
+                _id,
+                _beneficiary,
+                amount,
+                EscrowType.Type.DataPrepareFeeByClient
+            );
         }
     }
 
@@ -388,8 +395,8 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
                     _id,
                     storages,
                     datasetsProof,
-                    getOwnerCreatedBlockNumber(_type, _owner, _id),
-                    getOwnerTotal(_type, _owner, _id)
+                    escrowAccount[_type][_owner][_id].owner.createdBlockNumber,
+                    escrowAccount[_type][_owner][_id].owner.total
                 );
             } else if (_type == EscrowType.Type.DatacapChunkCollateral) {
                 collateralAmount =
@@ -506,7 +513,7 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
                 ConditionalEscrowLIB.clientSubPaymentAccount(
                     _id,
                     datasetId,
-                    getOwnerLock(_type, _owner, datasetId),
+                    escrowAccount[_type][_owner][datasetId].owner.lock,
                     datasetsProof,
                     storages
                 );
@@ -614,20 +621,20 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
     /// @param _id The business id associated with the credited funds.
     /// @param _beneficiary The beneficiary address for the payment credited funds.
     /// @param _amount The payment amount of beneficiaries.
+    /// @param _subAccountType The sub account type.
     /// @notice Emits a {UpdatePaymentSubAccount} event upon successful credit recording.
     function _addPaymentSubAccount(
         EscrowType.Type _type,
         address _owner,
         uint64 _id,
         address _beneficiary,
-        uint256 _amount
+        uint256 _amount,
+        EscrowType.Type _subAccountType
     ) internal {
         if (
-            getOwnerCreatedBlockNumber(
-                EscrowType.Type.DataPrepareFeeByClient,
-                _owner,
-                _id
-            ) != 0
+            escrowAccount[_subAccountType][_owner][_id]
+                .owner
+                .createdBlockNumber != 0
         ) {
             revert Errors.SubAccountAlreadyExist(_owner);
         }
@@ -642,9 +649,9 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         escrow.owner.total -= _amount;
         escrow.owner.lock -= _amount;
 
-        EscrowType.Escrow storage newEscrow = escrowAccount[
-            EscrowType.Type.DataPrepareFeeByClient
-        ][_owner][_id];
+        EscrowType.Escrow storage newEscrow = escrowAccount[_subAccountType][
+            _owner
+        ][_id];
         newEscrow.deposit(_amount);
         newEscrow.payment(_amount);
         newEscrow.paymentAddbeneficiary(_beneficiary, _amount);
@@ -654,68 +661,9 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
             _owner,
             _id,
             _beneficiary,
-            _amount
+            _amount,
+            _subAccountType
         );
-    }
-
-    /// @notice Get owner created block number.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    function getOwnerCreatedBlockNumber(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id
-    ) public view returns (uint64) {
-        return escrowAccount[_type][_owner][_id].owner.createdBlockNumber;
-    }
-
-    /// @notice Get owner collateral funds.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    function getOwnerCollateral(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id
-    ) public view returns (uint256) {
-        return escrowAccount[_type][_owner][_id].owner.collateral;
-    }
-
-    /// @notice Get owner total funds.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    function getOwnerTotal(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id
-    ) public view returns (uint256) {
-        return escrowAccount[_type][_owner][_id].owner.total;
-    }
-
-    /// @notice Get owner lock funds.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    function getOwnerLock(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id
-    ) public view returns (uint256) {
-        return escrowAccount[_type][_owner][_id].owner.lock;
-    }
-
-    /// @notice Get owner burned funds.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    function getOwnerBurned(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id
-    ) public view returns (uint256) {
-        return escrowAccount[_type][_owner][_id].owner.burned;
     }
 
     /// @notice Get beneficiariesList.
@@ -753,6 +701,24 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
             escrowAccount[_type][_owner][_id]
                 .beneficiaries[_beneficiary]
                 .createdBlockNumber
+        );
+    }
+
+    /// @notice Get owner fund.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    function getOwnerFund(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id
+    ) public view returns (uint256, uint256, uint256, uint256, uint64) {
+        return (
+            escrowAccount[_type][_owner][_id].owner.total,
+            escrowAccount[_type][_owner][_id].owner.lock,
+            escrowAccount[_type][_owner][_id].owner.collateral,
+            escrowAccount[_type][_owner][_id].owner.burned,
+            escrowAccount[_type][_owner][_id].owner.createdBlockNumber
         );
     }
 }

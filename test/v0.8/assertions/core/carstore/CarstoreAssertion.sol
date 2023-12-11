@@ -34,7 +34,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         carstore = _carstore;
     }
 
-    /// @notice Assertion for the `addCar` function.
+    /// @notice Assertion for the `__addCar` function.
     /// @param _cid The CID (Content Identifier) of the car.
     /// @param _datasetId The dataset ID associated with the car.
     /// @param _size The size of the car.
@@ -50,7 +50,12 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         hasCarHashAssertion(_cid, false);
 
         // Perform the action: add the car.
-        uint64 carId = carstore.addCar(_cid, _datasetId, _size, _replicaCount);
+        uint64 carId = carstore.__addCar(
+            _cid,
+            _datasetId,
+            _size,
+            _replicaCount
+        );
 
         // After adding, check car attributes and existence.
         getCarDatasetIdAssertion(carId, _datasetId);
@@ -62,7 +67,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         getCarIdAssertion(_cid, carId);
     }
 
-    /// @notice Assertion for the `addCars` function.
+    /// @notice Assertion for the `__addCars` function.
     /// @param _cids An array of CIDs (Content Identifiers) for the cars.
     /// @param _datasetId The dataset ID associated with all the cars.
     /// @param _sizes An array of sizes corresponding to the cars.
@@ -77,7 +82,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         hasCarsHashsAssertion(_cids, false);
 
         // Perform the action: add multiple cars.
-        (uint64[] memory carIds, uint64 size) = carstore.addCars(
+        (uint64[] memory carIds, uint64 size) = carstore.__addCars(
             _cids,
             _datasetId,
             _sizes,
@@ -92,7 +97,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         getCarsIdsAssertion(_cids, carIds);
     }
 
-    /// @notice Assertion for the `registCarReplica` function.
+    /// @notice Assertion for the `__registCarReplica` function.
     /// @param _id The ID (Content Identifier) of the car.
     /// @param _matchingId The matching ID associated with the car replica.
     /// @param _replicaIndex The index of the car's replica
@@ -106,7 +111,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         hasCarReplicaAssertion(_id, _matchingId, false);
 
         // Perform the action: regist a car replica.
-        carstore.registCarReplica(_id, _matchingId, _replicaIndex);
+        carstore.__registCarReplica(_id, _matchingId, _replicaIndex);
 
         // After adding, check replica count, replica state, and replica existence.
         getCarReplicasCountAssertion(_id, beforeReplicasCount);
@@ -120,7 +125,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         hasCarReplicaAssertion(_id, _matchingId, true);
     }
 
-    /// @notice Assertion for the `reportCarReplicaMatchingState` function.
+    /// @notice Assertion for the `__reportCarReplicaMatchingState` function.
     /// @param _id The ID (Content Identifier) of the car.
     /// @param _matchingId The matching ID associated with the car replica.
     /// @param _matchingState Matching's state of the replica, true for success ,false for failed.
@@ -137,7 +142,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         );
 
         // Perform the action: report an matching failed car replica.
-        carstore.reportCarReplicaMatchingState(
+        carstore.__reportCarReplicaMatchingState(
             _id,
             _matchingId,
             _matchingState
@@ -158,7 +163,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         }
     }
 
-    /// @notice Assertion for the `reportCarReplicaExpired` function.
+    /// @notice Assertion for the `__reportCarReplicaExpired` function.
     /// @param _id The ID (Content Identifier) of the car.
     /// @param _matchingId The matching ID associated with the car replica.
     /// @param _claimId The Filecoin claim ID associated with the car replica.
@@ -182,7 +187,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         );
 
         // Perform the action: report an expired car replica.
-        carstore.reportCarReplicaExpired(_id, _matchingId, _claimId);
+        carstore.__reportCarReplicaExpired(_id, _matchingId, _claimId);
 
         // After reporting, check replica count, replica state, and filecoin deal state.
         getCarReplicasCountAssertion(_id, beforeReplicasCount);
@@ -201,7 +206,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         getCarReplicaFilecoinClaimIdAssertion(_id, _matchingId, _claimId);
     }
 
-    /// @notice Assertion for the `reportCarReplicaSlashed` function.
+    /// @notice Assertion for the `__reportCarReplicaSlashed` function.
     /// @param _id The ID (Content Identifier) of the car.
     /// @param _matchingId The matching ID associated with the car replica.
     /// @param _claimId The Filecoin claim ID associated with the car replica.
@@ -225,7 +230,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         );
 
         // Perform the action: report a slashed car replica.
-        carstore.reportCarReplicaSlashed(_id, _matchingId, _claimId);
+        carstore.__reportCarReplicaSlashed(_id, _matchingId, _claimId);
 
         // After reporting, check replica count, replica state, and filecoin deal state.
         getCarReplicasCountAssertion(_id, beforeReplicasCount);
@@ -258,7 +263,7 @@ contract CarstoreAssertion is DSTest, Test, ICarstoreAssertion {
         getCarReplicaFilecoinClaimIdAssertion(_id, _matchingId, 0);
 
         // Perform the action: set the filecoin claim ID of a car replica.
-        carstore.setCarReplicaFilecoinClaimId(_id, _matchingId, _claimId);
+        carstore.__setCarReplicaFilecoinClaimId(_id, _matchingId, _claimId);
 
         // After setting, check replica count, the new filecoin claim ID, and replica state.
         getCarReplicasCountAssertion(_id, beforeReplicasCount);

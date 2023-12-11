@@ -23,66 +23,6 @@ import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 /// @dev This interface defines assertion methods for testing conditional escrow-related functionality.
 /// All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
 interface IEscrowAssertion {
-    /// @dev Asserts the get owner created block number.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    /// @param _created The owner created block number.
-    function getOwnerCreatedBlockNumberAssertion(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id,
-        uint64 _created
-    ) external;
-
-    /// @dev Asserts the get owner collateral funds.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    /// @param _amount The collateral funds.
-    function getOwnerCollateralAssertion(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id,
-        uint256 _amount
-    ) external;
-
-    /// @dev Asserts the get owner total funds.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    /// @param _total The total funds.
-    function getOwnerTotalAssertion(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id,
-        uint256 _total
-    ) external;
-
-    /// @dev Asserts the get owner lock funds.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    /// @param _lock The lock funds.
-    function getOwnerLockAssertion(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id,
-        uint256 _lock
-    ) external;
-
-    /// @dev Asserts the get owner burned funds.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    /// @param _burned The burned funds.
-    function getOwnerBurnedAssertion(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id,
-        uint256 _burned
-    ) external;
-
     /// @dev Asserts the get beneficiaries list.
     /// @param _type The Escrow type for the credited funds.
     /// @param _owner The destination address for the credited funds.
@@ -105,6 +45,21 @@ interface IEscrowAssertion {
         address _owner,
         uint64 _id,
         address _beneficiary,
+        uint256 _total, // Total amount in fund account
+        uint256 _lock, // Lock amount in fund account for payment beneficiaries
+        uint256 _collateral, // Collateral amount in fund account for withdraw and punishment
+        uint256 _burned, // burned amount in fund account
+        uint64 _createdBlockNumber // Fund account created block number
+    ) external;
+
+    /// @dev Asserts the get owner funds.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    function getOwnerFundAssertion(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id,
         uint256 _total, // Total amount in fund account
         uint256 _lock, // Lock amount in fund account for payment beneficiaries
         uint256 _collateral, // Collateral amount in fund account for withdraw and punishment

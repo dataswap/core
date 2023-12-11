@@ -127,7 +127,7 @@ contract MatchingsTarget is
         uint64[] memory cars = getMatchingCars(_matchingId);
         uint16 replicaIndex = getMatchingReplicaIndex(_matchingId);
         for (uint64 i; i < cars.length; i++) {
-            carstore.registCarReplica(cars[i], _matchingId, replicaIndex);
+            carstore.__registCarReplica(cars[i], _matchingId, replicaIndex);
         }
     }
 
@@ -199,7 +199,7 @@ contract MatchingsTarget is
         );
         address matchingInitiator = matchings.getMatchingInitiator(_matchingId);
         // Emit Synchronize matching payment sub account
-        escrow.emitPaymentUpdate(
+        escrow.__emitPaymentUpdate(
             EscrowType.Type.TotalDataPrepareFeeByClient,
             datasetInitiator,
             _matchingId,

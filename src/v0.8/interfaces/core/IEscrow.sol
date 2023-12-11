@@ -138,7 +138,7 @@ interface IEscrow {
     /// @param _type The Escrow type for the credited funds.
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
-    function emitCollateralUpdate(
+    function __emitCollateralUpdate(
         EscrowType.Type _type,
         address _owner,
         uint64 _id,
@@ -150,63 +150,13 @@ interface IEscrow {
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
     /// @param _beneficiary The beneficiary address for the payment credited funds.
-    function emitPaymentUpdate(
+    function __emitPaymentUpdate(
         EscrowType.Type _type,
         address _owner,
         uint64 _id,
         address _beneficiary,
         EscrowType.PaymentEvent _event
     ) external;
-
-    /// @notice Get owner created block number.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    function getOwnerCreatedBlockNumber(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id
-    ) external view returns (uint64);
-
-    /// @notice Get owner collateral funds.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    function getOwnerCollateral(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id
-    ) external view returns (uint256);
-
-    /// @notice Get owner total funds.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    function getOwnerTotal(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id
-    ) external view returns (uint256);
-
-    /// @notice Get owner lock funds.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    function getOwnerLock(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id
-    ) external view returns (uint256);
-
-    /// @notice Get owner burned funds.
-    /// @param _type The Escrow type for the credited funds.
-    /// @param _owner The destination address for the credited funds.
-    /// @param _id The business id associated with the credited funds.
-    function getOwnerBurned(
-        EscrowType.Type _type,
-        address _owner,
-        uint64 _id
-    ) external view returns (uint256);
 
     /// @notice Get beneficiariesList.
     /// @param _type The Escrow type for the credited funds.
@@ -228,6 +178,25 @@ interface IEscrow {
         address _owner,
         uint64 _id,
         address _beneficiary
+    )
+        external
+        view
+        returns (
+            uint256 total, // Total amount in fund account
+            uint256 lock, // Lock amount in fund account for payment beneficiaries
+            uint256 collateral, // Collateral amount in fund account for withdraw and punishment
+            uint256 burned, // burned amount in fund account
+            uint64 createdBlockNumber // Fund account created block number
+        );
+
+    /// @notice Get owner fund.
+    /// @param _type The Escrow type for the credited funds.
+    /// @param _owner The destination address for the credited funds.
+    /// @param _id The business id associated with the credited funds.
+    function getOwnerFund(
+        EscrowType.Type _type,
+        address _owner,
+        uint64 _id
     )
         external
         view

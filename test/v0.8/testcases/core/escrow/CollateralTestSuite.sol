@@ -41,19 +41,7 @@ contract CollateralTestCaseWithSuccess is EscrowTestSuiteBase {
         uint64 _id
     ) internal virtual override {
         vm.deal(address(this), 10 ether);
-        assertion.getOwnerTotalAssertion(
-            EscrowType.Type.DatacapCollateral,
-            _owner,
-            _id,
-            0
-        );
-        assertion.getOwnerCollateralAssertion(
-            EscrowType.Type.DatacapCollateral,
-            _owner,
-            _id,
-            0
-        );
-
+        vm.roll(10);
         escrow.collateral{value: 1 ether}(
             EscrowType.Type.DatacapCollateral,
             _owner,
@@ -61,17 +49,15 @@ contract CollateralTestCaseWithSuccess is EscrowTestSuiteBase {
             1
         );
 
-        assertion.getOwnerTotalAssertion(
+        assertion.getOwnerFundAssertion(
             EscrowType.Type.DatacapCollateral,
             _owner,
             _id,
-            1000000000000000000
-        );
-        assertion.getOwnerCollateralAssertion(
-            EscrowType.Type.DatacapCollateral,
-            _owner,
-            _id,
-            1
+            1000000000000000000,
+            0,
+            1,
+            0,
+            10
         );
     }
 }

@@ -120,7 +120,7 @@ contract Datacaps is
     function addDatacapChunkCollateral(uint64 _matchingId) public payable {
         uint256 requirement = getCollateralRequirement();
         address winner = matchingsBids.getMatchingWinner(_matchingId);
-        uint256 currentFunds = escrow.getOwnerCollateral(
+        (, , uint256 currentFunds, , ) = escrow.getOwnerFund(
             EscrowType.Type.DatacapChunkCollateral,
             winner,
             _matchingId
@@ -169,7 +169,7 @@ contract Datacaps is
         validNextDatacapAllocation(this, _matchingId)
         returns (uint64)
     {
-        uint256 currentFunds = escrow.getOwnerCollateral(
+        (, , uint256 currentFunds, , ) = escrow.getOwnerFund(
             EscrowType.Type.DatacapChunkCollateral,
             matchingsBids.getMatchingWinner(_matchingId),
             _matchingId
@@ -221,7 +221,7 @@ contract Datacaps is
     function updatedDatacapChunkCollateralFunds(
         uint64 _matchingId
     ) public view returns (uint256) {
-        uint256 availableFunds = escrow.getOwnerCollateral(
+        (, , uint256 availableFunds, , ) = escrow.getOwnerFund(
             EscrowType.Type.DatacapChunkCollateral,
             matchingsBids.getMatchingWinner(_matchingId),
             _matchingId
@@ -259,7 +259,7 @@ contract Datacaps is
             uint256 requiredFunds = (matchingSize - storedSize) *
                 PRICE_PER_BYTE;
 
-            uint256 availableFunds = escrow.getOwnerCollateral(
+            (, , uint256 availableFunds, , ) = escrow.getOwnerFund(
                 EscrowType.Type.DatacapChunkCollateral,
                 matchingsBids.getMatchingWinner(_matchingId),
                 _matchingId

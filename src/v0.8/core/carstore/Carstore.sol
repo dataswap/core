@@ -70,7 +70,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     /// @param _datasetId dataset index of approved dataset
     /// @param _size size of car
     /// @param _replicaCount count of car's replicas
-    function addCar(
+    function __addCar(
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size,
@@ -99,7 +99,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     /// @param _sizes car size array
     /// @param _replicaCount count of car's replicas
     /// @return The ids of the cars and the size.
-    function addCars(
+    function __addCars(
         bytes32[] memory _cids,
         uint64 _datasetId,
         uint64[] memory _sizes,
@@ -109,7 +109,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         uint64 totalSize;
         uint64[] memory ids = new uint64[](_cids.length);
         for (uint64 i; i < _cids.length; i++) {
-            ids[i] = addCar(_cids[i], _datasetId, _sizes[i], _replicaCount);
+            ids[i] = __addCar(_cids[i], _datasetId, _sizes[i], _replicaCount);
             totalSize += _sizes[i];
         }
 
@@ -122,7 +122,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     /// @param _id Car ID to which the replica will be added.
     /// @param _matchingId Matching ID for the new replica.
     /// @param _replicaIndex The index of the replica.
-    function registCarReplica(
+    function __registCarReplica(
         uint64 _id,
         uint64 _matchingId,
         uint16 _replicaIndex
@@ -148,7 +148,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     /// @param _id Car ID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
     /// @param _matchingState Matching's state of the replica, true for success ,false for failed.
-    function reportCarReplicaMatchingState(
+    function __reportCarReplicaMatchingState(
         uint64 _id,
         uint64 _matchingId,
         bool _matchingState
@@ -200,7 +200,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     /// @dev This function allows reporting that the storage deal for a replica has expired.
     /// @param _id Car ID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    function reportCarReplicaExpired(
+    function __reportCarReplicaExpired(
         uint64 _id,
         uint64 _matchingId,
         uint64 _claimId
@@ -228,7 +228,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     /// @dev This function allows reporting that the storage of a replica has been slashed.
     /// @param _id Car ID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    function reportCarReplicaSlashed(
+    function __reportCarReplicaSlashed(
         uint64 _id,
         uint64 _matchingId,
         uint64 _claimId
@@ -264,7 +264,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     /// @param _id Car ID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
     /// @param _claimId New Filecoin claim ID to set for the replica's storage.
-    function setCarReplicaFilecoinClaimId(
+    function __setCarReplicaFilecoinClaimId(
         uint64 _id,
         uint64 _matchingId,
         uint64 _claimId
@@ -285,6 +285,28 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
             _id,
             _matchingId,
             _claimId
+        );
+    }
+
+    /// @notice Get the car information associated with a car.
+    /// @param _id Car ID to check.
+    /// @return The car information.
+    function getCar(
+        uint64 _id
+    )
+        public
+        view
+        onlyCarExist(this, _id)
+        returns (bytes32, uint64, uint64, uint16, uint64[] memory)
+    {
+        CarReplicaType.Car storage car = _getCar(_id);
+
+        return (
+            _getHash(_id),
+            car._getDatasetId(),
+            car.size,
+            car._getRepicasCount(),
+            car._getMatchingIds()
         );
     }
 

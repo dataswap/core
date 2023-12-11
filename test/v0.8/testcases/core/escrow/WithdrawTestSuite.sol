@@ -48,63 +48,41 @@ contract WithdrawTestCaseWithSuccess is EscrowTestSuiteBase {
             _id,
             1
         );
-        assertion.getOwnerCollateralAssertion(
+
+        assertion.getOwnerFundAssertion(
             EscrowType.Type.DatacapCollateral,
             _owner,
             _id,
-            1
-        );
-        assertion.getOwnerCreatedBlockNumberAssertion(
-            EscrowType.Type.DatacapCollateral,
-            _owner,
-            _id,
+            1,
+            0,
+            1,
+            0,
             100
-        );
-        assertion.getOwnerTotalAssertion(
-            EscrowType.Type.DatacapCollateral,
-            _owner,
-            _id,
-            1
-        );
-        assertion.getOwnerLockAssertion(
-            EscrowType.Type.DatacapCollateral,
-            _owner,
-            _id,
-            0
-        );
-        assertion.getOwnerBurnedAssertion(
-            EscrowType.Type.DatacapCollateral,
-            _owner,
-            _id,
-            0
         );
         vm.roll(100 + 2880 * 365 + 100);
         escrow.collateralRedeem(EscrowType.Type.DatacapCollateral, _owner, _id);
-        assertion.getOwnerTotalAssertion(
+        assertion.getOwnerFundAssertion(
             EscrowType.Type.DatacapCollateral,
             _owner,
             _id,
-            1
-        );
-        assertion.getOwnerCollateralAssertion(
-            EscrowType.Type.DatacapCollateral,
-            _owner,
-            _id,
-            0
+            1,
+            0,
+            0,
+            0,
+            100
         );
         /// NOTE: filecoin paymentWithdraw does not support testing,following test code is reserved for backup
         // escrow.withdraw(EscrowType.Type.DatacapCollateral, _owner, _id);
-        //         assertion.getOwnerTotalAssertion(
+
+        // assertion.getOwnerFundAssertion(
         //     EscrowType.Type.DatacapCollateral,
         //     _owner,
         //     _id,
-        //     0
-        // );
-        // assertion.getOwnerCollateralAssertion(
-        //     EscrowType.Type.DatacapCollateral,
-        //     _owner,
-        //     _id,
-        //     0
+        //     0,
+        //     0,
+        //     0,
+        //     0,
+        //     100 + 2880 * 365 + 100
         // );
     }
 }

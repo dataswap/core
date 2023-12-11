@@ -191,7 +191,7 @@ contract DatasetsProof is
             _datasetId
         );
 
-        (uint64[] memory leafIds, uint64 size) = carstore.addCars(
+        (uint64[] memory leafIds, uint64 size) = carstore.__addCars(
             _leafHashes,
             _datasetId,
             _leafSizes,
@@ -233,25 +233,22 @@ contract DatasetsProof is
             uint256 datasetAuditorFee = getDatasetDataAuditorFeesRequirement(
                 _datasetId
             );
-            if (
-                escrow.getOwnerTotal(
-                    EscrowType.Type.DatacapCollateral,
-                    datasets.getDatasetMetadataSubmitter(_datasetId),
-                    _datasetId
-                ) <
-                collateralRequirement ||
-                escrow.getOwnerLock(
-                    EscrowType.Type.DatasetAuditFee,
-                    datasets.getDatasetMetadataSubmitter(_datasetId),
-                    _datasetId
-                ) <
-                datasetAuditorFee
-            ) {
+            (uint256 total, , , , ) = escrow.getOwnerFund(
+                EscrowType.Type.DatacapCollateral,
+                datasets.getDatasetMetadataSubmitter(_datasetId),
+                _datasetId
+            );
+            (, uint256 lock, , , ) = escrow.getOwnerFund(
+                EscrowType.Type.DatasetAuditFee,
+                datasets.getDatasetMetadataSubmitter(_datasetId),
+                _datasetId
+            );
+            if (total < collateralRequirement || lock < datasetAuditorFee) {
                 datasets.reportFundsNotEnough(_datasetId);
                 emit DatasetsEvents.FundsNotEnough(_datasetId, msg.sender);
             } else {
                 // Update collateral funds to collateral requirement
-                escrow.emitCollateralUpdate(
+                escrow.__emitCollateralUpdate(
                     EscrowType.Type.DatacapCollateral,
                     datasets.getDatasetMetadataSubmitter(_datasetId),
                     _datasetId,
@@ -344,7 +341,7 @@ contract DatasetsProof is
         uint256 collateralRequirement = getDatasetCollateralRequirement(
             _datasetId
         );
-        uint256 total = escrow.getOwnerTotal(
+        (uint256 total, , , , ) = escrow.getOwnerFund(
             EscrowType.Type.DatacapCollateral,
             datasets.getDatasetMetadataSubmitter(_datasetId),
             _datasetId
