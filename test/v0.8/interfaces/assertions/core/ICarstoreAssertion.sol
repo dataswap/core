@@ -55,7 +55,7 @@ interface ICarstoreAssertion {
         uint16 _replicaIndex
     ) external;
 
-    /// @notice Assertion for the `reportCarReplicaMatchingState` function.
+    /// @notice Assertion for the `__reportCarReplicaMatchingState` function.
     /// @param _id The ID (Content Identifier) of the car.
     /// @param _matchingId The matching ID associated with the car replica.
     /// @param _matchingState Matching's state of the replica, true for success ,false for failed.

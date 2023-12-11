@@ -178,7 +178,7 @@ contract MatchingsBids is
     ) internal {
         // Payment only when HighestBid
         if (_bidSelectionRule == MatchingType.BidSelectionRule.HighestBid) {
-            uint256 hasBid = escrow.getOwnerLock(
+            (, uint256 hasBid, , , ) = escrow.getOwnerFund(
                 EscrowType.Type.DataPrepareFeeByProvider,
                 msg.sender,
                 _matchingId
@@ -199,7 +199,7 @@ contract MatchingsBids is
     function _afterMatchingFailed(uint64 _matchingId) internal {
         uint64[] memory cars = matchingsTarget.getMatchingCars(_matchingId);
         for (uint64 i; i < cars.length; i++) {
-            carstore.reportCarReplicaMatchingState(cars[i], _matchingId, false);
+            carstore.__reportCarReplicaMatchingState(cars[i], _matchingId, false);
         }
     }
 
@@ -207,7 +207,7 @@ contract MatchingsBids is
     function _beforeMatchingCompleted(uint64 _matchingId) internal {
         uint64[] memory cars = matchingsTarget.getMatchingCars(_matchingId);
         for (uint64 i; i < cars.length; i++) {
-            carstore.reportCarReplicaMatchingState(cars[i], _matchingId, true);
+            carstore.__reportCarReplicaMatchingState(cars[i], _matchingId, true);
         }
     }
 
@@ -269,7 +269,7 @@ contract MatchingsBids is
             _beforeMatchingCompleted(_matchingId);
             bids.winner = winner;
 
-            escrow.emitPaymentUpdate(
+            escrow.__emitPaymentUpdate(
                 EscrowType.Type.DataPrepareFeeByProvider,
                 winner,
                 _matchingId,

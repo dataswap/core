@@ -92,7 +92,7 @@ contract AddCarTestCaseWithCarAlreayExsit is AddCarTestSuiteBase {
         vm.assume(_cid[0] != 0);
         vm.assume(_datasetId != 0 && _size != 0);
         vm.assume(_replicaCount > 0 && _replicaCount < 5);
-        carstore.addCar(_cid, _datasetId, _size, _replicaCount);
+        carstore.__addCar(_cid, _datasetId, _size, _replicaCount);
     }
 
     function action(

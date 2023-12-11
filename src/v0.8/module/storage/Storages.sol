@@ -139,7 +139,7 @@ contract Storages is
         storage_.doneCars.push(_id);
 
         /// Note:set claim id in carstore berfore submitClaimid
-        carstore.setCarReplicaFilecoinClaimId(_id, _matchingId, _claimId);
+        carstore.__setCarReplicaFilecoinClaimId(_id, _matchingId, _claimId);
 
         emit StoragesEvents.StorageClaimIdSubmitted(_matchingId, _id, _claimId);
     }
@@ -169,7 +169,7 @@ contract Storages is
         }
 
         // Notify the escrow contract to update the payment amount
-        escrow.emitPaymentUpdate(
+        escrow.__emitPaymentUpdate(
             EscrowType.Type.DataPrepareFeeByProvider,
             matchingsBids.getMatchingWinner(_matchingId),
             _matchingId,
@@ -178,7 +178,7 @@ contract Storages is
         );
 
         uint64 datasetId = matchingsTarget.getMatchingDatasetId(_matchingId);
-        escrow.emitPaymentUpdate(
+        escrow.__emitPaymentUpdate(
             EscrowType.Type.DataPrepareFeeByClient,
             datasets.getDatasetMetadataSubmitter(datasetId),
             _matchingId,

@@ -37,7 +37,7 @@ contract RegistCarReplicaTestCaseWithSuccess is RegistCarReplicaTestSuiteBase {
         uint16 _replicaIndex
     ) internal virtual override returns (uint64) {
         vm.assume(_matchingId != 0);
-        uint64 _id = carstore.addCar(_hash, 1, 32 * 1024 * 1024 * 1024, 3);
+        uint64 _id = carstore.__addCar(_hash, 1, 32 * 1024 * 1024 * 1024, 3);
         vm.assume(_replicaIndex < 3);
         return _id;
     }
@@ -60,7 +60,7 @@ contract RegistCarReplicaTestCaseWithInvalidId is
         uint16 _replicaIndex
     ) internal virtual override returns (uint64) {
         vm.assume(_matchingId == 0);
-        uint64 _id = carstore.addCar(_hash, 1, 32 * 1024 * 1024 * 1024, 3);
+        uint64 _id = carstore.__addCar(_hash, 1, 32 * 1024 * 1024 * 1024, 3);
         vm.assume(_replicaIndex < 3);
         return _id;
     }
@@ -124,10 +124,10 @@ contract RegistCarReplicaTestCaseWithReplicaAlreadyExists is
         uint16 _replicaIndex
     ) internal virtual override returns (uint64) {
         vm.assume(_matchingId != 0);
-        uint64 _id = carstore.addCar(_hash, 1, 32 * 1024 * 1024 * 1024, 3);
+        uint64 _id = carstore.__addCar(_hash, 1, 32 * 1024 * 1024 * 1024, 3);
         vm.assume(_replicaIndex < 3);
-        carstore.registCarReplica(_id, _matchingId, _replicaIndex);
-        carstore.reportCarReplicaMatchingState(_id, _matchingId, true);
+        carstore.__registCarReplica(_id, _matchingId, _replicaIndex);
+        carstore.__reportCarReplicaMatchingState(_id, _matchingId, true);
         return _id;
     }
 

@@ -44,9 +44,9 @@ contract ReportCarReplicaMatchingStateTestCaseWithSuccess is
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
         vm.assume(_matchingId != 0);
-        uint64 _id = carstore.addCar(_hash, _datasetId, _size, 10);
+        uint64 _id = carstore.__addCar(_hash, _datasetId, _size, 10);
         vm.assume(_replicaIndex < 10);
-        carstore.registCarReplica(_id, _matchingId, _replicaIndex);
+        carstore.__registCarReplica(_id, _matchingId, _replicaIndex);
         return _id;
     }
 

@@ -114,7 +114,7 @@ contract Datasets is
         onlyAddress(governanceAddress)
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        uint256 funds = escrow.getOwnerTotal(
+        (uint256 funds, , , , ) = escrow.getOwnerFund(
             EscrowType.Type.DatacapCollateral,
             dataset.metadata.submitter,
             _datasetId
@@ -123,7 +123,7 @@ contract Datasets is
             funds >= datasetsProof.getDatasetCollateralRequirement(_datasetId)
         ) {
             // Update collateral funds to collateral requirement
-            escrow.emitCollateralUpdate(
+            escrow.__emitCollateralUpdate(
                 EscrowType.Type.DatacapCollateral,
                 dataset.metadata.submitter,
                 _datasetId,

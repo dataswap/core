@@ -43,25 +43,6 @@ contract PaymentTestCaseWithSuccess is EscrowTestSuiteBase {
         vm.deal(address(this), 10 ether);
         address beneficiary = address(100);
 
-        assertion.getOwnerTotalAssertion(
-            EscrowType.Type.DatasetAuditFee,
-            _owner,
-            _id,
-            0
-        );
-        assertion.getOwnerCollateralAssertion(
-            EscrowType.Type.DatasetAuditFee,
-            _owner,
-            _id,
-            0
-        );
-        assertion.getOwnerLockAssertion(
-            EscrowType.Type.DatasetAuditFee,
-            _owner,
-            _id,
-            0
-        );
-
         vm.roll(100);
         escrow.paymentSingleBeneficiary{value: 1 ether}(
             EscrowType.Type.DatasetAuditFee,
@@ -71,23 +52,15 @@ contract PaymentTestCaseWithSuccess is EscrowTestSuiteBase {
             1
         );
 
-        assertion.getOwnerTotalAssertion(
+        assertion.getOwnerFundAssertion(
             EscrowType.Type.DatasetAuditFee,
             _owner,
             _id,
-            1000000000000000000
-        );
-        assertion.getOwnerCollateralAssertion(
-            EscrowType.Type.DatasetAuditFee,
-            _owner,
-            _id,
-            0
-        );
-        assertion.getOwnerLockAssertion(
-            EscrowType.Type.DatasetAuditFee,
-            _owner,
-            _id,
-            1
+            1000000000000000000,
+            1,
+            0,
+            0,
+            100
         );
 
         address[] memory beneficiaries = new address[](1);
@@ -117,23 +90,15 @@ contract PaymentTestCaseWithSuccess is EscrowTestSuiteBase {
             10
         );
 
-        assertion.getOwnerTotalAssertion(
+        assertion.getOwnerFundAssertion(
             EscrowType.Type.DatasetAuditFee,
             _owner,
             _id,
-            2000000000000000000
-        );
-        assertion.getOwnerCollateralAssertion(
-            EscrowType.Type.DatasetAuditFee,
-            _owner,
-            _id,
-            0
-        );
-        assertion.getOwnerLockAssertion(
-            EscrowType.Type.DatasetAuditFee,
-            _owner,
-            _id,
-            11
+            2000000000000000000,
+            11,
+            0,
+            0,
+            100
         );
 
         assertion.getBeneficiariesListAssertion(
