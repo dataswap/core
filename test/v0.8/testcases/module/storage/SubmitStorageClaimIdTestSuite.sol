@@ -54,9 +54,9 @@ contract SubmitStorageClaimIdTestCaseWithSuccess is StoragesTestBase {
     }
 
     function action(uint64 _matchingId) internal virtual override {
-        uint64[] memory cars = storages.matchingsTarget().getMatchingCars(
-            _matchingId
-        );
+        (, uint64[] memory cars, , , , , ) = storages
+            .matchingsTarget()
+            .getMatchingTarget(_matchingId);
         uint64 id = cars[0];
         uint64 provider = 0;
         bytes memory dataCid = CidUtils.hashToCID(carstore.getCarHash(id));
@@ -103,9 +103,9 @@ contract SubmitStorageClaimIdTestCaseWithInvalidAddress is StoragesTestBase {
     }
 
     function action(uint64 _matchingId) internal virtual override {
-        uint64[] memory cars = storages.matchingsTarget().getMatchingCars(
-            _matchingId
-        );
+        (, uint64[] memory cars, , , , , ) = storages
+            .matchingsTarget()
+            .getMatchingTarget(_matchingId);
         uint64 id = cars[0];
         uint64 provider = 0;
         uint64 claimId = storagesHelpers.generateFilecoinClaimId();
@@ -196,9 +196,9 @@ contract SubmitStorageClaimIdTestCaseWithDuplicateCid is StoragesTestBase {
     }
 
     function action(uint64 _matchingId) internal virtual override {
-        uint64[] memory cars = storages.matchingsTarget().getMatchingCars(
-            _matchingId
-        );
+        (, uint64[] memory cars, , , , , ) = storages
+            .matchingsTarget()
+            .getMatchingTarget(_matchingId);
         uint64 id = cars[0];
         uint64 provider = 0;
         bytes memory dataCid = CidUtils.hashToCID(carstore.getCarHash(id));

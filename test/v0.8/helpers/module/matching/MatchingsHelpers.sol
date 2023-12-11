@@ -91,12 +91,12 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
         DatasetType.DataType _dataType
     ) public view returns (uint64[] memory, uint64) {
         uint64 size = datasetsProof.getDatasetSize(_datasetId, _dataType);
-        uint64 carsCount = datasetsProof.getDatasetCarsCount(
+        uint64 carsCount = datasetsProof.getDatasetProofCount(
             _datasetId,
             _dataType
         );
         bytes32[] memory cars = new bytes32[](carsCount);
-        cars = datasetsProof.getDatasetCars(
+        cars = datasetsProof.getDatasetProof(
             _datasetId,
             _dataType,
             0,

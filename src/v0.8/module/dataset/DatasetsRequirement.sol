@@ -170,7 +170,7 @@ contract DatasetsRequirement is
             ];
 
         require(
-            datasets.requireValidDatasetMetadata(_datasetId),
+            datasets.__requireValidDatasetMetadata(_datasetId),
             "Invalid Metadata"
         );
 
@@ -182,7 +182,7 @@ contract DatasetsRequirement is
             _citys
         );
 
-        datasets.reportDatasetReplicaRequirementSubmitted(_datasetId);
+        datasets.__reportDatasetReplicaRequirementSubmitted(_datasetId);
         emit DatasetsEvents.DatasetReplicaRequirementSubmitted(
             _datasetId,
             msg.sender

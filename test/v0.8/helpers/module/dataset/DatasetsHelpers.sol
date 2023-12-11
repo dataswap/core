@@ -306,8 +306,13 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         uint64 _datasetId
     ) public {
         uint64 randomSeed = generator.generateNonce();
-        uint64 challengeCount = datasetsChallenge.getChallengeCount(_datasetId);
-        assertion.getChallengeCountAssertion(_datasetId, challengeCount);
+        uint64 challengeCount = datasetsChallenge.getChallengeSubmissionCount(
+            _datasetId
+        );
+        assertion.getChallengeSubmissionCountAssertion(
+            _datasetId,
+            challengeCount
+        );
         bytes32[][] memory siblings = new bytes32[][](challengeCount);
         uint32[] memory paths = new uint32[](challengeCount);
         bytes32[] memory leaves = new bytes32[](challengeCount);

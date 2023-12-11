@@ -177,7 +177,10 @@ contract Storages is
             EscrowType.PaymentEvent.SyncPaymentLock
         );
 
-        uint64 datasetId = matchingsTarget.getMatchingDatasetId(_matchingId);
+        (uint64 datasetId, , , , , , ) = matchingsTarget.getMatchingTarget(
+            _matchingId
+        );
+
         escrow.__emitPaymentUpdate(
             EscrowType.Type.DataPrepareFeeByClient,
             datasets.getDatasetMetadataSubmitter(datasetId),
@@ -234,7 +237,7 @@ contract Storages is
         uint64 _matchingId
     ) public view returns (uint256) {
         uint64 storedSize = getTotalStoredSize(_matchingId);
-        (, , uint64 totalSize, , ) = matchingsTarget.getMatchingTarget(
+        (, , uint64 totalSize, , , , ) = matchingsTarget.getMatchingTarget(
             _matchingId
         );
         uint256 totalPayment = matchingsBids.getMatchingBidAmount(
@@ -249,30 +252,36 @@ contract Storages is
         uint64 _matchingId
     ) public view returns (uint256) {
         uint64 storedSize = getTotalStoredSize(_matchingId);
-        (, , uint64 totalSize, , ) = matchingsTarget.getMatchingTarget(
-            _matchingId
-        );
-        uint256 totalPayment = matchingsTarget.getMatchingSubsidy(_matchingId);
+        (, , uint64 totalSize, , , , uint256 totalPayment) = matchingsTarget
+            .getMatchingTarget(_matchingId);
         return (totalPayment / totalSize) * (totalSize - storedSize);
     }
 
     /// @dev Checks if all cars are done in the matchedstore.
     function isAllStoredDone(uint64 _matchingId) public view returns (bool) {
         StorageType.Storage storage storage_ = storages[_matchingId];
-        return
-            storage_.doneCars.length ==
-            matchingsTarget.getMatchingCars(_matchingId).length;
+        (, uint64[] memory cars, , , , , ) = matchingsTarget.getMatchingTarget(
+            _matchingId
+        );
+        return storage_.doneCars.length == cars.length;
     }
 
     /// @dev Checks if store expiration in the matchedstore.
     function isStorageExpiration(
         uint64 _matchingId
     ) public view returns (bool) {
-        if (
-            block.number >
-            matchings.getMatchingCreatedHeight(_matchingId) +
-                matchings.getMatchingStorageCompletionHeight(_matchingId)
-        ) {
+        (
+            ,
+            ,
+            ,
+            uint64 storageCompletionPeriodBlocks,
+            ,
+            uint64 createdBlockNumber,
+            ,
+            ,
+
+        ) = matchings.getMatchingMetadata(_matchingId);
+        if (block.number > createdBlockNumber + storageCompletionPeriodBlocks) {
             return true;
         } else {
             return false;

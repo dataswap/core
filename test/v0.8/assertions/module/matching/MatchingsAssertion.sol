@@ -59,7 +59,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         uint256 _amount
     ) external {
         // Before the action, get the existing bids and count.
-        (address[] memory bidders, uint256[] memory amounts) = matchingsBids
+        (address[] memory bidders, uint256[] memory amounts, , ) = matchingsBids
             .getMatchingBids(_matchingId);
         uint64 oldBidsCount = matchingsBids.getMatchingBidsCount(_matchingId);
 
@@ -229,7 +229,9 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
             ,
             ,
             DatasetType.DataType _dataType,
-            uint64 _associatedMappingFilesMatchingID
+            uint64 _associatedMappingFilesMatchingID,
+            ,
+
         ) = matchingsTarget.getMatchingTarget(_matchingId);
 
         // Check if the matching target is valid.
@@ -366,7 +368,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         address[] memory _expectBidders,
         uint256[] memory _expectAmounts
     ) public {
-        (address[] memory bidders, uint256[] memory amounts) = matchingsBids
+        (address[] memory bidders, uint256[] memory amounts, , ) = matchingsBids
             .getMatchingBids(_matchingId);
         assertEq(bidders.length, _expectBidders.length);
         assertEq(amounts.length, _expectAmounts.length);
@@ -410,7 +412,9 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         uint64 _matchingId,
         uint64[] memory _expectCars
     ) public {
-        uint64[] memory cars = matchingsTarget.getMatchingCars(_matchingId);
+        (, uint64[] memory cars, , , , , ) = matchingsTarget.getMatchingTarget(
+            _matchingId
+        );
         assertEq(cars.length, _expectCars.length);
         for (uint64 i = 0; i < cars.length; i++) {
             assertEq(cars[i], _expectCars[i]);
@@ -424,10 +428,11 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         uint64 _matchingId,
         uint16 _expectIndex
     ) public {
-        assertEq(
-            matchingsTarget.getMatchingReplicaIndex(_matchingId),
-            _expectIndex
+        (, , , , , uint16 replicaIndex, ) = matchingsTarget.getMatchingTarget(
+            _matchingId
         );
+
+        assertEq(replicaIndex, _expectIndex);
     }
 
     /// @notice Assertion function to test the 'getMatchingSize' function of IMatchings contract.
@@ -437,7 +442,10 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         uint64 _matchingId,
         uint64 _expectSize
     ) public {
-        assertEq(matchingsTarget.getMatchingSize(_matchingId), _expectSize);
+        (, , uint64 matchingSize, , , , ) = matchingsTarget.getMatchingTarget(
+            _matchingId
+        );
+        assertEq(matchingSize, _expectSize);
     }
 
     /// @notice Assertion function to test the 'getMatchingInitiator' function of IMatchings contract.
@@ -483,7 +491,9 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
             uint64[] memory cars,
             uint64 size,
             DatasetType.DataType dataType,
-            uint64 associatedMappingFilesMatchingID
+            uint64 associatedMappingFilesMatchingID,
+            ,
+
         ) = matchingsTarget.getMatchingTarget(_matchingId);
         assertEq(datasetID, _expectDatasetID);
         assertEq(cars.length, _expectCars.length);
@@ -596,15 +606,21 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         );
     }
 
-    /// @notice Function for getting the selection rule of a matching.
-    /// @param _matchingId The ID of the matching.
-    /// @param _expectBidSelectionRule The expected rule of bid selection of matching.
     function getBidSelectionRuleAssertion(
         uint64 _matchingId,
         MatchingType.BidSelectionRule _expectBidSelectionRule
     ) public {
-        MatchingType.BidSelectionRule _bidSelectionRule = matchings
-            .getBidSelectionRule(_matchingId);
+        (
+            MatchingType.BidSelectionRule _bidSelectionRule,
+            ,
+            ,
+            ,
+            ,
+            ,
+            ,
+            ,
+
+        ) = matchings.getMatchingMetadata(_matchingId);
         assertEq(uint256(_bidSelectionRule), uint256(_expectBidSelectionRule));
     }
 
@@ -615,10 +631,10 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         uint64 _matchingId,
         uint256 _expectBiddingThreshold
     ) public {
-        assertEq(
-            matchings.getBiddingThreshold(_matchingId),
-            _expectBiddingThreshold
-        );
+        (, , , , uint256 biddingThreshold, , , , ) = matchings
+            .getMatchingMetadata(_matchingId);
+
+        assertEq(biddingThreshold, _expectBiddingThreshold);
     }
 
     /// @notice Function for getting the start height of a matching
@@ -628,8 +644,19 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         uint64 _matchingId,
         uint64 _expectStartHeight
     ) public {
+        (
+            ,
+            uint64 biddingDelayBlockCount,
+            ,
+            ,
+            ,
+            uint64 createdBlockNumber,
+            ,
+            ,
+
+        ) = matchings.getMatchingMetadata(_matchingId);
         assertEq(
-            matchings.getBiddingStartHeight(_matchingId),
+            createdBlockNumber + biddingDelayBlockCount,
             _expectStartHeight
         );
     }
@@ -641,8 +668,19 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         uint64 _matchingId,
         uint64 _expectAfterPauseHeight
     ) public {
+        (
+            ,
+            uint64 biddingDelayBlockCount,
+            ,
+            ,
+            ,
+            uint64 createdBlockNumber,
+            ,
+            ,
+            uint64 pausedBlockCount
+        ) = matchings.getMatchingMetadata(_matchingId);
         assertEq(
-            matchings.getBiddingAfterPauseHeight(_matchingId),
+            createdBlockNumber + biddingDelayBlockCount + pausedBlockCount,
             _expectAfterPauseHeight
         );
     }
@@ -654,7 +692,24 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         uint64 _matchingId,
         uint64 _expectEndHeight
     ) public {
-        assertEq(matchings.getBiddingEndHeight(_matchingId), _expectEndHeight);
+        (
+            ,
+            uint64 biddingDelayBlockCount,
+            uint64 biddingPeriodBlockCount,
+            ,
+            ,
+            uint64 createdBlockNumber,
+            ,
+            ,
+            uint64 pausedBlockCount
+        ) = matchings.getMatchingMetadata(_matchingId);
+        assertEq(
+            createdBlockNumber +
+                biddingDelayBlockCount +
+                biddingPeriodBlockCount +
+                pausedBlockCount,
+            _expectEndHeight
+        );
     }
 
     /// @notice Assertion function to test the count of matchings in the IMatchings contract.

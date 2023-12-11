@@ -78,14 +78,6 @@ interface IDatasetsProof {
         uint64 _len
     ) external view returns (bytes32[] memory);
 
-    ///@notice Get dataset source CIDs
-    function getDatasetCars(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _index,
-        uint64 _len
-    ) external view returns (bytes32[] memory);
-
     ///@notice Get dataset proof count
     function getDatasetProofCount(
         uint64 _datasetId,
@@ -96,12 +88,6 @@ interface IDatasetsProof {
     function getDatasetProofSubmitter(
         uint64 _datasetId
     ) external view returns (address);
-
-    ///@notice Get dataset source CIDs
-    function getDatasetCarsCount(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType
-    ) external view returns (uint64);
 
     ///@notice Get dataset size
     function getDatasetSize(

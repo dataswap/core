@@ -369,20 +369,8 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
             _dataType,
             datasetsProof.getDatasetProofCount(_datasetId, _dataType)
         );
-        getDatasetCarsCountAssertion(
-            _datasetId,
-            _dataType,
-            datasetsProof.getDatasetProofCount(_datasetId, _dataType)
-        );
 
         getDatasetProofAssertion(
-            _datasetId,
-            _dataType,
-            _oldProofCount,
-            uint64(_leafHashes.length),
-            _leafHashes
-        );
-        getDatasetCarsAssertion(
             _datasetId,
             _dataType,
             _oldProofCount,
@@ -544,32 +532,6 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         }
     }
 
-    /// @notice Assertion function for getting dataset cars (leaf hashes).
-    /// @param _datasetId The ID of the dataset.
-    /// @param _dataType The data type of the proof.
-    /// @param _index The index of the proof.
-    /// @param _len The length of the proof.
-    /// @param _expectCars The expected cars (leaf hashes).
-    function getDatasetCarsAssertion(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _index,
-        uint64 _len,
-        bytes32[] memory _expectCars
-    ) public {
-        bytes32[] memory cars = datasetsProof.getDatasetCars(
-            _datasetId,
-            _dataType,
-            _index,
-            _len
-        );
-
-        assertEq(cars.length, _expectCars.length, "length not matched");
-        for (uint64 i = 0; i < cars.length; i++) {
-            assertEq(cars[i], _expectCars[i], "cars not matched");
-        }
-    }
-
     function getDatasetProofSubmitterAssertion(
         uint64 _datasetId,
         address _submitter
@@ -592,22 +554,6 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
     ) public {
         assertEq(
             datasetsProof.getDatasetProofCount(_datasetId, _dataType),
-            _expectCount,
-            "count not matched"
-        );
-    }
-
-    /// @notice Assertion function for getting dataset cars (leaf hashes) count.
-    /// @param _datasetId The ID of the dataset.
-    /// @param _dataType The data type of the proof.
-    /// @param _expectCount The expected cars count.
-    function getDatasetCarsCountAssertion(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _expectCount
-    ) public {
-        assertEq(
-            datasetsProof.getDatasetCarsCount(_datasetId, _dataType),
             _expectCount,
             "count not matched"
         );
@@ -855,12 +801,12 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
     /// @notice Assertion function for checking challenge count.
     /// @param _datasetId The ID of the dataset.
     /// @param _expectCount The expected challenge count.
-    function getChallengeCountAssertion(
+    function getChallengeSubmissionCountAssertion(
         uint64 _datasetId,
         uint64 _expectCount
     ) external {
         assertEq(
-            datasetsChallenge.getChallengeCount(_datasetId),
+            datasetsChallenge.getChallengeSubmissionCount(_datasetId),
             _expectCount,
             "challenge count not matched"
         );

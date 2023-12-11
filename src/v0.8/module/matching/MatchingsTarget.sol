@@ -124,8 +124,15 @@ contract MatchingsTarget is
 
     ///@dev update cars info  to carStore before bidding
     function _beforeBidding(uint64 _matchingId) internal {
-        uint64[] memory cars = getMatchingCars(_matchingId);
-        uint16 replicaIndex = getMatchingReplicaIndex(_matchingId);
+        (
+            ,
+            uint64[] memory cars,
+            ,
+            ,
+            ,
+            uint16 replicaIndex,
+
+        ) = getMatchingTarget(_matchingId);
         for (uint64 i; i < cars.length; i++) {
             carstore.__registCarReplica(cars[i], _matchingId, replicaIndex);
         }
@@ -192,7 +199,7 @@ contract MatchingsTarget is
         MatchingType.MatchingTarget storage _target
     ) internal {
         _beforeBidding(_matchingId);
-        matchings.reportPublishMatching(_matchingId);
+        matchings.__reportPublishMatching(_matchingId);
 
         address datasetInitiator = datasets.getDatasetMetadataSubmitter(
             _matchingId
@@ -215,8 +222,9 @@ contract MatchingsTarget is
         );
         _target._updateSubsidy(total); // update subsidy amount
 
+        (, , uint64 datasize, , , , ) = getMatchingTarget(_matchingId);
         // update dataset used size
-        datasets.addDatasetUsedSize(_matchingId, getMatchingSize(_matchingId));
+        datasets.addDatasetUsedSize(_matchingId, datasize);
     }
 
     /// @notice  Function for publishing a matching
@@ -265,52 +273,6 @@ contract MatchingsTarget is
         }
     }
 
-    /// @notice Function for getting subsidy amount in a matching
-    function getMatchingSubsidy(
-        uint64 _matchingId
-    ) public view returns (uint256) {
-        MatchingType.MatchingTarget storage target = targets[_matchingId];
-        return target._getMatchingSubsidy();
-    }
-
-    /// @notice Get the cars of a matching.
-    /// @param _matchingId The ID of the matching.
-    /// @return cars An array of CIDs representing the cars in the matching.
-    function getMatchingCars(
-        uint64 _matchingId
-    ) public view returns (uint64[] memory) {
-        MatchingType.MatchingTarget storage target = targets[_matchingId];
-        return target._getCars();
-    }
-
-    /// @notice  Function for getting the dataset id in a matching
-    /// @param _matchingId The ID of the matching.
-    /// @return The ID of the matching's dataset.
-    function getMatchingDatasetId(
-        uint64 _matchingId
-    ) public view returns (uint64) {
-        MatchingType.MatchingTarget storage target = targets[_matchingId];
-        return target._getDatasetId();
-    }
-
-    /// @notice Get the index of matching's replica.
-    /// @param _matchingId The ID of the matching.
-    /// @return index The index of the matching's replica.
-    function getMatchingReplicaIndex(
-        uint64 _matchingId
-    ) public view returns (uint16) {
-        MatchingType.MatchingTarget storage target = targets[_matchingId];
-        return target.replicaIndex;
-    }
-
-    /// @notice  Function for getting the total data size of bids in a matching
-    /// @param _matchingId The ID of the matching to check.
-    /// @return The size of the matching cars.
-    function getMatchingSize(uint64 _matchingId) public view returns (uint64) {
-        (, , uint64 datasize, , ) = getMatchingTarget(_matchingId);
-        return datasize;
-    }
-
     /// @notice Get the target information of a matching.
     /// @param _matchingId The ID of the matching.
     /// @return datasetID The ID of the associated dataset.
@@ -318,6 +280,8 @@ contract MatchingsTarget is
     /// @return size The size of the matching.
     /// @return dataType The data type of the matching.
     /// @return associatedMappingFilesMatchingID The ID of the associated mapping files matching.
+    /// @return replicaIndex The index of dataset's replica
+    /// @return subsidy The subsidy amount
     function getMatchingTarget(
         uint64 _matchingId
     )
@@ -328,7 +292,9 @@ contract MatchingsTarget is
             uint64[] memory cars,
             uint64 size,
             DatasetType.DataType dataType,
-            uint64 associatedMappingFilesMatchingID
+            uint64 associatedMappingFilesMatchingID,
+            uint16 replicaIndex,
+            uint256 subsidy
         )
     {
         // Access the matching with the specified ID and retrieve the target information
@@ -338,7 +304,9 @@ contract MatchingsTarget is
             target.cars,
             target.size,
             target.dataType,
-            target.associatedMappingFilesMatchingID
+            target.associatedMappingFilesMatchingID,
+            target.replicaIndex,
+            target.subsidy
         );
     }
 
@@ -350,7 +318,8 @@ contract MatchingsTarget is
         uint64 _matchingId,
         uint64 _cid
     ) public view returns (bool) {
-        uint64[] memory cids = getMatchingCars(_matchingId);
+        MatchingType.MatchingTarget storage target = targets[_matchingId];
+        uint64[] memory cids = target._getCars();
         for (uint64 i = 0; i < cids.length; i++) {
             if (_cid == cids[i]) return true;
         }
@@ -392,7 +361,7 @@ contract MatchingsTarget is
 
         // Source data needs to ensure that the associated mapping files data has been stored
         if (_dataType == DatasetType.DataType.Source) {
-            (, , , DatasetType.DataType dataType, ) = getMatchingTarget(
+            (, , , DatasetType.DataType dataType, , , ) = getMatchingTarget(
                 _associatedMappingFilesMatchingID
             );
 
@@ -415,7 +384,7 @@ contract MatchingsTarget is
         address candidate
     ) external view returns (bool) {
         MatchingType.MatchingTarget storage target = targets[_matchingId];
-        uint64[] memory cars = getMatchingCars(_matchingId);
+        uint64[] memory cars = target._getCars();
         uint16 requirementReplicaCount = datasetsRequirement
             .getDatasetReplicasCount(target.datasetId);
         for (uint64 i; i < cars.length; i++) {

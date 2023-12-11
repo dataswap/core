@@ -38,10 +38,18 @@ interface IMatchingsBids {
     /// @notice  Function for closing a matching and choosing a winner
     function closeMatching(uint64 _matchingId) external;
 
-    /// @notice  Function for getting bids in a matching
+    /// @notice Function for getting bids in a matching.
+    /// @param _matchingId The matching id to get bids of matching.
+    /// @return The addresses of bidders who have placed bids in the current matching.
+    /// @return The highest bid placed by any bidder in the current matching.
+    /// @return Whether the bidders who have placed bids in the current matching comply with Filplus rules.
+    /// @return The winner of the current matching.
     function getMatchingBids(
         uint64 _matchingId
-    ) external view returns (address[] memory, uint256[] memory);
+    )
+        external
+        view
+        returns (address[] memory, uint256[] memory, bool[] memory, address);
 
     /// @notice  Function for getting bid amount of a bidder in a matching
     function getMatchingBidAmount(

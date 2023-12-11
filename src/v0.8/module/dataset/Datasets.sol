@@ -23,6 +23,7 @@ import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
+import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
 ///shared
 import {DatasetsEvents} from "src/v0.8/shared/events/DatasetsEvents.sol";
 import {DatasetsModifiers} from "src/v0.8/shared/modifiers/DatasetsModifiers.sol";
@@ -60,6 +61,7 @@ contract Datasets is
     IRoles public roles;
     IEscrow public escrow;
     IDatasetsProof private datasetsProof;
+    address private datasetsRequirement;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -79,9 +81,11 @@ contract Datasets is
     /// @notice initDependencies function to initialize the datasetsProof contract.
     /// @dev After the contract is deployed, this function needs to be called manually!
     function initDependencies(
-        address _datasetsProof
+        address _datasetsProof,
+        address _datasetsRequirement
     ) public onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
         datasetsProof = IDatasetsProof(_datasetsProof);
+        datasetsRequirement = _datasetsRequirement;
     }
 
     /// @notice UUPS Upgradeable function to update the roles implementation
@@ -308,36 +312,47 @@ contract Datasets is
     }
 
     /// @notice Checks if metadata fields are valid.
-    function requireValidDatasetMetadata(
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __requireValidDatasetMetadata(
         uint64 _datasetId
-    ) external view returns (bool) {
+    ) external view onlyAddress(datasetsRequirement) returns (bool) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset.requireValidDatasetMetadata();
         return true;
     }
 
     /// @notice Report the dataset replica has already been submitted.
-    function reportDatasetReplicaRequirementSubmitted(
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __reportDatasetReplicaRequirementSubmitted(
         uint64 _datasetId
-    ) external {
+    ) external onlyAddress(datasetsRequirement) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset._emitDatasetEvent(DatasetType.Event.SubmitMetadata);
     }
 
     /// @notice Report the dataset has not enough collateral.
-    function reportFundsNotEnough(uint64 _datasetId) external {
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __reportFundsNotEnough(
+        uint64 _datasetId
+    ) external onlyAddress(address(datasetsProof)) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset._emitDatasetEvent(DatasetType.Event.NotEnoughCollateral);
     }
 
     /// @notice Report the dataset has enough collateral.
-    function reportFundsEnough(uint64 _datasetId) external {
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __reportFundsEnough(
+        uint64 _datasetId
+    ) external onlyAddress(address(datasetsProof)) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset._emitDatasetEvent(DatasetType.Event.EnoughCollateral);
     }
 
     /// @notice Report the dataset proof has already been submitted.
-    function reportDatasetProofSubmitted(uint64 _datasetId) external {
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __reportDatasetProofSubmitted(
+        uint64 _datasetId
+    ) external onlyAddress(address(datasetsProof)) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset._emitDatasetEvent(DatasetType.Event.SubmitDatasetProof);
     }

@@ -98,23 +98,28 @@ interface IDatasets {
     ) external view returns (bool);
 
     /// @notice Checks if metadata fields are valid.
-    function requireValidDatasetMetadata(
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __requireValidDatasetMetadata(
         uint64 _datasetId
     ) external view returns (bool);
 
     /// @notice Report the dataset has not enough collateral.
-    function reportFundsNotEnough(uint64 _datasetId) external;
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __reportFundsNotEnough(uint64 _datasetId) external;
 
     /// @notice Report the dataset has enough collateral.
-    function reportFundsEnough(uint64 _datasetId) external;
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __reportFundsEnough(uint64 _datasetId) external;
 
     /// @notice Report the dataset replica has already been submitted.
-    function reportDatasetReplicaRequirementSubmitted(
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __reportDatasetReplicaRequirementSubmitted(
         uint64 _datasetId
     ) external;
 
     /// @notice Report the dataset proof has already been submitted.
-    function reportDatasetProofSubmitted(uint64 _datasetId) external;
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __reportDatasetProofSubmitted(uint64 _datasetId) external;
 
     /// @notice Default getter functions for public variables
     function datasetsCount() external view returns (uint64);

@@ -114,7 +114,7 @@ contract DatasetsChallenge is
         bytes32[] memory roots = _getChallengeRoots(
             _datasetId,
             _randomSeed,
-            getChallengeCount(_datasetId)
+            getChallengeSubmissionCount(_datasetId)
         );
         datasetChallengeProof._submitDatasetChallengeProofs(
             _randomSeed,
@@ -194,9 +194,11 @@ contract DatasetsChallenge is
             );
     }
 
-    ///@notice Get a dataset challenge count
+    /// @notice To obtain the number of challenges to be completed
     /// @param _datasetId The ID of the dataset for which proof is submitted.
-    function getChallengeCount(uint64 _datasetId) public view returns (uint64) {
+    function getChallengeSubmissionCount(
+        uint64 _datasetId
+    ) public view returns (uint64) {
         uint32 smallDataSet = 1000;
         uint64 carCount = datasetProof.getDatasetProofCount(
             _datasetId,

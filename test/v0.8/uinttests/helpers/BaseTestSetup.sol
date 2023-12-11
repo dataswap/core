@@ -114,7 +114,10 @@ contract BaseTestSetup {
             address(escrow)
         );
 
-        datasets.initDependencies(address(datasetsProof));
+        datasets.initDependencies(
+            address(datasetsProof),
+            address(datasetsRequirement)
+        );
         datasetsProof.initDependencies(address(datasetsChallenge));
     }
 
