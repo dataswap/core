@@ -195,14 +195,20 @@ library MatchingBidsLIB {
     /// @notice Get the bids.
     function _getMatchingBids(
         MatchingType.MatchingBids storage self
-    ) internal view returns (address[] memory, uint256[] memory) {
+    )
+        internal
+        view
+        returns (address[] memory, uint256[] memory, bool[] memory)
+    {
         address[] memory bidders = new address[](self.bids.length);
         uint256[] memory amounts = new uint256[](self.bids.length);
+        bool[] memory complyFilplusRules = new bool[](self.bids.length);
         for (uint64 i = 0; i < self.bids.length; i++) {
             bidders[i] = self.bids[i].bidder;
             amounts[i] = self.bids[i].bid;
+            complyFilplusRules[i] = self.bids[i].complyFilplusRule;
         }
-        return (bidders, amounts);
+        return (bidders, amounts, complyFilplusRules);
     }
 
     /// @notice Get the total number of bids in the matching.

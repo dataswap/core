@@ -60,9 +60,9 @@ contract PaymentRefundTestCaseWithSuccess is EscrowTestSuiteBase {
     function action(address payable _owner, uint64) internal virtual override {
         (uint64 datasetId, uint64 matchingId) = storagesHelpers.setup();
 
-        uint64[] memory cars = storages.matchingsTarget().getMatchingCars(
-            matchingId
-        );
+        (, uint64[] memory cars, , , , , ) = storages
+            .matchingsTarget()
+            .getMatchingTarget(matchingId);
 
         uint64[] memory claimIds = storagesHelpers.generateFilecoinClaimIds(
             uint64(cars.length)

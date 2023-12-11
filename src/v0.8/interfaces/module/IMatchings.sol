@@ -58,30 +58,6 @@ interface IMatchings {
     /// @param _matchingId The matching id.
     function resumeMatching(uint64 _matchingId) external;
 
-    /// @notice Function for report publishing a matching
-    /// @param _matchingId The matching id to publish cars.
-    function reportPublishMatching(uint64 _matchingId) external;
-
-    /// @notice Function for report canceling a matching
-    /// @param _matchingId The matching id.
-    function reportCancelMatching(uint64 _matchingId) external;
-
-    /// @notice Function for report closing a matching
-    /// @param _matchingId The matching id.
-    function reportCloseMatching(uint64 _matchingId) external;
-
-    /// @notice Function for report complete with a winner
-    /// @param _matchingId The matching id.
-    /// @param _winner The winner of bids of matching.
-    function reportMatchingHasWinner(
-        uint64 _matchingId,
-        address _winner
-    ) external;
-
-    /// @notice Function for report complete a matching without winner
-    /// @param _matchingId The matching id.
-    function reportMatchingNoWinner(uint64 _matchingId) external;
-
     /// @notice Function for getting matchings initiator
     function getMatchingInitiator(
         uint64 _matchingId
@@ -92,40 +68,62 @@ interface IMatchings {
         uint64 _matchingId
     ) external view returns (MatchingType.State);
 
-    /// @notice  Function for getting the bid selection rule of a matching
-    function getBidSelectionRule(
+    /// @notice  Function for getting the metadata of a matching
+    /// @param _matchingId The matching id to get meta data of matching.
+    /// @return bidSelectionRule The rules for determining the winning bid.
+    /// @return biddingDelayBlockCount The number of blocks to delay bidding.
+    /// @return biddingPeriodBlockCount The number of blocks for bidding period.
+    /// @return storageCompletionPeriodBlocks The number of blocks for storage period.
+    /// @return biddingThreshold The threshold for bidding.
+    /// @return createdBlockNumber The block height at which matching is created.
+    /// @return additionalInfo The additional information about the matching.
+    /// @return initiator The initiator of the matching.
+    /// @return pausedBlockCount The number of blocks matching is paused.
+    function getMatchingMetadata(
         uint64 _matchingId
-    ) external view returns (MatchingType.BidSelectionRule);
+    )
+        external
+        view
+        returns (
+            MatchingType.BidSelectionRule bidSelectionRule,
+            uint64 biddingDelayBlockCount,
+            uint64 biddingPeriodBlockCount,
+            uint64 storageCompletionPeriodBlocks,
+            uint256 biddingThreshold,
+            uint64 createdBlockNumber,
+            string memory additionalInfo,
+            address initiator,
+            uint64 pausedBlockCount
+        );
 
-    /// @notice  Function for getting the bid threshold of a matching
-    function getBiddingThreshold(
-        uint64 _matchingId
-    ) external view returns (uint256);
+    /// @notice Function for report publishing a matching
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    /// @param _matchingId The matching id to publish cars.
+    function __reportPublishMatching(uint64 _matchingId) external;
 
-    /// @notice  Function for getting the start height of a matching
-    function getBiddingStartHeight(
-        uint64 _matchingId
-    ) external view returns (uint64);
+    /// @notice Function for report canceling a matching
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    /// @param _matchingId The matching id.
+    function __reportCancelMatching(uint64 _matchingId) external;
 
-    /// @notice  Function for getting the after pause height of a matching
-    function getBiddingAfterPauseHeight(
-        uint64 _matchingId
-    ) external view returns (uint64);
+    /// @notice Function for report closing a matching
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    /// @param _matchingId The matching id.
+    function __reportCloseMatching(uint64 _matchingId) external;
 
-    /// @notice  Function for getting the end height of a matching
-    function getBiddingEndHeight(
-        uint64 _matchingId
-    ) external view returns (uint64);
+    /// @notice Function for report complete with a winner
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    /// @param _matchingId The matching id.
+    /// @param _winner The winner of bids of matching.
+    function __reportMatchingHasWinner(
+        uint64 _matchingId,
+        address _winner
+    ) external;
 
-    /// @notice  Function for getting the storage completion period blocks in a matching
-    function getMatchingStorageCompletionHeight(
-        uint64 _matchingId
-    ) external view returns (uint64);
-
-    /// @notice  Function for getting the matching creation block number
-    function getMatchingCreatedHeight(
-        uint64 _matchingId
-    ) external view returns (uint64);
+    /// @notice Function for report complete a matching without winner
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    /// @param _matchingId The matching id.
+    function __reportMatchingNoWinner(uint64 _matchingId) external;
 
     // Default getter functions for public variables
     function matchingsCount() external view returns (uint64);

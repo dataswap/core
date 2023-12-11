@@ -244,7 +244,7 @@ contract DatasetsProof is
                 _datasetId
             );
             if (total < collateralRequirement || lock < datasetAuditorFee) {
-                datasets.reportFundsNotEnough(_datasetId);
+                datasets.__reportFundsNotEnough(_datasetId);
                 emit DatasetsEvents.FundsNotEnough(_datasetId, msg.sender);
             } else {
                 // Update collateral funds to collateral requirement
@@ -255,7 +255,7 @@ contract DatasetsProof is
                     EscrowType.CollateralEvent.SyncCollateral
                 );
 
-                datasets.reportDatasetProofSubmitted(_datasetId);
+                datasets.__reportDatasetProofSubmitted(_datasetId);
                 emit DatasetsEvents.DatasetProofSubmitted(
                     _datasetId,
                     msg.sender
@@ -330,7 +330,7 @@ contract DatasetsProof is
             _dataAuditorFees
         );
 
-        datasets.reportFundsEnough(_datasetId);
+        datasets.__reportFundsEnough(_datasetId);
         emit DatasetsEvents.FundsEnough(_datasetId, msg.sender);
     }
 
@@ -371,16 +371,6 @@ contract DatasetsProof is
             );
     }
 
-    ///@notice Get dataset source CIDs
-    function getDatasetCars(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _index,
-        uint64 _len
-    ) public view onlyNotZero(_datasetId) returns (bytes32[] memory) {
-        return getDatasetProof(_datasetId, _dataType, _index, _len);
-    }
-
     /// @notice Get the number of leaf nodes (cars) in the dataset proofs.
     function getDatasetProofCount(
         uint64 _datasetId,
@@ -400,14 +390,6 @@ contract DatasetsProof is
             _datasetId
         ];
         return datasetProof.getDatasetSubmitter();
-    }
-
-    ///@notice Get dataset source CIDs
-    function getDatasetCarsCount(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType
-    ) public view onlyNotZero(_datasetId) returns (uint64) {
-        return getDatasetProofCount(_datasetId, _dataType);
     }
 
     ///@notice Get dataset size
@@ -442,7 +424,7 @@ contract DatasetsProof is
         uint64 CHALLENGE_PROOFS_SUBMIT_COUNT = 10;
         uint256 PRICE_PER_POINT = (1000000000000000000 / 1000);
         return
-            datasetsChallenge.getChallengeCount(_datasetId) *
+            datasetsChallenge.getChallengeSubmissionCount(_datasetId) *
             CHALLENGE_PROOFS_SUBMIT_COUNT *
             PRICE_PER_POINT;
     }
@@ -454,7 +436,8 @@ contract DatasetsProof is
         // TODO: PRICE_PER_POINT import from governance
         uint256 PRICE_PER_POINT = (1000000000000000000 / 1000);
         return
-            datasetsChallenge.getChallengeCount(_datasetId) * PRICE_PER_POINT;
+            datasetsChallenge.getChallengeSubmissionCount(_datasetId) *
+            PRICE_PER_POINT;
     }
 
     ///@notice Check if a dataset proof all completed

@@ -98,7 +98,7 @@ library ConditionalEscrowLIB {
         uint64 _id, // matchingId
         IDatacaps _datacaps
     ) internal view returns (uint256) {
-        return _datacaps.updatedDatacapChunkCollateralFunds(_id);
+        return _datacaps.getDatacapChunkCollateralFunds(_id);
     }
 
     /// @dev Determines the amount available for burn from a datacap chunk collateral
@@ -108,7 +108,7 @@ library ConditionalEscrowLIB {
         uint64 _id, // matchingId
         IDatacaps _datacaps
     ) internal view returns (uint256) {
-        return _datacaps.updatedDatacapChunkBurnFunds(_id);
+        return _datacaps.getDatacapChunkBurnFunds(_id);
     }
 
     /// @dev Determines the amount available for payment from a data prepare fee by provider
@@ -185,7 +185,9 @@ library ConditionalEscrowLIB {
         IDatasetsProof _datasetsProof,
         IStorages _storages
     ) internal view returns (uint256) {
-        uint64 matchingSize = _storages.matchingsTarget().getMatchingSize(_id);
+        (, , uint64 matchingSize, , , , ) = _storages
+            .matchingsTarget()
+            .getMatchingTarget(_id);
 
         uint64 unusedSize = _datasetsProof.getDatasetSize(
             _datasetId,

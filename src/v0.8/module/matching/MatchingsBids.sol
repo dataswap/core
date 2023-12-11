@@ -133,24 +133,16 @@ contract MatchingsBids is
         onlyRole(roles, RolesType.STORAGE_PROVIDER)
         onlyMatchingState(matchings, _matchingId, MatchingType.State.InProgress)
     {
-        MatchingType.MatchingBids storage bids = matchingBids[_matchingId];
-        MatchingType.BidSelectionRule bidSelectionRule = matchings
-            .getBidSelectionRule(_matchingId);
-
-        _processPaymentEscrow(_matchingId, _amount, bidSelectionRule);
-
-        bids._matchingBidding(
-            bidSelectionRule,
-            matchings.getBiddingThreshold(_matchingId),
-            matchings.getBiddingAfterPauseHeight(_matchingId),
-            matchings.getBiddingEndHeight(_matchingId),
+        MatchingType.BidSelectionRule bidSelectionRule = _bidding(
+            _matchingId,
             _amount
         );
+
+        (uint64 datasetId, , , , , uint16 replicaIndex, ) = matchingsTarget
+            .getMatchingTarget(_matchingId);
+
         (, address[] memory sp, , , ) = datasetsRequirement
-            .getDatasetReplicaRequirement(
-                matchingsTarget.getMatchingDatasetId(_matchingId),
-                matchingsTarget.getMatchingReplicaIndex(_matchingId)
-            );
+            .getDatasetReplicaRequirement(datasetId, replicaIndex);
 
         if (sp.length > 0) {
             require(sp.isContains(msg.sender), "Invalid SP submitter");
@@ -168,6 +160,39 @@ contract MatchingsBids is
         ) {
             closeMatching(_matchingId);
         }
+    }
+
+    /// @notice Internal Function for bidding on a matching
+    function _bidding(
+        uint64 _matchingId,
+        uint256 _amount
+    ) internal returns (MatchingType.BidSelectionRule) {
+        MatchingType.MatchingBids storage bids = matchingBids[_matchingId];
+        (
+            MatchingType.BidSelectionRule bidSelectionRule,
+            uint64 biddingDelayBlockCount,
+            uint64 biddingPeriodBlockCount,
+            ,
+            uint256 biddingThreshold,
+            uint64 createdBlockNumber,
+            ,
+            ,
+            uint64 pausedBlockCount
+        ) = matchings.getMatchingMetadata(_matchingId);
+
+        _processPaymentEscrow(_matchingId, _amount, bidSelectionRule);
+
+        bids._matchingBidding(
+            bidSelectionRule,
+            biddingThreshold,
+            createdBlockNumber + biddingDelayBlockCount + pausedBlockCount,
+            createdBlockNumber +
+                biddingDelayBlockCount +
+                biddingPeriodBlockCount +
+                pausedBlockCount,
+            _amount
+        );
+        return bidSelectionRule;
     }
 
     /// @dev Process payment fund escrow
@@ -197,7 +222,9 @@ contract MatchingsBids is
 
     ///@dev update cars info to carStore after matching failed
     function _afterMatchingFailed(uint64 _matchingId) internal {
-        uint64[] memory cars = matchingsTarget.getMatchingCars(_matchingId);
+        (, uint64[] memory cars, , , , , ) = matchingsTarget.getMatchingTarget(
+            _matchingId
+        );
         for (uint64 i; i < cars.length; i++) {
             carstore.__reportCarReplicaMatchingState(cars[i], _matchingId, false);
         }
@@ -205,7 +232,9 @@ contract MatchingsBids is
 
     ///@dev update cars info to carStore before matching complete
     function _beforeMatchingCompleted(uint64 _matchingId) internal {
-        uint64[] memory cars = matchingsTarget.getMatchingCars(_matchingId);
+        (, uint64[] memory cars, , , , , ) = matchingsTarget.getMatchingTarget(
+            _matchingId
+        );
         for (uint64 i; i < cars.length; i++) {
             carstore.__reportCarReplicaMatchingState(cars[i], _matchingId, true);
         }
@@ -217,7 +246,7 @@ contract MatchingsBids is
         uint64 _matchingId
     ) external onlyMatchingInitiator(matchings, _matchingId) {
         _afterMatchingFailed(_matchingId);
-        try matchings.reportCancelMatching(_matchingId) {} catch Error(
+        try matchings.__reportCancelMatching(_matchingId) {} catch Error(
             string memory err
         ) {
             revert(err);
@@ -232,7 +261,7 @@ contract MatchingsBids is
             matchings.getMatchingState(_matchingId) ==
             MatchingType.State.InProgress
         ) {
-            try matchings.reportCloseMatching(_matchingId) {} catch {
+            try matchings.__reportCloseMatching(_matchingId) {} catch {
                 revert("close matching failed");
             }
         }
@@ -244,11 +273,26 @@ contract MatchingsBids is
         );
 
         MatchingType.MatchingBids storage bids = matchingBids[_matchingId];
+        (
+            MatchingType.BidSelectionRule bidSelectionRule,
+            uint64 biddingDelayBlockCount,
+            uint64 biddingPeriodBlockCount,
+            ,
+            uint256 biddingThreshold,
+            uint64 createdBlockNumber,
+            ,
+            ,
+            uint64 pausedBlockCount
+        ) = matchings.getMatchingMetadata(_matchingId);
+
         address winner = bids._chooseMatchingWinner(
-            matchings.getBidSelectionRule(_matchingId),
-            matchings.getBiddingThreshold(_matchingId),
-            matchings.getBiddingAfterPauseHeight(_matchingId),
-            matchings.getBiddingEndHeight(_matchingId)
+            bidSelectionRule,
+            biddingThreshold,
+            createdBlockNumber + biddingDelayBlockCount + pausedBlockCount,
+            createdBlockNumber +
+                biddingDelayBlockCount +
+                biddingPeriodBlockCount +
+                pausedBlockCount
         );
 
         if (winner != address(0)) {
@@ -277,19 +321,34 @@ contract MatchingsBids is
                 EscrowType.PaymentEvent.SyncPaymentBeneficiary
             );
 
-            matchings.reportMatchingHasWinner(_matchingId, winner);
+            matchings.__reportMatchingHasWinner(_matchingId, winner);
         } else {
             _afterMatchingFailed(_matchingId);
-            matchings.reportMatchingNoWinner(_matchingId);
+            matchings.__reportMatchingNoWinner(_matchingId);
         }
     }
 
-    /// @notice Function for getting bids in a matching
+    /// @notice Function for getting bids in a matching.
+    /// @param _matchingId The matching id to get bids of matching.
+    /// @return The addresses of bidders who have placed bids in the current matching.
+    /// @return The highest bid placed by any bidder in the current matching.
+    /// @return Whether the bidders who have placed bids in the current matching comply with Filplus rules.
+    /// @return The winner of the current matching.
     function getMatchingBids(
         uint64 _matchingId
-    ) public view returns (address[] memory, uint256[] memory) {
+    )
+        public
+        view
+        returns (address[] memory, uint256[] memory, bool[] memory, address)
+    {
         MatchingType.MatchingBids storage bids = matchingBids[_matchingId];
-        return bids._getMatchingBids();
+        (
+            address[] memory bidders,
+            uint256[] memory amounts,
+            bool[] memory complyFilplusRules
+        ) = bids._getMatchingBids();
+
+        return (bidders, amounts, complyFilplusRules, bids.winner);
     }
 
     /// @notice Function for getting bid amount of a bidder in a matching

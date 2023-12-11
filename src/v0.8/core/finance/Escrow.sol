@@ -506,9 +506,9 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
                 revert Errors.BeneficiaryIsInvalid(_beneficiary);
             }
 
-            uint64 datasetId = storages.matchingsTarget().getMatchingDatasetId(
-                _id
-            );
+            (uint64 datasetId, , , , , , ) = storages
+                .matchingsTarget()
+                .getMatchingTarget(_id);
             return
                 ConditionalEscrowLIB.clientSubPaymentAccount(
                     _id,
@@ -639,7 +639,9 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
             revert Errors.SubAccountAlreadyExist(_owner);
         }
 
-        uint64 datasetId = storages.matchingsTarget().getMatchingDatasetId(_id);
+        (uint64 datasetId, , , , , , ) = storages
+            .matchingsTarget()
+            .getMatchingTarget(_id);
         EscrowType.Escrow storage escrow = escrowAccount[_type][_owner][
             datasetId
         ];

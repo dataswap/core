@@ -166,35 +166,11 @@ interface IDatasetsAssertion {
         bytes32[] memory _expectProof
     ) external;
 
-    /// @notice Asserts the retrieval of dataset cars.
-    /// @param _datasetId The ID of the dataset for which cars are retrieved.
-    /// @param _dataType The data type of the cars being retrieved.
-    /// @param _index The index of the cars.
-    /// @param _len The length of the cars.
-    /// @param _expectCars The expected car data.
-    function getDatasetCarsAssertion(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _index,
-        uint64 _len,
-        bytes32[] memory _expectCars
-    ) external;
-
     /// @notice Asserts the retrieval of the count of dataset proofs.
     /// @param _datasetId The ID of the dataset for which the count of proofs is retrieved.
     /// @param _dataType The data type of the proofs.
     /// @param _expectCount The expected count of proofs.
     function getDatasetProofCountAssertion(
-        uint64 _datasetId,
-        DatasetType.DataType _dataType,
-        uint64 _expectCount
-    ) external;
-
-    /// @notice Asserts the retrieval of the count of dataset cars.
-    /// @param _datasetId The ID of the dataset for which the count of cars is retrieved.
-    /// @param _dataType The data type of the cars.
-    /// @param _expectCount The expected count of cars.
-    function getDatasetCarsCountAssertion(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         uint64 _expectCount
@@ -282,7 +258,7 @@ interface IDatasetsAssertion {
     /// @notice Assertion function for checking challenge count.
     /// @param _datasetId The ID of the dataset.
     /// @param _expectCount The expected challenge count.
-    function getChallengeCountAssertion(
+    function getChallengeSubmissionCountAssertion(
         uint64 _datasetId,
         uint64 _expectCount
     ) external;

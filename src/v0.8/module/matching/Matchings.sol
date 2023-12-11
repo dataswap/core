@@ -171,52 +171,6 @@ contract Matchings is
         emit MatchingsEvents.MatchingResumed(_matchingId);
     }
 
-    /// @notice Function for publishing a matching
-    /// @param _matchingId The matching id to publish cars.
-    function reportPublishMatching(
-        uint64 _matchingId
-    ) external onlyMatchingsTarget(matchingsTarget, _matchingId) {
-        MatchingType.Matching storage matching = matchings[_matchingId];
-        matching._publishMatching();
-    }
-
-    /// @notice Function for report canceling a matching
-    function reportCancelMatching(
-        uint64 _matchingId
-    ) external onlyMatchingsBids(matchingsBids, _matchingId) {
-        MatchingType.Matching storage matching = matchings[_matchingId];
-        matching._cancelMatching();
-        emit MatchingsEvents.MatchingCancelled(_matchingId);
-    }
-
-    /// @notice Function for closing a matching
-    function reportCloseMatching(
-        uint64 _matchingId
-    ) external onlyMatchingsBids(matchingsBids, _matchingId) {
-        MatchingType.Matching storage matching = matchings[_matchingId];
-        matching._closeMatching();
-        emit MatchingsEvents.MatchingClosed(_matchingId);
-    }
-
-    /// @notice Function for report complete a matching with a winner
-    function reportMatchingHasWinner(
-        uint64 _matchingId,
-        address _winner
-    ) external onlyMatchingsBids(matchingsBids, _matchingId) {
-        MatchingType.Matching storage matching = matchings[_matchingId];
-        matching._reportMatchingHasWinner();
-        emit MatchingsEvents.MatchingHasWinner(_matchingId, _winner);
-    }
-
-    /// @notice Function for report complete a matching without winner.
-    function reportMatchingNoWinner(
-        uint64 _matchingId
-    ) external onlyMatchingsBids(matchingsBids, _matchingId) {
-        MatchingType.Matching storage matching = matchings[_matchingId];
-        matching._reportMatchingNoWinner();
-        emit MatchingsEvents.MatchingNoWinner(_matchingId);
-    }
-
     /// @notice Function for getting the initiator of a matching
     function getMatchingInitiator(
         uint64 _matchingId
@@ -233,66 +187,96 @@ contract Matchings is
         return matching._getMatchingState();
     }
 
-    /// @notice Function for getting the selection rule of a matching
-    function getBidSelectionRule(
+    /// @notice Function for getting the meta data of a matching.
+    /// @param _matchingId The matching id to get meta data of matching.
+    /// @return bidSelectionRule The rules for determining the winning bid.
+    /// @return biddingDelayBlockCount The number of blocks to delay bidding.
+    /// @return biddingPeriodBlockCount The number of blocks for bidding period.
+    /// @return storageCompletionPeriodBlocks The number of blocks for storage period.
+    /// @return biddingThreshold The threshold for bidding.
+    /// @return createdBlockNumber The block height at which matching is created.
+    /// @return additionalInfo The additional information about the matching.
+    /// @return initiator The initiator of the matching.
+    /// @return pausedBlockCount The number of blocks matching is paused.
+    function getMatchingMetadata(
         uint64 _matchingId
-    ) public view returns (MatchingType.BidSelectionRule) {
+    )
+        public
+        view
+        returns (
+            MatchingType.BidSelectionRule bidSelectionRule,
+            uint64 biddingDelayBlockCount,
+            uint64 biddingPeriodBlockCount,
+            uint64 storageCompletionPeriodBlocks,
+            uint256 biddingThreshold,
+            uint64 createdBlockNumber,
+            string memory additionalInfo,
+            address initiator,
+            uint64 pausedBlockCount
+        )
+    {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        return matching.bidSelectionRule;
+        return (
+            matching.bidSelectionRule,
+            matching.biddingDelayBlockCount,
+            matching.biddingPeriodBlockCount,
+            matching.storageCompletionPeriodBlocks,
+            matching.biddingThreshold,
+            matching.createdBlockNumber,
+            matching.additionalInfo,
+            matching.initiator,
+            matching.pausedBlockCount
+        );
     }
 
-    /// @notice Function for getting the threshold of a matching
-    function getBiddingThreshold(
+    /// @notice Function for publishing a matching
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    /// @param _matchingId The matching id to publish cars.
+    function __reportPublishMatching(
         uint64 _matchingId
-    ) public view returns (uint256) {
+    ) external onlyMatchingsTarget(matchingsTarget, _matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        return matching.biddingThreshold;
+        matching._publishMatching();
     }
 
-    /// @notice Function for getting the start height of a matching
-    function getBiddingStartHeight(
+    /// @notice Function for report canceling a matching
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __reportCancelMatching(
         uint64 _matchingId
-    ) public view returns (uint64) {
+    ) external onlyMatchingsBids(matchingsBids, _matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        return matching.createdBlockNumber + matching.biddingDelayBlockCount;
+        matching._cancelMatching();
+        emit MatchingsEvents.MatchingCancelled(_matchingId);
     }
 
-    /// @notice Function for getting the after pause height of a matching
-    function getBiddingAfterPauseHeight(
+    /// @notice Function for closing a matching
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __reportCloseMatching(
         uint64 _matchingId
-    ) public view returns (uint64) {
+    ) external onlyMatchingsBids(matchingsBids, _matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        return
-            matching.createdBlockNumber +
-            matching.biddingDelayBlockCount +
-            matching.pausedBlockCount;
+        matching._closeMatching();
+        emit MatchingsEvents.MatchingClosed(_matchingId);
     }
 
-    /// @notice Function for getting the end height of a matching
-    function getBiddingEndHeight(
-        uint64 _matchingId
-    ) public view returns (uint64) {
+    /// @notice Function for report complete a matching with a winner
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __reportMatchingHasWinner(
+        uint64 _matchingId,
+        address _winner
+    ) external onlyMatchingsBids(matchingsBids, _matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        return
-            matching.createdBlockNumber +
-            matching.biddingDelayBlockCount +
-            matching.biddingPeriodBlockCount +
-            matching.pausedBlockCount;
+        matching._reportMatchingHasWinner();
+        emit MatchingsEvents.MatchingHasWinner(_matchingId, _winner);
     }
 
-    /// @notice  Function for getting the storage completion period blocks in a matching
-    function getMatchingStorageCompletionHeight(
+    /// @notice Function for report complete a matching without winner.
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __reportMatchingNoWinner(
         uint64 _matchingId
-    ) public view returns (uint64) {
+    ) external onlyMatchingsBids(matchingsBids, _matchingId) {
         MatchingType.Matching storage matching = matchings[_matchingId];
-        return matching.storageCompletionPeriodBlocks;
-    }
-
-    /// @notice  Function for getting the matching creation block number
-    function getMatchingCreatedHeight(
-        uint64 _matchingId
-    ) public view returns (uint64) {
-        MatchingType.Matching storage matching = matchings[_matchingId];
-        return matching.createdBlockNumber;
+        matching._reportMatchingNoWinner();
+        emit MatchingsEvents.MatchingNoWinner(_matchingId);
     }
 }

@@ -31,14 +31,14 @@ interface IDatacaps {
     /// @notice Get the updated collateral funds for datacap chunk based on real-time business data
     /// @param _matchingId The ID of the matching
     /// @return The updated collateral funds required
-    function updatedDatacapChunkCollateralFunds(
+    function getDatacapChunkCollateralFunds(
         uint64 _matchingId
     ) external view returns (uint256);
 
     /// @notice Get the updated burn funds for datacap chunk based on real-time business data
     /// @param _matchingId The ID of the matching
     /// @return The updated burn funds required
-    function updatedDatacapChunkBurnFunds(
+    function getDatacapChunkBurnFunds(
         uint64 _matchingId
     ) external view returns (uint256);
 

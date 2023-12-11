@@ -66,29 +66,6 @@ interface IMatchingsTarget {
         bool complete
     ) external;
 
-    /// @notice Function for getting subsidy amount in a matching
-    function getMatchingSubsidy(
-        uint64 _matchingId
-    ) external view returns (uint256);
-
-    /// @notice  Function for getting the count of bids in a matching
-    function getMatchingCars(
-        uint64 _matchingId
-    ) external view returns (uint64[] memory);
-
-    /// @notice  Function for getting the dataset id in a matching
-    function getMatchingDatasetId(
-        uint64 _matchingId
-    ) external view returns (uint64);
-
-    /// @notice Get the index of matching's replica.
-    function getMatchingReplicaIndex(
-        uint64 _matchingId
-    ) external view returns (uint16);
-
-    /// @notice get matchings size
-    function getMatchingSize(uint64 _matchingId) external view returns (uint64);
-
     /// @notice Get the target information of a matching.
     /// @param _matchingId The ID of the matching.
     /// @return datasetID The ID of the associated dataset.
@@ -96,6 +73,8 @@ interface IMatchingsTarget {
     /// @return size The size of the matching.
     /// @return dataType The data type of the matching.
     /// @return associatedMappingFilesMatchingID The ID of the associated mapping files matching.
+    /// @return replicaIndex The index of dataset's replica
+    /// @return subsidy The subsidy amount
     function getMatchingTarget(
         uint64 _matchingId
     )
@@ -106,7 +85,9 @@ interface IMatchingsTarget {
             uint64[] memory cars,
             uint64 size,
             DatasetType.DataType dataType,
-            uint64 associatedMappingFilesMatchingID
+            uint64 associatedMappingFilesMatchingID,
+            uint16 replicaIndex,
+            uint256 subsidy
         );
 
     /// @notice Check if a matching with the given matching ID contains a specific CID.

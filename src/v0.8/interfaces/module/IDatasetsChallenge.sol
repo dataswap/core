@@ -61,7 +61,7 @@ interface IDatasetsChallenge {
     ) external view returns (bool);
 
     /// @notice Get a dataset challenge count
-    function getChallengeCount(
+    function getChallengeSubmissionCount(
         uint64 _datasetId
     ) external view returns (uint64);
 

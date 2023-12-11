@@ -218,7 +218,7 @@ contract Datacaps is
     /// @notice Get the updated collateral funds for datacap chunk based on real-time business data
     /// @param _matchingId The ID of the matching
     /// @return The updated collateral funds required
-    function updatedDatacapChunkCollateralFunds(
+    function getDatacapChunkCollateralFunds(
         uint64 _matchingId
     ) public view returns (uint256) {
         (, , uint256 availableFunds, , ) = escrow.getOwnerFund(
@@ -228,7 +228,8 @@ contract Datacaps is
         );
 
         if (storages.isStorageExpiration(_matchingId) == true) {
-            uint64 matchingSize = matchingsTarget.getMatchingSize(_matchingId);
+            (, , uint64 matchingSize, , , , ) = matchingsTarget
+                .getMatchingTarget(_matchingId);
             uint64 storedSize = storages.getTotalStoredSize(_matchingId);
 
             // TODO: PRICE_PER_BYTE import from governance
@@ -246,11 +247,13 @@ contract Datacaps is
     /// @notice Get the updated burn funds for datacap chunk based on real-time business data
     /// @param _matchingId The ID of the matching
     /// @return The updated burn funds required
-    function updatedDatacapChunkBurnFunds(
+    function getDatacapChunkBurnFunds(
         uint64 _matchingId
     ) public view returns (uint256) {
         if (storages.isStorageExpiration(_matchingId) == true) {
-            uint64 matchingSize = matchingsTarget.getMatchingSize(_matchingId);
+            (, , uint64 matchingSize, , , , ) = matchingsTarget
+                .getMatchingTarget(_matchingId);
+
             uint64 storedSize = storages.getTotalStoredSize(_matchingId);
 
             // TODO: PRICE_PER_BYTE import from governance
@@ -301,7 +304,10 @@ contract Datacaps is
     function getTotalDatacapAllocationRequirement(
         uint64 _matchingId
     ) public view returns (uint64) {
-        return matchingsTarget.getMatchingSize(_matchingId);
+        (, , uint64 matchingSize, , , , ) = matchingsTarget.getMatchingTarget(
+            _matchingId
+        );
+        return matchingSize;
     }
 
     /// @dev Gets the remaining datacap size needed to be allocated for a matching process.
