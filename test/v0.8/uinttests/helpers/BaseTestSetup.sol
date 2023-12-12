@@ -114,10 +114,7 @@ contract BaseTestSetup {
             address(escrow)
         );
 
-        datasets.initDependencies(
-            address(datasetsProof),
-            address(datasetsRequirement)
-        );
+        datasets.initDependencies(address(datasetsProof));
         datasetsProof.initDependencies(address(datasetsChallenge));
     }
 
@@ -155,10 +152,6 @@ contract BaseTestSetup {
             address(escrow)
         );
 
-        matchings.initDependencies(
-            address(matchingsTarget),
-            address(matchingsBids)
-        );
         matchingsTarget.initDependencies(
             address(matchings),
             address(matchingsBids)
@@ -201,6 +194,24 @@ contract BaseTestSetup {
             address(storages),
             address(datacaps)
         );
-        filecoin.initDependencies(address(datacaps));
+
+        address[] memory _contracts = new address[](16);
+        _contracts[0] = address(0);
+        _contracts[1] = address(role);
+        _contracts[2] = address(filplus);
+        _contracts[3] = address(carstore);
+        _contracts[4] = address(storages);
+        _contracts[5] = address(escrow);
+        _contracts[6] = address(datacaps);
+        _contracts[7] = address(datasets);
+        _contracts[8] = address(datasetsProof);
+        _contracts[9] = address(datasetsChallenge);
+        _contracts[10] = address(datasetsRequirement);
+        _contracts[11] = address(matchings);
+        _contracts[12] = address(matchingsTarget);
+        _contracts[13] = address(matchingsBids);
+        _contracts[14] = address(filecoin);
+        _contracts[15] = address(merkleUtils);
+        role.grantDataswapContractRole(_contracts);
     }
 }

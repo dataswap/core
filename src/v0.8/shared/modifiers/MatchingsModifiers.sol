@@ -62,27 +62,6 @@ contract MatchingsModifiers is CarstoreModifiers {
         _;
     }
 
-    /// @notice Modifier to restrict access to the matching target
-    modifier onlyMatchingsTarget(
-        IMatchingsTarget _matchingsTarget,
-        uint64 _matchingId
-    ) {
-        if (address(_matchingsTarget) != msg.sender) {
-            revert Errors.NotMatchingsTarget(_matchingId, msg.sender);
-        }
-        _;
-    }
-    /// @notice Modifier to restrict access to the matching target
-    modifier onlyMatchingsBids(
-        IMatchingsBids _matchingsBids,
-        uint64 _matchingId
-    ) {
-        if (address(_matchingsBids) != msg.sender) {
-            revert Errors.NotMatchingsTarget(_matchingId, msg.sender);
-        }
-        _;
-    }
-
     /// @notice Modifier to restrict access to the matching initiator
     modifier onlyMatchingContainsCar(
         IMatchingsTarget _matchingsTarget,

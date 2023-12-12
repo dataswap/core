@@ -23,12 +23,6 @@ import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
 /// @title IMatchings
 interface IMatchings {
-    /// @notice The function to init the dependencies of a matchings.
-    function initDependencies(
-        address _matchingsTarget,
-        address _matchingsBids
-    ) external;
-
     /// @notice Function for create a new matching.
     /// @param _datasetId The dataset id to create matching.
     /// @param _bidSelectionRule The rules for determining the winning bid.

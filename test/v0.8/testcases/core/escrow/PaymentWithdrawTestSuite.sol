@@ -74,6 +74,7 @@ contract PaymentWithdrawTestCaseWithSuccess is EscrowTestSuiteBase {
             beneficiaries
         );
 
+        vm.prank(address(0));
         escrow.__emitPaymentUpdate(
             EscrowType.Type.DataPrepareFeeByProvider,
             owner,

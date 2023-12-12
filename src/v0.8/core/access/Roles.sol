@@ -24,6 +24,7 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import {AccessControlEnumerableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 
 /// @title Role Contract
@@ -56,6 +57,16 @@ contract Roles is
     /// @notice Returns the implementation contract
     function getImplementation() external view returns (address) {
         return _getImplementation();
+    }
+
+    /// @notice grantDataswapContractRole function to grant the dataswap contract role for dataswap contract. TODO: Move to governance
+    /// @dev After all the dataswap contracts are deployed, this function needs to be called manually!
+    function grantDataswapContractRole(
+        address[] calldata _contracts
+    ) public onlyOwner {
+        for (uint256 i = 0; i < _contracts.length; i++) {
+            _grantRole(RolesType.DATASWAP_CONTRACT, _contracts[i]);
+        }
     }
 
     ///@dev The new owner accepts the ownership transfer.

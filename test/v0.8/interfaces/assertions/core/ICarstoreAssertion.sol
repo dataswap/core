@@ -23,11 +23,13 @@ import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
 /// @dev All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
 interface ICarstoreAssertion {
     /// @dev Asserts the addition of a car to the carstore.
+    /// @param _caller The address of the caller.
     /// @param _cid The CID (Content Identifier) of the car.
     /// @param _datasetId The ID of the dataset to which the car is added.
     /// @param _size The size of the car in bytes.
     /// @param _replicaCount count of car's replicas
     function addCarAssertion(
+        address _caller,
         bytes32 _cid,
         uint64 _datasetId,
         uint64 _size,
@@ -35,11 +37,13 @@ interface ICarstoreAssertion {
     ) external;
 
     /// @dev Asserts the addition of multiple cars to the carstore.
+    /// @param _caller The address of the caller.
     /// @param _cids An array of CIDs (Content Identifiers) of the cars.
     /// @param _datasetId The ID of the dataset to which the cars are added.
     /// @param _sizes An array of sizes of the cars in bytes.
     /// @param _replicaCount count of car's replicas
     function addCarsAssertion(
+        address _caller,
         bytes32[] memory _cids,
         uint64 _datasetId,
         uint64[] memory _sizes,
@@ -47,49 +51,59 @@ interface ICarstoreAssertion {
     ) external;
 
     /// @dev Asserts the addition of a car replica to a matching.
+    /// @param _caller The address of the caller.
     /// @param _id The ID (Content Identifier) of the car replica.
     /// @param _matchingId The ID of the matching to which the car replica is added.
     function registCarReplicaAssertion(
+        address _caller,
         uint64 _id,
         uint64 _matchingId,
         uint16 _replicaIndex
     ) external;
 
     /// @notice Assertion for the `__reportCarReplicaMatchingState` function.
+    /// @param _caller The address of the caller.
     /// @param _id The ID (Content Identifier) of the car.
     /// @param _matchingId The matching ID associated with the car replica.
     /// @param _matchingState Matching's state of the replica, true for success ,false for failed.
     function reportCarReplicaMatchingStateAssertion(
+        address _caller,
         uint64 _id,
         uint64 _matchingId,
         bool _matchingState
     ) external;
 
     /// @dev Asserts the reporting of a car replica as expired.
+    /// @param _caller The address of the caller.
     /// @param _id The ID (Content Identifier) of the car replica.
     /// @param _matchingId The ID of the matching to which the car replica belongs.
     /// @param _claimId The ID of the Filecoin deal associated with the car replica.
     function reportCarReplicaExpiredAssertion(
+        address _caller,
         uint64 _id,
         uint64 _matchingId,
         uint64 _claimId
     ) external;
 
     /// @dev Asserts the reporting of a car replica as slashed.
+    /// @param _caller The address of the caller.
     /// @param _id The ID (Content Identifier) of the car replica.
     /// @param _matchingId The ID of the matching to which the car replica belongs.
     /// @param _claimId The ID of the Filecoin deal associated with the car replica.
     function reportCarReplicaSlashedAssertion(
+        address _caller,
         uint64 _id,
         uint64 _matchingId,
         uint64 _claimId
     ) external;
 
     /// @dev Asserts the setting of a Filecoin claim ID for a car replica.
+    /// @param _caller The address of the caller.
     /// @param _id The ID (Content Identifier) of the car replica.
     /// @param _matchingId The ID of the matching to which the car replica belongs.
     /// @param _claimId The ID of the Filecoin deal to set.
     function setCarReplicaFilecoinClaimIdAssertion(
+        address _caller,
         uint64 _id,
         uint64 _matchingId,
         uint64 _claimId

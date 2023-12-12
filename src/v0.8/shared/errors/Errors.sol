@@ -50,9 +50,6 @@ library Errors {
         address actualInitiator
     );
 
-    error NotMatchingsTarget(uint64 _matchingId, address actualAddress);
-    error NotMatchingsBids(uint64 _matchingId, address actualAddress);
-
     /// @notice storage errors
     error StorageDealNotSuccessful(uint64 _claimId);
     error StorageClaimIdAlreadySet(

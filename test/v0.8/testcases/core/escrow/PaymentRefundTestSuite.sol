@@ -109,6 +109,7 @@ contract PaymentRefundTestCaseWithSuccess is EscrowTestSuiteBase {
             10
         );
 
+        vm.startPrank(address(0));
         escrow.__emitPaymentUpdate(
             EscrowType.Type.TotalDataPrepareFeeByClient,
             _owner,
@@ -116,6 +117,7 @@ contract PaymentRefundTestCaseWithSuccess is EscrowTestSuiteBase {
             storages.matchings().getMatchingInitiator(matchingId),
             EscrowType.PaymentEvent.AddPaymentSubAccount
         );
+        vm.stopPrank();
         (uint256 amount, , , , ) = escrow.getOwnerFund(
             EscrowType.Type.TotalDataPrepareFeeByClient,
             _owner,
@@ -208,6 +210,7 @@ contract PaymentRefundTestCaseWithFail is EscrowTestSuiteBase {
             datasetId,
             1
         );
+        vm.startPrank(address(0));
         escrow.__emitPaymentUpdate(
             EscrowType.Type.TotalDataPrepareFeeByClient,
             _owner,
@@ -215,7 +218,7 @@ contract PaymentRefundTestCaseWithFail is EscrowTestSuiteBase {
             matchingsHelpers.matchings().getMatchingInitiator(matchingId),
             EscrowType.PaymentEvent.AddPaymentSubAccount
         );
-
+        vm.stopPrank();
         vm.expectRevert();
         escrow.paymentRefund(
             EscrowType.Type.DataPrepareFeeByClient,

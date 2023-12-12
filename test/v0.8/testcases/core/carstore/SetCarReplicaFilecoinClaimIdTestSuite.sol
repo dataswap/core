@@ -21,6 +21,7 @@ import {SetCarReplicaFilecoinClaimIdAssertionTestSuiteBase} from "test/v0.8/test
 
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 
 /// @notice set car replica filecoin claim id test case,it should be success
 contract SetCarReplicaFilecoinClaimIdTestCaseWithSuccess is
@@ -43,6 +44,10 @@ contract SetCarReplicaFilecoinClaimIdTestCaseWithSuccess is
         uint64 _matchingId,
         uint64 _claimId
     ) internal virtual override returns (uint64) {
+        address admin = carstore.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        carstore.roles().grantRole(RolesType.DATASWAP_CONTRACT, address(this));
+        vm.stopPrank();
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
         vm.assume(_matchingId != 0 && _claimId != 0);
@@ -74,12 +79,18 @@ contract SetCarReplicaFilecoinClaimIdTestCaseWithInvalidId is
         uint64 _matchingId,
         uint64 _claimId
     ) internal virtual override returns (uint64) {
+        address admin = carstore.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        carstore.roles().grantRole(RolesType.DATASWAP_CONTRACT, address(this));
+        vm.stopPrank();
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
         vm.assume(_matchingId != 0 && _claimId == 0);
         uint64 _id = carstore.__addCar(_hash, _datasetId, _size, 3);
+        vm.startPrank(address(0));
         carstore.__registCarReplica(_id, _matchingId, 0);
         carstore.__reportCarReplicaMatchingState(_id, _matchingId, true);
+        vm.stopPrank();
         return _id;
     }
 
@@ -114,6 +125,10 @@ contract SetCarReplicaFilecoinClaimIdTestCaseWithReplicaNotExist is
         uint64 _matchingId,
         uint64 _claimId
     ) internal virtual override returns (uint64) {
+        address admin = carstore.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        carstore.roles().grantRole(RolesType.DATASWAP_CONTRACT, address(this));
+        vm.stopPrank();
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
         vm.assume(_matchingId != 0 && _claimId != 0);
@@ -158,6 +173,10 @@ contract SetCarReplicaFilecoinClaimIdTestCaseWithReplicaFilecoinClaimIdExists is
         uint64 _matchingId,
         uint64 _claimId
     ) internal virtual override returns (uint64) {
+        address admin = carstore.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        carstore.roles().grantRole(RolesType.DATASWAP_CONTRACT, address(this));
+        vm.stopPrank();
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
         vm.assume(_matchingId != 0 && _claimId != 0);

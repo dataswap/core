@@ -20,6 +20,7 @@ import {AddCarTestSuiteBase} from "test/v0.8/testcases/core/carstore/abstract/Ca
 
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 
@@ -38,6 +39,10 @@ contract AddCarTestCaseWithSuccess is AddCarTestSuiteBase {
         uint64 _size,
         uint16 _replicaCount
     ) internal virtual override {
+        address admin = carstore.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        carstore.roles().grantRole(RolesType.DATASWAP_CONTRACT, address(this));
+        vm.stopPrank();
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
         vm.assume(_replicaCount > 0 && _replicaCount < 5);
@@ -59,6 +64,10 @@ contract AddCarTestCaseWithInvalidId is AddCarTestSuiteBase {
         uint64 _size,
         uint16 _replicaCount
     ) internal virtual override {
+        address admin = carstore.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        carstore.roles().grantRole(RolesType.DATASWAP_CONTRACT, address(this));
+        vm.stopPrank();
         vm.assume(_datasetId == 0 || _size == 0);
         vm.assume(_replicaCount > 0 && _replicaCount < 5);
     }
@@ -89,6 +98,10 @@ contract AddCarTestCaseWithCarAlreayExsit is AddCarTestSuiteBase {
         uint64 _size,
         uint16 _replicaCount
     ) internal virtual override {
+        address admin = carstore.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        carstore.roles().grantRole(RolesType.DATASWAP_CONTRACT, address(this));
+        vm.stopPrank();
         vm.assume(_cid[0] != 0);
         vm.assume(_datasetId != 0 && _size != 0);
         vm.assume(_replicaCount > 0 && _replicaCount < 5);

@@ -53,7 +53,13 @@ abstract contract AddCarTestSuiteBase is CarstoreTestBase, Test {
         uint64 _size,
         uint16 _replicaCount
     ) internal virtual {
-        assertion.addCarAssertion(_hash, _datasetId, _size, _replicaCount);
+        assertion.addCarAssertion(
+            address(this),
+            _hash,
+            _datasetId,
+            _size,
+            _replicaCount
+        );
     }
 
     /// @dev Called after running the test to perform any necessary cleanup or validation.
@@ -116,7 +122,13 @@ abstract contract AddCarsTestSuiteBase is CarstoreTestBase, Test {
         uint64[] memory _sizes,
         uint16 _replicaCount
     ) internal virtual {
-        assertion.addCarsAssertion(_hashs, _datasetId, _sizes, _replicaCount);
+        assertion.addCarsAssertion(
+            address(this),
+            _hashs,
+            _datasetId,
+            _sizes,
+            _replicaCount
+        );
     }
 
     /// @dev Called after running the test to perform any necessary cleanup or validation.
@@ -175,7 +187,12 @@ abstract contract RegistCarReplicaTestSuiteBase is CarstoreTestBase, Test {
         uint64 _matchingId,
         uint16 _replicaIndex
     ) internal virtual {
-        assertion.registCarReplicaAssertion(_id, _matchingId, _replicaIndex);
+        assertion.registCarReplicaAssertion(
+            address(this),
+            _id,
+            _matchingId,
+            _replicaIndex
+        );
     }
 
     /// @dev Called after running the test to perform any necessary cleanup or validation.
@@ -238,6 +255,7 @@ abstract contract ReportCarReplicaMatchingStateTestSuiteBase is
         bool _matchingState
     ) internal virtual {
         assertion.reportCarReplicaMatchingStateAssertion(
+            address(this),
             _id,
             _matchingId,
             _matchingState
@@ -367,7 +385,12 @@ abstract contract ReportCarReplicaExpiredTestSuiteBase is
         uint64 _matchingId,
         uint64 _claimId
     ) internal virtual override {
-        assertion.reportCarReplicaExpiredAssertion(_id, _matchingId, _claimId);
+        assertion.reportCarReplicaExpiredAssertion(
+            address(this),
+            _id,
+            _matchingId,
+            _claimId
+        );
     }
 }
 
@@ -390,7 +413,12 @@ abstract contract ReportCarReplicaSlashedTestSuiteBase is
         uint64 _matchingId,
         uint64 _claimId
     ) internal virtual override {
-        assertion.reportCarReplicaSlashedAssertion(_id, _matchingId, _claimId);
+        assertion.reportCarReplicaSlashedAssertion(
+            address(this),
+            _id,
+            _matchingId,
+            _claimId
+        );
     }
 }
 
@@ -414,6 +442,7 @@ abstract contract SetCarReplicaFilecoinClaimIdAssertionTestSuiteBase is
         uint64 _claimId
     ) internal virtual override {
         assertion.setCarReplicaFilecoinClaimIdAssertion(
+            address(this),
             _id,
             _matchingId,
             _claimId

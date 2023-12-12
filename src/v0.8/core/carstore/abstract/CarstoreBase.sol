@@ -42,7 +42,7 @@ abstract contract CarstoreBase is Initializable, ICarstore, CarstoreModifiers {
     mapping(bytes32 => CarReplicaType.Car) internal cars;
     mapping(uint64 => bytes32) internal carsIndexes;
 
-    IRoles internal roles;
+    IRoles public roles;
     IFilplus public filplus;
     IFilecoin public filecoin;
     /// @dev This empty reserved space is put in place to allow future versions to add new

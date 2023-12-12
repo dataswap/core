@@ -50,4 +50,7 @@ library RolesType {
 
     /// @notice Bytes32 constant representing the role of a compute client.
     bytes32 public constant COMPUTE_CLIENT = keccak256("CC");
+
+    /// @notice Bytes32 constant representing the role of a dataswap contract.
+    bytes32 public constant DATASWAP_CONTRACT = keccak256("DATASWAP");
 }

@@ -21,6 +21,7 @@ import {RegistCarReplicaTestSuiteBase} from "test/v0.8/testcases/core/carstore/a
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 
 /// @notice set car replica filecoin claim id test case,it should be success
 contract RegistCarReplicaTestCaseWithSuccess is RegistCarReplicaTestSuiteBase {
@@ -36,6 +37,10 @@ contract RegistCarReplicaTestCaseWithSuccess is RegistCarReplicaTestSuiteBase {
         uint64 _matchingId,
         uint16 _replicaIndex
     ) internal virtual override returns (uint64) {
+        address admin = carstore.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        carstore.roles().grantRole(RolesType.DATASWAP_CONTRACT, address(this));
+        vm.stopPrank();
         vm.assume(_matchingId != 0);
         uint64 _id = carstore.__addCar(_hash, 1, 32 * 1024 * 1024 * 1024, 3);
         vm.assume(_replicaIndex < 3);
@@ -59,6 +64,10 @@ contract RegistCarReplicaTestCaseWithInvalidId is
         uint64 _matchingId,
         uint16 _replicaIndex
     ) internal virtual override returns (uint64) {
+        address admin = carstore.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        carstore.roles().grantRole(RolesType.DATASWAP_CONTRACT, address(this));
+        vm.stopPrank();
         vm.assume(_matchingId == 0);
         uint64 _id = carstore.__addCar(_hash, 1, 32 * 1024 * 1024 * 1024, 3);
         vm.assume(_replicaIndex < 3);
@@ -92,6 +101,10 @@ contract RegistCarReplicaTestCaseWithCarNotExist is
         uint16 /*_replicaIndex*/
     ) internal virtual override returns (uint64) {
         vm.assume(_matchingId != 0);
+        address admin = carstore.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        carstore.roles().grantRole(RolesType.DATASWAP_CONTRACT, address(this));
+        vm.stopPrank();
         return 100;
     }
 
@@ -123,6 +136,10 @@ contract RegistCarReplicaTestCaseWithReplicaAlreadyExists is
         uint64 _matchingId,
         uint16 _replicaIndex
     ) internal virtual override returns (uint64) {
+        address admin = carstore.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        carstore.roles().grantRole(RolesType.DATASWAP_CONTRACT, address(this));
+        vm.stopPrank();
         vm.assume(_matchingId != 0);
         uint64 _id = carstore.__addCar(_hash, 1, 32 * 1024 * 1024 * 1024, 3);
         vm.assume(_replicaIndex < 3);

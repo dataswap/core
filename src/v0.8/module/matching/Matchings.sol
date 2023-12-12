@@ -65,8 +65,6 @@ contract Matchings is
     address private governanceAddress;
     IRoles private roles;
     IDatasetsRequirement public datasetsRequirement;
-    IMatchingsTarget public matchingsTarget;
-    IMatchingsBids public matchingsBids;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -96,15 +94,6 @@ contract Matchings is
     /// @notice Returns the implementation contract
     function getImplementation() external view returns (address) {
         return _getImplementation();
-    }
-
-    /// @notice The function to init the dependencies of a matchings.
-    function initDependencies(
-        address _matchingsTarget,
-        address _matchingsBids
-    ) external onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
-        matchingsTarget = IMatchingsTarget(_matchingsTarget);
-        matchingsBids = IMatchingsBids(_matchingsBids);
     }
 
     /// @notice Function for create a new matching.
@@ -235,7 +224,7 @@ contract Matchings is
     /// @param _matchingId The matching id to publish cars.
     function __reportPublishMatching(
         uint64 _matchingId
-    ) external onlyMatchingsTarget(matchingsTarget, _matchingId) {
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching._publishMatching();
     }
@@ -244,7 +233,7 @@ contract Matchings is
     /// @dev This function is intended for use only by the 'dataswap' contract.
     function __reportCancelMatching(
         uint64 _matchingId
-    ) external onlyMatchingsBids(matchingsBids, _matchingId) {
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching._cancelMatching();
         emit MatchingsEvents.MatchingCancelled(_matchingId);
@@ -254,7 +243,7 @@ contract Matchings is
     /// @dev This function is intended for use only by the 'dataswap' contract.
     function __reportCloseMatching(
         uint64 _matchingId
-    ) external onlyMatchingsBids(matchingsBids, _matchingId) {
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching._closeMatching();
         emit MatchingsEvents.MatchingClosed(_matchingId);
@@ -265,7 +254,7 @@ contract Matchings is
     function __reportMatchingHasWinner(
         uint64 _matchingId,
         address _winner
-    ) external onlyMatchingsBids(matchingsBids, _matchingId) {
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching._reportMatchingHasWinner();
         emit MatchingsEvents.MatchingHasWinner(_matchingId, _winner);
@@ -275,7 +264,7 @@ contract Matchings is
     /// @dev This function is intended for use only by the 'dataswap' contract.
     function __reportMatchingNoWinner(
         uint64 _matchingId
-    ) external onlyMatchingsBids(matchingsBids, _matchingId) {
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching._reportMatchingNoWinner();
         emit MatchingsEvents.MatchingNoWinner(_matchingId);
