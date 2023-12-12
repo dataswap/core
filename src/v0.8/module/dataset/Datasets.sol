@@ -61,7 +61,6 @@ contract Datasets is
     IRoles public roles;
     IEscrow public escrow;
     IDatasetsProof private datasetsProof;
-    address private datasetsRequirement;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -81,11 +80,9 @@ contract Datasets is
     /// @notice initDependencies function to initialize the datasetsProof contract.
     /// @dev After the contract is deployed, this function needs to be called manually!
     function initDependencies(
-        address _datasetsProof,
-        address _datasetsRequirement
+        address _datasetsProof
     ) public onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
         datasetsProof = IDatasetsProof(_datasetsProof);
-        datasetsRequirement = _datasetsRequirement;
     }
 
     /// @notice UUPS Upgradeable function to update the roles implementation
@@ -330,7 +327,12 @@ contract Datasets is
     /// @dev This function is intended for use only by the 'dataswap' contract.
     function __requireValidDatasetMetadata(
         uint64 _datasetId
-    ) external view onlyAddress(datasetsRequirement) returns (bool) {
+    )
+        external
+        view
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
+        returns (bool)
+    {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset.requireValidDatasetMetadata();
         return true;
@@ -340,7 +342,7 @@ contract Datasets is
     /// @dev This function is intended for use only by the 'dataswap' contract.
     function __reportDatasetReplicaRequirementSubmitted(
         uint64 _datasetId
-    ) external onlyAddress(datasetsRequirement) {
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset._emitDatasetEvent(DatasetType.Event.SubmitMetadata);
     }
@@ -349,7 +351,7 @@ contract Datasets is
     /// @dev This function is intended for use only by the 'dataswap' contract.
     function __reportFundsNotEnough(
         uint64 _datasetId
-    ) external onlyAddress(address(datasetsProof)) {
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset._emitDatasetEvent(DatasetType.Event.NotEnoughCollateral);
     }
@@ -358,7 +360,7 @@ contract Datasets is
     /// @dev This function is intended for use only by the 'dataswap' contract.
     function __reportFundsEnough(
         uint64 _datasetId
-    ) external onlyAddress(address(datasetsProof)) {
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset._emitDatasetEvent(DatasetType.Event.EnoughCollateral);
     }
@@ -367,7 +369,7 @@ contract Datasets is
     /// @dev This function is intended for use only by the 'dataswap' contract.
     function __reportDatasetProofSubmitted(
         uint64 _datasetId
-    ) external onlyAddress(address(datasetsProof)) {
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset._emitDatasetEvent(DatasetType.Event.SubmitDatasetProof);
     }

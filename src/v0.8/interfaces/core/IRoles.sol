@@ -55,4 +55,7 @@ interface IRoles is IAccessControlEnumerableUpgradeable {
      * Can only be called by the current owner.
      */
     function transferOwnership(address _newOwner) external;
+
+    /// @notice grantDataswapContractRole function to grant the dataswap contract role for dataswap contract. TODO: Move to governance
+    function grantDataswapContractRole(address[] calldata _contracts) external;
 }

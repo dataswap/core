@@ -306,15 +306,11 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         uint64 _id
     ) external {
         // Update collateral funds
-        __emitCollateralUpdate(
-            _type,
-            _owner,
-            _id,
-            EscrowType.CollateralEvent.SyncCollateral
-        );
+        uint256 amount = _syncCollateral(_type, _owner, _id);
+        _updateCollateral(_type, _owner, _id, amount);
     }
 
-    /// @notice Post an event for collateral type. Called by internal contract. TODO: Add Permission control
+    /// @notice Post an event for collateral type. Called by internal contract.
     /// @param _type The Escrow type for the credited funds.
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
@@ -324,7 +320,7 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         address _owner,
         uint64 _id,
         EscrowType.CollateralEvent _event
-    ) public {
+    ) public onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         if (_event == EscrowType.CollateralEvent.SyncBurn) {
             uint256 amount = _syncBurn(_type, _owner, _id);
             _updateBurn(_type, payable(_owner), _id, amount);
@@ -334,7 +330,7 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         }
     }
 
-    /// @notice Post an event for payment type. Called by internal contract. TODO: Add Permission control
+    /// @notice Post an event for payment type. Called by internal contract.
     /// @param _type The Escrow type for the credited funds.
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
@@ -346,7 +342,7 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         uint64 _id,
         address _beneficiary,
         EscrowType.PaymentEvent _event
-    ) external {
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         if (_event == EscrowType.PaymentEvent.SyncPaymentLock) {
             uint256 amount = _syncPaymentLock(_type, _owner, _id, _beneficiary);
             _updatePaymentLock(_type, _owner, _id, _beneficiary, amount);

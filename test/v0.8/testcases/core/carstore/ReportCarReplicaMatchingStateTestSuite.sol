@@ -22,6 +22,7 @@ import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 
 /// @notice report car replica matching state test case,it should be success
 contract ReportCarReplicaMatchingStateTestCaseWithSuccess is
@@ -41,6 +42,10 @@ contract ReportCarReplicaMatchingStateTestCaseWithSuccess is
         uint64 _matchingId,
         uint16 _replicaIndex
     ) internal virtual override returns (uint64) {
+        address admin = carstore.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        carstore.roles().grantRole(RolesType.DATASWAP_CONTRACT, address(this));
+        vm.stopPrank();
         vm.assume(_datasetId != 0);
         vm.assume(_size != 0);
         vm.assume(_matchingId != 0);

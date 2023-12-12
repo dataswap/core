@@ -39,7 +39,6 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 contract Filecoin is Initializable, UUPSUpgradeable, IFilecoin, RolesModifiers {
     FilecoinType.Network public network;
     IRoles private roles;
-    address private datacapAddress;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -68,19 +67,12 @@ contract Filecoin is Initializable, UUPSUpgradeable, IFilecoin, RolesModifiers {
         return _getImplementation();
     }
 
-    /// @notice The function to init the dependencies of a filecoin.
-    function initDependencies(
-        address _datacap
-    ) external onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
-        datacapAddress = _datacap;
-    }
-
     /// @notice The function to allocate the datacap of a storage deal.
     /// @dev This function is intended for use only by the 'dataswap' contract.
     function __allocateDatacap(
         uint64 client,
         uint256 _size
-    ) external onlyAddress(datacapAddress) {
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         VerifRegTypes.AddVerifiedClientParams memory params = VerifRegTypes
             .AddVerifiedClientParams(
                 FilAddresses.fromActorID(client),

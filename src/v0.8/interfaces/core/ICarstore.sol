@@ -143,6 +143,9 @@ interface ICarstoreReadOnly {
     // Default getter functions for public variables
     function carsCount() external view returns (uint64);
 
+    /// @notice get roles object
+    function roles() external view returns (IRoles);
+
     /// @notice get filecoin object
     function filecoin() external view returns (IFilecoin);
 

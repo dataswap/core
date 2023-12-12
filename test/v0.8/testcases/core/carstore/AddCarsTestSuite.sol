@@ -20,6 +20,7 @@ import {AddCarsTestSuiteBase} from "test/v0.8/testcases/core/carstore/abstract/C
 
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {ICarstoreAssertion} from "test/v0.8/interfaces/assertions/core/ICarstoreAssertion.sol";
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 
 /// @notice add cars test case,it should be success
 contract AddCarsTestCaseWithSuccess is AddCarsTestSuiteBase {
@@ -36,6 +37,10 @@ contract AddCarsTestCaseWithSuccess is AddCarsTestSuiteBase {
         uint64[] memory _sizes,
         uint16 _replicaCount
     ) internal virtual override {
+        address admin = carstore.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        carstore.roles().grantRole(RolesType.DATASWAP_CONTRACT, address(this));
+        vm.stopPrank();
         vm.assume(_datasetId != 0);
         vm.assume(_cids.length == _sizes.length);
         vm.assume(_replicaCount > 0 && _replicaCount < 5);
@@ -60,6 +65,10 @@ contract AddCarsTestCaseWithInvalidPrams is AddCarsTestSuiteBase {
         uint64[] memory _sizes,
         uint16 _replicaCount
     ) internal virtual override {
+        address admin = carstore.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        carstore.roles().grantRole(RolesType.DATASWAP_CONTRACT, address(this));
+        vm.stopPrank();
         vm.assume(_datasetId != 0 && _cids.length != _sizes.length);
         vm.assume(_replicaCount > 0 && _replicaCount < 5);
     }

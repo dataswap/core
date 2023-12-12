@@ -77,6 +77,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         uint16 _replicaCount
     )
         public
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
         onlyCarNotExist(this, _cid)
         onlyNotZero(_datasetId)
         onlyNotZero(_size)
@@ -104,7 +105,12 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         uint64 _datasetId,
         uint64[] memory _sizes,
         uint16 _replicaCount
-    ) external onlyNotZero(_datasetId) returns (uint64[] memory, uint64) {
+    )
+        external
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
+        onlyNotZero(_datasetId)
+        returns (uint64[] memory, uint64)
+    {
         require(_cids.length == _sizes.length, "Invalid params");
         uint64 totalSize;
         uint64[] memory ids = new uint64[](_cids.length);
@@ -128,6 +134,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         uint16 _replicaIndex
     )
         external
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
         onlyCarExist(this, _id)
         onlyNotZero(_matchingId)
         onlyCarReplicaNotExist(this, _id, _matchingId)
@@ -154,6 +161,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         bool _matchingState
     )
         external
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
         onlyCarExist(this, _id)
         onlyNotZero(_matchingId)
         onlyCarReplicaExist(this, _id, _matchingId)
@@ -206,6 +214,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         uint64 _claimId
     )
         external
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
         onlyCarExist(this, _id)
         onlyNotZero(_matchingId)
         onlyCarReplicaExist(this, _id, _matchingId)
@@ -234,6 +243,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         uint64 _claimId
     )
         external
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
         onlyCarExist(this, _id)
         onlyNotZero(_matchingId)
         onlyCarReplicaExist(this, _id, _matchingId)
@@ -270,12 +280,16 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         uint64 _claimId
     )
         external
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
         onlyCarExist(this, _id)
-        onlyNotZero(_matchingId)
-        onlyNotZero(_claimId)
+        //onlyNotZero(_matchingId | _claimId)
         onlyCarReplicaExist(this, _id, _matchingId)
         onlyUnsetCarReplicaFilecoinClaimId(this, _id, _matchingId)
     {
+        require(
+            (_matchingId | _claimId) != 0,
+            "Matching ID or Filecoin claim ID is 0"
+        );
         _checkCarReplicaState(_id, _matchingId, CarReplicaType.State.Matched);
         bytes32 _hash = _getHash(_id);
         CarReplicaType.Car storage car = _getCar(_id);
