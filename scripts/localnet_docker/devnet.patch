@@ -1,0 +1,57 @@
+diff --git a/cmd/lotus-miner/run.go b/cmd/lotus-miner/run.go
+index 93dfea2fc..edb1a7a10 100644
+--- a/cmd/lotus-miner/run.go
++++ b/cmd/lotus-miner/run.go
+@@ -148,7 +148,7 @@ var runCmd = &cli.Command{
+ 
+ 			node.ApplyIf(func(s *node.Settings) bool { return cctx.IsSet("miner-api") },
+ 				node.Override(new(dtypes.APIEndpoint), func() (dtypes.APIEndpoint, error) {
+-					return multiaddr.NewMultiaddr("/ip4/127.0.0.1/tcp/" + cctx.String("miner-api"))
++					return multiaddr.NewMultiaddr("/ip4/0.0.0.0/tcp/" + cctx.String("miner-api"))
+ 				})),
+ 			node.Override(new(v1api.RawFullNodeAPI), nodeApi),
+ 		)
+diff --git a/cmd/lotus/daemon.go b/cmd/lotus/daemon.go
+index 7271a6e53..30172a601 100644
+--- a/cmd/lotus/daemon.go
++++ b/cmd/lotus/daemon.go
+@@ -358,7 +358,7 @@ var DaemonCmd = &cli.Command{
+ 
+ 			node.ApplyIf(func(s *node.Settings) bool { return cctx.IsSet("api") },
+ 				node.Override(node.SetApiEndpointKey, func(lr repo.LockedRepo) error {
+-					apima, err := multiaddr.NewMultiaddr("/ip4/127.0.0.1/tcp/" +
++					apima, err := multiaddr.NewMultiaddr("/ip4/0.0.0.0/tcp/" +
+ 						cctx.String("api"))
+ 					if err != nil {
+ 						return err
+diff --git a/node/config/def.go b/node/config/def.go
+index dd36803a0..76f4f535f 100644
+--- a/node/config/def.go
++++ b/node/config/def.go
+@@ -43,7 +43,7 @@ func (b *BatchFeeConfig) FeeForSectors(nSectors int) abi.TokenAmount {
+ func defCommon() Common {
+ 	return Common{
+ 		API: API{
+-			ListenAddress: "/ip4/127.0.0.1/tcp/1234/http",
++			ListenAddress: "/ip4/0.0.0.0/tcp/1234/http",
+ 			Timeout:       Duration(30 * time.Second),
+ 		},
+ 		Logging: Logging{
+@@ -108,7 +108,7 @@ func DefaultFullNode() *FullNode {
+ 		},
+ 		Cluster: *DefaultUserRaftConfig(),
+ 		Fevm: FevmConfig{
+-			EnableEthRPC:                 false,
++			EnableEthRPC:                 true,
+ 			EthTxHashMappingLifetimeDays: 0,
+ 			Events: Events{
+ 				DisableRealTimeFilterAPI: false,
+@@ -274,7 +274,7 @@ func DefaultStorageMiner() *StorageMiner {
+ 		},
+ 	}
+ 
+-	cfg.Common.API.ListenAddress = "/ip4/127.0.0.1/tcp/2345/http"
++	cfg.Common.API.ListenAddress = "/ip4/0.0.0.0/tcp/2345/http"
+ 	cfg.Common.API.RemoteListenAddress = "127.0.0.1:2345"
+ 	return cfg
+ }
