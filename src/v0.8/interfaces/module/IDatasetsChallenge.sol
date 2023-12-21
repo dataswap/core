@@ -43,9 +43,9 @@ interface IDatasetsChallenge {
         external
         view
         returns (
-            bytes32[] memory,
-            bytes32[][] memory _siblings,
-            uint32[] memory _paths
+            bytes32[] memory leaves,
+            bytes32[][] memory siblingss,
+            uint32[] memory paths
         );
 
     ///@notice Get count of dataset challenge proofs

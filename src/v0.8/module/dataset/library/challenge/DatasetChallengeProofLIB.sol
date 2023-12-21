@@ -121,17 +121,17 @@ library DatasetChallengeProofLIB {
     )
         internal
         view
-        returns (bytes32[] memory, bytes32[][] memory, uint32[] memory)
+        returns (
+            bytes32[] memory leaves,
+            bytes32[][] memory siblingss,
+            uint32[] memory paths
+        )
     {
         DatasetType.ChallengeProof storage challengeProof = self
             .challengeProofs[_auditor];
-        bytes32[][] memory siblingss = new bytes32[][](
-            challengeProof.challenges.length
-        );
-        uint32[] memory paths = new uint32[](challengeProof.challenges.length);
-        bytes32[] memory leaves = new bytes32[](
-            challengeProof.challenges.length
-        );
+        siblingss = new bytes32[][](challengeProof.challenges.length);
+        paths = new uint32[](challengeProof.challenges.length);
+        leaves = new bytes32[](challengeProof.challenges.length);
 
         for (uint256 i = 0; i < challengeProof.challenges.length; i++) {
             DatasetType.Challenge storage challenge = challengeProof.challenges[

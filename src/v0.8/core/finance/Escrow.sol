@@ -672,7 +672,7 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         EscrowType.Type _type,
         address _owner,
         uint64 _id
-    ) public view returns (address[] memory) {
+    ) public view returns (address[] memory beneficiariesList) {
         return escrowAccount[_type][_owner][_id].beneficiariesList;
     }
 
@@ -686,7 +686,17 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         address _owner,
         uint64 _id,
         address _beneficiary
-    ) public view returns (uint256, uint256, uint256, uint256, uint64) {
+    )
+        public
+        view
+        returns (
+            uint256 total,
+            uint256 locked,
+            uint256 collateraled,
+            uint256 burned,
+            uint64 createdBlockNumber
+        )
+    {
         return (
             escrowAccount[_type][_owner][_id].beneficiaries[_beneficiary].total,
             escrowAccount[_type][_owner][_id].beneficiaries[_beneficiary].lock,
@@ -710,7 +720,17 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         EscrowType.Type _type,
         address _owner,
         uint64 _id
-    ) public view returns (uint256, uint256, uint256, uint256, uint64) {
+    )
+        public
+        view
+        returns (
+            uint256 total,
+            uint256 locked,
+            uint256 collateraled,
+            uint256 burned,
+            uint64 createdBlockNumber
+        )
+    {
         return (
             escrowAccount[_type][_owner][_id].owner.total,
             escrowAccount[_type][_owner][_id].owner.lock,
