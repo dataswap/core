@@ -52,9 +52,9 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         private escrowAccount; // mapping(type, mapping(payee, mapping(id, Escrow)))
 
     IRoles private roles;
-    IStorages private storages;
-    IDatacaps private datacaps;
-    IDatasetsProof private datasetsProof;
+    IStorages public storages;
+    IDatacaps public datacaps;
+    IDatasetsProof public datasetsProof;
 
     address payable public constant BURN_ADDRESS =
         payable(0xff00000000000000000000000000000000000063); // Filecoin burn address. TODO: BURN_ADDRESS import from governance

@@ -60,7 +60,7 @@ contract Datasets is
     address public governanceAddress;
     IRoles public roles;
     IEscrow public escrow;
-    IDatasetsProof private datasetsProof;
+    IDatasetsProof public datasetsProof;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
