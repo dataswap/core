@@ -339,23 +339,24 @@ contract MatchingsBids is
 
     /// @notice Function for getting bids in a matching.
     /// @param _matchingId The matching id to get bids of matching.
-    /// @return The addresses of bidders who have placed bids in the current matching.
-    /// @return The highest bid placed by any bidder in the current matching.
-    /// @return Whether the bidders who have placed bids in the current matching comply with Filplus rules.
-    /// @return The winner of the current matching.
+    /// @return bidders The addresses of bidders who have placed bids in the current matching.
+    /// @return amounts The highest bid placed by any bidder in the current matching.
+    /// @return complyFilplusRules Whether the bidders who have placed bids in the current matching comply with Filplus rules.
+    /// @return winner The winner of the current matching.
     function getMatchingBids(
         uint64 _matchingId
     )
         public
         view
-        returns (address[] memory, uint256[] memory, bool[] memory, address)
-    {
-        MatchingType.MatchingBids storage bids = matchingBids[_matchingId];
-        (
+        returns (
             address[] memory bidders,
             uint256[] memory amounts,
-            bool[] memory complyFilplusRules
-        ) = bids._getMatchingBids();
+            bool[] memory complyFilplusRules,
+            address winner
+        )
+    {
+        MatchingType.MatchingBids storage bids = matchingBids[_matchingId];
+        (bidders, amounts, complyFilplusRules) = bids._getMatchingBids();
 
         return (bidders, amounts, complyFilplusRules, bids.winner);
     }

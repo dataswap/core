@@ -26,10 +26,19 @@ import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 interface ICarstoreReadOnly {
     /// @notice Get the car information associated with a car.
     /// @param _id Car ID to check.
-    /// @return The car information.
+    /// @return hash datasetId size replicasCount matchingIds, The car information.
     function getCar(
         uint64 _id
-    ) external view returns (bytes32, uint64, uint64, uint16, uint64[] memory);
+    )
+        external
+        view
+        returns (
+            bytes32 hash,
+            uint64 datasetId,
+            uint64 size,
+            uint16 replicasCount,
+            uint64[] memory matchingIds
+        );
 
     /// @notice Get the dataset ID associated with a car.
     /// @param _id Car ID to check.
@@ -57,11 +66,14 @@ interface ICarstoreReadOnly {
     /// @notice Get the replica details associated with a car.
     /// @param _id Car ID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    /// @return The dataset ID, state, and Filecoin claim ID of the replica.
+    /// @return state filecoinClaimId The dataset ID, state, and Filecoin claim ID of the replica.
     function getCarReplica(
         uint64 _id,
         uint64 _matchingId
-    ) external view returns (CarReplicaType.State, uint64);
+    )
+        external
+        view
+        returns (CarReplicaType.State state, uint64 filecoinClaimId);
 
     /// @notice Get the count of replicas associated with a car.
     /// @param _id Car ID for which to retrieve the replica count.
@@ -177,13 +189,13 @@ interface ICarstore is ICarstoreReadOnly {
     /// @param _datasetId dataset index of approved dataset.
     /// @param _sizes car size array.
     /// @param _replicaCount count of car's replicas.
-    /// @return The ids of the cars and the size.
+    /// @return ids totalSize The ids of the cars and the size.
     function __addCars(
         bytes32[] memory _cids,
         uint64 _datasetId,
         uint64[] memory _sizes,
         uint16 _replicaCount
-    ) external returns (uint64[] memory, uint64);
+    ) external returns (uint64[] memory ids, uint64 totalSize);
 
     /// @notice Regist a replica to a car.
     /// @dev This function allows adding a replica to an existing car.

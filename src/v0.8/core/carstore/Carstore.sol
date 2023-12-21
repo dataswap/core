@@ -99,7 +99,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     /// @param _datasetId dataset index of approved dataset
     /// @param _sizes car size array
     /// @param _replicaCount count of car's replicas
-    /// @return The ids of the cars and the size.
+    /// @return ids totalSize The ids of the cars and the size.
     function __addCars(
         bytes32[] memory _cids,
         uint64 _datasetId,
@@ -109,11 +109,11 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         external
         onlyRole(roles, RolesType.DATASWAP_CONTRACT)
         onlyNotZero(_datasetId)
-        returns (uint64[] memory, uint64)
+        returns (uint64[] memory ids, uint64 totalSize)
     {
         require(_cids.length == _sizes.length, "Invalid params");
-        uint64 totalSize;
-        uint64[] memory ids = new uint64[](_cids.length);
+
+        ids = new uint64[](_cids.length);
         for (uint64 i; i < _cids.length; i++) {
             ids[i] = __addCar(_cids[i], _datasetId, _sizes[i], _replicaCount);
             totalSize += _sizes[i];
@@ -304,14 +304,20 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
 
     /// @notice Get the car information associated with a car.
     /// @param _id Car ID to check.
-    /// @return The car information.
+    /// @return hash datasetId size replicasCount matchingIds, The car information.
     function getCar(
         uint64 _id
     )
         public
         view
         onlyCarExist(this, _id)
-        returns (bytes32, uint64, uint64, uint16, uint64[] memory)
+        returns (
+            bytes32 hash,
+            uint64 datasetId,
+            uint64 size,
+            uint16 replicasCount,
+            uint64[] memory matchingIds
+        )
     {
         CarReplicaType.Car storage car = _getCar(_id);
 
@@ -326,19 +332,20 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
 
     /// @notice Get the dataset ID associated with a car.
     /// @param _id Car ID to check.
-    /// @return The car size of the car.
+    /// @return size The car size of the car.
     function getCarSize(
         uint64 _id
-    ) public view onlyCarExist(this, _id) returns (uint64) {
+    ) public view onlyCarExist(this, _id) returns (uint64 size) {
         CarReplicaType.Car storage car = _getCar(_id);
         return car.size;
     }
 
     /// @notice Get the total size of cars based on an array of car IDs.
     /// @param _ids An array of car IDs for which to calculate the size.
-    /// @return The total size of cars.
-    function getCarsSize(uint64[] memory _ids) public view returns (uint64) {
-        uint64 size = 0;
+    /// @return size The total size of cars.
+    function getCarsSize(
+        uint64[] memory _ids
+    ) public view returns (uint64 size) {
         for (uint64 i = 0; i < _ids.length; i++) {
             size += getCarSize(_ids[i]);
         }
@@ -347,18 +354,20 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
 
     /// @notice Get the dataset ID associated with a car.
     /// @param _id Car ID to check.
-    /// @return The dataset ID of the car.
-    function getCarDatasetId(uint64 _id) public view returns (uint64) {
+    /// @return datasetId The dataset ID of the car.
+    function getCarDatasetId(
+        uint64 _id
+    ) public view returns (uint64 datasetId) {
         CarReplicaType.Car storage car = _getCar(_id);
         return car._getDatasetId();
     }
 
     /// @notice Get the matching ids of a replica associated with a car.
     /// @param _id Car ID associated with the replica.
-    /// @return The matching ids of the car's replica.
+    /// @return datasetIds The matching ids of the car's replica.
     function getCarMatchingIds(
         uint64 _id
-    ) public view onlyCarExist(this, _id) returns (uint64[] memory) {
+    ) public view onlyCarExist(this, _id) returns (uint64[] memory datasetIds) {
         CarReplicaType.Car storage car = _getCar(_id);
         return car._getMatchingIds();
     }
@@ -366,7 +375,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     /// @notice Get the replica details associated with a car.
     /// @param _id Car ID associated with the replica.
     /// @param _matchingId Matching ID of the replica.
-    /// @return The dataset ID, state, and Filecoin claim ID of the replica.
+    /// @return state filecoinClaimId, The dataset ID, state, and Filecoin claim ID of the replica.
     function getCarReplica(
         uint64 _id,
         uint64 _matchingId
@@ -376,7 +385,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         onlyCarExist(this, _id)
         onlyNotZero(_matchingId)
         onlyCarReplicaExist(this, _id, _matchingId)
-        returns (CarReplicaType.State, uint64)
+        returns (CarReplicaType.State state, uint64 filecoinClaimId)
     {
         CarReplicaType.Car storage car = _getCar(_id);
         return (

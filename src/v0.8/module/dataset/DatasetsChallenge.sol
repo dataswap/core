@@ -159,9 +159,9 @@ contract DatasetsChallenge is
         view
         onlyNotZero(_datasetId)
         returns (
-            bytes32[] memory,
-            bytes32[][] memory _siblings,
-            uint32[] memory _paths
+            bytes32[] memory leaves,
+            bytes32[][] memory siblingss,
+            uint32[] memory paths
         )
     {
         DatasetType.DatasetChallengeProof

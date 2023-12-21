@@ -209,11 +209,11 @@ contract DatasetsRequirement is
         view
         onlyNotZero(_datasetId)
         returns (
-            address[] memory,
-            address[] memory,
-            uint16,
-            uint16,
-            uint32[] memory
+            address[] memory dataPreparers,
+            address[] memory storageProviders,
+            uint16 regionCode,
+            uint16 countryCode,
+            uint32[] memory cityCodes
         )
     {
         DatasetType.DatasetReplicasRequirement
