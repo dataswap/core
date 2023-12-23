@@ -26,6 +26,12 @@ library MatchingsEvents {
         address indexed initiator
     );
 
+    // Event emitted when a matching is created
+    event MatchingCreated(
+        uint64 indexed _matchingId,
+        address indexed _provider
+    );
+
     // Event emitted when a matching is paused
     event MatchingPaused(uint64 indexed _matchingId);
 

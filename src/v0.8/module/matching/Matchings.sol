@@ -140,6 +140,7 @@ contract Matchings is
         matching.additionalInfo = _additionalInfo;
         matching.initiator = msg.sender;
         matching.createdBlockNumber = uint64(block.number);
+        emit MatchingsEvents.MatchingCreated(matchingsCount, msg.sender);
         return matchingsCount;
     }
 
