@@ -1,0 +1,20 @@
+{
+  "github": {
+    "release": true
+  },
+  "git": {
+    "commitMessage": "release: 🚀v${version}"
+  },
+  "npm": {
+    "publish": true
+  },
+  "hooks": {
+    "after:bump": "echo update verion successful!"
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md"
+    }
+  }
+}
