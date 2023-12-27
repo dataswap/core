@@ -1,4 +1,22 @@
-# Dataswap
+<h1 align="center">Welcome to @dataswapcore/contracts 👋</h1>
+<p>
+  <a href="https://www.npmjs.com/package/@dataswapcore/contracts" target="_blank">
+    <img alt="Version" src="https://img.shields.io/npm/v/@dataswapcore/contracts.svg">
+  </a>
+  <a href="https://github.com/dataswap/core#readme" target="_blank">
+    <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg" />
+  </a>
+  <a href="https://github.com/dataswap/core/graphs/commit-activity" target="_blank">
+    <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" />
+  </a>
+  <a href="https://github.com/dataswap/core/blob/master/LICENSE" target="_blank">
+    <img alt="License: MIT and APACHE " src="https://img.shields.io/badge/License-MIT and APACHE -yellow.svg" />
+  </a>
+</p>
+
+### 🏠 [Homepage](https://github.com/dataswap/core)
+
+## Dataswap
 
 Dataswap is a blockchain-based Layer 2 project built on [IPFS](https://ipfs.tech/) and [Filecoin](https://filecoin.io/), functioning as a decentralized open data exchange platform. Its goal is to aggregate open datasets from various regions and industries globally, enabling the permanent storage of valuable human data. Additionally, Dataswap offers comprehensive and reliable services for data retrieval, downloading, and analysis. Through these efforts, it aims to facilitate data sharing and collaborative progress for humanity.
 
@@ -33,6 +51,7 @@ Implement a decentralized matching mechanism to attract more open dataset suppli
 
 For more details about Dataswap, check out the [Dataswap Spec](https://github.com/dataswap/specs).
 
+
 ## Setup
 
 Please make sure to install the following before working with codebase:  
@@ -64,7 +83,7 @@ npx hardhat upgrade --address [contract address] --name [contract name] --networ
 ### Installation
 #### via yarn
 ```
-$ yar add @dataswapcore/contracts --save
+$ yarn add @dataswapcore/contracts --save
 ```
 
 #### via npm
@@ -125,35 +144,21 @@ forge snapshot
 To be added
 ```
 
-## Contribute
+## Author
 
-Dataswap is a universally open project and welcomes contributions of all kinds: code, docs, and more. However, before making a contribution, we ask you to heed these recommendations:
+👤 **dataswap**
 
-* If the change is complex and requires prior discussion, [open an issue](https://github.com/dataswap/core/issues). This is to avoid disappointment and sunk costs, in case the change is not actually needed or accepted.
+* GitHub: [@dataswap](https://github.com/dataswap)
 
-* Please refrain from submitting [PRs](https://github.com/dataswap/core/pulls) to adapt existing code to subjective preferences. The changeset should contain functional or technical improvements/enhancements, bug fixes, new features, or some other clear material contribution. Simple stylistic changes are likely to be rejected in order to reduce code churn.
+## 🤝 Contributing
 
-When implementing a change:
+Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](https://github.com/dataswap/core/issues). You can also take a look at the [contributing guide](https://github.com/dataswap/core/blob/master/CONTRIBUTING.md).
 
-* Adhere to the standard [Solidity Style Guide](https://docs.soliditylang.org/en/develop/style-guide.html)
-  * Note:Function parameters and internal functions should begin with an underscore.
+## Show your support
 
-* Stick to the idioms and patterns used in the codebase. Familiar-looking code has a higher chance of being accepted than eerie code. Pay attention to commonly used variable and parameter names, avoidance of naked returns, error handling patterns, etc.
+Give a ⭐️ if this project helped you!
 
-* Minimize code churn. Modify only what is strictly necessary. Well-encapsulated changesets will get a quicker response from maintainers.
+## 📝 License
 
-* Lint your code with [CI check](https://github.com/dataswap/core/blob/main/.github/workflows/test.yml) (CI will reject your PR if unlinted).
-
-* **Add [tests](./test/v0.8/Readme.md),It's very important.**
-  * If you have added a new feature or changed interface，you need add [assertions](./test/v0.8/assertions).
-  * If your tests are complex and require reuse, you may need to add [helpers](./test/v0.8/helpers/).
-  * Ensure your [testcases](./test/v0.8/testcases/) provide comprehensive coverage, considering both normal and exceptional scenarios.
-  * Add [unittest](./test/v0.8/uinttests/) or [integrationtest](./test/v0.8/integrationtest/) instance.
-
-* Title the PR in a meaningful way and describe the rationale and the thought process in the PR description.
-
-* Write clean, thoughtful, and detailed [commit messages](https://chris.beams.io/posts/git-commit/). This is even more important than the PR description, because commit messages are stored _inside_ the Git history. One good rule is: if you are happy posting the commit message as the PR description, then it's a good commit message.
-
-## License
-
-This project is licensed under [GPL-3.0-or-later](https://www.gnu.org/licenses/gpl-3.0.en.html).
+Copyright © 2023 [dataswap](https://github.com/dataswap).<br />
+This project is [MIT and APACHE ](https://github.com/dataswap/core/blob/master/LICENSE) licensed.

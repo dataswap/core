@@ -10,7 +10,14 @@
     "abi/"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\""
+    "test": "echo \"Error: no test specified\"",
+    "readme": "npx readme-md-generator -p ./templates/readme.md",
+    "commit": "git-cz",
+    "release": "npm run build; git branch --show-current | grep -q '^main$' && release-it",
+    "contrib:init": "all-contributors init",
+    "contrib:add": "all-contributors add",
+    "contrib:check": "all-contributors check",
+    "contrib:gen": "all-contributors generate"
   },
   "repository": {
     "type": "git",
@@ -23,6 +30,7 @@
     "@openzeppelin/contracts": "4.9.3",
     "@openzeppelin/contracts-upgradeable": "4.9.3",
     "@zondax/filecoin-solidity": "^4.0.3",
+    "git-cz": "^4.9.0",
     "global": "^4.4.0",
     "hardhat-abi-exporter": "2.10.1"
   },
