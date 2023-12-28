@@ -194,16 +194,18 @@ contract MatchingsTarget is
 
     /// @notice  Internal function for after publishing a matching
     /// @param _matchingId The matching id to publish cars.
+    /// @param _datasetId The datasetId id of matching.
     /// @param _target The matching target object contract.
     function _afterCompletePublish(
         uint64 _matchingId,
+        uint64 _datasetId,
         MatchingType.MatchingTarget storage _target
     ) internal {
         _beforeBidding(_matchingId);
         matchings.__reportPublishMatching(_matchingId);
 
         address datasetInitiator = datasets.getDatasetMetadataSubmitter(
-            _matchingId
+            _datasetId
         );
         address matchingInitiator = matchings.getMatchingInitiator(_matchingId);
         // Emit Synchronize matching payment sub account
@@ -269,7 +271,7 @@ contract MatchingsTarget is
         );
 
         if (complete) {
-            _afterCompletePublish(_matchingId, target);
+            _afterCompletePublish(_matchingId, _datasetId, target);
             emit MatchingsEvents.MatchingPublished(_matchingId, msg.sender);
         }
     }
