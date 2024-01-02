@@ -174,7 +174,7 @@ EOF
 
 RootAddress=$(lotus msig inspect f080 |grep t0100 |awk '{print $2}') 
 NotariyAddress=$(lotus evm stat $FilecoinAddress |grep "ID address" |awk '{print $3}')
-lotus-shed verifreg add-verifier $RootAddress $NotariyAddress 100000000
+lotus-shed verifreg add-verifier $RootAddress $NotariyAddress 100000000000000
 lotus filplus list-notaries
 
 cd ..
