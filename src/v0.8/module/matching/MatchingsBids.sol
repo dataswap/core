@@ -202,8 +202,11 @@ contract MatchingsBids is
         uint256 _amount,
         MatchingType.BidSelectionRule _bidSelectionRule
     ) internal {
-        // Payment only when HighestBid
-        if (_bidSelectionRule == MatchingType.BidSelectionRule.HighestBid) {
+        // Payment only when HighestBid and ImmediateAtLeast
+        if (
+            _bidSelectionRule == MatchingType.BidSelectionRule.HighestBid ||
+            _bidSelectionRule == MatchingType.BidSelectionRule.ImmediateAtLeast
+        ) {
             (, uint256 hasBid, , , ) = escrow.getOwnerFund(
                 EscrowType.Type.DataPrepareFeeByProvider,
                 msg.sender,
