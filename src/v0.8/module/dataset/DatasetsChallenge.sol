@@ -160,7 +160,7 @@ contract DatasetsChallenge is
         onlyNotZero(_datasetId)
         returns (
             bytes32[] memory leaves,
-            bytes32[][] memory siblingss,
+            bytes32[][] memory siblings,
             uint32[] memory paths
         )
     {
