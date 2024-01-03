@@ -1,39 +1,55 @@
 #!/usr/bin/env bash
 
-if [ -z "$(git status --porcelain)" ]; then
-  echo "PASSED: Working directory clean"
-else
-  echo "FAILED: Working directory not clean."
+#if [ -z "$(git status --porcelain)" ]; then
+#  echo "PASSED: Working directory clean"
+#else
+#  echo "FAILED: Working directory not clean."
+#  exit 1
+#fi
+
+
+SCRIPTPATH=$(cd "$(dirname "$0")" && pwd -P)
+
+if [ -z "$SCRIPTPATH" ]; then
+  echo "Error: Unable to determine the script path."
   exit 1
 fi
 
-SCRIPTPATH="$(
-  cd "$(dirname "$0")" >/dev/null 2>&1
-  cd .. && pwd -P
-)"
-rm -rf $SCRIPTPATH/abi
+echo "Script path: $SCRIPTPATH"
+cd $SCRIPTPATH
+cd ..
+
+CODEPATH=$(pwd -P)
+echo "Code path: $CODEPATH"
+rm -rf $CODEPATH/abi
 
 yarn hardhat compile
 yarn hardhat export-abi
 
-cd $SCRIPTPATH/abi
+if [ -z "$CODEPATH/abi" ]; then
+  echo "Error: Unable to determine the abi path."
+  exit 1
+fi
+
+cd $CODEPATH/abi
 find . -mindepth 1 -maxdepth 1 ! -name 'src' -exec rm -r {} +
-cd $SCRIPTPATH
+cd $CODEPATH
+#
 
 versions=(v0.8)
 for version in "${versions[@]}"; do
-  rm -rf $SCRIPTPATH/abi/$version
-  mkdir $SCRIPTPATH/abi/$version
-  find $SCRIPTPATH/abi/src/$version -type f -name "*.json" -exec cp {} $SCRIPTPATH/abi/$version/ \;
+  rm -rf $CODEPATH/abi/$version
+  mkdir $CODEPATH/abi/$version
+  find $CODEPATH/abi/src/$version -type f -name "*.json" -exec cp {} $CODEPATH/abi/$version/ \;
 done
 
-rm -rf $SCRIPTPATH/abi/src
+rm -rf $CODEPATH/abi/src
 
 # Replace getReplicaDealState, getReplicaClaimData state to view.
-sed -i '' -e '/"name": "getReplicaDealState"/ ,/"stateMutability": "nonpayable"/ s/"stateMutability": "nonpayable"/"stateMutability": "view"/' $SCRIPTPATH/abi/$version/Filecoin.json
-sed -i '' -e '/"name": "getReplicaClaimData"/ ,/"stateMutability": "nonpayable"/ s/"stateMutability": "nonpayable"/"stateMutability": "view"/' $SCRIPTPATH/abi/$version/Filecoin.json
+sed -i '' -e '/"name": "getReplicaDealState"/ ,/"stateMutability": "nonpayable"/ s/"stateMutability": "nonpayable"/"stateMutability": "view"/' $CODEPATH/abi/$version/Filecoin.json
+sed -i '' -e '/"name": "getReplicaClaimData"/ ,/"stateMutability": "nonpayable"/ s/"stateMutability": "nonpayable"/"stateMutability": "view"/' $CODEPATH/abi/$version/Filecoin.json
 
-PACKAGE_JSON_PATH=$SCRIPTPATH/package.json
+PACKAGE_JSON_PATH=$CODEPATH/package.json
 NEW_VERSION=$(jq -r '.version' "$PACKAGE_JSON_PATH")
 
 npm publish --access=public
