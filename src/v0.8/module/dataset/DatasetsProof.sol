@@ -208,7 +208,9 @@ contract DatasetsProof is
     }
 
     ///@notice Submit proof completed for a dataset
-    function submitDatasetProofCompleted(uint64 _datasetId) public {
+    function submitDatasetProofCompleted(
+        uint64 _datasetId
+    ) public returns (DatasetType.State state) {
         //Note: params check in lib
         DatasetType.DatasetProof storage datasetProof = datasetProofs[
             _datasetId
@@ -246,6 +248,7 @@ contract DatasetsProof is
             if (total < collateralRequirement || lock < datasetAuditorFee) {
                 datasets.__reportFundsNotEnough(_datasetId);
                 emit DatasetsEvents.FundsNotEnough(_datasetId, msg.sender);
+                return DatasetType.State.FundsNotEnough;
             } else {
                 // Update collateral funds to collateral requirement
                 escrow.__emitCollateralUpdate(
@@ -261,6 +264,7 @@ contract DatasetsProof is
                     msg.sender
                 );
             }
+            return DatasetType.State.DatasetProofSubmitted;
         }
     }
 

@@ -46,7 +46,9 @@ interface IDatasetsProof {
     ) external;
 
     ///@notice Submit proof completed for a dataset
-    function submitDatasetProofCompleted(uint64 _datasetId) external;
+    function submitDatasetProofCompleted(
+        uint64 _datasetId
+    ) external returns (DatasetType.State);
 
     /// @notice Append dataset escrow funds. include datacap collateral and dataset auditor calculate fees.
     function appendDatasetFunds(
