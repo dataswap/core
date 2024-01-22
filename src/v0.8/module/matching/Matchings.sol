@@ -30,6 +30,7 @@ import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol"
 import {MatchingsEvents} from "src/v0.8/shared/events/MatchingsEvents.sol";
 import {MatchingsModifiers} from "src/v0.8/shared/modifiers/MatchingsModifiers.sol";
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
+import {StatisticsBase} from "src/v0.8/core/statistics/StatisticsBase.sol";
 
 /// library
 import {MatchingLIB} from "src/v0.8/module/matching/library/MatchingLIB.sol";
@@ -51,6 +52,7 @@ contract Matchings is
     Initializable,
     UUPSUpgradeable,
     IMatchings,
+    StatisticsBase,
     MatchingsModifiers
 {
     /// @notice  Use libraries for different matching functionalities

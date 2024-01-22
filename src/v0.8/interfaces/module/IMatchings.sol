@@ -20,9 +20,10 @@ pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import {IStatistics} from "src/v0.8/interfaces/core/statistics/IStatistics.sol";
 
 /// @title IMatchings
-interface IMatchings {
+interface IMatchings is IStatistics {
     /// @notice Function for create a new matching.
     /// @param _datasetId The dataset id to create matching.
     /// @param _bidSelectionRule The rules for determining the winning bid.

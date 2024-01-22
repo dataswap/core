@@ -30,6 +30,8 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {StoragesEvents} from "src/v0.8/shared/events/StoragesEvents.sol";
 import {StoragesModifiers} from "src/v0.8/shared/modifiers/StoragesModifiers.sol";
 import {CidUtils} from "src/v0.8/shared/utils/cid/CidUtils.sol";
+import {StorageStatisticsBase} from "src/v0.8/core/statistics/StorageStatisticsBase.sol";
+
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {EscrowType} from "src/v0.8/types/EscrowType.sol";
@@ -46,6 +48,7 @@ contract Storages is
     Initializable,
     UUPSUpgradeable,
     IStorages,
+    StorageStatisticsBase,
     StoragesModifiers
 {
     mapping(uint64 => StorageType.Storage) private storages; //matchingId=>Matchedstore

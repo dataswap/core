@@ -22,9 +22,10 @@ import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
 import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
+import {IStorageStatistics} from "src/v0.8/interfaces/core/statistics/IStorageStatistics.sol";
 
 /// @title Interface for Matchedstores contract
-interface IStorages {
+interface IStorages is IStorageStatistics {
     /// @dev Submits multiple Filecoin claim Ids for a matchedstore after successful matching.
     /// @param _matchingId The ID of the matching.
     /// @param _provider A provider of storage provider of matching.

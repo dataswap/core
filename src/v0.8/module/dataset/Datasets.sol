@@ -27,6 +27,8 @@ import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirem
 ///shared
 import {DatasetsEvents} from "src/v0.8/shared/events/DatasetsEvents.sol";
 import {DatasetsModifiers} from "src/v0.8/shared/modifiers/DatasetsModifiers.sol";
+import {StatisticsBase} from "src/v0.8/core/statistics/StatisticsBase.sol";
+
 /// library
 import {DatasetMetadataLIB} from "src/v0.8/module/dataset/library/metadata/DatasetMetadataLIB.sol";
 import {DatasetStateMachineLIB} from "src/v0.8/module/dataset/library/metadata/DatasetStateMachineLIB.sol";
@@ -48,6 +50,7 @@ contract Datasets is
     Initializable,
     UUPSUpgradeable,
     IDatasets,
+    StatisticsBase,
     DatasetsModifiers
 {
     using DatasetMetadataLIB for DatasetType.Dataset;
