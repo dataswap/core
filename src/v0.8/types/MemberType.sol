@@ -23,8 +23,7 @@ library MemberType {
         StorageClient,
         StorageProvider,
         DataPreparer,
-        DataAuditor,
-        DisputeBot
+        DataAuditor
     }
 
     struct Infomation {
