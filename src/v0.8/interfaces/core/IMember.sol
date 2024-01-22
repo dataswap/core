@@ -20,8 +20,8 @@ pragma solidity ^0.8.21;
 import {MemberType} from "src/v0.8/types/MemberType.sol";
 
 //Note: in contract, like this instance:
-//      1 Mapping(address=>Mapping(MemberType.Type=>MemberType.Infomation[]))
-//              member => (type => {datasetId,matchingId}[])
+//      1 Mapping(MemberType.Type=>Mapping(address=>MemberType.Infomation[]))
+//              type => (member => {datasetId,matchingId}[])
 
 interface IMember {
     function register(
@@ -35,4 +35,8 @@ interface IMember {
         address _member,
         MemberType.Type memberType
     ) external view returns (MemberType.Infomation[] memory memberInfomations);
+
+    function getMemberCountByType(
+        MemberType.Type memberType
+    ) external view returns (uint64 count);
 }
