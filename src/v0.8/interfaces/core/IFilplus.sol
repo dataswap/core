@@ -18,6 +18,8 @@
 
 pragma solidity ^0.8.21;
 
+import {FinanceType} from "src/v0.8/types/FinanceType.sol";
+
 /// @title IFilplus
 interface IFilplus {
     // Public getter function to access datasetRuleMaxReplicasInCountries
@@ -61,6 +63,42 @@ interface IFilplus {
     function setDatacapRulesMaxRemainingPercentageForNext(
         uint8 _newValue
     ) external;
+
+    function setIncomeReleaseRule(
+        FinanceType.Type _type,
+        FinanceType.ReleaseType _releaseType,
+        uint64 _delayBlocks,
+        uint64 _durationBlocks
+    ) external;
+
+    function setEscrowReleaseRule(
+        FinanceType.Type _type,
+        FinanceType.ReleaseType _releaseType,
+        uint64 _delayBlocks,
+        uint64 _durationBlocks
+    ) external;
+
+    function getIncomeReleaseRule(
+        FinanceType.Type _type
+    )
+        external
+        view
+        returns (
+            FinanceType.ReleaseType releaseType,
+            uint64 delayBlocks,
+            uint64 durationBlocks
+        );
+
+    function getEscrowReleaseRule(
+        FinanceType.Type _type
+    )
+        external
+        view
+        returns (
+            FinanceType.ReleaseType releaseType,
+            uint64 delayBlocks,
+            uint64 durationBlocks
+        );
 
     // Default getter functions for public variables
     function datasetRuleMinRegionsPerDataset() external view returns (uint16);

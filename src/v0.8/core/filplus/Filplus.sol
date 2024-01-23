@@ -31,6 +31,8 @@ import {RolesModifiers} from "src/v0.8/shared/modifiers/RolesModifiers.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 
+import {FinanceType} from "src/v0.8/types/FinanceType.sol";
+
 /// @title Filplus
 contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     using ArrayUint16LIB for uint16[];
@@ -207,6 +209,54 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         emit FilplusEvents.SetDatacapRulesMaxRemainingPercentageForNext(
             _newValue
         );
+    }
+
+    ///TODO:impl
+    function setIncomeReleaseRule(
+        FinanceType.Type _type,
+        FinanceType.ReleaseType _releaseType,
+        uint64 _delayBlocks,
+        uint64 _durationBlocks // solhint-disable-next-line
+    ) external {}
+
+    ///TODO:impl
+    function setEscrowReleaseRule(
+        FinanceType.Type _type,
+        FinanceType.ReleaseType _releaseType,
+        uint64 _delayBlocks,
+        uint64 _durationBlocks // solhint-disable-next-line
+    ) external {}
+
+    ///TODO:impl
+    function getIncomeReleaseRule(
+        FinanceType.Type _type
+    )
+        external
+        view
+        returns (
+            FinanceType.ReleaseType releaseType,
+            uint64 delayBlocks,
+            uint64 durationBlocks
+        )
+    // solhint-disable-next-line
+    {
+
+    }
+
+    ///TODO:impl
+    function getEscrowReleaseRule(
+        FinanceType.Type _type
+    )
+        external
+        view
+        returns (
+            FinanceType.ReleaseType releaseType,
+            uint64 delayBlocks,
+            uint64 durationBlocks
+        )
+    // solhint-disable-next-line
+    {
+
     }
 
     /// @notice Check if the storage regions complies with filplus rules.
