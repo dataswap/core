@@ -40,10 +40,29 @@ library FinanceType {
         DisputeAuditCollateral
     }
 
-    /// @notice Struct representing the PaymentUnit details.
-    struct PaymentUnit {
+    /// @notice enum representing the ReleaseType details.
+    enum ReleaseType {
+        Linear
+    }
+
+    /// @notice Struct representing the ReleaseRule details.
+    struct ReleaseRule {
+        ReleaseType releaseType;
+        uint64 delayBlocks;
+        uint64 durationBlocks;
+    }
+
+    /// @notice Struct representing the IncomePaymentUnit details.
+    struct IncomePaymentUnit {
         uint64 height;
         uint256 amount;
+    }
+
+    /// @notice Struct representing the EscrowPaymentUnit details.
+    struct EscrowPaymentUnit {
+        uint64 latestHeight;
+        uint256 expenditure;
+        uint256 total;
     }
 
     /// @notice Struct representing the Statistics details.
@@ -56,8 +75,8 @@ library FinanceType {
     /// @notice Struct representing the account details.
     struct Account {
         uint256 total; // Total balance =  escrow + lock + available
-        mapping(Type => PaymentUnit[]) income; // getLock from income (Receiving funds from another account)
-        mapping(Type => PaymentUnit[]) escrow; //Preparing to make a payment to another account.
+        mapping(Type => IncomePaymentUnit[]) income; // getLock from income (Receiving funds from another account)
+        mapping(Type => EscrowPaymentUnit) escrow; //Preparing to make a payment to another account.
         Statistics statistics;
     }
 }
