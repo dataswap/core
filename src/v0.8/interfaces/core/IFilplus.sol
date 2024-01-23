@@ -100,6 +100,15 @@ interface IFilplus {
             uint64 durationBlocks
         );
 
+    /// @notice Returns the burn address
+    function getBurnAddress() external view returns (address);
+
+    /// @notice Set the datacap collateral expire blocks number complies with filplus rules.
+    function setDatacapCollateralExpireBlocks(uint64 _newValue) external;
+
+    /// @notice Set the dataset approved expire blocks number complies with filplus rules.
+    function setDatasetApprovedExpireBlocks(uint64 _newValue) external;
+
     // Default getter functions for public variables
     function datasetRuleMinRegionsPerDataset() external view returns (uint16);
 
@@ -171,5 +180,15 @@ interface IFilplus {
     /// @notice Check if the storage provider for each dataset complies with filplus rules `datasetRuleMaxReplicasPerSP`.
     function isCompliantRuleMaxReplicasPerSP(
         uint16 _value
+    ) external view returns (bool);
+
+    /// @notice Check if the blocks number complies with filplus rules.
+    function isCompliantDatacapCollateralExpireBlocks(
+        uint64 _blocks
+    ) external view returns (bool);
+
+    /// @notice Check if the blocks number complies with filplus rules.
+    function isCompliantDatasetApprovedExpireBlocks(
+        uint64 _blocks
     ) external view returns (bool);
 }

@@ -58,4 +58,13 @@ library FilplusEvents {
 
     // Event emitted when the maximum remaining percentage for the next allocation rule is set
     event SetDatacapRulesMaxRemainingPercentageForNext(uint64 _newValue);
+
+    // Event emitted when the datacap collateral expire blocks rule is set
+    event SetDatacapCollateralExpireBlocks(uint64 _newValue);
+
+    // Event emitted when the dataset approved expire blocks rule is set
+    event SetDatasetApprovedExpireBlocks(uint64 _newValue);
+
+    // Event emitted when the dataset price pre byte rule is set
+    event SetDatasetPricePreByte(uint256 _newValue);
 }

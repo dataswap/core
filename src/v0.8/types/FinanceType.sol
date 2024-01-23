@@ -37,7 +37,9 @@ library FinanceType {
         DatacapChunkLandCollateral,
         ProofAuditCollateral,
         ChallengeAuditCollateral,
-        DisputeAuditCollateral
+        DisputeAuditCollateral,
+        // End for traverse
+        End
     }
 
     /// @notice enum representing the ReleaseType details.
@@ -67,16 +69,16 @@ library FinanceType {
 
     /// @notice Struct representing the Statistics details.
     struct Statistics {
-        uint256 deposited; // Total Deposit
+        uint256 deposited; // Total Deposit, from deposit.
         uint256 withdrawn; // Total Withdrawal
         uint256 burned; // Total Burned(only from collateral)
     }
 
     /// @notice Struct representing the account details.
     struct Account {
-        uint256 total; // Total balance =  escrow + lock + available
+        uint256 total; // Total balance =  escrow + lock + available; from deposit + income. to withdraw + escrowPayment + escrowBurn
         mapping(Type => IncomePaymentUnit[]) income; // getLock from income (Receiving funds from another account)
-        mapping(Type => EscrowPaymentUnit) escrow; //Preparing to make a payment to another account.
+        mapping(Type => EscrowPaymentUnit) escrow; //Preparing to make a payment to another account; from escrow. to escrowPayment + escrowBurn
         Statistics statistics;
     }
 }
