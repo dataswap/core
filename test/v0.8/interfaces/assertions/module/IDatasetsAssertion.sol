@@ -18,11 +18,12 @@
 pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {IStatisticsBaseAssertion} from "test/v0.8/interfaces/assertions/core/IStatisticsBaseAssertion.sol";
 
 /// @title IDatasetsAssertion
 /// @dev This interface defines assertion methods for testing dataset-related functionality.
 /// All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
-interface IDatasetsAssertion {
+interface IDatasetsAssertion is IStatisticsBaseAssertion {
     /// @notice Asserts the approval of a dataset.
     /// @param caller The caller's address.
     /// @param _datasetId The ID of the dataset being approved.
