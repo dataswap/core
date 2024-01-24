@@ -32,6 +32,11 @@ import {IStatistics} from "src/v0.8/interfaces/core/statistics/IStatistics.sol";
 ///                       explain: mapping(datasetId => StorageStatistics);
 ///                       explain: StorageStatistics overview ;
 interface IStorageStatistics is IStatistics {
+    /// @notice External function to register dataswap datacap with a specified size.
+    /// @param size Size of the dataswap datacap to be registered.
+    /// @dev Accessible only by the default admin role.
+    function registDataswapDatacap(uint256 size) external;
+
     /// @notice Regist datacap information for a specific dataset and matching ID.
     /// @param datasetId Dataset ID for which to add datacap information.
     /// @param replicaIndex Replica index for which to add datacap information.

@@ -26,11 +26,15 @@ import {StatisticsType} from "src/v0.8/types/StatisticsType.sol";
 import {StorageStatisticsLIB} from "src/v0.8/core/statistics/library/StorageStatisticsLIB.sol";
 import {StorageProvidersStatisticsLIB} from "src/v0.8/core/statistics/library/StorageProvidersStatisticsLIB.sol";
 import {StatisticsBase} from "src/v0.8/core/statistics/StatisticsBase.sol";
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {RolesModifiers} from "src/v0.8/shared/modifiers/RolesModifiers.sol";
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 
 abstract contract StorageStatisticsBase is
     Initializable,
     StatisticsBase,
-    IStorageStatistics
+    IStorageStatistics,
+    RolesModifiers
 {
     using StorageStatisticsLIB for StatisticsType.StorageStatistics;
     using StorageProvidersStatisticsLIB for StatisticsType.StorageProvidersStatistics;
@@ -51,14 +55,25 @@ abstract contract StorageStatisticsBase is
 
     uint256 internal dataswapTotalDatacap;
 
-    /// @notice storageStatisticsBaseInitialize function to initialize the contract and grant the default admin role to the deployer.
-    function storageStatisticsBaseInitialize()
-        public
-        virtual
-        onlyInitializing
-    //solhint-disable-next-line
-    {
+    IRoles public roles;
 
+    /// @dev This empty reserved space is put in place to allow future versions to add new
+    uint256[32] private __gap;
+
+    /// @notice storageStatisticsBaseInitialize function to initialize the contract and grant the default admin role to the deployer.
+    function storageStatisticsBaseInitialize(
+        address _roles
+    ) public virtual onlyInitializing {
+        roles = IRoles(_roles);
+    }
+
+    /// @notice External function to register dataswap datacap with a specified size.
+    /// @param size Size of the dataswap datacap to be registered.
+    /// @dev Accessible only by the default admin role.
+    function registDataswapDatacap(
+        uint256 size
+    ) external onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
+        dataswapTotalDatacap += size;
     }
 
     /// @notice Regist datacap information for a specific dataset and matching ID.
@@ -71,20 +86,65 @@ abstract contract StorageStatisticsBase is
         uint64 replicaIndex,
         uint64 matchingId,
         uint256 size
-    ) external {}
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
+        StatisticsType.StorageStatistics
+            storage matchingStorageStatistics = matchingsStorageStatistics[
+                matchingId
+            ];
 
-    /// @notice Adds storage provider size information to the storage statistics data
-    /// @param datasetId Dataset ID for which to add datacap information.
-    /// @param replicaIndex Replica index for which to add datacap information.
-    /// @param matchingId Matching ID associated with the datacap information.
-    /// @param size Size of the datacap to be added.
+        matchingStorageStatistics.total = size;
+
+        bytes32 key = _getReplicaKey(datasetId, replicaIndex);
+        StatisticsType.StorageStatistics
+            storage replicaStorageStatistics = replicasStorageStatistics[key];
+        replicaStorageStatistics.total += size;
+
+        StatisticsType.StorageStatistics
+            storage datasetStorageStatistics = datasetsStorageStatistics[
+                datasetId
+            ];
+
+        datasetStorageStatistics.total += size;
+    }
+
+    /// @notice Internal function to add storaged size for a specific replica, matching, and storage provider.
+    /// @param datasetId Dataset ID associated with the replica.
+    /// @param replicaIndex Index of the replica within the dataset.
+    /// @param matchingId Matching ID of the replica.
+    /// @param storageProvider ID of the storage provider.
+    /// @param size Size to be added for the storage provider.
     function _addStoraged(
         uint64 datasetId,
         uint64 replicaIndex,
         uint64 matchingId,
         uint64 storageProvider,
         uint256 size
-    ) internal {}
+    ) internal {
+        StatisticsType.StorageProvidersStatistics
+            storage matchingStorageProvidersStatistics = matchingsStorageProvidersStatistics[
+                matchingId
+            ];
+
+        matchingStorageProvidersStatistics.addStoraged(storageProvider, size);
+
+        StatisticsType.StorageStatistics
+            storage matchingStorageStatistics = matchingsStorageStatistics[
+                matchingId
+            ];
+
+        matchingStorageStatistics.addStoraged(size);
+        bytes32 key = _getReplicaKey(datasetId, replicaIndex);
+        StatisticsType.StorageStatistics
+            storage replicaStorageStatistics = replicasStorageStatistics[key];
+
+        replicaStorageStatistics.addStoraged(size);
+        StatisticsType.StorageStatistics
+            storage datasetStorageStatistics = datasetsStorageStatistics[
+                datasetId
+            ];
+
+        datasetStorageStatistics.addStoraged(size);
+    }
 
     /// @notice Add allocated datacap for a specific dataset and matching ID.
     /// @param datasetId Dataset ID for which to add allocated datacap.
@@ -96,7 +156,25 @@ abstract contract StorageStatisticsBase is
         uint64 replicaIndex,
         uint64 matchingId,
         uint256 size
-    ) internal {}
+    ) internal {
+        StatisticsType.StorageStatistics
+            storage matchingStorageStatistics = matchingsStorageStatistics[
+                matchingId
+            ];
+
+        matchingStorageStatistics.addAllocated(size);
+        bytes32 key = _getReplicaKey(datasetId, replicaIndex);
+        StatisticsType.StorageStatistics
+            storage replicaStorageStatistics = replicasStorageStatistics[key];
+
+        replicaStorageStatistics.addAllocated(size);
+        StatisticsType.StorageStatistics
+            storage datasetStorageStatistics = datasetsStorageStatistics[
+                datasetId
+            ];
+
+        datasetStorageStatistics.addAllocated(size);
+    }
 
     /// @notice Add canceled datacap for a specific dataset and matching ID.
     /// @param datasetId Dataset ID for which to add canceled datacap.
@@ -108,7 +186,25 @@ abstract contract StorageStatisticsBase is
         uint64 replicaIndex,
         uint64 matchingId,
         uint256 size
-    ) internal {}
+    ) internal {
+        StatisticsType.StorageStatistics
+            storage matchingStorageStatistics = matchingsStorageStatistics[
+                matchingId
+            ];
+
+        matchingStorageStatistics.addCanceled(size);
+        bytes32 key = _getReplicaKey(datasetId, replicaIndex);
+        StatisticsType.StorageStatistics
+            storage replicaStorageStatistics = replicasStorageStatistics[key];
+
+        replicaStorageStatistics.addCanceled(size);
+        StatisticsType.StorageStatistics
+            storage datasetStorageStatistics = datasetsStorageStatistics[
+                datasetId
+            ];
+
+        datasetStorageStatistics.addCanceled(size);
+    }
 
     /// @notice Get an overview of the storage statistics.
     /// @return dataswapTotal Total datacap from the dataswap platform.
@@ -199,7 +295,7 @@ abstract contract StorageStatisticsBase is
             uint256 unallocatedDatacap
         )
     {
-        bytes32 key = keccak256(abi.encodePacked(datasetId, replicaIndex));
+        bytes32 key = _getReplicaKey(datasetId, replicaIndex);
         return replicasStorageStatistics[key].getOverview();
     }
 
@@ -248,5 +344,16 @@ abstract contract StorageStatisticsBase is
             unallocatedDatacap,
             storageProviders
         );
+    }
+
+    /// @notice Internal function to get a unique replica key based on dataset ID and replica index.
+    /// @param datasetId Dataset ID associated with the replica.
+    /// @param replicaIndex Index of the replica within the dataset.
+    /// @return replicaKey Unique key for identifying the replica.
+    function _getReplicaKey(
+        uint64 datasetId,
+        uint64 replicaIndex
+    ) internal pure returns (bytes32 replicaKey) {
+        return keccak256(abi.encodePacked(datasetId, replicaIndex));
     }
 }

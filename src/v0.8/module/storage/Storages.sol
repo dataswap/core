@@ -54,7 +54,6 @@ contract Storages is
     mapping(uint64 => StorageType.Storage) private storages; //matchingId=>Matchedstore
 
     address private governanceAddress;
-    IRoles private roles;
     IEscrow private escrow;
     IFilplus private filplus;
     IFilecoin private filecoin;
@@ -79,8 +78,8 @@ contract Storages is
         address _escrow,
         address _datasets
     ) public initializer {
+        StorageStatisticsBase.storageStatisticsBaseInitialize(_roles);
         governanceAddress = _governanceAddress;
-        roles = IRoles(_roles);
         escrow = IEscrow(_escrow);
         filplus = IFilplus(_filplus);
         filecoin = IFilecoin(_filecoin);
