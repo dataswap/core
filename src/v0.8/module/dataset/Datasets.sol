@@ -57,7 +57,6 @@ contract Datasets is
     using DatasetAuditLIB for DatasetType.Dataset;
     using DatasetStateMachineLIB for DatasetType.Dataset;
 
-    uint64 public datasetsCount; // Total count of datasets
     mapping(uint64 => DatasetType.Dataset) private datasets; // Mapping of dataset ID to dataset details
 
     address public governanceAddress;
@@ -73,6 +72,7 @@ contract Datasets is
         address _roles,
         address _escrow
     ) public initializer {
+        StatisticsBase.statisticsBaseInitialize();
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
         escrow = IEscrow(_escrow);
@@ -123,6 +123,14 @@ contract Datasets is
             dataset.metadata.submitter,
             _datasetId
         );
+        uint64 mappingSize = datasetsProof.getDatasetSize(
+            _datasetId,
+            DatasetType.DataType.MappingFiles
+        );
+        uint64 sourceSize = datasetsProof.getDatasetSize(
+            _datasetId,
+            DatasetType.DataType.Source
+        );
         if (
             funds >= datasetsProof.getDatasetCollateralRequirement(_datasetId)
         ) {
@@ -135,9 +143,14 @@ contract Datasets is
             );
 
             dataset.approveDataset();
+
+            _addCountSuccess(1);
+            _addSizeSuccess(mappingSize + sourceSize);
             emit DatasetsEvents.DatasetApproved(_datasetId);
         } else {
             dataset.rejectDataset();
+            _addCountFailed(1);
+            _addSizeFailed(mappingSize + sourceSize);
             emit DatasetsEvents.DatasetRejected(_datasetId);
         }
     }
@@ -190,7 +203,16 @@ contract Datasets is
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset.rejectDataset();
-
+        uint64 mappingSize = datasetsProof.getDatasetSize(
+            _datasetId,
+            DatasetType.DataType.MappingFiles
+        );
+        uint64 sourceSize = datasetsProof.getDatasetSize(
+            _datasetId,
+            DatasetType.DataType.Source
+        );
+        _addCountFailed(1);
+        _addSizeFailed(mappingSize + sourceSize);
         emit DatasetsEvents.DatasetRejected(_datasetId);
     }
 
@@ -213,9 +235,9 @@ contract Datasets is
         returns (uint64)
     {
         //Note: params check in lib
-        datasetsCount++;
+        _addCountTotal(1);
 
-        DatasetType.Dataset storage dataset = datasets[datasetsCount];
+        DatasetType.Dataset storage dataset = datasets[datasetsCount()];
         dataset.submitDatasetMetadata(
             _client,
             _title,
@@ -228,9 +250,11 @@ contract Datasets is
             _isPublic,
             _version
         );
-
-        emit DatasetsEvents.DatasetMetadataSubmitted(datasetsCount, msg.sender);
-        return datasetsCount;
+        emit DatasetsEvents.DatasetMetadataSubmitted(
+            datasetsCount(),
+            msg.sender
+        );
+        return datasetsCount();
     }
 
     /// @notice Update dataset usedSizeInBytes. only called by matching contract. TODO: Need to add permission control
@@ -319,7 +343,7 @@ contract Datasets is
     function hasDatasetMetadata(
         string memory _accessMethod
     ) public view returns (bool) {
-        for (uint64 i = 1; i <= datasetsCount; i++) {
+        for (uint64 i = 1; i <= datasetsCount(); i++) {
             DatasetType.Dataset storage dataset = datasets[i];
             if (dataset.hasDatasetMetadata(_accessMethod)) return true;
         }
@@ -374,6 +398,23 @@ contract Datasets is
         uint64 _datasetId
     ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
+
+        uint64 mappingSize = datasetsProof.getDatasetSize(
+            _datasetId,
+            DatasetType.DataType.MappingFiles
+        );
+        uint64 sourceSize = datasetsProof.getDatasetSize(
+            _datasetId,
+            DatasetType.DataType.Source
+        );
+
+        _addSizeTotal(mappingSize + sourceSize);
         dataset._emitDatasetEvent(DatasetType.Event.SubmitDatasetProof);
+    }
+
+    /// @notice Public view function to retrieve the count of datasets.
+    /// @return Count of datasets.
+    function datasetsCount() public view returns (uint64) {
+        return uint64(_totalCount());
     }
 }
