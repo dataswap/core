@@ -73,11 +73,41 @@ contract DatasetsAssertion is
 
         // Check verification count, Judgment strategy depends on actual needs
         getDatasetChallengeProofsCountAssertion(_datasetId, 1);
-
+        (
+            uint256 totalCount,
+            uint256 successCount,
+            uint256 ongoingCount,
+            uint256 failedCount
+        ) = datasets.getCountOverview();
+        (
+            uint256 totalSize,
+            uint256 successSize,
+            uint256 ongoingSize,
+            uint256 failedSize
+        ) = datasets.getSizeOverview();
+        uint256 msize = datasetsProof.getDatasetSize(
+            _datasetId,
+            DatasetType.DataType.MappingFiles
+        );
+        uint256 ssize = datasetsProof.getDatasetSize(
+            _datasetId,
+            DatasetType.DataType.Source
+        );
         // Perform the action.
         vm.prank(caller);
         datasets.approveDataset(_datasetId);
-
+        getCountOverviewAssertion(
+            totalCount,
+            successCount + 1,
+            ongoingCount - 1,
+            failedCount
+        );
+        getSizeOverviewAssersion(
+            totalSize,
+            successSize + msize + ssize,
+            ongoingSize - msize - ssize,
+            failedSize
+        );
         // After the action, check the updated dataset state.
         getDatasetStateAssertion(_datasetId, DatasetType.State.DatasetApproved);
     }
@@ -118,11 +148,41 @@ contract DatasetsAssertion is
             _datasetId,
             DatasetType.State.DatasetProofSubmitted
         );
-
+        (
+            uint256 totalCount,
+            uint256 successCount,
+            uint256 ongoingCount,
+            uint256 failedCount
+        ) = datasets.getCountOverview();
+        (
+            uint256 totalSize,
+            uint256 successSize,
+            uint256 ongoingSize,
+            uint256 failedSize
+        ) = datasets.getSizeOverview();
+        uint256 msize = datasetsProof.getDatasetSize(
+            _datasetId,
+            DatasetType.DataType.MappingFiles
+        );
+        uint256 ssize = datasetsProof.getDatasetSize(
+            _datasetId,
+            DatasetType.DataType.Source
+        );
         // Perform the action.
         vm.prank(caller);
         datasets.rejectDataset(_datasetId);
-
+        getCountOverviewAssertion(
+            totalCount,
+            successCount,
+            ongoingCount - 1,
+            failedCount + 1
+        );
+        getSizeOverviewAssersion(
+            totalSize,
+            successSize,
+            ongoingSize - msize - ssize,
+            failedSize + msize + ssize
+        );
         // After the action, check the updated dataset state.
         getDatasetStateAssertion(
             _datasetId,
@@ -151,6 +211,40 @@ contract DatasetsAssertion is
         getDatasetStateAssertion(
             _datasetId,
             DatasetType.State.MetadataRejected
+        );
+    }
+
+    /// @notice Internal function to submit dataset metadata and perform related statistics assertions.
+    /// @param params Metadata parameters including submitter, client, title, industry, name, description, source, accessMethod, sizeInBytes, isPublic, and version.
+    function _submitDatasetMetadataStatisticsAssertion(
+        DatasetType.Metadata memory params
+    ) internal {
+        (
+            uint256 totalCount,
+            uint256 successCount,
+            uint256 ongoingCount,
+            uint256 failedCount
+        ) = datasets.getCountOverview();
+        // Perform the action.
+        vm.prank(params.submitter);
+        vm.deal(params.submitter, 10 ether);
+        datasets.submitDatasetMetadata(
+            params.client,
+            params.title,
+            params.industry,
+            params.name,
+            params.description,
+            params.source,
+            params.accessMethod,
+            params.sizeInBytes,
+            params.isPublic,
+            params.version
+        );
+        getCountOverviewAssertion(
+            totalCount + 1,
+            successCount,
+            ongoingCount + 1,
+            failedCount
         );
     }
 
@@ -184,22 +278,22 @@ contract DatasetsAssertion is
         getDatasetStateAssertion(oldDatasetsCount + 1, DatasetType.State.None);
         hasDatasetMetadataAssertion(_accessMethod, false);
 
-        // Perform the action.
-        vm.prank(caller);
-        vm.deal(caller, 10 ether);
-        datasets.submitDatasetMetadata(
-            _client,
-            _title,
-            _industry,
-            _name,
-            _description,
-            _source,
-            _accessMethod,
-            _sizeInBytes,
-            _isPublic,
-            _version
+        _submitDatasetMetadataStatisticsAssertion(
+            DatasetType.Metadata({
+                title: _title,
+                industry: _industry,
+                name: _name,
+                description: _description,
+                source: _source,
+                accessMethod: _accessMethod,
+                submitter: caller,
+                client: _client,
+                createdBlockNumber: 10,
+                sizeInBytes: _sizeInBytes,
+                isPublic: _isPublic,
+                version: _version
+            })
         );
-
         // After the action, check the updated state.
         hasDatasetMetadataAssertion(_accessMethod, true);
         uint64 newDatasetsCount = datasets.datasetsCount();
@@ -295,6 +389,50 @@ contract DatasetsAssertion is
         isDatasetProofSubmitterAssertion(_datasetId, caller, true);
     }
 
+    function _submitDatasetProofStatisticsAssertion(
+        address caller,
+        uint64 _datasetId,
+        DatasetType.DataType _dataType,
+        bytes32[] calldata _leafHashes,
+        uint64 _leafIndex,
+        uint64[] calldata _leafSizes,
+        bool _completed
+    ) internal {
+        (
+            uint256 totalSize,
+            uint256 successSize,
+            uint256 ongoingSize,
+            uint256 failedSize
+        ) = datasets.getSizeOverview();
+        // Perform the action.
+        vm.prank(caller);
+        datasetsProof.submitDatasetProof(
+            _datasetId,
+            _dataType,
+            _leafHashes,
+            _leafIndex,
+            _leafSizes,
+            _completed
+        );
+        uint256 datasetSize = datasetsProof.getDatasetSize(
+            _datasetId,
+            DatasetType.DataType.MappingFiles
+        ) +
+            datasetsProof.getDatasetSize(
+                _datasetId,
+                DatasetType.DataType.Source
+            );
+        DatasetType.State state = datasets.getDatasetState(_datasetId);
+        if (state == DatasetType.State.DatasetProofSubmitted) {
+            getSizeOverviewAssersion(
+                totalSize + datasetSize,
+                successSize,
+                ongoingSize + datasetSize,
+                failedSize
+            );
+        }
+    }
+
     /// @notice Assertion function for submitting dataset proof.
     /// @param caller The address of the caller.
     /// @param _datasetId The ID of the dataset for which to submit proof.
@@ -328,10 +466,8 @@ contract DatasetsAssertion is
         uint64[] memory _leafIds = carstore.getCarsIds(_leafHashes);
         isDatasetContainsCarAssertion(_datasetId, _leafIds[0], false);
         isDatasetContainsCarsAssertion(_datasetId, _leafIds, false);
-
-        // Perform the action.
-        vm.prank(caller);
-        datasetsProof.submitDatasetProof(
+        _submitDatasetProofStatisticsAssertion(
+            caller,
             _datasetId,
             _dataType,
             _leafHashes,
@@ -339,7 +475,6 @@ contract DatasetsAssertion is
             _leafSizes,
             _completed
         );
-
         // After the action, check the updated state.
         _afterSubmitDatasetProof(
             caller,
