@@ -26,10 +26,16 @@ import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirem
 import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
+import {StatisticsBaseAssertion} from "test/v0.8/assertions/core/statistics/StatisticsBaseAssertion.sol";
 
 /// @notice This contract defines assertion functions for testing an IDatasets contract.
 /// @dev NOTE: All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
-contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
+contract DatasetsAssertion is
+    DSTest,
+    Test,
+    IDatasetsAssertion,
+    StatisticsBaseAssertion
+{
     ICarstore public carstore;
     IDatasets public datasets;
     IDatasetsRequirement public datasetsRequirement;
@@ -44,7 +50,7 @@ contract DatasetsAssertion is DSTest, Test, IDatasetsAssertion {
         IDatasetsRequirement _datasetsRequirement,
         IDatasetsProof _datasetsProof,
         IDatasetsChallenge _datasetsChallenge
-    ) {
+    ) StatisticsBaseAssertion(_datasets) {
         carstore = _carstore;
         datasets = _datasets;
         datasetsRequirement = _datasetsRequirement;
