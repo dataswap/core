@@ -202,7 +202,7 @@ contract MatchingsTarget is
         MatchingType.MatchingTarget storage _target
     ) internal {
         _beforeBidding(_matchingId);
-        matchings.__reportPublishMatching(_matchingId);
+        matchings.__reportPublishMatching(_matchingId, _target.size);
 
         address datasetInitiator = datasets.getDatasetMetadataSubmitter(
             _datasetId

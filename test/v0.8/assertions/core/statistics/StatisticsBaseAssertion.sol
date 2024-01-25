@@ -48,7 +48,7 @@ abstract contract StatisticsBaseAssertion is
         uint256 expectSuccess,
         uint256 expectOngoing,
         uint256 expectFailed
-    ) external {
+    ) public {
         (
             uint256 total,
             uint256 success,
@@ -71,7 +71,7 @@ abstract contract StatisticsBaseAssertion is
         uint256 expectSuccess,
         uint256 expectOngoing,
         uint256 expectFailed
-    ) external {
+    ) public {
         (
             uint256 total,
             uint256 success,

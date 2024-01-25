@@ -225,10 +225,11 @@ contract MatchingsBids is
     }
 
     ///@dev update cars info to carStore after matching failed
-    function _afterMatchingFailed(uint64 _matchingId) internal {
-        (, uint64[] memory cars, , , , , ) = matchingsTarget.getMatchingTarget(
-            _matchingId
-        );
+    function _afterMatchingFailed(
+        uint64 _matchingId
+    ) internal returns (uint64) {
+        (, uint64[] memory cars, uint64 _size, , , , ) = matchingsTarget
+            .getMatchingTarget(_matchingId);
         for (uint64 i; i < cars.length; i++) {
             carstore.__reportCarReplicaMatchingState(
                 cars[i],
@@ -236,13 +237,15 @@ contract MatchingsBids is
                 false
             );
         }
+        return _size;
     }
 
     ///@dev update cars info to carStore before matching complete
-    function _beforeMatchingCompleted(uint64 _matchingId) internal {
-        (, uint64[] memory cars, , , , , ) = matchingsTarget.getMatchingTarget(
-            _matchingId
-        );
+    function _beforeMatchingCompleted(
+        uint64 _matchingId
+    ) internal returns (uint64) {
+        (, uint64[] memory cars, uint64 _size, , , , ) = matchingsTarget
+            .getMatchingTarget(_matchingId);
         for (uint64 i; i < cars.length; i++) {
             carstore.__reportCarReplicaMatchingState(
                 cars[i],
@@ -250,6 +253,7 @@ contract MatchingsBids is
                 true
             );
         }
+        return _size;
     }
 
     /// @notice Function for canceling a matching
@@ -257,8 +261,8 @@ contract MatchingsBids is
     function cancelMatching(
         uint64 _matchingId
     ) external onlyMatchingInitiator(matchings, _matchingId) {
-        _afterMatchingFailed(_matchingId);
-        try matchings.__reportCancelMatching(_matchingId) {} catch Error(
+        uint64 _size = _afterMatchingFailed(_matchingId);
+        try matchings.__reportCancelMatching(_matchingId, _size) {} catch Error(
             string memory err
         ) {
             revert(err);
@@ -267,23 +271,11 @@ contract MatchingsBids is
         }
     }
 
-    /// @notice Function for closing a matching and choosing a winner
-    function closeMatching(uint64 _matchingId) public {
-        if (
-            matchings.getMatchingState(_matchingId) ==
-            MatchingType.State.InProgress
-        ) {
-            try matchings.__reportCloseMatching(_matchingId) {} catch {
-                revert("close matching failed");
-            }
-        }
-
-        require(
-            matchings.getMatchingState(_matchingId) ==
-                MatchingType.State.Closed,
-            "Invalid state"
-        );
-
+    /// @notice justify is has a winner for a closed matching.
+    /// @dev This internal function is used to choose a winner for a closed matching based on the specified rule.
+    function _chooseMatchingWinner(
+        uint64 _matchingId
+    ) internal view returns (address) {
         MatchingType.MatchingBids storage bids = matchingBids[_matchingId];
         (
             MatchingType.BidSelectionRule bidSelectionRule,
@@ -306,8 +298,30 @@ contract MatchingsBids is
                 biddingPeriodBlockCount +
                 pausedBlockCount
         );
+        return winner;
+    }
+
+    /// @notice Function for closing a matching and choosing a winner
+    function closeMatching(uint64 _matchingId) public {
+        if (
+            matchings.getMatchingState(_matchingId) ==
+            MatchingType.State.InProgress
+        ) {
+            try matchings.__reportCloseMatching(_matchingId) {} catch {
+                revert("close matching failed");
+            }
+        }
+
+        require(
+            matchings.getMatchingState(_matchingId) ==
+                MatchingType.State.Closed,
+            "Invalid state"
+        );
+
+        address winner = _chooseMatchingWinner(_matchingId);
 
         if (winner != address(0)) {
+            MatchingType.MatchingBids storage bids = matchingBids[_matchingId];
             if (
                 !matchingsTarget.isMatchingTargetMeetsFilPlusRequirements(
                     _matchingId,
@@ -322,7 +336,7 @@ contract MatchingsBids is
                     );
             }
 
-            _beforeMatchingCompleted(_matchingId);
+            uint64 _size = _beforeMatchingCompleted(_matchingId);
             bids.winner = winner;
 
             escrow.__emitPaymentUpdate(
@@ -333,10 +347,10 @@ contract MatchingsBids is
                 EscrowType.PaymentEvent.SyncPaymentBeneficiary
             );
 
-            matchings.__reportMatchingHasWinner(_matchingId, winner);
+            matchings.__reportMatchingHasWinner(_matchingId, _size, winner);
         } else {
-            _afterMatchingFailed(_matchingId);
-            matchings.__reportMatchingNoWinner(_matchingId);
+            uint64 _size = _afterMatchingFailed(_matchingId);
+            matchings.__reportMatchingNoWinner(_matchingId, _size);
         }
     }
 

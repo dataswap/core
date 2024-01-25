@@ -25,10 +25,16 @@ import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
+import {StatisticsBaseAssertion} from "test/v0.8/assertions/core/statistics/StatisticsBaseAssertion.sol";
 
 /// @title MatchingsAssertion Contract
 /// @notice This contract provides assertion functions to test the functionality of the IMatchings contract.
-contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
+contract MatchingsAssertion is
+    DSTest,
+    Test,
+    IMatchingsAssertion,
+    StatisticsBaseAssertion
+{
     IMatchings public matchings;
     IMatchingsTarget public matchingsTarget;
     IMatchingsBids public matchingsBids;
@@ -42,7 +48,7 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         IMatchingsTarget _matchingsTarget,
         IMatchingsBids _matchingsBids,
         ICarstore _carstore
-    ) {
+    ) StatisticsBaseAssertion(_matchings) {
         matchings = _matchings;
         matchingsTarget = _matchingsTarget;
         matchingsBids = _matchingsBids;
@@ -89,6 +95,44 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         hasMatchingBidAssertion(_matchingId, caller, true);
     }
 
+    /// @notice Internal function to create matching statistics assertion.
+    /// @dev This function is responsible for creating statistics assertions related to a matching.
+    /// @param _datasetId Dataset ID associated with the matching.
+    /// @param _replicaIndex Index of the replica within the dataset.
+    /// @param metadata Matching metadata including submitter, client, title, industry, name, description, source, accessMethod, sizeInBytes, isPublic, and version.
+    /// @return The matching ID created during the process.
+    function _createMatchingStatistcsAssertion(
+        uint64 _datasetId,
+        uint16 _replicaIndex,
+        MatchingType.Matching memory metadata
+    ) internal returns (uint64) {
+        (
+            uint256 totalCount,
+            uint256 successCount,
+            uint256 ongoingCount,
+            uint256 failedCount
+        ) = matchings.getCountOverview();
+        // Perform the action
+        vm.prank(metadata.initiator);
+        uint64 _matchingId = matchings.createMatching(
+            _datasetId,
+            metadata.bidSelectionRule,
+            metadata.biddingDelayBlockCount,
+            metadata.biddingPeriodBlockCount,
+            metadata.storageCompletionPeriodBlocks,
+            metadata.biddingThreshold,
+            _replicaIndex,
+            metadata.additionalInfo
+        );
+        getCountOverviewAssertion(
+            totalCount + 1,
+            successCount,
+            ongoingCount + 1,
+            failedCount
+        );
+        return _matchingId;
+    }
+
     /// @notice Assertion function to test the 'createMatching' function of IMatchings contract.
     /// @param caller The address of the caller.
     /// @param _datasetId The ID of the dataset.
@@ -113,18 +157,22 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         // Before the action, get the current number of matchings.
         uint64 oldMatchingsCount = matchings.matchingsCount();
         // Perform the action
-        vm.prank(caller);
-        uint64 _matchingId = matchings.createMatching(
+        uint64 _matchingId = _createMatchingStatistcsAssertion(
             _datasetId,
-            _bidSelectionRule,
-            _biddingDelayBlockCount,
-            _biddingPeriodBlockCount,
-            _storageCompletionPeriodBlocks,
-            _biddingThreshold,
             _replicaIndex,
-            _additionalInfo
+            MatchingType.Matching({
+                bidSelectionRule: _bidSelectionRule,
+                biddingDelayBlockCount: _biddingDelayBlockCount,
+                biddingPeriodBlockCount: _biddingPeriodBlockCount,
+                storageCompletionPeriodBlocks: _storageCompletionPeriodBlocks,
+                biddingThreshold: _biddingThreshold,
+                createdBlockNumber: 0,
+                additionalInfo: _additionalInfo,
+                initiator: caller,
+                pausedBlockCount: 0,
+                state: MatchingType.State.None
+            })
         );
-
         // After the action:
         // Check if the number of matchings has increased.
         matchingsCountAssertion(oldMatchingsCount + 1);
@@ -203,6 +251,51 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         }
     }
 
+    /// @notice Internal function to publish matching statistics assertion.
+    /// @dev This function is responsible for publishing statistics assertions related to a matching.
+    /// @param caller Address of the caller initiating the publication.
+    /// @param _matchingId Matching ID associated with the statistics assertion.
+    /// @param _datasetId Dataset ID associated with the matching.
+    /// @param _carsStarts Array of starting indices of cars associated with the matching.
+    /// @param _carsEnds Array of ending indices of cars associated with the matching.
+    /// @param complete Boolean indicating whether the matching is considered complete.
+    function _publishMatchingStatisticsAssertion(
+        address caller,
+        uint64 _matchingId,
+        uint64 _datasetId,
+        uint64[] memory _carsStarts,
+        uint64[] memory _carsEnds,
+        bool complete
+    ) internal {
+        (
+            uint256 totalSize,
+            uint256 successSize,
+            uint256 ongoingSize,
+            uint256 failedSize
+        ) = matchings.getSizeOverview();
+
+        vm.prank(caller);
+        matchingsTarget.publishMatching(
+            _matchingId,
+            _datasetId,
+            _carsStarts,
+            _carsEnds,
+            complete
+        );
+        MatchingType.State state = matchings.getMatchingState(_matchingId);
+        if (state == MatchingType.State.InProgress) {
+            (, , uint64 _size, , , , ) = matchingsTarget.getMatchingTarget(
+                _matchingId
+            );
+            getSizeOverviewAssersion(
+                totalSize + _size,
+                successSize,
+                ongoingSize + _size,
+                failedSize
+            );
+        }
+    }
+
     /// @notice Assertion function to test the 'publishMatching' function of IMatchings contract.
     /// @param caller The address of the caller.
     /// @param _matchingId The matching id to publish cars.
@@ -247,8 +340,8 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         // Check if the matching already contains the cars.
         isMatchingContainsCarsAssertion(_matchingId, _cars, false);
         // Perform the action
-        vm.prank(caller);
-        matchingsTarget.publishMatching(
+        _publishMatchingStatisticsAssertion(
+            caller,
             _matchingId,
             _datasetId,
             _carsStarts,
@@ -317,10 +410,39 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
         uint64 _matchingId
     ) public {
         /// @dev TODO: should limit cancel state:https://github.com/dataswap/core/issues/51
+
+        (
+            uint256 totalSize,
+            uint256 successSize,
+            uint256 ongoingSize,
+            uint256 failedSize
+        ) = matchings.getSizeOverview();
+        (
+            uint256 totalCount,
+            uint256 successCount,
+            uint256 ongoingCount,
+            uint256 failedCount
+        ) = matchings.getCountOverview();
+
         // Perform the action
         vm.prank(caller);
         matchingsBids.cancelMatching(_matchingId);
 
+        (, , uint64 _size, , , , ) = matchingsTarget.getMatchingTarget(
+            _matchingId
+        );
+        getSizeOverviewAssersion(
+            totalSize,
+            successSize,
+            ongoingSize - _size,
+            failedSize + _size
+        );
+        getCountOverviewAssertion(
+            totalCount,
+            successCount,
+            ongoingCount - 1,
+            failedCount + 1
+        );
         // After the action, check if the matching is cancelled.
         getMatchingStateAssertion(_matchingId, MatchingType.State.Cancelled);
     }
@@ -336,16 +458,55 @@ contract MatchingsAssertion is DSTest, Test, IMatchingsAssertion {
     ) public {
         // Before the action, check the state of the matching.
         getMatchingStateAssertion(_matchingId, MatchingType.State.InProgress);
+        (
+            uint256 totalSize,
+            uint256 successSize,
+            uint256 ongoingSize,
+            uint256 failedSize
+        ) = matchings.getSizeOverview();
+        (
+            uint256 totalCount,
+            uint256 successCount,
+            uint256 ongoingCount,
+            uint256 failedCount
+        ) = matchings.getCountOverview();
 
         // Perform the action
         vm.prank(caller);
         matchingsBids.closeMatching(_matchingId);
-
+        (, , uint64 _size, , , , ) = matchingsTarget.getMatchingTarget(
+            _matchingId
+        );
         // After the action, check the state and winner of the matching.
         address winner = matchingsBids.getMatchingWinner(_matchingId);
         if (winner == address(0)) {
             getMatchingStateAssertion(_matchingId, MatchingType.State.Failed);
+            getSizeOverviewAssersion(
+                totalSize,
+                successSize,
+                ongoingSize - _size,
+                failedSize + _size
+            );
+            getCountOverviewAssertion(
+                totalCount,
+                successCount,
+                ongoingCount - 1,
+                failedCount + 1
+            );
         } else {
+            getSizeOverviewAssersion(
+                totalSize,
+                successSize + _size,
+                ongoingSize - _size,
+                failedSize
+            );
+            getCountOverviewAssertion(
+                totalCount,
+                successCount + 1,
+                ongoingCount - 1,
+                failedCount
+            );
+
             getMatchingStateAssertion(
                 _matchingId,
                 MatchingType.State.Completed

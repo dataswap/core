@@ -61,7 +61,6 @@ contract Matchings is
     using ArrayAddressLIB for address[];
 
     /// @notice  Declare private variables
-    uint64 public matchingsCount;
     mapping(uint64 => MatchingType.Matching) private matchings;
 
     address private governanceAddress;
@@ -77,6 +76,7 @@ contract Matchings is
         address _roles,
         address _datasetsRequirement
     ) public initializer {
+        StatisticsBase.statisticsBaseInitialize();
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
         datasetsRequirement = IDatasetsRequirement(_datasetsRequirement);
@@ -118,8 +118,8 @@ contract Matchings is
         uint16 _replicaIndex,
         string memory _additionalInfo
     ) external onlyRole(roles, RolesType.DATASET_PROVIDER) returns (uint64) {
-        matchingsCount++;
-        MatchingType.Matching storage matching = matchings[matchingsCount];
+        _addCountTotal(1);
+        MatchingType.Matching storage matching = matchings[matchingsCount()];
         require(
             _replicaIndex <
                 datasetsRequirement.getDatasetReplicasCount(_datasetId),
@@ -142,8 +142,8 @@ contract Matchings is
         matching.additionalInfo = _additionalInfo;
         matching.initiator = msg.sender;
         matching.createdBlockNumber = uint64(block.number);
-        emit MatchingsEvents.MatchingCreated(matchingsCount, msg.sender);
-        return matchingsCount;
+        emit MatchingsEvents.MatchingCreated(matchingsCount(), msg.sender);
+        return matchingsCount();
     }
 
     /// @notice Function for pausing a matching
@@ -226,19 +226,24 @@ contract Matchings is
     /// @dev This function is intended for use only by the 'dataswap' contract.
     /// @param _matchingId The matching id to publish cars.
     function __reportPublishMatching(
-        uint64 _matchingId
+        uint64 _matchingId,
+        uint64 _size
     ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         MatchingType.Matching storage matching = matchings[_matchingId];
+        _addSizeTotal(_size);
         matching._publishMatching();
     }
 
     /// @notice Function for report canceling a matching
     /// @dev This function is intended for use only by the 'dataswap' contract.
     function __reportCancelMatching(
-        uint64 _matchingId
+        uint64 _matchingId,
+        uint64 _size
     ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching._cancelMatching();
+        _addCountFailed(1);
+        _addSizeFailed(_size);
         emit MatchingsEvents.MatchingCancelled(_matchingId);
     }
 
@@ -256,20 +261,33 @@ contract Matchings is
     /// @dev This function is intended for use only by the 'dataswap' contract.
     function __reportMatchingHasWinner(
         uint64 _matchingId,
+        uint64 _size,
         address _winner
     ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching._reportMatchingHasWinner();
+        _addCountSuccess(1);
+        _addSizeSuccess(_size);
         emit MatchingsEvents.MatchingHasWinner(_matchingId, _winner);
     }
 
     /// @notice Function for report complete a matching without winner.
     /// @dev This function is intended for use only by the 'dataswap' contract.
     function __reportMatchingNoWinner(
-        uint64 _matchingId
+        uint64 _matchingId,
+        uint64 _size
     ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         MatchingType.Matching storage matching = matchings[_matchingId];
         matching._reportMatchingNoWinner();
+        _addCountFailed(1);
+        _addSizeFailed(_size);
         emit MatchingsEvents.MatchingNoWinner(_matchingId);
+    }
+
+    /// @notice Returns the count of matchings.
+    /// @return The total count of matchings.
+    function matchingsCount() public view returns (uint64) {
+        // Calls the internal function to get the total count of matchings.
+        return uint64(_totalCount());
     }
 }
