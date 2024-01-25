@@ -20,7 +20,7 @@ import {Test} from "forge-std/Test.sol";
 import {SubmitStorageClaimIdsTestCaseWithSuccess} from "test/v0.8/testcases/module/storage/SubmitStorageClaimIdsTestSuite.sol";
 import {StorageTestSetup} from "test/v0.8/uinttests/module/storage/setup/StorageTestSetup.sol";
 
-contract SubmitStorageClaimIdTest is Test, StorageTestSetup {
+contract SubmitStorageClaimIdsTest is Test, StorageTestSetup {
     /// @notice test case with success
     function testSubmitStorageClaimIdsWithSuccess() public {
         setup();

@@ -50,6 +50,7 @@ contract SubmitStorageClaimIdTestCaseWithSuccess is StoragesTestBase {
 
     function before() internal virtual override returns (uint64) {
         (, uint64 matchingId) = storagesHelpers.setup();
+
         return matchingId;
     }
 

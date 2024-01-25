@@ -172,6 +172,8 @@ contract BaseTestSetup {
             address(datasets)
         );
         matchings.initDependencies(address(storages));
+        storages.registDataswapDatacap(100000000000000);
+
         escrow.initDependencies(address(datasetsProof), address(storages));
 
         address[] memory _contracts = new address[](15);

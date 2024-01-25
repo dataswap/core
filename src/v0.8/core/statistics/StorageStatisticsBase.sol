@@ -87,6 +87,14 @@ abstract contract StorageStatisticsBase is
         uint64 matchingId,
         uint256 size
     ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
+        (uint256 total, , , , , ) = storageOverview.getOverview();
+        require(
+            (total + size) < dataswapTotalDatacap,
+            "Datacap of Dataswap is insufficient"
+        );
+        _addCountTotal(1);
+        _addSizeTotal(size);
+
         StatisticsType.StorageStatistics
             storage matchingStorageStatistics = matchingsStorageStatistics[
                 matchingId
@@ -105,6 +113,8 @@ abstract contract StorageStatisticsBase is
             ];
 
         datasetStorageStatistics.total += size;
+
+        storageOverview.total += size;
     }
 
     /// @notice Internal function to add storaged size for a specific replica, matching, and storage provider.
@@ -120,6 +130,7 @@ abstract contract StorageStatisticsBase is
         uint64 storageProvider,
         uint256 size
     ) internal {
+        _addSizeSuccess(size);
         StatisticsType.StorageProvidersStatistics
             storage matchingStorageProvidersStatistics = matchingsStorageProvidersStatistics[
                 matchingId
@@ -133,6 +144,15 @@ abstract contract StorageStatisticsBase is
             ];
 
         matchingStorageStatistics.addStoraged(size);
+
+        if (matchingStorageStatistics.isStorageCompleted()) {
+            if (matchingStorageStatistics.isStorageSuccessful()) {
+                _addCountSuccess(1);
+            } else {
+                _addCountFailed(1);
+            }
+        }
+
         bytes32 key = _getReplicaKey(datasetId, replicaIndex);
         StatisticsType.StorageStatistics
             storage replicaStorageStatistics = replicasStorageStatistics[key];
@@ -144,6 +164,7 @@ abstract contract StorageStatisticsBase is
             ];
 
         datasetStorageStatistics.addStoraged(size);
+        storageOverview.addStoraged(size);
     }
 
     /// @notice Add allocated datacap for a specific dataset and matching ID.
@@ -174,6 +195,7 @@ abstract contract StorageStatisticsBase is
             ];
 
         datasetStorageStatistics.addAllocated(size);
+        storageOverview.addAllocated(size);
     }
 
     /// @notice Add canceled datacap for a specific dataset and matching ID.
@@ -187,12 +209,22 @@ abstract contract StorageStatisticsBase is
         uint64 matchingId,
         uint256 size
     ) internal {
+        _addSizeFailed(size);
         StatisticsType.StorageStatistics
             storage matchingStorageStatistics = matchingsStorageStatistics[
                 matchingId
             ];
 
         matchingStorageStatistics.addCanceled(size);
+
+        if (matchingStorageStatistics.isStorageCompleted()) {
+            if (matchingStorageStatistics.isStorageSuccessful()) {
+                _addCountSuccess(1);
+            } else {
+                _addCountFailed(1);
+            }
+        }
+
         bytes32 key = _getReplicaKey(datasetId, replicaIndex);
         StatisticsType.StorageStatistics
             storage replicaStorageStatistics = replicasStorageStatistics[key];
@@ -204,6 +236,7 @@ abstract contract StorageStatisticsBase is
             ];
 
         datasetStorageStatistics.addCanceled(size);
+        storageOverview.addCanceled(size);
     }
 
     /// @notice Get an overview of the storage statistics.

@@ -23,6 +23,7 @@ import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
 import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IStorageStatistics} from "src/v0.8/interfaces/core/statistics/IStorageStatistics.sol";
+import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 
 /// @title Interface for Matchedstores contract
 interface IStorages is IStorageStatistics {
@@ -149,6 +150,9 @@ interface IStorages is IStorageStatistics {
     function isNextDatacapAllocationValid(
         uint64 _matchingId
     ) external view returns (bool);
+
+    ///@notice get carstore instance
+    function carstore() external view returns (ICarstore);
 
     ///@notice get datasets instance
     function datasets() external view returns (IDatasets);

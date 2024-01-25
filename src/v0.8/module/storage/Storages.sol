@@ -62,7 +62,7 @@ contract Storages is
     IFilplus private filplus;
     IFilecoin private filecoin;
     IDatasets public datasets;
-    ICarstore private carstore;
+    ICarstore public carstore;
     IMatchings public matchings;
     IMatchingsTarget public matchingsTarget;
     IMatchingsBids public matchingsBids;
@@ -141,7 +141,6 @@ contract Storages is
         bytes memory cid = CidUtils.hashToCID(_hash);
 
         require(keccak256(dataCid) == keccak256(cid), "cid mismatch");
-
         storage_.doneCars.push(_id);
 
         /// Note:set claim id in carstore berfore submitClaimid
@@ -173,7 +172,6 @@ contract Storages is
                 _claimIds[i]
             );
         }
-
         // Notify the escrow contract to update the payment amount
         escrow.__emitPaymentUpdate(
             EscrowType.Type.DataPrepareFeeByProvider,
@@ -183,9 +181,11 @@ contract Storages is
             EscrowType.PaymentEvent.SyncPaymentLock
         );
 
-        (uint64 datasetId, , , , , , ) = matchingsTarget.getMatchingTarget(
-            _matchingId
-        );
+        (uint64 datasetId, , , , , uint16 replicaIndex, ) = matchingsTarget
+            .getMatchingTarget(_matchingId);
+
+        uint64 _size = carstore.getCarsSize(_ids);
+        _addStoraged(datasetId, replicaIndex, _matchingId, _provider, _size);
 
         escrow.__emitPaymentUpdate(
             EscrowType.Type.DataPrepareFeeByClient,

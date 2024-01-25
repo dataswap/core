@@ -16,11 +16,12 @@
 
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
+import {IStorageStatisticsBaseAssertion} from "test/v0.8/interfaces/assertions/core/IStorageStatisticsBaseAssertion.sol";
 
 /// @title IStoragesAssertion
 /// @dev This interface defines assertion methods for testing storage-related functionality.
 /// All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
-interface IStoragesAssertion {
+interface IStoragesAssertion is IStorageStatisticsBaseAssertion {
     /// @notice Asserts the submission of a storage claim ID for a car in a matching.
     /// @param caller The caller's address.
     /// @param _matchingId The ID of the matching associated with the storage deal.

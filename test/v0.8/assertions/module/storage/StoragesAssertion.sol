@@ -20,15 +20,223 @@ import {DSTest} from "ds-test/test.sol";
 import {Test} from "forge-std/Test.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
+import {StorageStatisticsBaseAssertion} from "test/v0.8/assertions/core/statistics/StorageStatisticsBaseAssertion.sol";
+import {ArrayUint64LIB} from "src/v0.8/shared/utils/array/ArrayLIB.sol";
 
 /// @dev NOTE: All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
-contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
+contract StoragesAssertion is
+    DSTest,
+    Test,
+    IStoragesAssertion,
+    StorageStatisticsBaseAssertion
+{
+    using ArrayUint64LIB for uint64[];
     IStorages public storages;
 
     /// @notice Constructor to initialize the StoragesAssertion contract.
     /// @param _storages The address of the IStorages contract to be tested.
-    constructor(IStorages _storages) {
+    constructor(IStorages _storages) StorageStatisticsBaseAssertion(_storages) {
         storages = _storages;
+    }
+
+    /// @notice Retrieves an array of storage providers excluding a specific provider.
+    /// @dev This internal pure function is used to get an array of storage providers excluding a specified provider.
+    /// @param storageProviders The array of storage providers.
+    /// @param _provider The storage provider to exclude from the result.
+    /// @return An array of storage providers excluding the specified provider.
+    function _getStorageProviders(
+        uint64[] memory storageProviders,
+        uint64 _provider
+    ) internal pure returns (uint64[] memory) {
+        if (storageProviders.isContains(_provider)) {
+            return storageProviders;
+        }
+        uint64[] memory ret = new uint64[](storageProviders.length + 1);
+        for (uint256 i = 0; i < storageProviders.length; i++) {
+            ret[i] = storageProviders[i];
+        }
+        ret[storageProviders.length] = _provider;
+        return ret;
+    }
+
+    /// @notice Submits an overview of storage claim IDs for statistical analysis within a dataset matching.
+    /// @dev This internal function is used to submit an overview of storage claim IDs associated with a specific matching process and dataset.
+    /// @param caller The address initiating the submission.
+    /// @param _matchingId The unique identifier of the matching process.
+    /// @param _provider The storage provider's identifier.
+    /// @param _cids An array of unique content identifiers (CIDs) associated with the storage claims.
+    /// @param _claimIds An array of storage claim IDs corresponding to the submitted CIDs.
+    function _submitStorageClaimIdsMatchingStatistcsOverviewAssertion(
+        address caller,
+        uint64 _matchingId,
+        uint64 _provider,
+        uint64[] memory _cids,
+        uint64[] memory _claimIds
+    ) internal {
+        (
+            uint256 total,
+            uint256 completed,
+            uint256 usedDatacap,
+            uint256 availableDatacap,
+            uint256 canceled,
+            uint256 unallocatedDatacap,
+            uint64[] memory storageProviders
+        ) = storages.getMatchingStorageOverview(_matchingId);
+        // Perform the action (submitting a storage claim ID).
+        vm.prank(caller);
+        storages.submitStorageClaimIds(
+            _matchingId,
+            _provider,
+            _cids,
+            _claimIds
+        );
+        uint64 size = storages.carstore().getCarsSize(_cids);
+        uint64[] memory sps = _getStorageProviders(storageProviders, _provider);
+        getMatchingStorageOverviewAssertion(
+            _matchingId,
+            total,
+            completed + uint256(size),
+            usedDatacap + uint256(size),
+            availableDatacap - uint256(size),
+            canceled,
+            unallocatedDatacap,
+            sps
+        );
+    }
+
+    /// @notice Submits an overview of storage claim IDs for statistical analysis within a dataset replica.
+    /// @dev This internal function is used to submit an overview of storage claim IDs associated with a specific matching process and dataset.
+    /// @param caller The address initiating the submission.
+    /// @param _matchingId The unique identifier of the matching process.
+    /// @param _provider The storage provider's identifier.
+    /// @param _cids An array of unique content identifiers (CIDs) associated with the storage claims.
+    /// @param _claimIds An array of storage claim IDs corresponding to the submitted CIDs.
+    function _submitStorageClaimIdsReplicaStatistcsOverviewAssertion(
+        address caller,
+        uint64 _matchingId,
+        uint64 _provider,
+        uint64[] memory _cids,
+        uint64[] memory _claimIds
+    ) internal {
+        (uint64 datasetId, , , , , uint16 replicaIndex, ) = storages
+            .matchingsTarget()
+            .getMatchingTarget(_matchingId);
+        (
+            uint256 total,
+            uint256 completed,
+            uint256 usedDatacap,
+            uint256 availableDatacap,
+            uint256 canceled,
+            uint256 unallocatedDatacap
+        ) = storages.getReplicaStorageOverview(datasetId, replicaIndex);
+        // Perform the action (submitting a storage claim ID).
+        _submitStorageClaimIdsMatchingStatistcsOverviewAssertion(
+            caller,
+            _matchingId,
+            _provider,
+            _cids,
+            _claimIds
+        );
+        uint64 size = storages.carstore().getCarsSize(_cids);
+        getReplicaStorageOverviewAssertion(
+            datasetId,
+            replicaIndex,
+            total,
+            completed + uint256(size),
+            usedDatacap + uint256(size),
+            availableDatacap - uint256(size),
+            canceled,
+            unallocatedDatacap
+        );
+    }
+
+    /// @notice Submits an overview of storage claim IDs for statistical analysis within a dataset.
+    /// @dev This internal function is used to submit an overview of storage claim IDs associated with a specific matching process and dataset.
+    /// @param caller The address initiating the submission.
+    /// @param _matchingId The unique identifier of the matching process.
+    /// @param _provider The storage provider's identifier.
+    /// @param _cids An array of unique content identifiers (CIDs) associated with the storage claims.
+    /// @param _claimIds An array of storage claim IDs corresponding to the submitted CIDs.
+    function _submitStorageClaimIdsDatasetStatistcsOverviewAssertion(
+        address caller,
+        uint64 _matchingId,
+        uint64 _provider,
+        uint64[] memory _cids,
+        uint64[] memory _claimIds
+    ) internal {
+        (uint64 datasetId, , , , , , ) = storages
+            .matchingsTarget()
+            .getMatchingTarget(_matchingId);
+        (
+            uint256 total,
+            uint256 completed,
+            uint256 usedDatacap,
+            uint256 availableDatacap,
+            uint256 canceled,
+            uint256 unallocatedDatacap
+        ) = storages.getDatasetStorageOverview(datasetId);
+        // Perform the action (submitting a storage claim ID).
+        _submitStorageClaimIdsReplicaStatistcsOverviewAssertion(
+            caller,
+            _matchingId,
+            _provider,
+            _cids,
+            _claimIds
+        );
+        uint64 size = storages.carstore().getCarsSize(_cids);
+
+        getDatasetStorageOverviewAssertion(
+            datasetId,
+            total,
+            completed + uint256(size),
+            usedDatacap + uint256(size),
+            availableDatacap - uint256(size),
+            canceled,
+            unallocatedDatacap
+        );
+    }
+
+    /// @notice Submits an overview of storage claim IDs for statistical analysis.
+    /// @dev This internal function is used to submit an overview of storage claim IDs associated with a specific matching process.
+    /// @param caller The address initiating the submission.
+    /// @param _matchingId The unique identifier of the matching process.
+    /// @param _provider The storage provider's identifier.
+    /// @param _cids An array of unique content identifiers (CIDs) associated with the storage claims.
+    /// @param _claimIds An array of storage claim IDs corresponding to the submitted CIDs.
+    function _submitStorageClaimIdsStatistcsOverviewAssertion(
+        address caller,
+        uint64 _matchingId,
+        uint64 _provider,
+        uint64[] memory _cids,
+        uint64[] memory _claimIds
+    ) internal {
+        (
+            uint256 dataswapTotal,
+            uint256 total,
+            uint256 completed,
+            uint256 usedDatacap,
+            uint256 availableDatacap,
+            uint256 canceled,
+            uint256 unallocatedDatacap
+        ) = storages.getStorageOverview();
+        // Perform the action (submitting a storage claim ID).
+        _submitStorageClaimIdsDatasetStatistcsOverviewAssertion(
+            caller,
+            _matchingId,
+            _provider,
+            _cids,
+            _claimIds
+        );
+        uint64 size = storages.carstore().getCarsSize(_cids);
+        getStorageOverviewAssertion(
+            dataswapTotal,
+            total,
+            completed + uint256(size),
+            usedDatacap + uint256(size),
+            availableDatacap - uint256(size),
+            canceled,
+            unallocatedDatacap
+        );
     }
 
     /// @notice Assertion function to test the submission of a storage claim ID.
@@ -53,8 +261,13 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
         claimId[0] = _claimId;
 
         // Perform the action (submitting a storage claim ID).
-        vm.prank(caller);
-        storages.submitStorageClaimIds(_matchingId, _provider, cid, claimId);
+        _submitStorageClaimIdsStatistcsOverviewAssertion(
+            caller,
+            _matchingId,
+            _provider,
+            cid,
+            claimId
+        );
 
         // Assert that the count of stored cars has increased by one after the action.
         getStoredCarCountAssertion(_matchingId, oldDoneCount + 1);
@@ -76,14 +289,13 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
         uint64[] memory _claimIds
     ) external {
         // Perform the action (submitting multiple storage claim IDs).
-        vm.prank(caller);
-        storages.submitStorageClaimIds(
+        _submitStorageClaimIdsStatistcsOverviewAssertion(
+            caller,
             _matchingId,
             _provider,
             _cids,
             _claimIds
         );
-
         // After the action, assert the stored cars.
         getStoredCarsAssertion(_matchingId, _cids);
     }
@@ -132,6 +344,150 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
         assertEq(storages.isAllStoredDone(_matchingId), _expectIsAllStoredDone);
     }
 
+    /// @notice Requests an overview of allocated datacap matching statistics for a specific matching process.
+    /// @dev This internal function is used to request and retrieve an overview of allocated datacap matching statistics.
+    /// @param caller The address initiating the request.
+    /// @param _matchingId The unique identifier of the matching process.
+    /// @return The result or identifier associated with the requested datacap matching statistics overview.
+    function _requestAllocateDatacapMatchingStatisticsOverviewAssertion(
+        address caller,
+        uint64 _matchingId
+    ) internal returns (uint64) {
+        (
+            uint256 total,
+            uint256 completed,
+            uint256 usedDatacap,
+            uint256 availableDatacap,
+            uint256 canceled,
+            uint256 unallocatedDatacap,
+            uint64[] memory storageProviders
+        ) = storages.getMatchingStorageOverview(_matchingId);
+        // Perform the action.
+        vm.prank(caller);
+        uint64 addDatacap = storages.requestAllocateDatacap(_matchingId);
+        getMatchingStorageOverviewAssertion(
+            _matchingId,
+            total,
+            completed,
+            usedDatacap,
+            availableDatacap + uint256(addDatacap),
+            canceled,
+            unallocatedDatacap - uint256(addDatacap),
+            storageProviders
+        );
+        return addDatacap;
+    }
+
+    /// @notice Requests an overview of allocated datacap replica statistics for a specific matching process.
+    /// @dev This internal function is used to request and retrieve an overview of allocated datacap replica statistics.
+    /// @param caller The address initiating the request.
+    /// @param _matchingId The unique identifier of the matching process.
+    /// @return The result or identifier associated with the requested datacap replica statistics overview.
+    function _requestAllocateDatacapReplicaStatisticsOverviewAssertion(
+        address caller,
+        uint64 _matchingId
+    ) internal returns (uint64) {
+        (uint64 datasetId, , , , , uint16 replicaIndex, ) = storages
+            .matchingsTarget()
+            .getMatchingTarget(_matchingId);
+        (
+            uint256 total,
+            uint256 completed,
+            uint256 usedDatacap,
+            uint256 availableDatacap,
+            uint256 canceled,
+            uint256 unallocatedDatacap
+        ) = storages.getReplicaStorageOverview(datasetId, replicaIndex);
+        // Perform the action.
+        uint64 addDatacap = _requestAllocateDatacapMatchingStatisticsOverviewAssertion(
+                caller,
+                _matchingId
+            );
+        getReplicaStorageOverviewAssertion(
+            datasetId,
+            replicaIndex,
+            total,
+            completed,
+            usedDatacap,
+            availableDatacap + uint256(addDatacap),
+            canceled,
+            unallocatedDatacap - uint256(addDatacap)
+        );
+        return addDatacap;
+    }
+
+    /// @notice Requests an overview of allocated datacap dataset statistics for a specific matching process.
+    /// @dev This internal function is used to request and retrieve an overview of allocated datacap dataset statistics.
+    /// @param caller The address initiating the request.
+    /// @param _matchingId The unique identifier of the matching process.
+    /// @return The result or identifier associated with the requested datacap dataset statistics overview.
+    function _requestAllocateDatacapDatasetStatisticsOverviewAssertion(
+        address caller,
+        uint64 _matchingId
+    ) internal returns (uint64) {
+        (uint64 datasetId, , , , , , ) = storages
+            .matchingsTarget()
+            .getMatchingTarget(_matchingId);
+        (
+            uint256 total,
+            uint256 completed,
+            uint256 usedDatacap,
+            uint256 availableDatacap,
+            uint256 canceled,
+            uint256 unallocatedDatacap
+        ) = storages.getDatasetStorageOverview(datasetId);
+        // Perform the action.
+        uint64 addDatacap = _requestAllocateDatacapReplicaStatisticsOverviewAssertion(
+                caller,
+                _matchingId
+            );
+        getDatasetStorageOverviewAssertion(
+            datasetId,
+            total,
+            completed,
+            usedDatacap,
+            availableDatacap + uint256(addDatacap),
+            canceled,
+            unallocatedDatacap - uint256(addDatacap)
+        );
+        return addDatacap;
+    }
+
+    /// @notice Requests an overview of allocated datacap statistics for a specific matching process.
+    /// @dev This internal function is used to request and retrieve an overview of allocated datacap statistics.
+    /// @param caller The address initiating the request.
+    /// @param _matchingId The unique identifier of the matching process.
+    /// @return The result or identifier associated with the requested datacap statistics overview.
+    function _requestAllocateDatacapStatisticsOverviewAssertion(
+        address caller,
+        uint64 _matchingId
+    ) internal returns (uint64) {
+        (
+            uint256 dataswapTotal,
+            uint256 total,
+            uint256 completed,
+            uint256 usedDatacap,
+            uint256 availableDatacap,
+            uint256 canceled,
+            uint256 unallocatedDatacap
+        ) = storages.getStorageOverview();
+        // Perform the action.
+        uint64 addDatacap = _requestAllocateDatacapDatasetStatisticsOverviewAssertion(
+                caller,
+                _matchingId
+            );
+        getStorageOverviewAssertion(
+            dataswapTotal,
+            total,
+            completed,
+            usedDatacap,
+            availableDatacap + uint256(addDatacap),
+            canceled,
+            unallocatedDatacap - uint256(addDatacap)
+        );
+        return addDatacap;
+    }
+
     /// @notice Assertion function for requesting datacap allocation.
     /// @param caller The address of the caller.
     /// @param _matchingId The matching ID for which datacap allocation is requested.
@@ -155,8 +511,12 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
         storages.addDatacapChunkCollateral{value: amount}(_matchingId);
 
         // Perform the action.
-        vm.prank(caller);
-        uint64 addDatacap = storages.requestAllocateDatacap(_matchingId);
+        //vm.prank(caller);
+        //uint64 addDatacap = storages.requestAllocateDatacap(_matchingId);
+        uint64 addDatacap = _requestAllocateDatacapStatisticsOverviewAssertion(
+            caller,
+            _matchingId
+        );
 
         // After the action, assert the updated state.
         getAvailableDatacapAssertion(

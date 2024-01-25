@@ -23,6 +23,7 @@ import {MatchingsHelpers} from "test/v0.8/helpers/module/matching/MatchingsHelpe
 import {StoragesAssertion} from "test/v0.8/assertions/module/storage/StoragesAssertion.sol";
 import {DatasetsAssertion} from "test/v0.8/assertions/module/dataset/DatasetsAssertion.sol";
 import {MatchingsAssertion} from "test/v0.8/assertions/module/matching/MatchingsAssertion.sol";
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 
 /// @title StorageTestSetup
 /// @notice This contract is used for setting up the storages test setup contract for testing.
@@ -68,6 +69,13 @@ contract StorageTestSetup is BaseTestSetup {
             machingsAssertion
         );
 
-        helpers = new StoragesHelpers(storages, generator, matchingsHelpers);
+        helpers = new StoragesHelpers(
+            storages,
+            generator,
+            matchingsHelpers,
+            assertion
+        );
+        role.grantRole(RolesType.DEFAULT_ADMIN_ROLE, address(5));
+        assertion.registDataswapDatacapAssertion(address(5), 555555);
     }
 }
