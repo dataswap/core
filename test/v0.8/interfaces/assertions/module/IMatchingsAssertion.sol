@@ -19,11 +19,12 @@ pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import {IStatisticsBaseAssertion} from "test/v0.8/interfaces/assertions/core/IStatisticsBaseAssertion.sol";
 
 /// @title IMatchingsAssertion
 /// @dev This interface defines assertion methods for testing matching-related functionality.
 /// All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
-interface IMatchingsAssertion {
+interface IMatchingsAssertion is IStatisticsBaseAssertion {
     /// @notice Asserts a bidding action.
     /// @param caller The caller's address.
     /// @param _matchingId The ID of the matching for which bidding is done.

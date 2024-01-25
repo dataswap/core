@@ -94,12 +94,14 @@ interface IMatchings is IStatistics {
     /// @notice Function for report publishing a matching
     /// @dev This function is intended for use only by the 'dataswap' contract.
     /// @param _matchingId The matching id to publish cars.
-    function __reportPublishMatching(uint64 _matchingId) external;
+    /// @param _size; The size of the matching target.
+    function __reportPublishMatching(uint64 _matchingId, uint64 _size) external;
 
     /// @notice Function for report canceling a matching
     /// @dev This function is intended for use only by the 'dataswap' contract.
     /// @param _matchingId The matching id.
-    function __reportCancelMatching(uint64 _matchingId) external;
+    /// @param _size; The size of the matching target.
+    function __reportCancelMatching(uint64 _matchingId, uint64 _size) external;
 
     /// @notice Function for report closing a matching
     /// @dev This function is intended for use only by the 'dataswap' contract.
@@ -109,16 +111,22 @@ interface IMatchings is IStatistics {
     /// @notice Function for report complete with a winner
     /// @dev This function is intended for use only by the 'dataswap' contract.
     /// @param _matchingId The matching id.
+    /// @param _size; The size of the matching target.
     /// @param _winner The winner of bids of matching.
     function __reportMatchingHasWinner(
         uint64 _matchingId,
+        uint64 _size,
         address _winner
     ) external;
 
     /// @notice Function for report complete a matching without winner
     /// @dev This function is intended for use only by the 'dataswap' contract.
     /// @param _matchingId The matching id.
-    function __reportMatchingNoWinner(uint64 _matchingId) external;
+    /// @param _size; The size of the matching target.
+    function __reportMatchingNoWinner(
+        uint64 _matchingId,
+        uint64 _size
+    ) external;
 
     // Default getter functions for public variables
     function matchingsCount() external view returns (uint64);
