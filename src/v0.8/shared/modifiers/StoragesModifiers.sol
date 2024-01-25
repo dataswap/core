@@ -19,9 +19,22 @@ pragma solidity ^0.8.21;
 
 ///shared
 import {MatchingsModifiers} from "src/v0.8/shared/modifiers/MatchingsModifiers.sol";
+///interface
+import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
+///shared
+import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 
 /// @title storages
 /// @dev Manages the storage of matched data after successful matching with Filecoin storage deals.
 contract StoragesModifiers is MatchingsModifiers {
-
+    /// @notice  validNextDatacapAllocation
+    modifier validNextDatacapAllocation(
+        IStorages _storages,
+        uint64 _matchingId
+    ) {
+        if (!_storages.isNextDatacapAllocationValid(_matchingId)) {
+            revert Errors.NextDatacapAllocationInvalid(_matchingId);
+        }
+        _;
+    }
 }

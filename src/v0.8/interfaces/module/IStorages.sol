@@ -88,6 +88,68 @@ interface IStorages is IStorageStatistics {
         uint64 _matchingId
     ) external view returns (bool);
 
+    /// @notice Add collateral funds for allocating datacap chunk
+    /// @param _matchingId The ID of the matching
+    function addDatacapChunkCollateral(uint64 _matchingId) external payable;
+
+    /// @dev Requests the allocation of matched datacap for a matching process.
+    /// @param _matchingId The ID of the matching process.
+    function requestAllocateDatacap(
+        uint64 _matchingId
+    ) external returns (uint64);
+
+    /// @notice Get the updated collateral funds for datacap chunk based on real-time business data
+    /// @param _matchingId The ID of the matching
+    /// @return The updated collateral funds required
+    function getDatacapChunkCollateralFunds(
+        uint64 _matchingId
+    ) external view returns (uint256);
+
+    /// @notice Get the updated burn funds for datacap chunk based on real-time business data
+    /// @param _matchingId The ID of the matching
+    /// @return The updated burn funds required
+    function getDatacapChunkBurnFunds(
+        uint64 _matchingId
+    ) external view returns (uint256);
+
+    /// @notice Get collateral funds requirement for allocate chunk datacap
+    function getCollateralRequirement() external returns (uint256);
+
+    /// @dev Gets the allocated matched datacap for a storage.
+    /// @param _matchingId The ID of the matching process.
+    /// @return The allocated datacap size.
+    function getAvailableDatacap(
+        uint64 _matchingId
+    ) external view returns (uint64);
+
+    /// @dev Gets the allocated matched datacap for a matching process.
+    /// @param _matchingId The ID of the matching process.
+    /// @return The allocated datacap size.
+    function getAllocatedDatacap(
+        uint64 _matchingId
+    ) external view returns (uint64);
+
+    /// @dev Gets the total datacap size needed to be allocated for a matching process.
+    /// @param _matchingId The ID of the matching process.
+    /// @return The total datacap size needed.
+    function getTotalDatacapAllocationRequirement(
+        uint64 _matchingId
+    ) external view returns (uint64);
+
+    /// @dev Gets the remaining datacap size needed to be allocated for a matching process.
+    /// @param _matchingId The ID of the matching process.
+    /// @return The remaining datacap size needed.
+    function getRemainingUnallocatedDatacap(
+        uint64 _matchingId
+    ) external view returns (uint64);
+
+    /// @dev Checks if the next datacap allocation is allowed for a matching process.
+    /// @param _matchingId The ID of the matching process.
+    /// @return True if next allocation is allowed, otherwise false.
+    function isNextDatacapAllocationValid(
+        uint64 _matchingId
+    ) external view returns (bool);
+
     ///@notice get datasets instance
     function datasets() external view returns (IDatasets);
 

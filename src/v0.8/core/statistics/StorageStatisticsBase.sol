@@ -311,7 +311,7 @@ abstract contract StorageStatisticsBase is
     function getMatchingStorageOverview(
         uint64 matchingId
     )
-        external
+        public
         view
         returns (
             uint256 total,

@@ -18,7 +18,7 @@ pragma solidity ^0.8.21;
 
 import {BaseTestSetup} from "test/v0.8/uinttests/helpers/BaseTestSetup.sol";
 import {MatchingsAssertion} from "test/v0.8/assertions/module/matching/MatchingsAssertion.sol";
-import {DatacapsAssertion} from "test/v0.8/assertions/module/datacap/DatacapsAssertion.sol";
+import {StoragesAssertion} from "test/v0.8/assertions/module/storage/StoragesAssertion.sol";
 import {DatasetsHelpers} from "test/v0.8/helpers/module/dataset/DatasetsHelpers.sol";
 import {MatchingsHelpers} from "test/v0.8/helpers/module/matching/MatchingsHelpers.sol";
 import {DatasetsAssertion} from "test/v0.8/assertions/module/dataset/DatasetsAssertion.sol";
@@ -27,7 +27,7 @@ import {DatacapsHelpers} from "test/v0.8/helpers/module/datacap/DatacapsHelpers.
 /// @title DatacapTestSetup
 /// @notice This contract is used for setting up the Datacaps contract for testing.
 contract DatacapTestSetup is BaseTestSetup {
-    DatacapsAssertion public assertion;
+    StoragesAssertion public assertion;
     DatacapsHelpers public helpers;
 
     /// @dev Initialize the Datacaps and assertion contracts.
@@ -67,7 +67,7 @@ contract DatacapTestSetup is BaseTestSetup {
             machingsAssertion
         );
 
-        helpers = new DatacapsHelpers(datacaps, matchingsHelpers);
-        assertion = new DatacapsAssertion(datacaps);
+        helpers = new DatacapsHelpers(storages, matchingsHelpers);
+        assertion = new StoragesAssertion(storages);
     }
 }

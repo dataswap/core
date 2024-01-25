@@ -18,8 +18,8 @@ pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
 import {TestCaseBase} from "test/v0.8/testcases/module/abstract/TestCaseBase.sol";
-import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
-import {IDatacapsAssertion} from "test/v0.8/interfaces/assertions/module/IDatacapsAssertion.sol";
+import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
+import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
 import {IDatacapsHelpers} from "test/v0.8/interfaces/helpers/module/IDatacapsHelpers.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
@@ -29,27 +29,27 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 /// The `before` function is used for test case setup, and the `action` function performs the main action of the test case.
 /// The `after_` function can be used for cleanup or post-action code.
 abstract contract DatacapTestBase is TestCaseBase, Test {
-    /// @dev The address of the IDatacaps contract being tested.
-    IDatacaps internal datacaps;
+    /// @dev The address of the IStorages contract being tested.
+    IStorages internal storages;
 
     /// @dev The address of the IDatacapsHelpers contract being used for test setup.
     IDatacapsHelpers internal datacapsHelpers;
 
-    /// @dev The address of the IDatacapsAssertion contract containing test assertions.
-    IDatacapsAssertion internal datacapsAssertion;
+    /// @dev The address of the IStoragesAssertion contract containing test assertions.
+    IStoragesAssertion internal storagesAssertion;
 
     /// @dev Constructor to initialize the DatacapTestBase with the required contracts.
-    /// @param _datacaps The address of the IDatacaps contract.
+    /// @param _storages The address of the IDatacaps contract.
     /// @param _datacapsHelpers The address of the IDatacapsHelpers contract.
-    /// @param _datacapsAssertion The address of the IDatacapsAssertion contract.
+    /// @param _storagesAssertion The address of the IDatacapsAssertion contract.
     constructor(
-        IDatacaps _datacaps,
+        IStorages _storages,
         IDatacapsHelpers _datacapsHelpers,
-        IDatacapsAssertion _datacapsAssertion
+        IStoragesAssertion _storagesAssertion
     ) {
-        datacaps = _datacaps;
+        storages = _storages;
         datacapsHelpers = _datacapsHelpers;
-        datacapsAssertion = _datacapsAssertion;
+        storagesAssertion = _storagesAssertion;
     }
 
     /// @dev Executes the setup code before the main action of the datacaps test case.

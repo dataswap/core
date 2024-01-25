@@ -243,9 +243,23 @@ contract MatchingsBids is
     ///@dev update cars info to carStore before matching complete
     function _beforeMatchingCompleted(
         uint64 _matchingId
-    ) internal returns (uint64) {
-        (, uint64[] memory cars, uint64 _size, , , , ) = matchingsTarget
-            .getMatchingTarget(_matchingId);
+    )
+        internal
+        returns (
+            uint64 /*_datasetId*/,
+            uint16 /*_replicaIndex*/,
+            uint64 /*_size*/
+        )
+    {
+        (
+            uint64 _datasetId,
+            uint64[] memory cars,
+            uint64 _size,
+            ,
+            ,
+            uint16 _replicaIndex,
+
+        ) = matchingsTarget.getMatchingTarget(_matchingId);
         for (uint64 i; i < cars.length; i++) {
             carstore.__reportCarReplicaMatchingState(
                 cars[i],
@@ -253,7 +267,7 @@ contract MatchingsBids is
                 true
             );
         }
-        return _size;
+        return (_datasetId, _replicaIndex, _size);
     }
 
     /// @notice Function for canceling a matching
@@ -336,7 +350,11 @@ contract MatchingsBids is
                     );
             }
 
-            uint64 _size = _beforeMatchingCompleted(_matchingId);
+            (
+                uint64 _datasetId,
+                uint16 _replicaIndex,
+                uint64 _size
+            ) = _beforeMatchingCompleted(_matchingId);
             bids.winner = winner;
 
             escrow.__emitPaymentUpdate(
@@ -347,7 +365,13 @@ contract MatchingsBids is
                 EscrowType.PaymentEvent.SyncPaymentBeneficiary
             );
 
-            matchings.__reportMatchingHasWinner(_matchingId, _size, winner);
+            matchings.__reportMatchingHasWinner(
+                _matchingId,
+                _datasetId,
+                _replicaIndex,
+                _size,
+                winner
+            );
         } else {
             uint64 _size = _afterMatchingFailed(_matchingId);
             matchings.__reportMatchingNoWinner(_matchingId, _size);

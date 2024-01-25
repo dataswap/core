@@ -108,13 +108,19 @@ interface IMatchings is IStatistics {
     /// @param _matchingId The matching id.
     function __reportCloseMatching(uint64 _matchingId) external;
 
-    /// @notice Function for report complete with a winner
-    /// @dev This function is intended for use only by the 'dataswap' contract.
-    /// @param _matchingId The matching id.
-    /// @param _size; The size of the matching target.
-    /// @param _winner The winner of bids of matching.
+    /// @notice Reports the completion of a matching process with a winner.
+    /// @dev This function is intended to be called externally to report the completion of a matching process
+    ///      where a winner has been determined. It provides information such as the matching ID, dataset ID,
+    ///      replica index, size, and the address of the winner.
+    /// @param _matchingId The unique identifier of the matching process.
+    /// @param _datasetId The dataset ID associated with the matching.
+    /// @param _replicaIndex The index of the replica within the dataset.
+    /// @param _size The size of the matching operation.
+    /// @param _winner The address of the winner in the matching process.
     function __reportMatchingHasWinner(
         uint64 _matchingId,
+        uint64 _datasetId,
+        uint16 _replicaIndex,
         uint64 _size,
         address _winner
     ) external;

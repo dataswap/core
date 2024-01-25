@@ -16,10 +16,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
-import {DatacapTestBase} from "test/v0.8/testcases/module/datacap/abstract/DatacapTestBase.sol";
+import {DatacapTestBase} from "test/v0.8/testcases/module/storage/abstract/DatacapTestBase.sol";
 
-import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
-import {IDatacapsAssertion} from "test/v0.8/interfaces/assertions/module/IDatacapsAssertion.sol";
+import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
+import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
 import {IDatacapsHelpers} from "test/v0.8/interfaces/helpers/module/IDatacapsHelpers.sol";
 
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
@@ -28,20 +28,17 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 ///@notice request allocate datacap test case with success.
 contract RequestAllocateTestCaseWithSuccess is DatacapTestBase {
     constructor(
-        IDatacaps _datacaps,
+        IStorages _storages,
         IDatacapsHelpers _datacapsHelpers,
-        IDatacapsAssertion _datacapsAssertion
-    )
-        DatacapTestBase(_datacaps, _datacapsHelpers, _datacapsAssertion) // solhint-disable-next-line
-    {}
+        IStoragesAssertion _storagesAssertion
+    ) DatacapTestBase(_storages, _datacapsHelpers, _storagesAssertion) {}
 
     function action(uint64 _matchingId) internal virtual override {
-        address initiator = datacaps
-            .storages()
-            .matchings()
-            .getMatchingInitiator(_matchingId);
+        address initiator = storages.matchings().getMatchingInitiator(
+            _matchingId
+        );
 
-        datacapsAssertion.requestAllocateDatacapAssertion(
+        storagesAssertion.requestAllocateDatacapAssertion(
             initiator,
             _matchingId
         );
@@ -51,23 +48,22 @@ contract RequestAllocateTestCaseWithSuccess is DatacapTestBase {
 ///@notice request allocate datacap test case ,it should be reverted due to invalid matching id.
 contract RequestAllocateTestSuiteWithInvalidMatchingId is DatacapTestBase {
     constructor(
-        IDatacaps _datacaps,
+        IStorages _datacaps,
         IDatacapsHelpers _datacapsHelpers,
-        IDatacapsAssertion _datacapsAssertion
+        IStoragesAssertion _storagesAssertion
     )
-        DatacapTestBase(_datacaps, _datacapsHelpers, _datacapsAssertion) // solhint-disable-next-line
+        DatacapTestBase(_datacaps, _datacapsHelpers, _storagesAssertion) // solhint-disable-next-line
     {}
 
     function before() internal virtual override returns (uint64) {}
 
     function action(uint64 _matchingId) internal virtual override {
-        address initiator = datacaps
-            .storages()
-            .matchings()
-            .getMatchingInitiator(_matchingId);
+        address initiator = storages.matchings().getMatchingInitiator(
+            _matchingId
+        );
 
         vm.expectRevert(bytes("Address must not be zero"));
-        datacapsAssertion.requestAllocateDatacapAssertion(
+        storagesAssertion.requestAllocateDatacapAssertion(
             initiator,
             _matchingId + 1
         );
@@ -77,21 +73,20 @@ contract RequestAllocateTestSuiteWithInvalidMatchingId is DatacapTestBase {
 ///@notice request allocate datacap test case ,it should be reverted due to invalid caller.
 contract RequestAllocateTestSuiteWithInvalidCaller is DatacapTestBase {
     constructor(
-        IDatacaps _datacaps,
+        IStorages _datacaps,
         IDatacapsHelpers _datacapsHelpers,
-        IDatacapsAssertion _datacapsAssertion
+        IStoragesAssertion _storagesAssertion
     )
-        DatacapTestBase(_datacaps, _datacapsHelpers, _datacapsAssertion) // solhint-disable-next-line
+        DatacapTestBase(_datacaps, _datacapsHelpers, _storagesAssertion) // solhint-disable-next-line
     {}
 
     function action(uint64 _matchingId) internal virtual override {
-        address initiator = datacaps
-            .storages()
-            .matchings()
-            .getMatchingInitiator(_matchingId);
+        address initiator = storages.matchings().getMatchingInitiator(
+            _matchingId
+        );
         vm.assume(msg.sender != initiator);
         vm.expectRevert(bytes("Only allowed address can call"));
-        datacapsAssertion.requestAllocateDatacapAssertion(
+        storagesAssertion.requestAllocateDatacapAssertion(
             msg.sender,
             _matchingId
         );
@@ -101,24 +96,23 @@ contract RequestAllocateTestSuiteWithInvalidCaller is DatacapTestBase {
 ///@notice request allocate datacap test case ,it should be reverted due to invalid next allocate request.
 contract RequestAllocateTestSuiteWithInvalidNextRequest is DatacapTestBase {
     constructor(
-        IDatacaps _datacaps,
+        IStorages _datacaps,
         IDatacapsHelpers _datacapsHelpers,
-        IDatacapsAssertion _datacapsAssertion
+        IStoragesAssertion _storagesAssertion
     )
-        DatacapTestBase(_datacaps, _datacapsHelpers, _datacapsAssertion) // solhint-disable-next-line
+        DatacapTestBase(_datacaps, _datacapsHelpers, _storagesAssertion) // solhint-disable-next-line
     {}
 
     function action(uint64 _matchingId) internal virtual override {
-        address initiator = datacaps
-            .storages()
-            .matchings()
-            .getMatchingInitiator(_matchingId);
-        datacapsAssertion.requestAllocateDatacapAssertion(
+        address initiator = storages.matchings().getMatchingInitiator(
+            _matchingId
+        );
+        storagesAssertion.requestAllocateDatacapAssertion(
             initiator,
             _matchingId
         );
         vm.expectRevert();
-        datacapsAssertion.requestAllocateDatacapAssertion(
+        storagesAssertion.requestAllocateDatacapAssertion(
             initiator,
             _matchingId
         );

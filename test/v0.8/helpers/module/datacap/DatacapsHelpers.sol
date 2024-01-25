@@ -17,17 +17,17 @@
 
 pragma solidity ^0.8.21;
 import {IDatacapsHelpers} from "test/v0.8/interfaces/helpers/module/IDatacapsHelpers.sol";
-import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
+import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IMatchingsHelpers} from "test/v0.8/interfaces/helpers/module/IMatchingsHelpers.sol";
 
 /// @title DatacapsHelpers contract for testing
 /// @dev Provides helper functions for testing the Datacaps contract.
 contract DatacapsHelpers is IDatacapsHelpers {
-    IDatacaps internal datacaps;
+    IStorages internal storages;
     IMatchingsHelpers internal matchingsHelpers;
 
-    constructor(IDatacaps _datacaps, IMatchingsHelpers _matchingsHelpers) {
-        datacaps = _datacaps;
+    constructor(IStorages _storages, IMatchingsHelpers _matchingsHelpers) {
+        storages = _storages;
         matchingsHelpers = _matchingsHelpers;
     }
 
