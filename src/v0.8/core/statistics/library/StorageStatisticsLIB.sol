@@ -66,6 +66,32 @@ library StorageStatisticsLIB {
         self.completed += size;
     }
 
+    /// @notice Checks whether the storage statistics indicate completion.
+    /// @dev This function determines whether the storage statistics represent a completed state.
+    /// @param self Storage statistics to be checked for completion.
+    /// @return A boolean indicating whether the storage statistics represent a completed state.
+    function isStorageCompleted(
+        StatisticsType.StorageStatistics storage self
+    ) external view returns (bool) {
+        if ((self.completed + self.canceled) == self.total) {
+            return true;
+        }
+        return false;
+    }
+
+    /// @notice Checks whether the storage is successful.
+    /// @dev This function determines whether the storage is considered successful.
+    /// @param self Storage statistics to be checked for success.
+    /// @return A boolean indicating whether the storage is considered successful.
+    function isStorageSuccessful(
+        StatisticsType.StorageStatistics storage self
+    ) external view returns (bool) {
+        if (self.completed == self.total) {
+            return true;
+        }
+        return false;
+    }
+
     /// @notice Retrieves size details from the storage statistics data
     /// @return total Total datacap.
     /// @return completed Completed storage.

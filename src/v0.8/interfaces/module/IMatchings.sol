@@ -24,6 +24,9 @@ import {IStatistics} from "src/v0.8/interfaces/core/statistics/IStatistics.sol";
 
 /// @title IMatchings
 interface IMatchings is IStatistics {
+    /// @notice The function to init the dependencies of a matchings.
+    function initDependencies(address _storages) external;
+
     /// @notice Function for create a new matching.
     /// @param _datasetId The dataset id to create matching.
     /// @param _bidSelectionRule The rules for determining the winning bid.

@@ -23,6 +23,7 @@ import {DatasetsHelpers} from "test/v0.8/helpers/module/dataset/DatasetsHelpers.
 import {MatchingsHelpers} from "test/v0.8/helpers/module/matching/MatchingsHelpers.sol";
 import {DatasetsAssertion} from "test/v0.8/assertions/module/dataset/DatasetsAssertion.sol";
 import {DatacapsHelpers} from "test/v0.8/helpers/module/datacap/DatacapsHelpers.sol";
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 
 /// @title DatacapTestSetup
 /// @notice This contract is used for setting up the Datacaps contract for testing.
@@ -69,5 +70,7 @@ contract DatacapTestSetup is BaseTestSetup {
 
         helpers = new DatacapsHelpers(storages, matchingsHelpers);
         assertion = new StoragesAssertion(storages);
+        role.grantRole(RolesType.DEFAULT_ADMIN_ROLE, address(5));
+        assertion.registDataswapDatacapAssertion(address(5), 555555);
     }
 }

@@ -114,7 +114,7 @@ abstract contract StorageStatisticsBaseAssertion is
         uint256 expectAvailableDatacap,
         uint256 expectCanceled,
         uint256 expectUnallocatedDatacap
-    ) external {
+    ) public {
         (
             uint256 total,
             uint256 completed,
@@ -149,7 +149,7 @@ abstract contract StorageStatisticsBaseAssertion is
         uint256 expectAvailableDatacap,
         uint256 expectCanceled,
         uint256 expectUnallocatedDatacap
-    ) external {
+    ) public {
         (
             uint256 total,
             uint256 completed,
@@ -177,6 +177,55 @@ abstract contract StorageStatisticsBaseAssertion is
     /// @param expectAvailableDatacap Expected available datacap size.
     /// @param expectCanceled Expected canceled datacap size.
     /// @param expectUnallocatedDatacap Expected unallocated datacap size.
+    function _getMatchingStorageOverviewDatacapAssertion(
+        uint64 matchingId,
+        uint256 expectTotal,
+        uint256 expectCompleted,
+        uint256 expectUsedDatacap,
+        uint256 expectAvailableDatacap,
+        uint256 expectCanceled,
+        uint256 expectUnallocatedDatacap
+    ) internal {
+        (
+            uint256 total,
+            uint256 completed,
+            uint256 usedDatacap,
+            uint256 availableDatacap,
+            uint256 canceled,
+            uint256 unallocatedDatacap,
+
+        ) = storageStatistics.getMatchingStorageOverview(matchingId);
+        assertEq(total, expectTotal);
+        assertEq(completed, expectCompleted);
+        assertEq(usedDatacap, expectUsedDatacap);
+        assertEq(availableDatacap, expectAvailableDatacap);
+        assertEq(canceled, expectCanceled);
+        assertEq(unallocatedDatacap, expectUnallocatedDatacap);
+    }
+
+    /// @notice External function to get an overview of storage statistics for a specific matching within a dataset.
+    /// @param matchingId Matching ID for which to retrieve the overview.
+    /// @param expectStorageProviders Expected array of storage providers associated with the matching.
+    function _getMatchingStorageOverviewStorageProviderAssertion(
+        uint64 matchingId,
+        uint64[] memory expectStorageProviders
+    ) internal {
+        (, , , , , , uint64[] memory storageProviders) = storageStatistics
+            .getMatchingStorageOverview(matchingId);
+        assertEq(storageProviders.length, expectStorageProviders.length);
+        for (uint256 i = 0; i < storageProviders.length; i++) {
+            assertEq(storageProviders[i], expectStorageProviders[i]);
+        }
+    }
+
+    /// @notice External function to get an overview of storage statistics for a specific matching within a dataset.
+    /// @param matchingId Matching ID for which to retrieve the overview.
+    /// @param expectTotal Expected total size.
+    /// @param expectCompleted Expected completed size.
+    /// @param expectUsedDatacap Expected used datacap size.
+    /// @param expectAvailableDatacap Expected available datacap size.
+    /// @param expectCanceled Expected canceled datacap size.
+    /// @param expectUnallocatedDatacap Expected unallocated datacap size.
     /// @param expectStorageProviders Expected array of storage providers associated with the matching.
     function getMatchingStorageOverviewAssertion(
         uint64 matchingId,
@@ -187,25 +236,19 @@ abstract contract StorageStatisticsBaseAssertion is
         uint256 expectCanceled,
         uint256 expectUnallocatedDatacap,
         uint64[] memory expectStorageProviders
-    ) external {
-        (
-            uint256 total,
-            uint256 completed,
-            uint256 usedDatacap,
-            uint256 availableDatacap,
-            uint256 canceled,
-            uint256 unallocatedDatacap,
-            uint64[] memory storageProviders
-        ) = storageStatistics.getMatchingStorageOverview(matchingId);
-        assertEq(total, expectTotal);
-        assertEq(completed, expectCompleted);
-        assertEq(usedDatacap, expectUsedDatacap);
-        assertEq(availableDatacap, expectAvailableDatacap);
-        assertEq(canceled, expectCanceled);
-        assertEq(unallocatedDatacap, expectUnallocatedDatacap);
-        assertEq(storageProviders.length, expectStorageProviders.length);
-        for (uint256 i = 0; i < storageProviders.length; i++) {
-            assertEq(storageProviders[i], expectStorageProviders[i]);
-        }
+    ) public {
+        _getMatchingStorageOverviewDatacapAssertion(
+            matchingId,
+            expectTotal,
+            expectCompleted,
+            expectUsedDatacap,
+            expectAvailableDatacap,
+            expectCanceled,
+            expectUnallocatedDatacap
+        );
+        _getMatchingStorageOverviewStorageProviderAssertion(
+            matchingId,
+            expectStorageProviders
+        );
     }
 }

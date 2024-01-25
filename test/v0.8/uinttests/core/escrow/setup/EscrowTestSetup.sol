@@ -69,10 +69,12 @@ contract EscrowTestSetup is BaseTestSetup {
             datasetsHelpers,
             machingsAssertion
         );
+        StoragesAssertion storagesAssersion = new StoragesAssertion(storages);
         storagesHelpers = new StoragesHelpers(
             storages,
             generator,
-            matchingsHelpers
+            matchingsHelpers,
+            storagesAssersion
         );
 
         assertion = new EscrowAssertion(escrow);
