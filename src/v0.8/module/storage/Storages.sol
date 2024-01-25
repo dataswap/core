@@ -1,16 +1,20 @@
-/// SPDX-License-Identifier: GPL-3.0-or-later
-/// (c) 2023 Dataswap
-///
-/// Licensed under the GNU General Public License, Version 3.0 or later (the "License");
-/// you may not use this file except in compliance with the License.
-/// You may obtain a copy of the License at
-///     https://www.gnu.org/licenses/gpl-3.0.en.html
-///
-/// Unless required by applicable law or agreed to in writing, software
-/// distributed under the License is distributed on an "AS IS" BASIS,
-/// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-/// See the License for the specific language governing permissions and
-/// limitations under the License.
+/*******************************************************************************
+ *   (c) 2023 Dataswap
+ *
+ *  Licensed under the GNU General Public License, Version 3.0 or later (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      https://www.gnu.org/licenses/gpl-3.0.en.html
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ ********************************************************************************/
+
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 pragma solidity ^0.8.21;
 
@@ -288,5 +292,288 @@ contract Storages is
         } else {
             return false;
         }
+    }
+
+    /// @notice Add collateral funds for allocating datacap chunk
+    /// @param _matchingId The ID of the matching
+    function addDatacapChunkCollateral(uint64 _matchingId) public payable {
+        uint256 requirement = getCollateralRequirement();
+        address winner = matchingsBids.getMatchingWinner(_matchingId);
+        (, , uint256 currentFunds, , ) = escrow.getOwnerFund(
+            EscrowType.Type.DatacapChunkCollateral,
+            winner,
+            _matchingId
+        );
+        uint256 requiredFunds = requirement - currentFunds;
+        require(msg.value >= requiredFunds, "Insufficient collateral funds");
+
+        escrow.collateral{value: msg.value}(
+            EscrowType.Type.DatacapChunkCollateral,
+            winner,
+            _matchingId,
+            requiredFunds
+        );
+
+        emit StoragesEvents.DatacapChunkCollateral(
+            _matchingId,
+            winner,
+            msg.value,
+            requiredFunds
+        );
+    }
+
+    /// @dev Internal function to allocate matched datacap.
+    // solhint-disable-next-line
+    function _allocateDatacap(
+        uint64 _matchingId,
+        uint64 _size // solhint-disable-next-line
+    ) internal {
+        (uint64 datasetId, , , , , , ) = matchingsTarget.getMatchingTarget(
+            _matchingId
+        );
+        uint64 client = datasets.getDatasetMetadataClient(datasetId);
+        filecoin.__allocateDatacap(client, uint256(_size));
+    }
+
+    /// @notice Retrieves information about the dataset associated with a matching process.
+    /// @dev This internal view function returns details such as the dataset ID, client ID, and replica index
+    ///      associated with a given matching ID.
+    /// @param _matchingId The unique identifier of the matching process.
+    /// @return datasetId The dataset ID associated with the matching process.
+    /// @return client The client ID associated with the matching process.
+    /// @return replicaIndex The index of the replica within the dataset.
+    function _getDatasetInfo(
+        uint64 _matchingId
+    )
+        internal
+        view
+        returns (uint64 datasetId, uint64 client, uint16 replicaIndex)
+    {
+        (datasetId, , , , , replicaIndex, ) = matchingsTarget.getMatchingTarget(
+            _matchingId
+        );
+        client = datasets.getDatasetMetadataClient(datasetId);
+        return (datasetId, client, replicaIndex);
+    }
+
+    /// @dev Requests the allocation of matched datacap for a matching process.
+    /// @param _matchingId The ID of the matching process.
+    function requestAllocateDatacap(
+        uint64 _matchingId
+    )
+        external
+        onlyAddress(matchings.getMatchingInitiator(_matchingId))
+        onlyNotZeroAddress(matchings.getMatchingInitiator(_matchingId))
+        validNextDatacapAllocation(this, _matchingId)
+        returns (uint64)
+    {
+        (, , uint256 currentFunds, , ) = escrow.getOwnerFund(
+            EscrowType.Type.DatacapChunkCollateral,
+            matchingsBids.getMatchingWinner(_matchingId),
+            _matchingId
+        );
+        uint256 requirement = getCollateralRequirement();
+        require(currentFunds >= requirement, "Insufficient collateral funds");
+
+        uint64 remainingUnallocatedDatacap = getRemainingUnallocatedDatacap(
+            _matchingId
+        );
+        uint64 maxAllocateCapacityPreTime = filplus
+            .datacapRulesMaxAllocatedSizePerTime();
+        (uint64 datasetId, , uint16 replicaIndex) = _getDatasetInfo(
+            _matchingId
+        );
+        if (remainingUnallocatedDatacap <= maxAllocateCapacityPreTime) {
+            _addAllocated(
+                datasetId,
+                replicaIndex,
+                _matchingId,
+                remainingUnallocatedDatacap
+            );
+            _allocateDatacap(_matchingId, remainingUnallocatedDatacap);
+
+            emit StoragesEvents.DatacapAllocated(
+                _matchingId,
+                remainingUnallocatedDatacap
+            );
+            return remainingUnallocatedDatacap;
+        } else {
+            _addAllocated(
+                datasetId,
+                replicaIndex,
+                _matchingId,
+                maxAllocateCapacityPreTime
+            );
+            _allocateDatacap(_matchingId, maxAllocateCapacityPreTime);
+
+            emit StoragesEvents.DatacapAllocated(
+                _matchingId,
+                maxAllocateCapacityPreTime
+            );
+            return maxAllocateCapacityPreTime;
+        }
+    }
+
+    /// @notice Get collateral funds requirement for allocate chunk datacap
+    function getCollateralRequirement() public view returns (uint256) {
+        // TODO: PRICE_PER_BYTE import from governance
+        uint64 PER_TIB_BYTE = (1024 * 1024 * 1024 * 1024);
+        uint256 PRICE_PER_BYTE = (1000000000000000000 / PER_TIB_BYTE);
+        return filplus.datacapRulesMaxAllocatedSizePerTime() * PRICE_PER_BYTE;
+    }
+
+    /// @notice Get the updated collateral funds for datacap chunk based on real-time business data
+    /// @param _matchingId The ID of the matching
+    /// @return The updated collateral funds required
+    function getDatacapChunkCollateralFunds(
+        uint64 _matchingId
+    ) public view returns (uint256) {
+        (, , uint256 availableFunds, , ) = escrow.getOwnerFund(
+            EscrowType.Type.DatacapChunkCollateral,
+            matchingsBids.getMatchingWinner(_matchingId),
+            _matchingId
+        );
+
+        if (isStorageExpiration(_matchingId) == true) {
+            (, , uint64 matchingSize, , , , ) = matchingsTarget
+                .getMatchingTarget(_matchingId);
+            uint64 storedSize = getTotalStoredSize(_matchingId);
+
+            // TODO: PRICE_PER_BYTE import from governance
+            uint64 PER_TIB_BYTE = (1024 * 1024 * 1024 * 1024);
+            uint256 PRICE_PER_BYTE = (1000000000000000000 / PER_TIB_BYTE);
+            uint256 requiredFunds = (matchingSize - storedSize) *
+                PRICE_PER_BYTE;
+
+            if (requiredFunds < availableFunds) return requiredFunds;
+        }
+
+        return availableFunds;
+    }
+
+    /// @notice Get the updated burn funds for datacap chunk based on real-time business data
+    /// @param _matchingId The ID of the matching
+    /// @return The updated burn funds required
+    function getDatacapChunkBurnFunds(
+        uint64 _matchingId
+    ) public view returns (uint256) {
+        if (isStorageExpiration(_matchingId) == true) {
+            (, , uint64 matchingSize, , , , ) = matchingsTarget
+                .getMatchingTarget(_matchingId);
+
+            uint64 storedSize = getTotalStoredSize(_matchingId);
+
+            // TODO: PRICE_PER_BYTE import from governance
+            uint64 PER_TIB_BYTE = (1024 * 1024 * 1024 * 1024);
+            uint256 PRICE_PER_BYTE = (1000000000000000000 / PER_TIB_BYTE);
+            uint256 requiredFunds = (matchingSize - storedSize) *
+                PRICE_PER_BYTE;
+
+            (, , uint256 availableFunds, , ) = escrow.getOwnerFund(
+                EscrowType.Type.DatacapChunkCollateral,
+                matchingsBids.getMatchingWinner(_matchingId),
+                _matchingId
+            );
+
+            if (requiredFunds < availableFunds) {
+                return requiredFunds;
+            } else {
+                return availableFunds;
+            }
+        }
+
+        return 0;
+    }
+
+    /// @dev Gets the allocated matched datacap for a matching process.
+    /// @param _matchingId The ID of the matching process.
+    /// @return The allocated datacap size.
+    function getAllocatedDatacap(
+        uint64 _matchingId
+    ) public view returns (uint64) {
+        (
+            uint256 total,
+            ,
+            ,
+            ,
+            ,
+            uint256 unallocatedDatacap,
+
+        ) = getMatchingStorageOverview(_matchingId);
+        return uint64(total - unallocatedDatacap);
+    }
+
+    /// @notice Gets the available datacap that can still be allocated for a matching process.
+    /// @param _matchingId The ID of the matching process.
+    /// @return The available datacap size.
+    function getAvailableDatacap(
+        uint64 _matchingId
+    ) public view returns (uint64) {
+        (, , , uint256 availableDatacap, , , ) = getMatchingStorageOverview(
+            _matchingId
+        );
+        return uint64(availableDatacap);
+    }
+
+    /// @dev Gets the total datacap size needed to be allocated for a matching process.
+    /// @param _matchingId The ID of the matching process.
+    /// @return The total datacap size needed.
+    function getTotalDatacapAllocationRequirement(
+        uint64 _matchingId
+    ) public view returns (uint64) {
+        (uint256 total, , , , , , ) = getMatchingStorageOverview(_matchingId);
+        return uint64(total);
+    }
+
+    /// @dev Gets the remaining datacap size needed to be allocated for a matching process.
+    /// @param _matchingId The ID of the matching process.
+    /// @return The remaining datacap size needed.
+    function getRemainingUnallocatedDatacap(
+        uint64 _matchingId
+    ) public view returns (uint64) {
+        (, , , , , uint256 unallocatedDatacap, ) = getMatchingStorageOverview(
+            _matchingId
+        );
+        return uint64(unallocatedDatacap);
+    }
+
+    /// @dev Checks if the next datacap allocation is allowed for a matching process.
+    /// @param _matchingId The ID of the matching process.
+    /// @return True if next allocation is allowed, otherwise false.
+    function isNextDatacapAllocationValid(
+        uint64 _matchingId
+    ) public view returns (bool) {
+        uint64 totalDatacapAllocationRequirement = getTotalDatacapAllocationRequirement(
+                _matchingId
+            );
+        uint64 allocatedDatacap = getAllocatedDatacap(_matchingId);
+        uint64 reallyStored = getTotalStoredSize(_matchingId);
+        uint64 availableDatacap = getAvailableDatacap(_matchingId);
+        uint64 allocationThreshold = (filplus
+            .datacapRulesMaxRemainingPercentageForNext() / 100) *
+            filplus.datacapRulesMaxAllocatedSizePerTime();
+
+        if (allocatedDatacap > totalDatacapAllocationRequirement) {
+            revert Errors.AllocatedDatacapExceedsTotalRequirement(
+                allocatedDatacap,
+                totalDatacapAllocationRequirement
+            );
+        }
+
+        if (reallyStored > allocatedDatacap) {
+            revert Errors.StoredExceedsAllocatedDatacap(
+                reallyStored,
+                allocatedDatacap
+            );
+        }
+
+        if (availableDatacap > allocationThreshold) {
+            revert Errors.AvailableDatacapExceedAllocationThreshold(
+                availableDatacap,
+                allocationThreshold
+            );
+        }
+
+        return true;
     }
 }

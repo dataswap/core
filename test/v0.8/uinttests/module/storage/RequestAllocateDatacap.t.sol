@@ -17,15 +17,15 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {DatacapTestSetup} from "test/v0.8/uinttests/module/datacap/setup/DatacapTestSetup.sol";
-import "test/v0.8/testcases/module/datacap/RequestAllocateTestSuite.sol";
+import {DatacapTestSetup} from "test/v0.8/uinttests/module/storage/setup/DatacapTestSetup.sol";
+import "test/v0.8/testcases/module/storage/RequestAllocateTestSuite.sol";
 
 contract RequestAllocateDatacapTest is Test, DatacapTestSetup {
     /// @dev test case with success
     function testRequestAllocateDatacapWithSuccess() public {
         setup();
         RequestAllocateTestCaseWithSuccess testCase = new RequestAllocateTestCaseWithSuccess(
-                datacaps,
+                storages,
                 helpers,
                 assertion
             );
@@ -36,7 +36,7 @@ contract RequestAllocateDatacapTest is Test, DatacapTestSetup {
     function testRequestAllocateTestSuiteWithInvalidMatchingId() public {
         setup();
         RequestAllocateTestSuiteWithInvalidMatchingId testCase = new RequestAllocateTestSuiteWithInvalidMatchingId(
-                datacaps,
+                storages,
                 helpers,
                 assertion
             );
@@ -47,7 +47,7 @@ contract RequestAllocateDatacapTest is Test, DatacapTestSetup {
     function testRequestAllocateTestSuiteWithInvalidCaller() public {
         setup();
         RequestAllocateTestSuiteWithInvalidCaller testCase = new RequestAllocateTestSuiteWithInvalidCaller(
-                datacaps,
+                storages,
                 helpers,
                 assertion
             );
@@ -58,7 +58,7 @@ contract RequestAllocateDatacapTest is Test, DatacapTestSetup {
     function testRequestAllocateTestSuiteWithInvalidNextRequest() public {
         setup();
         RequestAllocateTestSuiteWithInvalidNextRequest testCase = new RequestAllocateTestSuiteWithInvalidNextRequest(
-                datacaps,
+                storages,
                 helpers,
                 assertion
             );

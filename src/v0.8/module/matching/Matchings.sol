@@ -23,8 +23,7 @@ import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
-import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
-import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
+import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 
 /// shared
 import {MatchingsEvents} from "src/v0.8/shared/events/MatchingsEvents.sol";
@@ -66,6 +65,7 @@ contract Matchings is
     address private governanceAddress;
     IRoles private roles;
     IDatasetsRequirement public datasetsRequirement;
+    IStorages public storages;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -81,6 +81,13 @@ contract Matchings is
         roles = IRoles(_roles);
         datasetsRequirement = IDatasetsRequirement(_datasetsRequirement);
         __UUPSUpgradeable_init();
+    }
+
+    /// @notice The function to init the dependencies of a matchings.
+    function initDependencies(
+        address _storages
+    ) external onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
+        storages = IStorages(_storages);
     }
 
     /// @notice UUPS Upgradeable function to update the roles implementation
@@ -261,6 +268,8 @@ contract Matchings is
     /// @dev This function is intended for use only by the 'dataswap' contract.
     function __reportMatchingHasWinner(
         uint64 _matchingId,
+        uint64 _datasetId,
+        uint16 _replicaIndex,
         uint64 _size,
         address _winner
     ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
@@ -268,6 +277,7 @@ contract Matchings is
         matching._reportMatchingHasWinner();
         _addCountSuccess(1);
         _addSizeSuccess(_size);
+        storages.__registMatched(_datasetId, _replicaIndex, _matchingId, _size);
         emit MatchingsEvents.MatchingHasWinner(_matchingId, _winner);
     }
 

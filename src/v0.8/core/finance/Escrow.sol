@@ -34,7 +34,6 @@ import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
-import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
 import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 
 // shared
@@ -53,7 +52,6 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
 
     IRoles private roles;
     IStorages public storages;
-    IDatacaps public datacaps;
     IDatasetsProof public datasetsProof;
 
     address payable public constant BURN_ADDRESS =
@@ -71,11 +69,9 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
     /// @dev After the contract is deployed, this function needs to be called manually!
     function initDependencies(
         address _datasetsProof,
-        address _storages,
-        address _datacaps
+        address _storages
     ) public onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
         storages = IStorages(_storages);
-        datacaps = IDatacaps(_datacaps);
         datasetsProof = IDatasetsProof(_datasetsProof);
     }
 
@@ -396,7 +392,7 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
                 );
             } else if (_type == EscrowType.Type.DatacapChunkCollateral) {
                 collateralAmount =
-                    ConditionalEscrowLIB.datacapChunkCollateral(_id, datacaps) -
+                    ConditionalEscrowLIB.datacapChunkCollateral(_id, storages) -
                     escrowAccount[_type][_owner][_id].owner.burned;
             }
         }
@@ -416,7 +412,7 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         // Burns only once
         if (escrowAccount[_type][_owner][_id].owner.burned == 0) {
             if (_type == EscrowType.Type.DatacapChunkCollateral) {
-                return ConditionalEscrowLIB.datacapChunkBurn(_id, datacaps);
+                return ConditionalEscrowLIB.datacapChunkBurn(_id, storages);
             }
         }
 

@@ -131,4 +131,106 @@ contract StoragesAssertion is DSTest, Test, IStoragesAssertion {
     ) public {
         assertEq(storages.isAllStoredDone(_matchingId), _expectIsAllStoredDone);
     }
+
+    /// @notice Assertion function for requesting datacap allocation.
+    /// @param caller The address of the caller.
+    /// @param _matchingId The matching ID for which datacap allocation is requested.
+    function requestAllocateDatacapAssertion(
+        address caller,
+        uint64 _matchingId
+    ) external {
+        // Before the action, capture the initial state.
+        uint64 oldAvailableDatacap = storages.getAvailableDatacap(_matchingId);
+        isNextDatacapAllocationValidAssertion(_matchingId, true);
+        uint64 oldAllocatedDatacap = storages.getAllocatedDatacap(_matchingId);
+        uint64 oldRemainingUnallocatedDatacap = storages
+            .getRemainingUnallocatedDatacap(_matchingId);
+        getTotalDatacapAllocationRequirementAssertion(
+            _matchingId,
+            oldAllocatedDatacap + oldRemainingUnallocatedDatacap
+        );
+
+        vm.deal(address(this), 200 ether);
+        uint256 amount = storages.getCollateralRequirement();
+        storages.addDatacapChunkCollateral{value: amount}(_matchingId);
+
+        // Perform the action.
+        vm.prank(caller);
+        uint64 addDatacap = storages.requestAllocateDatacap(_matchingId);
+
+        // After the action, assert the updated state.
+        getAvailableDatacapAssertion(
+            _matchingId,
+            oldAvailableDatacap + addDatacap
+        );
+        getAllocatedDatacapAssertion(
+            _matchingId,
+            oldAllocatedDatacap + addDatacap
+        );
+        getRemainingUnallocatedDatacapAssertion(
+            _matchingId,
+            oldRemainingUnallocatedDatacap - addDatacap
+        );
+
+        isNextDatacapAllocationValidAssertion(_matchingId, false);
+    }
+
+    /// @notice Assertion function for getting the available datacap for a matching ID.
+    /// @param _matchingId The matching ID for which to get the available datacap.
+    /// @param _expectSize The expected available datacap size.
+    function getAvailableDatacapAssertion(
+        uint64 _matchingId,
+        uint64 _expectSize
+    ) public {
+        assertEq(storages.getAvailableDatacap(_matchingId), _expectSize);
+    }
+
+    /// @notice Assertion function for getting the allocated datacap for a matching ID.
+    /// @param _matchingId The matching ID for which to get the allocated datacap.
+    /// @param _expectSize The expected allocated datacap size.
+    function getAllocatedDatacapAssertion(
+        uint64 _matchingId,
+        uint64 _expectSize
+    ) public {
+        assertEq(storages.getAllocatedDatacap(_matchingId), _expectSize);
+    }
+
+    /// @notice Assertion function for getting the total datacap allocation requirement for a matching ID.
+    /// @param _matchingId The matching ID for which to get the total datacap allocation requirement.
+    /// @param _expectSize The expected total datacap allocation requirement size.
+    function getTotalDatacapAllocationRequirementAssertion(
+        uint64 _matchingId,
+        uint64 _expectSize
+    ) public {
+        assertEq(
+            storages.getTotalDatacapAllocationRequirement(_matchingId),
+            _expectSize
+        );
+    }
+
+    /// @notice Assertion function for getting the remaining unallocated datacap for a matching ID.
+    /// @param _matchingId The matching ID for which to get the remaining unallocated datacap.
+    /// @param _expectSize The expected remaining unallocated datacap size.
+    function getRemainingUnallocatedDatacapAssertion(
+        uint64 _matchingId,
+        uint64 _expectSize
+    ) public {
+        assertEq(
+            storages.getRemainingUnallocatedDatacap(_matchingId),
+            _expectSize
+        );
+    }
+
+    /// @notice Assertion function for checking if the next datacap allocation is valid for a matching ID.
+    /// @param _matchingId The matching ID for which to check datacap allocation validity.
+    /// @param _expectOK The expected validity status (true or false).
+    function isNextDatacapAllocationValidAssertion(
+        uint64 _matchingId,
+        bool _expectOK
+    ) public {
+        if (!_expectOK) {
+            vm.expectRevert();
+        }
+        assertEq(storages.isNextDatacapAllocationValid(_matchingId), _expectOK);
+    }
 }

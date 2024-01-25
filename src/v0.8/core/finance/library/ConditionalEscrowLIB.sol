@@ -23,7 +23,6 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
-import {IDatacaps} from "src/v0.8/interfaces/module/IDatacaps.sol";
 import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
 
@@ -93,22 +92,22 @@ library ConditionalEscrowLIB {
 
     /// @dev Determines the amount available for collateral from a datacap chunk collateral
     /// @param _id The business id associated with the credited funds.
-    /// @param _datacaps The datacaps contract object.
+    /// @param _storages The storages contract object.
     function datacapChunkCollateral(
         uint64 _id, // matchingId
-        IDatacaps _datacaps
+        IStorages _storages
     ) internal view returns (uint256) {
-        return _datacaps.getDatacapChunkCollateralFunds(_id);
+        return _storages.getDatacapChunkCollateralFunds(_id);
     }
 
     /// @dev Determines the amount available for burn from a datacap chunk collateral
     /// @param _id The business id associated with the credited funds.
-    /// @param _datacaps The datacaps contract object.
+    /// @param _storages The storage contract object.
     function datacapChunkBurn(
         uint64 _id, // matchingId
-        IDatacaps _datacaps
+        IStorages _storages
     ) internal view returns (uint256) {
-        return _datacaps.getDatacapChunkBurnFunds(_id);
+        return _storages.getDatacapChunkBurnFunds(_id);
     }
 
     /// @dev Determines the amount available for payment from a data prepare fee by provider

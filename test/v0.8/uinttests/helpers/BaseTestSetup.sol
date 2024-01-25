@@ -21,7 +21,6 @@ import {Filplus} from "src/v0.8/core/filplus/Filplus.sol";
 import {MockFilecoin} from "src/v0.8/mocks/core/filecoin/MockFilecoin.sol";
 import {MockMerkleUtils} from "src/v0.8/mocks/utils/merkle/MockMerkleUtils.sol";
 import {Carstore} from "src/v0.8/core/carstore/Carstore.sol";
-import {Datacaps} from "src/v0.8/module/datacap/Datacaps.sol";
 import {Datasets} from "src/v0.8/module/dataset/Datasets.sol";
 import {DatasetsRequirement} from "src/v0.8/module/dataset/DatasetsRequirement.sol";
 import {DatasetsProof} from "src/v0.8/module/dataset/DatasetsProof.sol";
@@ -48,7 +47,6 @@ contract BaseTestSetup {
     MockFilecoin public filecoin;
     MockMerkleUtils public merkleUtils;
 
-    Datacaps public datacaps;
     Datasets public datasets;
     DatasetsProof public datasetsProof;
     DatasetsChallenge public datasetsChallenge;
@@ -173,45 +171,25 @@ contract BaseTestSetup {
             address(escrow),
             address(datasets)
         );
+        matchings.initDependencies(address(storages));
+        escrow.initDependencies(address(datasetsProof), address(storages));
 
-        datacaps = new Datacaps();
-        datacaps.initialize(
-            address(governanceContractAddresss),
-            address(role),
-            address(filplus),
-            address(filecoin),
-            address(carstore),
-            address(datasets),
-            address(matchings),
-            address(matchingsTarget),
-            address(matchingsBids),
-            address(storages),
-            address(escrow)
-        );
-
-        escrow.initDependencies(
-            address(datasetsProof),
-            address(storages),
-            address(datacaps)
-        );
-
-        address[] memory _contracts = new address[](16);
+        address[] memory _contracts = new address[](15);
         _contracts[0] = address(0);
         _contracts[1] = address(role);
         _contracts[2] = address(filplus);
         _contracts[3] = address(carstore);
         _contracts[4] = address(storages);
         _contracts[5] = address(escrow);
-        _contracts[6] = address(datacaps);
-        _contracts[7] = address(datasets);
-        _contracts[8] = address(datasetsProof);
-        _contracts[9] = address(datasetsChallenge);
-        _contracts[10] = address(datasetsRequirement);
-        _contracts[11] = address(matchings);
-        _contracts[12] = address(matchingsTarget);
-        _contracts[13] = address(matchingsBids);
-        _contracts[14] = address(filecoin);
-        _contracts[15] = address(merkleUtils);
+        _contracts[6] = address(datasets);
+        _contracts[7] = address(datasetsProof);
+        _contracts[8] = address(datasetsChallenge);
+        _contracts[9] = address(datasetsRequirement);
+        _contracts[10] = address(matchings);
+        _contracts[11] = address(matchingsTarget);
+        _contracts[12] = address(matchingsBids);
+        _contracts[13] = address(filecoin);
+        _contracts[14] = address(merkleUtils);
         role.grantDataswapContractRole(_contracts);
     }
 }
