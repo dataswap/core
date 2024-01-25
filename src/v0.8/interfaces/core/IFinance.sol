@@ -33,11 +33,12 @@ interface IFinance {
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
     /// @param _token The type of token used for the deposit (e.g., FIL, ERC-20).
+    /// @param _owner The address of the owner.
     function deposit(
         uint64 _datasetId,
         uint64 _matchingId,
         address _token,
-        address _account
+        address _owner
     ) external payable;
 
     /// @dev Initiates a withdrawal of funds from the system.
@@ -50,7 +51,7 @@ interface IFinance {
         uint64 _matchingId,
         address _token,
         uint256 _amount,
-        address payable _account
+        address payable _owner
     ) external;
 
     /// @dev Initiates an escrow of funds for a given dataset, matching ID, and escrow type.
@@ -72,24 +73,29 @@ interface IFinance {
     /// @param _matchingId The ID of the matching process.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @param _type The type of escrow (e.g., deposit, payment).
+    /// @param _owner The address of the account owner.
+    /// @param _payee An array of addresses representing the payees involved in the escrow.
+    /// @param _amount An array of uint256 representing the amounts corresponding to each payee.
     function claimEscrow(
         uint64 _datasetId,
         uint64 _matchingId,
         address _token,
-        address _account,
-        FinanceType.Type _type
+        address _owner,
+        FinanceType.Type _type,
+        address[] memory _payee,
+        uint256[] memory _amount
     ) external;
 
     /// @dev Retrieves an account's overview, including deposit, withdraw, burned, balance, lock, escrow, and collateral.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
     /// @param _token The type of token for the account overview (e.g., FIL, ERC-20).
-    /// @param _account The address of the account owner.
+    /// @param _owner The address of the account owner.
     function getAccountOverview(
         uint64 _datasetId,
         uint64 _matchingId,
         address _token,
-        address _account
+        address _owner
     )
         external
         view
@@ -109,13 +115,13 @@ interface IFinance {
     /// @param _matchingId The ID of the matching process.
     /// @param _token The type of token for trading income details (e.g., FIL, ERC-20).
     /// @param _type The type of escrow (e.g., deposit, payment).
-    /// @param _account The address of the account owner.
+    /// @param _owner The address of the account owner.
     function getAccountIncome(
         uint64 _datasetId,
         uint64 _matchingId,
         address _token,
         FinanceType.Type _type,
-        address _account
+        address _owner
     ) external view returns (uint256 total, uint256 lock);
 
     /// @dev Retrieves escrowed amount for an account.
@@ -123,14 +129,14 @@ interface IFinance {
     /// @param _matchingId The ID of the matching process.
     /// @param _token The type of token for the escrowed amount (e.g., FIL, ERC-20).
     /// @param _type The type of escrow (e.g., deposit, payment).
-    /// @param _account The address of the account owner.
+    /// @param _owner The address of the account owner.
     /// @return amount The amount of escrowed funds for the specified account.
     function getAccountEscrow(
         uint64 _datasetId,
         uint64 _matchingId,
         address _token,
         FinanceType.Type _type,
-        address _account
+        address _owner
     ) external view returns (uint256 amount);
 
     /// @dev Retrieves the escrow requirement for a specific dataset, matching process, and token type.
@@ -155,18 +161,16 @@ interface IFinance {
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
     /// @param _token The type of token for the escrowed amount (e.g., FIL, ERC-20).
-    /// @return payee An array of addresses representing the payees involved in the escrow.
-    /// @return amount An array of uint256 representing the amounts corresponding to each payee.
     /// Note: TypeX_EscrowLibrary needs to include the following methods.
-    /// .     function getPayeeInfo(
+    /// .     function isMetClaimEscrowCondition(
     ///         uint64 _datasetId,
     ///         uint64 _matchingId,
     ///         address _token
-    ///       ) external view returns (address[] memory payee, uint256[] memory amount);
-    function getEscrowPayeeInfo(
+    ///       ) external view returns (bool);
+    function isMetClaimEscrowCondition(
         uint64 _datasetId,
         uint64 _matchingId,
         address _token,
         FinanceType.Type _type
-    ) external view returns (address[] memory payee, uint256[] memory amount);
+    ) external view returns (bool);
 }
