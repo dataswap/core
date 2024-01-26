@@ -22,6 +22,7 @@
 pragma solidity ^0.8.21;
 
 import {FinanceType} from "src/v0.8/types/FinanceType.sol";
+import {IBusinessFinance} from "src/v0.8/interfaces/core/IBusinessFinance.sol";
 
 /// @title IPayment Interface
 /// @notice This interface defines the payment-related functions within the system.
@@ -156,4 +157,22 @@ interface IFinance {
         address _token,
         FinanceType.Type _type
     ) external view returns (uint256 amount);
+
+    /// @notice Registers a business contract address for a specific finance type.
+    /// @dev This external function is used to register the address of a business contract for a given finance type.
+    /// @param _type The type of finance information (e.g., FinanceType.Type).
+    /// @param _businessContract The address of the business contract to be registered.
+    function registBusinessContract(
+        FinanceType.Type _type,
+        address _businessContract
+    ) external;
+
+    /// @notice Retrieves the business contract address for a specific finance type.
+    /// @dev This external function is used to get the address of the registered business contract for a given finance type.
+    /// @param _type The type of finance information (e.g., FinanceType.Type).
+    /// @return IBusinessFinance The interface of the registered business contract.
+    /// @notice will be internal
+    function _getBusinessContract(
+        FinanceType.Type _type
+    ) external returns (IBusinessFinance);
 }
