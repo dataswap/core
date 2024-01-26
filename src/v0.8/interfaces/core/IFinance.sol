@@ -156,21 +156,4 @@ interface IFinance {
         address _token,
         FinanceType.Type _type
     ) external view returns (uint256 amount);
-
-    /// @dev Retrieves payee information for the escrow, including addresses and corresponding amounts.
-    /// @param _datasetId The ID of the dataset.
-    /// @param _matchingId The ID of the matching process.
-    /// @param _token The type of token for the escrowed amount (e.g., FIL, ERC-20).
-    /// Note: TypeX_EscrowLibrary needs to include the following methods.
-    /// .     function isMetClaimEscrowCondition(
-    ///         uint64 _datasetId,
-    ///         uint64 _matchingId,
-    ///         address _token
-    ///       ) external view returns (bool);
-    function isMetClaimEscrowCondition(
-        uint64 _datasetId,
-        uint64 _matchingId,
-        address _token,
-        FinanceType.Type _type
-    ) external view returns (bool);
 }
