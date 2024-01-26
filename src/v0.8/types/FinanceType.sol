@@ -37,7 +37,9 @@ library FinanceType {
         DatacapChunkLandCollateral,
         ProofAuditCollateral,
         ChallengeAuditCollateral,
-        DisputeAuditCollateral
+        DisputeAuditCollateral,
+        // End for traverse
+        End
     }
 
     /// @notice enum representing the ReleaseType details.
@@ -50,6 +52,19 @@ library FinanceType {
         ReleaseType releaseType;
         uint64 delayBlocks;
         uint64 durationBlocks;
+    }
+
+    /// @notice Struct representing the PayeeInfo details.
+    struct PayeeInfo {
+        address payee;
+        uint256 amount;
+    }
+
+    /// @notice Struct representing the PaymentInfo details.
+    struct PaymentInfo {
+        address payer;
+        uint256 amount;
+        PayeeInfo[] payees;
     }
 
     /// @notice Struct representing the IncomePaymentUnit details.
