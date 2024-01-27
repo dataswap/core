@@ -29,6 +29,7 @@ import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
+import {IFinance} from "src/v0.8/interfaces/core/IFinance.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
@@ -53,6 +54,7 @@ contract Roles is
 {
     IEscrow public escrow;
     IFilplus public filplus;
+    IFinance public finance;
     IFilecoin public filecoin;
     ICarstore public carstore;
     IStorages public storages;
@@ -100,6 +102,8 @@ contract Roles is
             escrow = IEscrow(_contract);
         } else if (_type == RolesType.ContractType.Filplus) {
             filplus = IFilplus(_contract);
+        } else if (_type == RolesType.ContractType.Finance) {
+            finance = IFinance(_contract);
         } else if (_type == RolesType.ContractType.Filecoin) {
             filecoin = IFilecoin(_contract);
         } else if (_type == RolesType.ContractType.Carstore) {

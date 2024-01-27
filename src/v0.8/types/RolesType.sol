@@ -58,6 +58,7 @@ library RolesType {
     enum ContractType {
         Escrow,
         Filplus,
+        Finance,
         Filecoin,
         Carstore,
         Storages,
