@@ -34,6 +34,20 @@ import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
 
+import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
+import {IFinance} from "src/v0.8/interfaces/core/IFinance.sol";
+import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
+import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
+import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
+import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
+import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
+import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
+import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
+import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
+import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
+
 /// @title IRoles Interface
 /// @notice This interface defines the role-based access control for various roles within the system.
 interface IRoles is IAccessControlEnumerableUpgradeable {
@@ -89,6 +103,10 @@ interface IRoles is IAccessControlEnumerableUpgradeable {
     /// @notice Get the Filplus contract.
     /// @return Filplus contract address.
     function filplus() external view returns (IFilplus);
+
+    /// @notice Get the Finance contract.
+    /// @return Finance contract address.
+    function finance() external view returns (IFinance);
 
     /// @notice Get the Filecoin contract.
     /// @return Filecoin contract address.

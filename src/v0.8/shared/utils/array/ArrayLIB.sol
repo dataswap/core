@@ -17,6 +17,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {FinanceType} from "src/v0.8/types/FinanceType.sol";
+
 library ArrayUint16LIB {
     /// @notice Retrieve the count of unique elements in an array.
     function countUniqueElements(
@@ -646,5 +648,32 @@ library ArrayAddressLIB {
         }
         ret[_elements.length] = _element;
         return ret;
+    }
+}
+
+/// @title ArraysPaymentInfoLIB
+/// @dev This library provides functions for managing ArraysPaymentInfo[]-related operations.
+library ArraysPaymentInfoLIB {
+    // Helper function to append two arrays
+    function appendArrays(
+        FinanceType.PaymentInfo[] memory arr1,
+        FinanceType.PaymentInfo[] memory arr2
+    ) internal pure returns (FinanceType.PaymentInfo[] memory) {
+        uint256 len1 = arr1.length;
+        uint256 len2 = arr2.length;
+
+        FinanceType.PaymentInfo[] memory result = new FinanceType.PaymentInfo[](
+            len1 + len2
+        );
+
+        for (uint256 i = 0; i < len1; i++) {
+            result[i] = arr1[i];
+        }
+
+        for (uint256 i = 0; i < len2; i++) {
+            result[len1 + i] = arr2[i];
+        }
+
+        return result;
     }
 }
