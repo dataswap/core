@@ -53,4 +53,20 @@ library RolesType {
 
     /// @notice Bytes32 constant representing the role of a dataswap contract.
     bytes32 public constant DATASWAP_CONTRACT = keccak256("DATASWAP");
+
+    /// @notice The dataswap contract type.
+    enum ContractType {
+        Filplus,
+        Filecoin,
+        Carstore,
+        Storages,
+        MerkleUtils,
+        Datasets,
+        DatasetsProof,
+        DatasetsChallenge,
+        DatasetsRequirement,
+        Matchings,
+        MatchingsBids,
+        MatchingsTarget
+    }
 }
