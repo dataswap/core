@@ -27,6 +27,12 @@ interface IFilplus {
         uint16 _countryCode
     ) external view returns (uint16);
 
+    /// @notice Set the minimum proof submission timeout for the dataset rule.
+    function setDatasetRuleMinProofTimeout(uint64 _blocks) external;
+
+    /// @notice Set the minimum audit timeout for the dataset rule.
+    function setDatasetRuleMinAuditTimeout(uint64 _blocks) external;
+
     // Set functions for public variables
     function setDatasetRuleMinRegionsPerDataset(uint16 _newValue) external;
 
@@ -135,6 +141,12 @@ interface IFilplus {
 
     /// @notice Get the datacap price pre byte complies with filplus rules.
     function getDatacapPricePreByte() external view returns (uint256 price);
+
+    /// @notice Returns the minimum proof submission timeout for the dataset rule.
+    function datasetRuleMinProofTimeout() external view returns (uint64);
+
+    /// @notice Returns the minimum audit timeout for the dataset rule.
+    function datasetRuleMinAuditTimeout() external view returns (uint64);
 
     // Default getter functions for public variables
     function datasetRuleMinRegionsPerDataset() external view returns (uint16);

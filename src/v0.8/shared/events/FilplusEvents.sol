@@ -23,6 +23,12 @@ library FilplusEvents {
     // Event emitted when the maximum number of car replicas per car rule is set
     event SetCarRuleMaxCarReplicas(uint32 _newValue);
 
+    // Event emitted when the minimum proof timeout is set
+    event SetDatasetRuleMinProofTimeout(uint64 _newValue);
+
+    // Event emitted when the minimum challenge timeout is set
+    event SetDatasetRuleMinAuditTimeout(uint64 _newValue);
+
     // Event emitted when the minimum regions per dataset rule is set
     event SetDatasetRuleMinRegionsPerDataset(uint32 _newValue);
 

@@ -32,51 +32,23 @@ interface IDatasetsAssertion is IStatisticsBaseAssertion {
         uint64 _datasetId
     ) external;
 
-    /// @notice Asserts the approval of dataset metadata.
-    /// @param caller The caller's address.
-    /// @param _datasetId The ID of the dataset for which metadata is approved.
-    function approveDatasetMetadataAssertion(
-        address caller,
-        uint64 _datasetId
-    ) external;
-
     /// @notice Asserts the rejection of a dataset.
     /// @param caller The caller's address.
     /// @param _datasetId The ID of the dataset being rejected.
     function rejectDatasetAssertion(address caller, uint64 _datasetId) external;
 
-    /// @notice Asserts the rejection of dataset metadata.
-    /// @param caller The caller's address.
-    /// @param _datasetId The ID of the dataset for which metadata is rejected.
-    function rejectDatasetMetadataAssertion(
-        address caller,
-        uint64 _datasetId
-    ) external;
-
     /// @notice Asserts the submission of dataset metadata.
     /// @param caller The caller's address.
     /// @param _client The client id of the dataset.
-    /// @param _title The title of the dataset.
-    /// @param _industry The industry category of the dataset.
-    /// @param _name The name of the dataset.
-    /// @param _description The description of the dataset.
-    /// @param _source The source of the dataset.
     /// @param _accessMethod The access method for the dataset.
     /// @param _sizeInBytes The size of the dataset in bytes.
-    /// @param _isexternal Indicates if the dataset is external.
-    /// @param _version The version of the dataset.
+    /// @param _associatedDatasetId The ID of the associated dataset with the same access method.
     function submitDatasetMetadataAssertion(
         address caller,
         uint64 _client,
-        string memory _title,
-        string memory _industry,
-        string memory _name,
-        string memory _description,
-        string memory _source,
         string memory _accessMethod,
         uint64 _sizeInBytes,
-        bool _isexternal,
-        uint64 _version
+        uint64 _associatedDatasetId
     ) external;
 
     /// @notice Assertion function for submitting dataset replica requirement.

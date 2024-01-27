@@ -25,20 +25,12 @@ import {IStatistics} from "src/v0.8/interfaces/core/statistics/IStatistics.sol";
 /// @title IDatasets
 interface IDatasets is IStatistics {
     ///@notice Approve a dataset.
-    ///@dev This function changes the state of the dataset to DatasetApproved and emits the DatasetApproved event.
-    function approveDataset(uint64 _datasetId) external;
-
-    ///@notice Approve the metadata of a dataset.
-    ///@dev This function changes the state of the dataset to MetadataApproved and emits the MetadataApproved event.
-    function approveDatasetMetadata(uint64 _datasetId) external;
+    ///@dev This function changes the state of the dataset to Approved and emits the DatasetApproved event.
+    function __approveDataset(uint64 _datasetId) external;
 
     ///@notice Reject a dataset.
-    ///@dev This function changes the state of the dataset to DatasetRejected and emits the DatasetRejected event.
-    function rejectDataset(uint64 _datasetId) external;
-
-    ///@notice Reject the metadata of a dataset.
-    ///@dev This function changes the state of the dataset to MetadataRejected and emits the MetadataRejected event.
-    function rejectDatasetMetadata(uint64 _datasetId) external;
+    ///@dev This function changes the state of the dataset to Rejected and emits the DatasetRejected event.
+    function __rejectDataset(uint64 _datasetId) external;
 
     ///@notice Submit metadata for a dataset
     ///        Note:anyone can submit dataset metadata
@@ -52,8 +44,20 @@ interface IDatasets is IStatistics {
         string memory _accessMethod,
         uint64 _sizeInBytes,
         bool _isPublic,
-        uint64 _version
+        uint64 _version,
+        uint64 _associatedDatasetId
     ) external returns (uint64);
+
+    /// @notice Updates timeout parameters for a dataset.
+    /// @dev Can only be called in the MetadataSubmitted state
+    /// @param _datasetId The ID of the dataset.
+    /// @param _proofBlockCount The updated block count for proof submission.
+    /// @param _auditBlockCount The updated block count for audit submission.
+    function updateDatasetTimeoutParameters(
+        uint64 _datasetId,
+        uint64 _proofBlockCount,
+        uint64 _auditBlockCount
+    ) external;
 
     /// @notice Update dataset usedSizeInBytes. only called by matching contract. TODO: Need to add permission control
     function addDatasetUsedSize(uint64 _datasetId, uint64 _size) external;
@@ -93,6 +97,11 @@ interface IDatasets is IStatistics {
         uint64 _datasetId
     ) external view returns (uint64);
 
+    /// @notice Get timeout params of dataset's metadata
+    function getDatasetTimeoutParameters(
+        uint64 _datasetId
+    ) external view returns (uint64 proofBlockCount, uint64 auditBlockCount);
+
     ///@notice Get dataset state
     function getDatasetState(
         uint64 _datasetId
@@ -109,6 +118,14 @@ interface IDatasets is IStatistics {
         uint64 _datasetId
     ) external view returns (bool);
 
+    /// @notice Report of insufficient escrow funds of the dataset.
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __reportDatasetInsufficientEscrowFunds(uint64 _datasetId) external;
+
+    /// @notice Completes the escrow process for a specific dataset.
+    /// @param _datasetId The ID of the dataset to complete the escrow for.
+    function __reportDatasetEscrowCompleted(uint64 _datasetId) external;
+
     /// @notice Report the dataset replica has already been submitted.
     /// @dev This function is intended for use only by the 'dataswap' contract.
     function __reportDatasetReplicaRequirementSubmitted(
@@ -117,7 +134,15 @@ interface IDatasets is IStatistics {
 
     /// @notice Report the dataset proof has already been submitted.
     /// @dev This function is intended for use only by the 'dataswap' contract.
-    function __reportDatasetProofSubmitted(uint64 _datasetId) external;
+    function __reportDatasetProofCompleted(uint64 _datasetId) external;
+
+    /// @notice Reports a dataset workflow timeout event.
+    /// @param _datasetId The ID of the dataset for which the workflow timed out.
+    function __reportDatasetWorkflowTimeout(uint64 _datasetId) external;
+
+    /// @notice Reports that a challenge has been submitted for a dataset.
+    /// @param _datasetId The ID of the dataset for which the challenge was submitted.
+    function __reportDatasetChallengeCompleted(uint64 _datasetId) external;
 
     /// @notice Default getter functions for public variables
     function datasetsCount() external view returns (uint64);

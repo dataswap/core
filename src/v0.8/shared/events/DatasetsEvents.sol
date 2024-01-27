@@ -18,12 +18,6 @@
 pragma solidity ^0.8.21;
 
 library DatasetsEvents {
-    /// @notice Event emitted when metadata is approved for a dataset.
-    event DatasetMetadataApproved(uint64 indexed _datasetId);
-
-    /// @notice Event emitted when metadata is rejected for a dataset.
-    event DatasetMetadataRejected(uint64 indexed _datasetId);
-
     /// @notice Event emitted when a dataset is approved.
     event DatasetApproved(uint64 indexed _datasetId);
 
@@ -41,6 +35,15 @@ library DatasetsEvents {
         uint64 indexed _datasetId,
         address indexed _provider
     );
+
+    /// @notice Event emitted when a dataset has not enough collateral.
+    event InsufficientEscrowFunds(
+        uint64 indexed _datasetId,
+        address indexed _provider
+    );
+
+    /// @notice Event emitted when a dataset has enough collateral.
+    event EscrowCompleted(uint64 indexed _datasetId, address indexed _provider);
 
     /// @notice Event emitted when a proof is submitted for a dataset.
     event DatasetProofSubmitted(

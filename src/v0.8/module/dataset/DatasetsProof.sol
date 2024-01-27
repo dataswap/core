@@ -31,6 +31,7 @@ import {DatasetProofLIB} from "src/v0.8/module/dataset/library/proof/DatasetProo
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {GeolocationType} from "src/v0.8/types/GeolocationType.sol";
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -99,7 +100,7 @@ contract DatasetsProof is
         onlyDatasetState(
             roles.datasets(),
             _datasetId,
-            DatasetType.State.MetadataApproved
+            DatasetType.State.RequirementSubmitted
         )
     {
         //Note: params check in lib
@@ -144,7 +145,7 @@ contract DatasetsProof is
         onlyDatasetState(
             roles.datasets(),
             _datasetId,
-            DatasetType.State.MetadataApproved
+            DatasetType.State.RequirementSubmitted
         )
     {
         DatasetType.DatasetProof storage datasetProof = datasetProofs[
@@ -177,37 +178,6 @@ contract DatasetsProof is
         );
     }
 
-    ///@notice Submit proof completed for a dataset
-    function submitDatasetProofCompleted(
-        uint64 _datasetId
-    ) public returns (DatasetType.State state) {
-        //Note: params check in lib
-        DatasetType.DatasetProof storage datasetProof = datasetProofs[
-            _datasetId
-        ];
-        if (
-            datasetProof.sourceProof.allCompleted &&
-            datasetProof.mappingFilesProof.allCompleted
-        ) {
-            require(
-                roles
-                    .filplus()
-                    .isCompliantRuleMaxProportionOfMappingFilesToDataset(
-                        datasetProof.getDatasetSize(
-                            DatasetType.DataType.MappingFiles
-                        ),
-                        datasetProof.getDatasetSize(DatasetType.DataType.Source)
-                    ),
-                "Invalid mappingFiles percentage"
-            );
-
-            roles.datasets().__reportDatasetProofSubmitted(_datasetId);
-            emit DatasetsEvents.DatasetProofSubmitted(_datasetId, msg.sender);
-
-            return DatasetType.State.DatasetProofSubmitted;
-        }
-    }
-
     ///@notice Submit proof for a dataset
     ///@dev Submit the proof of the dataset in batches,
     /// specifically by submitting the _leafHashes in the order of _leafIndexes.
@@ -231,6 +201,126 @@ contract DatasetsProof is
         if (_completed) {
             submitDatasetProofCompleted(_datasetId);
         }
+    }
+
+    /// @notice Submits dataset proof with specified IDs.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _dataType The data type of the dataset.
+    /// @param _leavesStarts The starting indices of leaves in the Merkle tree.
+    /// @param _leavesEnds The ending indices of leaves in the Merkle tree.
+    /// @param _leafIndex The index of the leaf to submit proof for.
+    /// @param complete Indicates whether the proof submission is complete.
+    function submitDatasetProofWithCarIds(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType,
+        uint64[] memory _leavesStarts,
+        uint64[] memory _leavesEnds,
+        uint64 _leafIndex,
+        bool complete
+    ) external {
+        //TODO:impl
+    }
+
+    ///@notice Submit proof completed for a dataset
+    function submitDatasetProofCompleted(
+        uint64 _datasetId
+    )
+        public
+        onlyDatasetState(
+            roles.datasets(),
+            _datasetId,
+            DatasetType.State.RequirementSubmitted
+        )
+        returns (DatasetType.State state)
+    {
+        //Note: params check in lib
+        DatasetType.DatasetProof storage datasetProof = datasetProofs[
+            _datasetId
+        ];
+        if (
+            datasetProof.sourceProof.allCompleted &&
+            datasetProof.mappingFilesProof.allCompleted
+        ) {
+            require(
+                roles
+                    .filplus()
+                    .isCompliantRuleMaxProportionOfMappingFilesToDataset(
+                        datasetProof.getDatasetSize(
+                            DatasetType.DataType.MappingFiles
+                        ),
+                        datasetProof.getDatasetSize(DatasetType.DataType.Source)
+                    ),
+                "Invalid mappingFiles percentage"
+            );
+            //TODO: remove after finance impl merged
+            roles.datasets().__reportDatasetProofCompleted(_datasetId);
+            emit DatasetsEvents.DatasetProofSubmitted(_datasetId, msg.sender);
+            return DatasetType.State.ProofSubmitted;
+
+            //TODO: open after finance impl merged
+            /*
+            if (
+                roles.finance().isEscrowEnough(
+                    _datasetId,
+                    0,
+                    roles.datasets().getDatasetMetadataSubmitter(_datasetId),
+                    address(0),
+                    FinanceType.Type.DatacapCollateral
+                ) ||
+                roles.finance().isEscrowEnough(
+                    _datasetId,
+                    0,
+                    roles.datasets().getDatasetMetadataSubmitter(_datasetId),
+                    address(0),
+                    FinanceType.Type.ChallengeCommission
+                )
+            ) {
+                roles.datasets().__reportDatasetProofCompleted(_datasetId);
+                emit DatasetsEvents.DatasetProofSubmitted(
+                    _datasetId,
+                    msg.sender
+                );
+                return DatasetType.State.DatasetProofSubmitted;
+            } else {
+                roles.datasets().__reportDatasetInsufficientEscrowFunds(
+                    _datasetId
+                );
+                emit DatasetsEvents.InsufficientEscrowFunds(
+                    _datasetId,
+                    msg.sender
+                );
+                return DatasetType.State.WaitEscrow;
+            }
+        */
+        }
+    }
+
+    /// @notice Completes the escrow process for a specific dataset.
+    /// @param _datasetId The ID of the dataset to complete the escrow for.
+    function completeEscrow(
+        uint64 _datasetId
+    )
+        external
+        onlyAddress(roles.datasets().getDatasetMetadataSubmitter(_datasetId))
+    {
+        //TODO:Fix calling parameters when finance completes
+        roles.finance().escrow(
+            _datasetId,
+            0,
+            address(0),
+            FinanceType.Type.DatacapCollateral
+        );
+
+        //TODO:Fix calling parameters when finance completes
+        roles.finance().escrow(
+            _datasetId,
+            0,
+            address(0),
+            FinanceType.Type.ChallengeCommission
+        );
+
+        roles.datasets().__reportDatasetEscrowCompleted(_datasetId);
+        emit DatasetsEvents.EscrowCompleted(_datasetId, msg.sender);
     }
 
     ///@notice Get dataset source CIDs

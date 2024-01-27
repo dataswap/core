@@ -372,6 +372,6 @@ library ChallengeCommissionLIB {
         IRoles _roles
     ) internal view returns (bool payment) {
         return (_roles.datasets().getDatasetState(_datasetId) ==
-            DatasetType.State.DatasetApproved);
+            DatasetType.State.Approved);
     }
 }

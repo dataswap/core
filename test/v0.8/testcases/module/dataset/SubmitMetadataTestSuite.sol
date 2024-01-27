@@ -50,14 +50,8 @@ contract SubmitMetadataTestCaseWithSuccess is DatasetsTestBase {
         datasetsAssertion.submitDatasetMetadataAssertion(
             address(9),
             875,
-            "a",
-            "b",
-            "c",
-            "d",
-            "e",
             "accessMethod",
             10000,
-            true,
             0
         );
     }
@@ -87,14 +81,8 @@ contract SubmitMetadataTestCaseWithDuplicate is DatasetsTestBase {
         datasetsAssertion.submitDatasetMetadataAssertion(
             address(9),
             875,
-            "a",
-            "b",
-            "c",
-            "d",
-            "e",
             "accessMethod",
             10000,
-            true,
             0
         );
         vm.expectRevert(
@@ -106,14 +94,8 @@ contract SubmitMetadataTestCaseWithDuplicate is DatasetsTestBase {
         datasetsAssertion.submitDatasetMetadataAssertion(
             address(9),
             875,
-            "a",
-            "b",
-            "c",
-            "d",
-            "e",
             "accessMethod",
             10000,
-            true,
             0
         );
     }

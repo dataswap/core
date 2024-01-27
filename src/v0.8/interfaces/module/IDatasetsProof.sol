@@ -41,10 +41,30 @@ interface IDatasetsProof {
         bool _completed
     ) external;
 
+    /// @notice Submits dataset proof with specified IDs.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _dataType The data type of the dataset.
+    /// @param _leavesStarts The starting indices of leaves in the Merkle tree.
+    /// @param _leavesEnds The ending indices of leaves in the Merkle tree.
+    /// @param _leafIndex The index of the leaf to submit proof for.
+    /// @param complete Indicates whether the proof submission is complete.
+    function submitDatasetProofWithCarIds(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType,
+        uint64[] memory _leavesStarts,
+        uint64[] memory _leavesEnds,
+        uint64 _leafIndex,
+        bool complete
+    ) external;
+
     ///@notice Submit proof completed for a dataset
     function submitDatasetProofCompleted(
         uint64 _datasetId
     ) external returns (DatasetType.State);
+
+    /// @notice Completes the escrow process for a specific dataset.
+    /// @param _datasetId The ID of the dataset to complete the escrow for.
+    function completeEscrow(uint64 _datasetId) external;
 
     ///@notice Get dataset source CIDs
     function getDatasetProof(

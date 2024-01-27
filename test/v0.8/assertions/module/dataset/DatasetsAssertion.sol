@@ -68,10 +68,7 @@ contract DatasetsAssertion is
         uint64 _datasetId
     ) external {
         // Before the action, check the initial dataset state.
-        getDatasetStateAssertion(
-            _datasetId,
-            DatasetType.State.DatasetProofSubmitted
-        );
+        getDatasetStateAssertion(_datasetId, DatasetType.State.ProofSubmitted);
 
         // Check verification count, Judgment strategy depends on actual needs
         getDatasetChallengeProofsCountAssertion(_datasetId, 1);
@@ -97,7 +94,7 @@ contract DatasetsAssertion is
         );
         // Perform the action.
         vm.prank(caller);
-        datasets.approveDataset(_datasetId);
+        datasets.__approveDataset(_datasetId);
         getCountOverviewAssertion(
             totalCount,
             successCount + 1,
@@ -111,31 +108,7 @@ contract DatasetsAssertion is
             failedSize
         );
         // After the action, check the updated dataset state.
-        getDatasetStateAssertion(_datasetId, DatasetType.State.DatasetApproved);
-    }
-
-    /// @notice Assertion function for approving dataset metadata.
-    /// @param caller The address of the caller.
-    /// @param _datasetId The ID of the dataset for which to approve metadata.
-    function approveDatasetMetadataAssertion(
-        address caller,
-        uint64 _datasetId
-    ) external {
-        // Before the action, check the initial dataset state.
-        getDatasetStateAssertion(
-            _datasetId,
-            DatasetType.State.MetadataSubmitted
-        );
-
-        // Perform the action.
-        vm.prank(caller);
-        datasets.approveDatasetMetadata(_datasetId);
-
-        // After the action, check the updated dataset state.
-        getDatasetStateAssertion(
-            _datasetId,
-            DatasetType.State.MetadataApproved
-        );
+        getDatasetStateAssertion(_datasetId, DatasetType.State.Approved);
     }
 
     /// @notice Assertion function for rejecting a dataset.
@@ -146,10 +119,7 @@ contract DatasetsAssertion is
         uint64 _datasetId
     ) external {
         // Before the action, check the initial dataset state.
-        getDatasetStateAssertion(
-            _datasetId,
-            DatasetType.State.DatasetProofSubmitted
-        );
+        getDatasetStateAssertion(_datasetId, DatasetType.State.ProofSubmitted);
         (
             uint256 totalCount,
             uint256 successCount,
@@ -172,7 +142,7 @@ contract DatasetsAssertion is
         );
         // Perform the action.
         vm.prank(caller);
-        datasets.rejectDataset(_datasetId);
+        datasets.__rejectDataset(_datasetId);
         getCountOverviewAssertion(
             totalCount,
             successCount,
@@ -186,33 +156,29 @@ contract DatasetsAssertion is
             failedSize + msize + ssize
         );
         // After the action, check the updated dataset state.
-        getDatasetStateAssertion(
-            _datasetId,
-            DatasetType.State.MetadataApproved
-        );
+        getDatasetStateAssertion(_datasetId, DatasetType.State.Rejected);
     }
 
-    /// @notice Assertion function for rejecting dataset metadata.
-    /// @param caller The address of the caller.
-    /// @param _datasetId The ID of the dataset for which to reject metadata.
-    function rejectDatasetMetadataAssertion(
-        address caller,
-        uint64 _datasetId
-    ) external {
-        // Before the action, check the initial dataset state.
-        getDatasetStateAssertion(
-            _datasetId,
-            DatasetType.State.MetadataSubmitted
-        );
-
+    /// @notice Internal function to submit dataset metadata and perform related statistics assertions.
+    /// @param params Metadata parameters including submitter, client, title, industry, name, description, source, accessMethod, sizeInBytes, isPublic, and version.
+    function _submitDatasetMetadata(
+        DatasetType.Metadata memory params
+    ) internal {
         // Perform the action.
-        vm.prank(caller);
-        datasets.rejectDatasetMetadata(_datasetId);
-
-        // After the action, check the updated dataset state.
-        getDatasetStateAssertion(
-            _datasetId,
-            DatasetType.State.MetadataRejected
+        vm.prank(params.submitter);
+        vm.deal(params.submitter, 10 ether);
+        datasets.submitDatasetMetadata(
+            params.client,
+            params.title,
+            params.industry,
+            params.name,
+            params.description,
+            params.source,
+            params.accessMethod,
+            params.sizeInBytes,
+            params.isPublic,
+            params.version,
+            params.associatedDatasetId
         );
     }
 
@@ -227,21 +193,7 @@ contract DatasetsAssertion is
             uint256 ongoingCount,
             uint256 failedCount
         ) = datasets.getCountOverview();
-        // Perform the action.
-        vm.prank(params.submitter);
-        vm.deal(params.submitter, 10 ether);
-        datasets.submitDatasetMetadata(
-            params.client,
-            params.title,
-            params.industry,
-            params.name,
-            params.description,
-            params.source,
-            params.accessMethod,
-            params.sizeInBytes,
-            params.isPublic,
-            params.version
-        );
+        _submitDatasetMetadata(params);
         getCountOverviewAssertion(
             totalCount + 1,
             successCount,
@@ -253,53 +205,46 @@ contract DatasetsAssertion is
     /// @notice Assertion function for submitting dataset metadata.
     /// @param caller The address of the caller.
     /// @param _client The client id of the dataset.
-    /// @param _title The title of the dataset.
-    /// @param _industry The industry of the dataset.
-    /// @param _name The name of the dataset.
-    /// @param _description The description of the dataset.
-    /// @param _source The source of the dataset.
     /// @param _accessMethod The access method of the dataset.
     /// @param _sizeInBytes The size of the dataset in bytes.
-    /// @param _isPublic A boolean indicating if the dataset is public.
-    /// @param _version The version of the dataset.
+    /// @param _associatedDatasetId The ID of the associated dataset with the same access method.
     function submitDatasetMetadataAssertion(
         address caller,
         uint64 _client,
-        string memory _title,
-        string memory _industry,
-        string memory _name,
-        string memory _description,
-        string memory _source,
         string memory _accessMethod,
         uint64 _sizeInBytes,
-        bool _isPublic,
-        uint64 _version
+        uint64 _associatedDatasetId
     ) external {
         // Before the action, capture the initial state.
         uint64 oldDatasetsCount = datasets.datasetsCount();
         getDatasetStateAssertion(oldDatasetsCount + 1, DatasetType.State.None);
         hasDatasetMetadataAssertion(_accessMethod, false);
-
         _submitDatasetMetadataStatisticsAssertion(
             DatasetType.Metadata({
-                title: _title,
-                industry: _industry,
-                name: _name,
-                description: _description,
-                source: _source,
+                title: "a",
+                industry: "b",
+                name: "c",
+                description: "d",
+                source: "e",
                 accessMethod: _accessMethod,
                 submitter: caller,
                 client: _client,
                 createdBlockNumber: 10,
                 sizeInBytes: _sizeInBytes,
-                isPublic: _isPublic,
-                version: _version
+                isPublic: true,
+                version: 0,
+                proofBlockCount: 0,
+                auditBlockCount: 0,
+                associatedDatasetId: _associatedDatasetId
             })
         );
         // After the action, check the updated state.
         hasDatasetMetadataAssertion(_accessMethod, true);
+        getDatasetStateAssertion(
+            oldDatasetsCount + 1,
+            DatasetType.State.MetadataSubmitted
+        );
         uint64 newDatasetsCount = datasets.datasetsCount();
-
         datasetsCountAssertion(oldDatasetsCount + 1);
         getDatasetMetadataAssertion(
             newDatasetsCount,
@@ -307,7 +252,6 @@ contract DatasetsAssertion is
             address(caller),
             uint64(block.number)
         );
-
         getDatasetMetadataSubmitterAssertion(newDatasetsCount, address(caller));
         getDatasetMetadataClientAssertion(newDatasetsCount, _client);
     }
@@ -342,7 +286,7 @@ contract DatasetsAssertion is
         );
         getDatasetStateAssertion(
             _datasetId,
-            DatasetType.State.MetadataSubmitted
+            DatasetType.State.RequirementSubmitted
         );
 
         getDatasetReplicasCountAssertion(_datasetId, uint16(_regions.length));
@@ -376,7 +320,7 @@ contract DatasetsAssertion is
         // Before the action, capture the initial state.
         getDatasetStateAssertion(
             _datasetId,
-            DatasetType.State.MetadataApproved
+            DatasetType.State.RequirementSubmitted
         );
 
         // Perform the action.
@@ -425,7 +369,7 @@ contract DatasetsAssertion is
                 DatasetType.DataType.Source
             );
         DatasetType.State state = datasets.getDatasetState(_datasetId);
-        if (state == DatasetType.State.DatasetProofSubmitted) {
+        if (state == DatasetType.State.ProofSubmitted) {
             getSizeOverviewAssersion(
                 totalSize + datasetSize,
                 successSize,
@@ -455,7 +399,7 @@ contract DatasetsAssertion is
         // Before the action, capture the initial state.
         getDatasetStateAssertion(
             _datasetId,
-            DatasetType.State.MetadataApproved
+            DatasetType.State.RequirementSubmitted
         );
         uint64 oldProofCount = datasetsProof.getDatasetProofCount(
             _datasetId,
@@ -613,6 +557,12 @@ contract DatasetsAssertion is
             _datasetId,
             expectAuditors
         );
+        if (
+            datasetsChallenge.getChallengeSubmissionCount(_datasetId) ==
+            datasetsChallenge.getChallengeSubmissionCount(_datasetId)
+        ) {
+            getDatasetStateAssertion(_datasetId, DatasetType.State.Approved);
+        }
     }
 
     /// @notice Assertion function for getting dataset metadata.

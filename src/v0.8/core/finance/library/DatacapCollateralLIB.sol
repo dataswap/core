@@ -357,7 +357,7 @@ library DatacapCollateralLIB {
     ) internal view returns (bool refund) {
         DatasetType.State state = _roles.datasets().getDatasetState(_datasetId);
 
-        return state == DatasetType.State.MetadataRejected ? true : false;
+        return state == DatasetType.State.Rejected ? true : false;
         // TODO: Expiration refund.
     }
 

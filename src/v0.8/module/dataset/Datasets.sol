@@ -30,7 +30,6 @@ import {StatisticsBase} from "src/v0.8/core/statistics/StatisticsBase.sol";
 /// library
 import {DatasetMetadataLIB} from "src/v0.8/module/dataset/library/metadata/DatasetMetadataLIB.sol";
 import {DatasetStateMachineLIB} from "src/v0.8/module/dataset/library/metadata/DatasetStateMachineLIB.sol";
-import {DatasetAuditLIB} from "src/v0.8/module/dataset/library/metadata/DatasetAuditLIB.sol";
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
@@ -51,10 +50,10 @@ contract Datasets is
     DatasetsModifiers
 {
     using DatasetMetadataLIB for DatasetType.Dataset;
-    using DatasetAuditLIB for DatasetType.Dataset;
     using DatasetStateMachineLIB for DatasetType.Dataset;
 
     mapping(uint64 => DatasetType.Dataset) private datasets; // Mapping of dataset ID to dataset details
+    mapping(bytes32 => uint64) private accessMethods; // Mapping of dataset accesss method to dataset Id
 
     address public governanceAddress;
     IRoles public roles;
@@ -89,20 +88,20 @@ contract Datasets is
     }
 
     ///@notice Approve a dataset.
-    ///@dev This function changes the state of the dataset to DatasetApproved and emits the DatasetApproved event.
-    function approveDataset(
+    ///@dev This function changes the state of the dataset to Approved and emits the DatasetApproved event.
+    function __approveDataset(
         uint64 _datasetId
     )
-        external
+        public
         onlyNotZero(_datasetId)
-        onlyDatasetState(
-            this,
-            _datasetId,
-            DatasetType.State.DatasetProofSubmitted
-        )
-        onlyAddress(governanceAddress)
+        onlyDatasetState(this, _datasetId, DatasetType.State.ProofSubmitted)
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
+
+        dataset._emitDatasetEvent(DatasetType.Event.Approved);
+
+        //TODO:finance.handleEscrow()
 
         uint64 mappingSize = roles.datasetsProof().getDatasetSize(
             _datasetId,
@@ -113,61 +112,26 @@ contract Datasets is
             DatasetType.DataType.Source
         );
 
-        dataset.approveDataset();
-
         _addCountSuccess(1);
         _addSizeSuccess(mappingSize + sourceSize);
         emit DatasetsEvents.DatasetApproved(_datasetId);
     }
 
-    ///@notice Approve the metadata of a dataset.
-    ///@dev This function changes the state of the dataset to MetadataApproved and emits the MetadataApproved event.
-    function approveDatasetMetadata(
-        uint64 _datasetId
-    )
-        external
-        onlyNotZero(_datasetId)
-        onlyDatasetState(this, _datasetId, DatasetType.State.MetadataSubmitted)
-        onlyAddress(governanceAddress)
-    {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-
-        dataset.approveDatasetMetadata();
-        emit DatasetsEvents.DatasetMetadataApproved(_datasetId);
-    }
-
-    ///@notice Reject the metadata of a dataset.
-    ///@dev This function changes the state of the dataset to MetadataRejected and emits the MetadataRejected event.
-    function rejectDatasetMetadata(
-        uint64 _datasetId
-    )
-        external
-        onlyNotZero(_datasetId)
-        onlyDatasetState(this, _datasetId, DatasetType.State.MetadataSubmitted)
-        onlyAddress(governanceAddress)
-    {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        dataset.rejectDatasetMetadata();
-
-        emit DatasetsEvents.DatasetMetadataRejected(_datasetId);
-    }
-
     ///@notice Reject a dataset.
-    ///@dev This function changes the state of the dataset to DatasetRejected and emits the DatasetRejected event.
-    function rejectDataset(
+    ///@dev This function changes the state of the dataset to Rejected and emits the DatasetRejected event.
+    function __rejectDataset(
         uint64 _datasetId
     )
         external
         onlyNotZero(_datasetId)
-        onlyDatasetState(
-            this,
-            _datasetId,
-            DatasetType.State.DatasetProofSubmitted
-        )
-        onlyAddress(governanceAddress)
+        onlyDatasetState(this, _datasetId, DatasetType.State.ProofSubmitted)
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        dataset.rejectDataset();
+
+        dataset._emitDatasetEvent(DatasetType.Event.Rejected);
+
+        //TODO:finance.handleEscrow()
         uint64 mappingSize = roles.datasetsProof().getDatasetSize(
             _datasetId,
             DatasetType.DataType.MappingFiles
@@ -193,7 +157,8 @@ contract Datasets is
         string memory _accessMethod,
         uint64 _sizeInBytes,
         bool _isPublic,
-        uint64 _version
+        uint64 _version,
+        uint64 _associatedDatasetId
     )
         external
         onlyDatasetMetadataNotExsits(this, _accessMethod)
@@ -213,16 +178,34 @@ contract Datasets is
             _accessMethod,
             _sizeInBytes,
             _isPublic,
-            _version
+            _version,
+            _associatedDatasetId
         );
 
+        updateDatasetTimeoutParameters(
+            datasetsCount(),
+            roles.filplus().datasetRuleMinProofTimeout(),
+            roles.filplus().datasetRuleMinAuditTimeout()
+        );
+        dataset._emitDatasetEvent(DatasetType.Event.SubmitMetadata);
         roles.grantDataswapRole(RolesType.STORAGE_CLIENT, msg.sender);
-
         emit DatasetsEvents.DatasetMetadataSubmitted(
             datasetsCount(),
             msg.sender
         );
         return datasetsCount();
+    }
+
+    /// @notice Updates timeout parameters for a dataset.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _proofBlockCount The updated block count for proof submission.
+    /// @param _auditBlockCount The updated block count for audit submission.
+    function updateDatasetTimeoutParameters(
+        uint64 _datasetId,
+        uint64 _proofBlockCount,
+        uint64 _auditBlockCount
+    ) public {
+        //TODO:impl
     }
 
     /// @notice Update dataset usedSizeInBytes. only called by matching contract. TODO: Need to add permission control
@@ -299,6 +282,11 @@ contract Datasets is
         return dataset.getDatasetMetadataClient();
     }
 
+    /// @notice Get timeout params of dataset's metadata
+    function getDatasetTimeoutParameters(
+        uint64 _datasetId
+    ) external view returns (uint64 proofBlockCount, uint64 auditBlockCount) {}
+
     ///@notice Get dataset state
     function getDatasetState(
         uint64 _datasetId
@@ -339,12 +327,30 @@ contract Datasets is
         uint64 _datasetId
     ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        dataset._emitDatasetEvent(DatasetType.Event.SubmitMetadata);
+        dataset._emitDatasetEvent(DatasetType.Event.SubmitRequirements);
+    }
+
+    /// @notice Report of insufficient escrow funds of the dataset.
+    /// @dev This function is intended for use only by the 'dataswap' contract.
+    function __reportDatasetInsufficientEscrowFunds(
+        uint64 _datasetId
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        dataset._emitDatasetEvent(DatasetType.Event.InsufficientEscrowFunds);
+    }
+
+    /// @notice Completes the escrow process for a specific dataset.
+    /// @param _datasetId The ID of the dataset to complete the escrow for.
+    function __reportDatasetEscrowCompleted(
+        uint64 _datasetId
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        dataset._emitDatasetEvent(DatasetType.Event.EscrowCompleted);
     }
 
     /// @notice Report the dataset proof has already been submitted.
     /// @dev This function is intended for use only by the 'dataswap' contract.
-    function __reportDatasetProofSubmitted(
+    function __reportDatasetProofCompleted(
         uint64 _datasetId
     ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
@@ -359,7 +365,40 @@ contract Datasets is
         );
 
         _addSizeTotal(mappingSize + sourceSize);
-        dataset._emitDatasetEvent(DatasetType.Event.SubmitDatasetProof);
+        dataset._emitDatasetEvent(DatasetType.Event.ProofCompleted);
+    }
+
+    /// @notice Reports a dataset workflow timeout event.
+    /// @param _datasetId The ID of the dataset for which the workflow timed out.
+    function __reportDatasetWorkflowTimeout(
+        uint64 _datasetId
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        dataset._emitDatasetEvent(DatasetType.Event.WorkflowTimeout);
+
+        //TODO:finance.handleEscrow()
+
+        uint64 mappingSize = roles.datasetsProof().getDatasetSize(
+            _datasetId,
+            DatasetType.DataType.MappingFiles
+        );
+        uint64 sourceSize = roles.datasetsProof().getDatasetSize(
+            _datasetId,
+            DatasetType.DataType.Source
+        );
+        _addCountFailed(1);
+        _addSizeFailed(mappingSize + sourceSize);
+        emit DatasetsEvents.DatasetRejected(_datasetId);
+    }
+
+    /// @notice Reports that a challenge has been submitted for a dataset.
+    /// @param _datasetId The ID of the dataset for which the challenge was submitted.
+    function __reportDatasetChallengeCompleted(
+        uint64 _datasetId
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
+        //TODO: Consider adding ChallengeCompleted status and event for waiting for disputes
+
+        __approveDataset(_datasetId);
     }
 
     /// @notice Public view function to retrieve the count of datasets.

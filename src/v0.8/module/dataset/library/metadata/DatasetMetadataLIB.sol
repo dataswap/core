@@ -82,6 +82,7 @@ library DatasetMetadataLIB {
     /// @param _sizeInBytes Size of the dataset in bytes.
     /// @param _isPublic Boolean indicating if the dataset is public.
     /// @param _version Version number of the dataset.
+    /// @param _associatedDatasetId The ID of the associated dataset with the same access method.
     function submitDatasetMetadata(
         DatasetType.Dataset storage self,
         uint64 _client,
@@ -93,7 +94,8 @@ library DatasetMetadataLIB {
         string memory _accessMethod,
         uint64 _sizeInBytes,
         bool _isPublic,
-        uint64 _version
+        uint64 _version,
+        uint64 _associatedDatasetId
     ) internal {
         _requireValidDatasetMetadata(
             _title,
@@ -117,6 +119,7 @@ library DatasetMetadataLIB {
         self.metadata.sizeInBytes = _sizeInBytes;
         self.metadata.isPublic = _isPublic;
         self.metadata.version = _version;
+        self.metadata.associatedDatasetId = _associatedDatasetId;
     }
 
     /// @notice Gets the submitter  for a dataset.
