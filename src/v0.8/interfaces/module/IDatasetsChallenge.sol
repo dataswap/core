@@ -35,6 +35,15 @@ interface IDatasetsChallenge {
         uint32[] memory _paths
     ) external;
 
+    /// @notice Retrieves challenge proofs submitters for a specific dataset.
+    /// @dev This external function is used to get arrays of addresses representing auditors and corresponding points for challenge proofs submitters for a given dataset.
+    /// @param _datasetId The unique identifier of the dataset.
+    /// @return auditors An array of addresses representing challenge proofs submitters (auditors).
+    /// @return points An array of corresponding points for each challenge proofs submitter.
+    function getDatasetChallengeProofsSubmitters(
+        uint64 _datasetId
+    ) external view returns (address[] memory auditors, uint64[] memory points);
+
     ///@notice Get dataset challenge proofs
     function getDatasetChallengeProofs(
         uint64 _datasetId,

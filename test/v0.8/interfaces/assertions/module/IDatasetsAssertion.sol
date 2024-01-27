@@ -205,6 +205,15 @@ interface IDatasetsAssertion is IStatisticsBaseAssertion {
         DatasetType.State _expectState
     ) external;
 
+    /// @notice Retrieves and asserts challenge proofs submitters for a specific dataset.
+    /// @dev This public function is used to get an array of addresses representing auditors for challenge proofs submitters for a given dataset and asserts against the expected auditors.
+    /// @param _datasetId The unique identifier of the dataset.
+    /// @param _expectAuditors An array of addresses representing the expected challenge proofs submitters (auditors).
+    function getDatasetChallengeProofsSubmittersAssertion(
+        uint64 _datasetId,
+        address[] memory _expectAuditors
+    ) external;
+
     /// @notice Asserts the retrieval of dataset verification.
     /// @param _datasetId The ID of the dataset for which verification is retrieved.
     /// @param _auditor The auditor address for which verification is retrieved.

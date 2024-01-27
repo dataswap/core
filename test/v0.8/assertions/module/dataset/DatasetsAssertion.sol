@@ -27,6 +27,7 @@ import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
 import {StatisticsBaseAssertion} from "test/v0.8/assertions/core/statistics/StatisticsBaseAssertion.sol";
+import {ArrayAddressLIB} from "src/v0.8/shared/utils/array/ArrayLIB.sol";
 
 /// @notice This contract defines assertion functions for testing an IDatasets contract.
 /// @dev NOTE: All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
@@ -41,6 +42,7 @@ contract DatasetsAssertion is
     IDatasetsRequirement public datasetsRequirement;
     IDatasetsProof public datasetsProof;
     IDatasetsChallenge public datasetsChallenge;
+    using ArrayAddressLIB for address[];
 
     /// @notice Constructor that sets the address of the IDatasets contract.
     /// @param _datasets The address of the IDatasets contract.
@@ -582,7 +584,12 @@ contract DatasetsAssertion is
             _randomSeed,
             false
         );
-
+        address[] memory expectAuditors;
+        (address[] memory auditors, ) = datasetsChallenge
+            .getDatasetChallengeProofsSubmitters(_datasetId);
+        if (!auditors.isContains(caller)) {
+            expectAuditors = auditors.append(caller);
+        }
         // Perform the action.
         vm.prank(caller);
         datasetsChallenge.submitDatasetChallengeProofs(
@@ -601,6 +608,10 @@ contract DatasetsAssertion is
             _leaves,
             _siblings,
             _paths
+        );
+        getDatasetChallengeProofsSubmittersAssertion(
+            _datasetId,
+            expectAuditors
         );
     }
 
@@ -794,6 +805,32 @@ contract DatasetsAssertion is
             uint8(_expectState),
             "state not matched"
         );
+    }
+
+    /// @notice Retrieves and asserts challenge proofs submitters for a specific dataset.
+    /// @dev This public function is used to get an array of addresses representing auditors for challenge proofs submitters for a given dataset and asserts against the expected auditors.
+    /// @param _datasetId The unique identifier of the dataset.
+    /// @param _expectAuditors An array of addresses representing the expected challenge proofs submitters (auditors).
+    function getDatasetChallengeProofsSubmittersAssertion(
+        uint64 _datasetId,
+        address[] memory _expectAuditors
+    ) public {
+        (address[] memory auditors, uint64[] memory points) = datasetsChallenge
+            .getDatasetChallengeProofsSubmitters(_datasetId);
+
+        assertEq(auditors.length, _expectAuditors.length, "length not matched");
+        assertEq(points.length, _expectAuditors.length, "length not matched");
+
+        for (uint64 i = 0; i < auditors.length; i++) {
+            assertEq(auditors[i], _expectAuditors[i], "auditor not matched");
+            (bytes32[] memory leaves, , ) = datasetsChallenge
+                .getDatasetChallengeProofs(_datasetId, auditors[i]);
+            assertEq(
+                leaves.length,
+                points[i],
+                "auditor points number not matched"
+            );
+        }
     }
 
     /// @notice Assertion function for getting dataset verification.

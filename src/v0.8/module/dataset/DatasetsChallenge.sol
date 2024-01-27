@@ -148,6 +148,32 @@ contract DatasetsChallenge is
         );
     }
 
+    /// @notice Retrieves challenge proofs submitters for a specific dataset.
+    /// @dev This external function is used to get arrays of addresses representing auditors and corresponding points for challenge proofs submitters for a given dataset.
+    /// @param _datasetId The unique identifier of the dataset.
+    /// @return auditors An array of addresses representing challenge proofs submitters (auditors).
+    /// @return points An array of corresponding points for each challenge proofs submitter.
+    function getDatasetChallengeProofsSubmitters(
+        uint64 _datasetId
+    )
+        external
+        view
+        returns (address[] memory auditors, uint64[] memory points)
+    {
+        DatasetType.DatasetChallengeProof
+            storage datasetChallengeProof = datasetChallengeProofs[_datasetId];
+        points = new uint64[](datasetChallengeProof.auditors.length);
+        for (uint256 i = 0; i < datasetChallengeProof.auditors.length; i++) {
+            points[i] = uint64(
+                datasetChallengeProof
+                    .challengeProofs[datasetChallengeProof.auditors[i]]
+                    .challenges
+                    .length
+            );
+        }
+        return (datasetChallengeProof.auditors, points);
+    }
+
     ///@notice Get dataset challenge proofs
     /// @param _datasetId The ID of the dataset for which proof is submitted.
     /// @param _auditor The auditor of the dataset for which challenge proof is submitted.
