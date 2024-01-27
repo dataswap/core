@@ -26,21 +26,24 @@ library DatasetType {
     /// @notice Enum representing the possible states of a dataset.
     enum State {
         None, // No specific state.
-        MetadataSubmitted, // Metadata submitted but not approved.
-        MetadataApproved, // Metadata has been approved.
-        MetadataRejected, // Metadata submission has been rejected.
-        DatasetProofSubmitted, // Proof of dataset submitted.
-        DatasetApproved // Dataset has been approved.
+        MetadataSubmitted, // Metadata submitted.
+        RequirementSubmitted, // Requirements submitted.
+        WaitEscrow, // Waiting for SC to complete escrow.
+        ProofSubmitted, // Proof of dataset submitted.
+        Approved, // Dataset has been approved.
+        Rejected // Dataset has been rejected.
     }
 
     /// @notice Enum representing the events related to dataset management.
     enum Event {
         SubmitMetadata, // Metadata submission event.
-        MetadataApproved, // Metadata approval event.
-        MetadataRejected, // Metadata rejection event.
-        SubmitDatasetProof, // Dataset proof submission event.
-        DatasetApproved, // Dataset approval event.
-        DatasetRejected // Dataset rejection event.
+        SubmitRequirements, // Requirements submission event.
+        InsufficientEscrowFunds, // Insufficient escrow funds event.
+        EscrowCompleted, // Complete escrow event.
+        ProofCompleted, // Dataset proof submission event.
+        WorkflowTimeout, // Workflow timeout event.
+        Approved, // Dataset approval event.
+        Rejected // Dataset rejection event.
     }
 
     /// @notice Enum representing the type of data associated with a matching.
@@ -63,6 +66,9 @@ library DatasetType {
         uint64 sizeInBytes; // Size of the dataset in bytes.
         bool isPublic; // Boolean indicating if the dataset is public.
         uint64 version; // Version number of the dataset.
+        uint64 proofBlockCount; // The deadline for proof submission is specified in terms of the number of blocks.
+        uint64 auditBlockCount; // The deadline for audit submission is specified in terms of the number of blocks.
+        uint64 associatedDatasetId; // The ID of the associated dataset with the same access method.
     }
 
     struct Dataset {
@@ -86,6 +92,7 @@ library DatasetType {
         Proof sourceProof; // Proof associated with the dataset.
         Proof mappingFilesProof; // Note:mappingFiles includes mappingFiles and CarMerkleTree,Proof associated with the dataset.
         address proofSubmitter; // Address of the dataset proof's submitter.
+        uint64 completedHeight;
     }
 
     /// @notice Struct representing proofs associated with a dataset challenge submitted by reviewers.
@@ -117,5 +124,6 @@ library DatasetType {
 
     struct DatasetReplicasRequirement {
         ReplicaRequirement[] replicasRequirement; // Replica requirements requested by the client.
+        uint64 completedHeight;
     }
 }

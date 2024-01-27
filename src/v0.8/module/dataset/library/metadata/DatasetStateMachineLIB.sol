@@ -37,25 +37,38 @@ library DatasetStateMachineLIB {
             if (currentState == DatasetType.State.None) {
                 newState = DatasetType.State.MetadataSubmitted;
             }
-        } else if (_event == DatasetType.Event.MetadataApproved) {
+        } else if (_event == DatasetType.Event.SubmitRequirements) {
             if (currentState == DatasetType.State.MetadataSubmitted) {
-                newState = DatasetType.State.MetadataApproved;
+                newState = DatasetType.State.RequirementSubmitted;
             }
-        } else if (_event == DatasetType.Event.MetadataRejected) {
-            if (currentState == DatasetType.State.MetadataSubmitted) {
-                newState = DatasetType.State.MetadataRejected;
+        } else if (_event == DatasetType.Event.ProofCompleted) {
+            if (currentState == DatasetType.State.RequirementSubmitted) {
+                newState = DatasetType.State.ProofSubmitted;
             }
-        } else if (_event == DatasetType.Event.SubmitDatasetProof) {
-            if (currentState == DatasetType.State.MetadataApproved) {
-                newState = DatasetType.State.DatasetProofSubmitted;
+        } else if (_event == DatasetType.Event.InsufficientEscrowFunds) {
+            if (currentState == DatasetType.State.RequirementSubmitted) {
+                newState = DatasetType.State.WaitEscrow;
             }
-        } else if (_event == DatasetType.Event.DatasetApproved) {
-            if (currentState == DatasetType.State.DatasetProofSubmitted) {
-                newState = DatasetType.State.DatasetApproved;
+        } else if (_event == DatasetType.Event.EscrowCompleted) {
+            if (currentState == DatasetType.State.WaitEscrow) {
+                newState = DatasetType.State.RequirementSubmitted;
             }
-        } else if (_event == DatasetType.Event.DatasetRejected) {
-            if (currentState == DatasetType.State.DatasetProofSubmitted) {
-                newState = DatasetType.State.MetadataApproved;
+        } else if (_event == DatasetType.Event.Approved) {
+            if (currentState == DatasetType.State.ProofSubmitted) {
+                newState = DatasetType.State.Approved;
+            }
+        } else if (_event == DatasetType.Event.Rejected) {
+            if (currentState == DatasetType.State.ProofSubmitted) {
+                newState = DatasetType.State.Rejected;
+            }
+        } else if (_event == DatasetType.Event.WorkflowTimeout) {
+            if (
+                currentState == DatasetType.State.MetadataSubmitted ||
+                currentState == DatasetType.State.RequirementSubmitted ||
+                currentState == DatasetType.State.WaitEscrow ||
+                currentState == DatasetType.State.ProofSubmitted
+            ) {
+                newState = DatasetType.State.Rejected;
             }
         }
 

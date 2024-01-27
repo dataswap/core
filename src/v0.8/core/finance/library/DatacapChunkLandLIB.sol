@@ -370,19 +370,20 @@ library DatacapChunkLandLIB {
     {}
 
     /// @dev Internal function to check if a refund is applicable.
-    /// @param _datasetId The ID of the dataset.
+    /// @param /*_datasetId*/ The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
     /// @param _roles The roles contract interface.
     /// @return refund A boolean indicating whether a refund is applicable.
     function _isRefund(
-        uint64 _datasetId,
+        uint64 /*_datasetId*/,
         uint64 _matchingId,
         IRoles _roles
     ) internal view returns (bool refund) {
-        return ((_matchingId != 0 &&
-            _roles.storages().isStorageExpiration(_matchingId)) ||
-            _roles.datasets().getDatasetState(_datasetId) ==
-            DatasetType.State.MetadataRejected);
+        return (
+            (_matchingId != 0 &&
+                //TODO: check if complete of matching
+                _roles.storages().isStorageExpiration(_matchingId))
+        );
     }
 
     /// @dev Internal function to check if a burn is applicable.

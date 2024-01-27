@@ -295,7 +295,7 @@ contract MatchingsTarget is
     ) public view returns (bool) {
         require(
             roles.datasets().getDatasetState(_datasetId) ==
-                DatasetType.State.DatasetApproved,
+                DatasetType.State.Approved,
             "datasetId is not approved!"
         );
         require(

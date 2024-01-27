@@ -93,7 +93,12 @@ contract DatasetsChallenge is
         require(
             getDatasetChallengeProofsCount(_datasetId) <=
                 roles.filplus().getChallengeProofsSubmiterCount(),
-            "exceeds maximum challenge proofs count"
+            "exceeds maximum challenge proofs count of filplus"
+        );
+        require(
+            getDatasetChallengeProofsCount(_datasetId) <
+                getChallengeSubmissionCount(_datasetId),
+            "exceeds maximum challenge proofs count of dataset"
         );
         DatasetType.DatasetChallengeProof
             storage datasetChallengeProof = datasetChallengeProofs[_datasetId];
@@ -111,7 +116,15 @@ contract DatasetsChallenge is
             roles.merkleUtils()
         );
 
+        if (
+            getDatasetChallengeProofsCount(_datasetId) ==
+            getChallengeSubmissionCount(_datasetId)
+        ) {
+            roles.datasets().__reportDatasetChallengeCompleted(_datasetId);
+        }
+
         roles.grantDataswapRole(RolesType.DATASET_AUDITOR, msg.sender);
+
         emit DatasetsEvents.DatasetChallengeProofsSubmitted(
             _datasetId,
             msg.sender

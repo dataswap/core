@@ -405,7 +405,7 @@ library DataTradingFeeLIB {
         return ((_matchingId != 0 &&
             _roles.storages().isStorageExpiration(_matchingId)) ||
             _roles.datasets().getDatasetState(_datasetId) ==
-            DatasetType.State.MetadataRejected);
+            DatasetType.State.Rejected);
     }
 
     /// @dev Internal function to check if a burn is applicable.

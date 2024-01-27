@@ -98,7 +98,11 @@ contract DatasetsRequirement is
     )
         external
         payable
-        onlyDatasetState(roles.datasets(), _datasetId, DatasetType.State.None)
+        onlyDatasetState(
+            roles.datasets(),
+            _datasetId,
+            DatasetType.State.MetadataSubmitted
+        )
         onlyAddress(roles.datasets().getDatasetMetadataSubmitter(_datasetId))
     {
         require(

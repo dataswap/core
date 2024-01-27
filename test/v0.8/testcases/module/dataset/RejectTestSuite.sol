@@ -50,8 +50,15 @@ contract RejectTestCaseWithSuccess is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64 id) {
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        datasets.roles().grantRole(
+            RolesType.DATASWAP_CONTRACT,
+            datasets.governanceAddress()
+        );
+        vm.stopPrank();
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return setup.datasetTestSetup(datasetsHelpers, datasets);
+        return setup.verificationTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64 _id) internal virtual override {
@@ -84,11 +91,11 @@ contract RejectTestCaseWithInvalidAddress is DatasetsTestBase {
 
     function before() internal virtual override returns (uint64 id) {
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return setup.datasetTestSetup(datasetsHelpers, datasets);
+        return setup.verificationTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64 _id) internal virtual override {
-        vm.expectRevert(bytes("Only allowed address can call"));
+        vm.expectRevert(bytes("Only allowed role can call"));
         datasetsAssertion.rejectDatasetAssertion(address(8), _id);
     }
 }
@@ -113,11 +120,22 @@ contract RejectTestCaseWithZeroID is DatasetsTestBase {
         ) // solhint-disable-next-line
     {}
 
+    function before() internal virtual override returns (uint64 id) {
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        datasets.roles().grantRole(
+            RolesType.DATASWAP_CONTRACT,
+            datasets.governanceAddress()
+        );
+        vm.stopPrank();
+        return 0;
+    }
+
     function action(uint64) internal virtual override {
         // Perform the action.
         vm.prank(datasets.governanceAddress());
         vm.expectRevert(bytes("Value must not be zero"));
-        datasets.rejectDataset(0);
+        datasets.__rejectDataset(0);
     }
 }
 
@@ -142,17 +160,24 @@ contract RejectTestCaseWithInvalidState is DatasetsTestBase {
     {}
 
     function before() internal virtual override returns (uint64 id) {
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        datasets.roles().grantRole(
+            RolesType.DATASWAP_CONTRACT,
+            datasets.governanceAddress()
+        );
+        vm.stopPrank();
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return setup.datasetTestSetup(datasetsHelpers, datasets);
+        return setup.verificationTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64 _id) internal virtual override {
         // Perform the action.
         vm.prank(datasets.governanceAddress());
-        datasets.rejectDataset(_id);
+        datasets.__rejectDataset(_id);
         vm.expectRevert(
             abi.encodeWithSelector(Errors.InvalidDatasetState.selector, _id)
         );
-        datasets.rejectDataset(_id);
+        datasets.__rejectDataset(_id);
     }
 }

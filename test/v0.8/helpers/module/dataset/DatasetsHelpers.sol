@@ -75,7 +75,8 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             _accessMethod,
             100,
             true,
-            1
+            1,
+            0
         );
         return datasetCount + 1;
     }
@@ -362,13 +363,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             0
         );
 
-        // 2: Approve metadata
-        assertion.approveDatasetMetadataAssertion(
-            datasets.governanceAddress(),
-            datasetId
-        );
-
-        // 3: Submit proof
+        // 2: Submit proof
         vm.startPrank(admin);
         datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
         vm.stopPrank();
@@ -388,18 +383,19 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             _mappingFilesLeavesCount,
             true
         );
+        //vm.deal(address(9), 100 ether);
+        //vm.prank(address(9));
+        //datasetsProof.completeEscrow{value: 100 ether}(datasetId);
 
-        datasetsProof.submitDatasetProofCompleted(datasetId);
+        //datasetsProof.submitDatasetProofCompleted(datasetId);
         vm.startPrank(admin);
         datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(299));
         vm.stopPrank();
-        // 4: Submit verification
+        // 3: Submit verification
         submitDatasetVerification(address(299), datasetId);
-
-        // 5: Approve dataset
-        assertion.approveDatasetAssertion(
-            datasets.governanceAddress(),
-            datasetId
+        assertion.getDatasetStateAssertion(
+            datasetId,
+            DatasetType.State.Approved
         );
     }
 

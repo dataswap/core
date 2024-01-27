@@ -139,6 +139,18 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         }
     }
 
+    /// @notice Set the minimum proof submission timeout for the dataset rule.
+    function setDatasetRuleMinProofTimeout(uint64 _blocks) external {
+        //TODO: impl
+        emit FilplusEvents.SetDatasetRuleMinProofTimeout(_blocks);
+    }
+
+    /// @notice Set the minimum audit timeout for the dataset rule.
+    function setDatasetRuleMinAuditTimeout(uint64 _blocks) external {
+        //TODO: impl
+        emit FilplusEvents.SetDatasetRuleMinAuditTimeout(_blocks);
+    }
+
     function setDatasetRuleMinRegionsPerDataset(
         uint16 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
@@ -305,6 +317,16 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
         challengeProofsPricePrePoint = _newValue;
         emit FilplusEvents.SetChallengeProofsPricePrePoint(_newValue);
+    }
+
+    /// @notice The default minimum dataset proof submission timeout
+    function datasetRuleMinProofTimeout() external view returns (uint64) {
+        //TODO: impl
+    }
+
+    /// @notice The default minimum dataset challenge submission timeout
+    function datasetRuleMinAuditTimeout() external view returns (uint64) {
+        //TODO: impl
     }
 
     /// @notice Get the challenge proofs price pre point complies with filplus rules.

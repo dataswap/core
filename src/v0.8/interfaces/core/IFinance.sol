@@ -57,13 +57,11 @@ interface IFinance {
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
     /// @param _token The type of token for escrow (e.g., FIL, ERC-20).
-    /// @param _amount The amount to be escrowed.
     /// @param _type The type of escrow (e.g., deposit, payment).
     function escrow(
         uint64 _datasetId,
         uint64 _matchingId,
         address _token,
-        uint256 _amount,
         FinanceType.Type _type
     ) external;
 
