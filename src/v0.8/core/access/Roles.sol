@@ -25,7 +25,20 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import {AccessControlEnumerableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import {RolesType} from "src/v0.8/types/RolesType.sol";
+
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
+import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
+import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
+import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
+import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
+import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
+import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
+import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
+import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
+import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
 
 /// @title Role Contract
 /// @notice This contract defines the role-based access control for various roles within the system.
@@ -37,6 +50,21 @@ contract Roles is
     Ownable2StepUpgradeable,
     AccessControlEnumerableUpgradeable
 {
+    IFilplus public filplus;
+    IFilecoin public filecoin;
+    ICarstore public carstore;
+    IStorages public storages;
+    IMerkleUtils public merkleUtils;
+
+    IDatasets public datasets;
+    IDatasetsProof public datasetsProof;
+    IDatasetsChallenge public datasetsChallenge;
+    IDatasetsRequirement public datasetsRequirement;
+
+    IMatchings public matchings;
+    IMatchingsBids public matchingsBids;
+    IMatchingsTarget public matchingsTarget;
+
     /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
     function initialize() public initializer {
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -57,6 +85,42 @@ contract Roles is
     /// @notice Returns the implementation contract
     function getImplementation() external view returns (address) {
         return _getImplementation();
+    }
+
+    /// @notice Register contract function to manage the dataswap contract.
+    /// @param _type The contract type.
+    /// @param _contract The register contract address.
+    function registerContract(
+        RolesType.ContractType _type,
+        address _contract
+    ) public onlyOwner {
+        if (_type == RolesType.ContractType.Filplus) {
+            filplus = IFilplus(_contract);
+        } else if (_type == RolesType.ContractType.Filecoin) {
+            filecoin = IFilecoin(_contract);
+        } else if (_type == RolesType.ContractType.Carstore) {
+            carstore = ICarstore(_contract);
+        } else if (_type == RolesType.ContractType.Storages) {
+            storages = IStorages(_contract);
+        } else if (_type == RolesType.ContractType.MerkleUtils) {
+            merkleUtils = IMerkleUtils(_contract);
+        } else if (_type == RolesType.ContractType.Datasets) {
+            datasets = IDatasets(_contract);
+        } else if (_type == RolesType.ContractType.DatasetsProof) {
+            datasetsProof = IDatasetsProof(_contract);
+        } else if (_type == RolesType.ContractType.DatasetsChallenge) {
+            datasetsChallenge = IDatasetsChallenge(_contract);
+        } else if (_type == RolesType.ContractType.DatasetsRequirement) {
+            datasetsRequirement = IDatasetsRequirement(_contract);
+        } else if (_type == RolesType.ContractType.Matchings) {
+            matchings = IMatchings(_contract);
+        } else if (_type == RolesType.ContractType.MatchingsBids) {
+            matchingsBids = IMatchingsBids(_contract);
+        } else if (_type == RolesType.ContractType.MatchingsTarget) {
+            matchingsTarget = IMatchingsTarget(_contract);
+        } else {
+            require(false, "Invalid RolesType.ContractType");
+        }
     }
 
     /// @notice grantDataswapContractRole function to grant the dataswap contract role for dataswap contract. TODO: Move to governance
