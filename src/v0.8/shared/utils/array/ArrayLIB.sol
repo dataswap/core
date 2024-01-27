@@ -156,6 +156,23 @@ library ArrayUint16LIB {
         }
         return false;
     }
+
+    /// @notice Appends a new element to an array.
+    /// @dev This internal pure function is used to append a new element to an existing array of elements.
+    /// @param _elements The array of elements to which the new element will be appended.
+    /// @param _element The new element to be appended.
+    /// @return An updated array containing the original elements and the new element.
+    function append(
+        uint16[] memory _elements,
+        uint16 _element
+    ) internal pure returns (uint16[] memory) {
+        uint16[] memory ret = new uint16[](_elements.length + 1);
+        for (uint256 i = 0; i < _elements.length; i++) {
+            ret[i] = _elements[i];
+        }
+        ret[_elements.length] = _element;
+        return ret;
+    }
 }
 
 library ArrayUint32LIB {
@@ -296,6 +313,23 @@ library ArrayUint32LIB {
             }
         }
         return false;
+    }
+
+    /// @notice Appends a new element to an array.
+    /// @dev This internal pure function is used to append a new element to an existing array of elements.
+    /// @param _elements The array of elements to which the new element will be appended.
+    /// @param _element The new element to be appended.
+    /// @return An updated array containing the original elements and the new element.
+    function append(
+        uint32[] memory _elements,
+        uint32 _element
+    ) internal pure returns (uint32[] memory) {
+        uint32[] memory ret = new uint32[](_elements.length + 1);
+        for (uint256 i = 0; i < _elements.length; i++) {
+            ret[i] = _elements[i];
+        }
+        ret[_elements.length] = _element;
+        return ret;
     }
 }
 
@@ -438,6 +472,23 @@ library ArrayUint64LIB {
         }
         return false;
     }
+
+    /// @notice Appends a new element to an array.
+    /// @dev This internal pure function is used to append a new element to an existing array of elements.
+    /// @param _elements The array of elements to which the new element will be appended.
+    /// @param _element The new element to be appended.
+    /// @return An updated array containing the original elements and the new element.
+    function append(
+        uint64[] memory _elements,
+        uint64 _element
+    ) internal pure returns (uint64[] memory) {
+        uint64[] memory ret = new uint64[](_elements.length + 1);
+        for (uint256 i = 0; i < _elements.length; i++) {
+            ret[i] = _elements[i];
+        }
+        ret[_elements.length] = _element;
+        return ret;
+    }
 }
 
 library ArrayAddressLIB {
@@ -578,5 +629,22 @@ library ArrayAddressLIB {
             }
         }
         return false;
+    }
+
+    /// @notice Appends a new element to an array.
+    /// @dev This internal pure function is used to append a new element to an existing array of elements.
+    /// @param _elements The array of elements to which the new element will be appended.
+    /// @param _element The new element to be appended.
+    /// @return An updated array containing the original elements and the new element.
+    function append(
+        address[] memory _elements,
+        address _element
+    ) internal pure returns (address[] memory) {
+        address[] memory ret = new address[](_elements.length + 1);
+        for (uint256 i = 0; i < _elements.length; i++) {
+            ret[i] = _elements[i];
+        }
+        ret[_elements.length] = _element;
+        return ret;
     }
 }
