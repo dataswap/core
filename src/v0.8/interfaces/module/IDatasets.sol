@@ -20,7 +20,6 @@ pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
 import {IStatistics} from "src/v0.8/interfaces/core/statistics/IStatistics.sol";
 
 /// @title IDatasets
@@ -131,7 +130,8 @@ interface IDatasets is IStatistics {
     /// @notice Default getter functions for public variables
     function datasetsCount() external view returns (uint64);
 
-    /// @notice get  roles instance
+    /// @notice Get the Roles contract.
+    /// @return Roles contract address.
     function roles() external view returns (IRoles);
 
     /// @notice get  governance address

@@ -18,17 +18,12 @@
 
 pragma solidity ^0.8.21;
 
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
 /// @title IMatchingsTarget
 interface IMatchingsTarget {
-    /// @notice The function to init the dependencies of a matchingsTarget.
-    function initDependencies(
-        address _matchings,
-        address _matchingsBids
-    ) external;
-
     /// @notice Function for create a new matching target.
     /// @param _matchingId The matching id to publish cars.
     /// @param _datasetId The dataset id to create matching.
@@ -122,4 +117,8 @@ interface IMatchingsTarget {
         uint64 _matchingId,
         address candidate
     ) external view returns (bool);
+
+    /// @notice Get the Roles contract.
+    /// @return Roles contract address.
+    function roles() external view returns (IRoles);
 }

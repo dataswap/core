@@ -56,6 +56,7 @@ library RolesType {
 
     /// @notice The dataswap contract type.
     enum ContractType {
+        Escrow,
         Filplus,
         Filecoin,
         Carstore,

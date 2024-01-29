@@ -33,8 +33,6 @@ import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 // interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
-import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
-import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 
 // shared
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
@@ -51,8 +49,6 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         private escrowAccount; // mapping(type, mapping(payee, mapping(id, Escrow)))
 
     IRoles private roles;
-    IStorages public storages;
-    IDatasetsProof public datasetsProof;
 
     address payable public constant BURN_ADDRESS =
         payable(0xff00000000000000000000000000000000000063); // Filecoin burn address. TODO: BURN_ADDRESS import from governance
@@ -63,16 +59,6 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
     function initialize(address _roles) public initializer {
         roles = IRoles(_roles);
         __UUPSUpgradeable_init();
-    }
-
-    /// @notice Set dependencies function to initialize the depend contract.
-    /// @dev After the contract is deployed, this function needs to be called manually!
-    function initDependencies(
-        address _datasetsProof,
-        address _storages
-    ) public onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
-        storages = IStorages(_storages);
-        datasetsProof = IDatasetsProof(_datasetsProof);
     }
 
     /// @notice UUPS Upgradeable function to update the roles implementation
@@ -252,7 +238,7 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
                 _type,
                 _owner,
                 _id,
-                storages
+                roles
             ) != true
         ) {
             revert Errors.NotRefundableAmount();
@@ -385,14 +371,13 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
             if (_type == EscrowType.Type.DatacapCollateral) {
                 collateralAmount = ConditionalEscrowLIB.datacapCollateral(
                     _id,
-                    storages,
-                    datasetsProof,
+                    roles,
                     escrowAccount[_type][_owner][_id].owner.createdBlockNumber,
                     escrowAccount[_type][_owner][_id].owner.total
                 );
             } else if (_type == EscrowType.Type.DatacapChunkCollateral) {
                 collateralAmount =
-                    ConditionalEscrowLIB.datacapChunkCollateral(_id, storages) -
+                    ConditionalEscrowLIB.datacapChunkCollateral(_id, roles) -
                     escrowAccount[_type][_owner][_id].owner.burned;
             }
         }
@@ -412,7 +397,7 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         // Burns only once
         if (escrowAccount[_type][_owner][_id].owner.burned == 0) {
             if (_type == EscrowType.Type.DatacapChunkCollateral) {
-                return ConditionalEscrowLIB.datacapChunkBurn(_id, storages);
+                return ConditionalEscrowLIB.datacapChunkBurn(_id, roles);
             }
         }
 
@@ -438,13 +423,10 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
             if (_type == EscrowType.Type.DataPrepareFeeByProvider) {
                 lockAmount = ConditionalEscrowLIB.providerLockPayment(
                     _id,
-                    storages
+                    roles
                 );
             } else if (_type == EscrowType.Type.DataPrepareFeeByClient) {
-                lockAmount = ConditionalEscrowLIB.clientLockPayment(
-                    _id,
-                    storages
-                );
+                lockAmount = ConditionalEscrowLIB.clientLockPayment(_id, roles);
             } else if (_type == EscrowType.Type.DatasetAuditFee) {
                 lockAmount = 0; // data audit fees needn't lock payment
             }
@@ -467,13 +449,13 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
                     _id,
                     _beneficiary,
                     escrowAccount[_type][_owner][_id].owner.lock,
-                    storages
+                    roles
                 );
         } else if (_type == EscrowType.Type.DatasetAuditFee) {
             return
                 ConditionalEscrowLIB.paymentBeneficiaryAmountDataAuditFee(
                     _id,
-                    datasetsProof
+                    roles
                 );
         }
 
@@ -492,13 +474,11 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
         address _beneficiary
     ) internal view returns (uint256) {
         if (_type == EscrowType.Type.TotalDataPrepareFeeByClient) {
-            if (
-                _beneficiary != storages.matchings().getMatchingInitiator(_id)
-            ) {
+            if (_beneficiary != roles.matchings().getMatchingInitiator(_id)) {
                 revert Errors.BeneficiaryIsInvalid(_beneficiary);
             }
 
-            (uint64 datasetId, , , , , , ) = storages
+            (uint64 datasetId, , , , , , ) = roles
                 .matchingsTarget()
                 .getMatchingTarget(_id);
             return
@@ -506,8 +486,7 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
                     _id,
                     datasetId,
                     escrowAccount[_type][_owner][datasetId].owner.lock,
-                    datasetsProof,
-                    storages
+                    roles
                 );
         }
 
@@ -631,7 +610,7 @@ contract Escrow is Initializable, UUPSUpgradeable, RolesModifiers, IEscrow {
             revert Errors.SubAccountAlreadyExist(_owner);
         }
 
-        (uint64 datasetId, , , , , , ) = storages
+        (uint64 datasetId, , , , , , ) = roles
             .matchingsTarget()
             .getMatchingTarget(_id);
         EscrowType.Escrow storage escrow = escrowAccount[_type][_owner][

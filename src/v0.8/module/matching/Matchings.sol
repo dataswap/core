@@ -19,11 +19,7 @@
 pragma solidity ^0.8.21;
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
-import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
-import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
-import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 
 /// shared
 import {MatchingsEvents} from "src/v0.8/shared/events/MatchingsEvents.sol";
@@ -34,7 +30,7 @@ import {StatisticsBase} from "src/v0.8/core/statistics/StatisticsBase.sol";
 /// library
 import {MatchingLIB} from "src/v0.8/module/matching/library/MatchingLIB.sol";
 import {MatchingStateMachineLIB} from "src/v0.8/module/matching/library/MatchingStateMachineLIB.sol";
-import "src/v0.8/shared/utils/array/ArrayLIB.sol";
+import {ArrayAddressLIB} from "src/v0.8/shared/utils/array/ArrayLIB.sol";
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
@@ -63,9 +59,7 @@ contract Matchings is
     mapping(uint64 => MatchingType.Matching) private matchings;
 
     address private governanceAddress;
-    IRoles private roles;
-    IDatasetsRequirement public datasetsRequirement;
-    IStorages public storages;
+    IRoles public roles;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -73,21 +67,12 @@ contract Matchings is
     // solhint-disable-next-line
     function initialize(
         address _governanceAddress,
-        address _roles,
-        address _datasetsRequirement
+        address _roles
     ) public initializer {
         StatisticsBase.statisticsBaseInitialize();
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
-        datasetsRequirement = IDatasetsRequirement(_datasetsRequirement);
         __UUPSUpgradeable_init();
-    }
-
-    /// @notice The function to init the dependencies of a matchings.
-    function initDependencies(
-        address _storages
-    ) external onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
-        storages = IStorages(_storages);
     }
 
     /// @notice UUPS Upgradeable function to update the roles implementation
@@ -129,12 +114,13 @@ contract Matchings is
         MatchingType.Matching storage matching = matchings[matchingsCount()];
         require(
             _replicaIndex <
-                datasetsRequirement.getDatasetReplicasCount(_datasetId),
+                roles.datasetsRequirement().getDatasetReplicasCount(_datasetId),
             "Invalid matching replica"
         );
 
         ///TODO: the dp must by client or submit proof
-        (address[] memory dp, , , , ) = datasetsRequirement
+        (address[] memory dp, , , , ) = roles
+            .datasetsRequirement()
             .getDatasetReplicaRequirement(_datasetId, _replicaIndex);
 
         if (dp.length > 0) {
@@ -277,7 +263,12 @@ contract Matchings is
         matching._reportMatchingHasWinner();
         _addCountSuccess(1);
         _addSizeSuccess(_size);
-        storages.__registMatched(_datasetId, _replicaIndex, _matchingId, _size);
+        roles.storages().__registMatched(
+            _datasetId,
+            _replicaIndex,
+            _matchingId,
+            _size
+        );
         emit MatchingsEvents.MatchingHasWinner(_matchingId, _winner);
     }
 

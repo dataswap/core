@@ -19,14 +19,6 @@
 pragma solidity ^0.8.21;
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
-import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
-import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
-import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
-import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
-import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
-import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
-import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
 /// shared
 import {MatchingsEvents} from "src/v0.8/shared/events/MatchingsEvents.sol";
@@ -35,7 +27,7 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 
 /// library
 import {MatchingTargetLIB} from "src/v0.8/module/matching/library/MatchingTargetLIB.sol";
-import "src/v0.8/shared/utils/array/ArrayLIB.sol";
+import {ArrayAddressLIB} from "src/v0.8/shared/utils/array/ArrayLIB.sol";
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
@@ -63,15 +55,7 @@ contract MatchingsTarget is
     mapping(uint64 => MatchingType.MatchingTarget) private targets;
 
     address private governanceAddress;
-    IRoles private roles;
-    IEscrow public escrow;
-    IFilplus private filplus;
-    ICarstore private carstore;
-    IDatasets public datasets;
-    IDatasetsRequirement public datasetsRequirement;
-    IDatasetsProof public datasetsProof;
-    IMatchings public matchings;
-    IMatchingsBids public matchingsBids;
+    IRoles public roles;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -79,23 +63,10 @@ contract MatchingsTarget is
     // solhint-disable-next-line
     function initialize(
         address _governanceAddress,
-        address _roles,
-        address _filplus,
-        address _carstore,
-        address _datasets,
-        address _datasetsRequirement,
-        address _datasetsProof,
-        address _escrow
+        address _roles
     ) public initializer {
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
-        escrow = IEscrow(_escrow);
-        filplus = IFilplus(_filplus);
-        carstore = ICarstore(_carstore);
-        datasets = IDatasets(_datasets);
-        datasetsRequirement = IDatasetsRequirement(_datasetsRequirement);
-        datasetsProof = IDatasetsProof(_datasetsProof);
-
         __UUPSUpgradeable_init();
     }
 
@@ -114,15 +85,6 @@ contract MatchingsTarget is
         return _getImplementation();
     }
 
-    /// @notice The function to init the dependencies of a matchingsTarget.
-    function initDependencies(
-        address _matchings,
-        address _matchingsBids
-    ) external onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
-        matchings = IMatchings(_matchings);
-        matchingsBids = IMatchingsBids(_matchingsBids);
-    }
-
     ///@dev update cars info  to carStore before bidding
     function _beforeBidding(uint64 _matchingId) internal {
         (
@@ -135,7 +97,11 @@ contract MatchingsTarget is
 
         ) = getMatchingTarget(_matchingId);
         for (uint64 i; i < cars.length; i++) {
-            carstore.__registCarReplica(cars[i], _matchingId, replicaIndex);
+            roles.carstore().__registCarReplica(
+                cars[i],
+                _matchingId,
+                replicaIndex
+            );
         }
     }
 
@@ -155,7 +121,7 @@ contract MatchingsTarget is
         external
         onlyRole(roles, RolesType.DATASET_PROVIDER)
         //onlyMatchingState(matchings, _matchingId, MatchingType.State.None)
-        onlyMatchingInitiator(matchings, _matchingId)
+        onlyMatchingInitiator(roles.matchings(), _matchingId)
     {
         MatchingType.MatchingTarget storage target = targets[_matchingId];
         target.datasetId = _datasetId;
@@ -202,14 +168,16 @@ contract MatchingsTarget is
         MatchingType.MatchingTarget storage _target
     ) internal {
         _beforeBidding(_matchingId);
-        matchings.__reportPublishMatching(_matchingId, _target.size);
+        roles.matchings().__reportPublishMatching(_matchingId, _target.size);
 
-        address datasetInitiator = datasets.getDatasetMetadataSubmitter(
+        address datasetInitiator = roles.datasets().getDatasetMetadataSubmitter(
             _datasetId
         );
-        address matchingInitiator = matchings.getMatchingInitiator(_matchingId);
+        address matchingInitiator = roles.matchings().getMatchingInitiator(
+            _matchingId
+        );
         // Emit Synchronize matching payment sub account
-        escrow.__emitPaymentUpdate(
+        roles.escrow().__emitPaymentUpdate(
             EscrowType.Type.TotalDataPrepareFeeByClient,
             datasetInitiator,
             _matchingId,
@@ -217,7 +185,7 @@ contract MatchingsTarget is
             EscrowType.PaymentEvent.AddPaymentSubAccount
         );
 
-        (uint256 total, , , , ) = escrow.getBeneficiaryFund(
+        (uint256 total, , , , ) = roles.escrow().getBeneficiaryFund(
             EscrowType.Type.TotalDataPrepareFeeByClient,
             datasetInitiator,
             _matchingId,
@@ -227,7 +195,7 @@ contract MatchingsTarget is
 
         (, , uint64 datasize, , , , ) = getMatchingTarget(_matchingId);
         // update dataset used size
-        datasets.addDatasetUsedSize(_matchingId, datasize);
+        roles.datasets().addDatasetUsedSize(_matchingId, datasize);
     }
 
     /// @notice  Function for publishing a matching
@@ -245,12 +213,12 @@ contract MatchingsTarget is
     )
         external
         onlyRole(roles, RolesType.DATASET_PROVIDER)
-        onlyMatchingInitiator(matchings, _matchingId)
+        onlyMatchingInitiator(roles.matchings(), _matchingId)
     {
         MatchingType.MatchingTarget storage target = targets[_matchingId];
         uint64[] memory _cars = parseCars(_carsStarts, _carsEnds);
         uint64 _size;
-        try carstore.getCarsSize(_cars) returns (uint64 carSize) {
+        try roles.carstore().getCarsSize(_cars) returns (uint64 carSize) {
             _size = carSize;
         } catch {
             revert("Get cars size failed");
@@ -352,12 +320,12 @@ contract MatchingsTarget is
         uint64 _associatedMappingFilesMatchingID
     ) public view returns (bool) {
         require(
-            datasets.getDatasetState(_datasetId) ==
+            roles.datasets().getDatasetState(_datasetId) ==
                 DatasetType.State.DatasetApproved,
             "datasetId is not approved!"
         );
         require(
-            datasetsProof.isDatasetContainsCars(_datasetId, _cars),
+            roles.datasetsProof().isDatasetContainsCars(_datasetId, _cars),
             "Invalid cids!"
         );
         require(_size > 0, "Invalid size!");
@@ -380,13 +348,17 @@ contract MatchingsTarget is
             );
 
             require(
-                datasetsProof.isDatasetContainsCars(_datasetId, mappingsCars),
+                roles.datasetsProof().isDatasetContainsCars(
+                    _datasetId,
+                    mappingsCars
+                ),
                 "Invalid mapping files cars"
             );
 
             require(
-                matchings.getMatchingState(_associatedMappingFilesMatchingID) ==
-                    MatchingType.State.Completed,
+                roles.matchings().getMatchingState(
+                    _associatedMappingFilesMatchingID
+                ) == MatchingType.State.Completed,
                 "datasetId is not completed!"
             );
         }
@@ -400,11 +372,12 @@ contract MatchingsTarget is
     ) external view returns (bool) {
         MatchingType.MatchingTarget storage target = targets[_matchingId];
         uint64[] memory cars = target._getCars();
-        uint16 requirementReplicaCount = datasetsRequirement
+        uint16 requirementReplicaCount = roles
+            .datasetsRequirement()
             .getDatasetReplicasCount(target.datasetId);
         for (uint64 i; i < cars.length; i++) {
-            address[] memory winners = matchingsBids.getMatchingWinners(
-                carstore.getCarMatchingIds(cars[i])
+            address[] memory winners = roles.matchingsBids().getMatchingWinners(
+                roles.carstore().getCarMatchingIds(cars[i])
             );
 
             uint256 alreadyStoredReplicasByWinner = winners.countOccurrences(
@@ -412,7 +385,7 @@ contract MatchingsTarget is
             );
 
             if (
-                !filplus.isCompliantRuleMaxReplicasPerSP(
+                !roles.filplus().isCompliantRuleMaxReplicasPerSP(
                     uint16(alreadyStoredReplicasByWinner + 1)
                 )
             ) {
@@ -426,7 +399,7 @@ contract MatchingsTarget is
             }
 
             if (
-                !filplus.isCompliantRuleMinSPsPerDataset(
+                !roles.filplus().isCompliantRuleMinSPsPerDataset(
                     requirementReplicaCount,
                     uint16(winners.length),
                     uint16(uniqueCount)

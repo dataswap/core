@@ -19,15 +19,7 @@
 pragma solidity ^0.8.21;
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
-import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
-import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
-import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
-import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
-import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
-import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
-import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
 
 /// shared
 import {MatchingsEvents} from "src/v0.8/shared/events/MatchingsEvents.sol";
@@ -36,7 +28,7 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 
 /// library
 import {MatchingBidsLIB} from "src/v0.8/module/matching/library/MatchingBidsLIB.sol";
-import "src/v0.8/shared/utils/array/ArrayLIB.sol";
+import {ArrayAddressLIB, ArrayUint64LIB} from "src/v0.8/shared/utils/array/ArrayLIB.sol";
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
@@ -65,15 +57,7 @@ contract MatchingsBids is
     mapping(uint64 => MatchingType.MatchingBids) private matchingBids;
 
     address private governanceAddress;
-    IRoles private roles;
-    IEscrow public escrow;
-    IFilplus private filplus;
-    ICarstore private carstore;
-    IDatasets public datasets;
-    IDatasetsRequirement public datasetsRequirement;
-    IDatasetsProof public datasetsProof;
-    IMatchings public matchings;
-    IMatchingsTarget public matchingsTarget;
+    IRoles public roles;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -81,22 +65,10 @@ contract MatchingsBids is
     // solhint-disable-next-line
     function initialize(
         address _governanceAddress,
-        address _roles,
-        address _filplus,
-        address _carstore,
-        address _datasets,
-        address _datasetsRequirement,
-        address _datasetsProof,
-        address _escrow
+        address _roles
     ) public initializer {
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
-        escrow = IEscrow(_escrow);
-        filplus = IFilplus(_filplus);
-        carstore = ICarstore(_carstore);
-        datasets = IDatasets(_datasets);
-        datasetsRequirement = IDatasetsRequirement(_datasetsRequirement);
-        datasetsProof = IDatasetsProof(_datasetsProof);
         __UUPSUpgradeable_init();
     }
 
@@ -115,15 +87,6 @@ contract MatchingsBids is
         return _getImplementation();
     }
 
-    /// @notice The function to init the dependencies of a matchingsBids.
-    function initDependencies(
-        address _matchings,
-        address _matchingsTarget
-    ) external onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
-        matchings = IMatchings(_matchings);
-        matchingsTarget = IMatchingsTarget(_matchingsTarget);
-    }
-
     /// @notice Function for bidding on a matching
     function bidding(
         uint64 _matchingId,
@@ -132,17 +95,23 @@ contract MatchingsBids is
         external
         payable
         onlyRole(roles, RolesType.STORAGE_PROVIDER)
-        onlyMatchingState(matchings, _matchingId, MatchingType.State.InProgress)
+        onlyMatchingState(
+            roles.matchings(),
+            _matchingId,
+            MatchingType.State.InProgress
+        )
     {
         MatchingType.BidSelectionRule bidSelectionRule = _bidding(
             _matchingId,
             _amount
         );
 
-        (uint64 datasetId, , , , , uint16 replicaIndex, ) = matchingsTarget
+        (uint64 datasetId, , , , , uint16 replicaIndex, ) = roles
+            .matchingsTarget()
             .getMatchingTarget(_matchingId);
 
-        (, address[] memory sp, , , ) = datasetsRequirement
+        (, address[] memory sp, , , ) = roles
+            .datasetsRequirement()
             .getDatasetReplicaRequirement(datasetId, replicaIndex);
 
         if (sp.length > 0) {
@@ -179,7 +148,7 @@ contract MatchingsBids is
             ,
             ,
             uint64 pausedBlockCount
-        ) = matchings.getMatchingMetadata(_matchingId);
+        ) = roles.matchings().getMatchingMetadata(_matchingId);
 
         _processPaymentEscrow(_matchingId, _amount, bidSelectionRule);
 
@@ -207,7 +176,7 @@ contract MatchingsBids is
             _bidSelectionRule == MatchingType.BidSelectionRule.HighestBid ||
             _bidSelectionRule == MatchingType.BidSelectionRule.ImmediateAtLeast
         ) {
-            (, uint256 hasBid, , , ) = escrow.getOwnerFund(
+            (, uint256 hasBid, , , ) = roles.escrow().getOwnerFund(
                 EscrowType.Type.DataPrepareFeeByProvider,
                 msg.sender,
                 _matchingId
@@ -215,7 +184,7 @@ contract MatchingsBids is
             require(_amount > hasBid, "Invalid amount");
 
             // Payment amount to escrow contract
-            escrow.payment{value: msg.value}(
+            roles.escrow().payment{value: msg.value}(
                 EscrowType.Type.DataPrepareFeeByProvider,
                 msg.sender,
                 _matchingId,
@@ -228,10 +197,11 @@ contract MatchingsBids is
     function _afterMatchingFailed(
         uint64 _matchingId
     ) internal returns (uint64) {
-        (, uint64[] memory cars, uint64 _size, , , , ) = matchingsTarget
+        (, uint64[] memory cars, uint64 _size, , , , ) = roles
+            .matchingsTarget()
             .getMatchingTarget(_matchingId);
         for (uint64 i; i < cars.length; i++) {
-            carstore.__reportCarReplicaMatchingState(
+            roles.carstore().__reportCarReplicaMatchingState(
                 cars[i],
                 _matchingId,
                 false
@@ -259,9 +229,9 @@ contract MatchingsBids is
             ,
             uint16 _replicaIndex,
 
-        ) = matchingsTarget.getMatchingTarget(_matchingId);
+        ) = roles.matchingsTarget().getMatchingTarget(_matchingId);
         for (uint64 i; i < cars.length; i++) {
-            carstore.__reportCarReplicaMatchingState(
+            roles.carstore().__reportCarReplicaMatchingState(
                 cars[i],
                 _matchingId,
                 true
@@ -274,11 +244,14 @@ contract MatchingsBids is
     /// @param _matchingId The ID of the matching.
     function cancelMatching(
         uint64 _matchingId
-    ) external onlyMatchingInitiator(matchings, _matchingId) {
+    ) external onlyMatchingInitiator(roles.matchings(), _matchingId) {
         uint64 _size = _afterMatchingFailed(_matchingId);
-        try matchings.__reportCancelMatching(_matchingId, _size) {} catch Error(
-            string memory err
-        ) {
+        try
+            roles.matchings().__reportCancelMatching(_matchingId, _size)
+        // solhint-disable-next-line
+        {
+
+        } catch Error(string memory err) {
             revert(err);
         } catch {
             revert("report cancel matching failed");
@@ -301,7 +274,7 @@ contract MatchingsBids is
             ,
             ,
             uint64 pausedBlockCount
-        ) = matchings.getMatchingMetadata(_matchingId);
+        ) = roles.matchings().getMatchingMetadata(_matchingId);
 
         address winner = bids._chooseMatchingWinner(
             bidSelectionRule,
@@ -318,16 +291,17 @@ contract MatchingsBids is
     /// @notice Function for closing a matching and choosing a winner
     function closeMatching(uint64 _matchingId) public {
         if (
-            matchings.getMatchingState(_matchingId) ==
+            roles.matchings().getMatchingState(_matchingId) ==
             MatchingType.State.InProgress
         ) {
-            try matchings.__reportCloseMatching(_matchingId) {} catch {
+            // solhint-disable-next-line
+            try roles.matchings().__reportCloseMatching(_matchingId) {} catch {
                 revert("close matching failed");
             }
         }
 
         require(
-            matchings.getMatchingState(_matchingId) ==
+            roles.matchings().getMatchingState(_matchingId) ==
                 MatchingType.State.Closed,
             "Invalid state"
         );
@@ -337,10 +311,12 @@ contract MatchingsBids is
         if (winner != address(0)) {
             MatchingType.MatchingBids storage bids = matchingBids[_matchingId];
             if (
-                !matchingsTarget.isMatchingTargetMeetsFilPlusRequirements(
-                    _matchingId,
-                    winner
-                )
+                !roles
+                    .matchingsTarget()
+                    .isMatchingTargetMeetsFilPlusRequirements(
+                        _matchingId,
+                        winner
+                    )
             ) {
                 bids._setMatchingBidderNotComplyFilplusRule(winner);
                 revert Errors
@@ -357,15 +333,15 @@ contract MatchingsBids is
             ) = _beforeMatchingCompleted(_matchingId);
             bids.winner = winner;
 
-            escrow.__emitPaymentUpdate(
+            roles.escrow().__emitPaymentUpdate(
                 EscrowType.Type.DataPrepareFeeByProvider,
                 winner,
                 _matchingId,
-                matchings.getMatchingInitiator(_matchingId),
+                roles.matchings().getMatchingInitiator(_matchingId),
                 EscrowType.PaymentEvent.SyncPaymentBeneficiary
             );
 
-            matchings.__reportMatchingHasWinner(
+            roles.matchings().__reportMatchingHasWinner(
                 _matchingId,
                 _datasetId,
                 _replicaIndex,
@@ -374,7 +350,7 @@ contract MatchingsBids is
             );
         } else {
             uint64 _size = _afterMatchingFailed(_matchingId);
-            matchings.__reportMatchingNoWinner(_matchingId, _size);
+            roles.matchings().__reportMatchingNoWinner(_matchingId, _size);
         }
     }
 

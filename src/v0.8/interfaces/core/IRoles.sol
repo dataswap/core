@@ -17,7 +17,22 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {RolesType} from "src/v0.8/types/RolesType.sol";
+
 import {IAccessControlEnumerableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/IAccessControlEnumerableUpgradeable.sol";
+import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
+import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
+import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
+import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
+import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
+import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
+import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
+import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
+import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
+import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
+import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
 
 /// @title IRoles Interface
 /// @notice This interface defines the role-based access control for various roles within the system.
@@ -58,4 +73,64 @@ interface IRoles is IAccessControlEnumerableUpgradeable {
 
     /// @notice grantDataswapContractRole function to grant the dataswap contract role for dataswap contract. TODO: Move to governance
     function grantDataswapContractRole(address[] calldata _contracts) external;
+
+    /// @notice Register contract function to manage the dataswap contract.
+    /// @param _type The contract type.
+    /// @param _contract The register contract address.
+    function registerContract(
+        RolesType.ContractType _type,
+        address _contract
+    ) external;
+
+    /// @notice Get the Escrow contract.
+    /// @return Escrow contract address.
+    function escrow() external view returns (IEscrow);
+
+    /// @notice Get the Filplus contract.
+    /// @return Filplus contract address.
+    function filplus() external view returns (IFilplus);
+
+    /// @notice Get the Filecoin contract.
+    /// @return Filecoin contract address.
+    function filecoin() external view returns (IFilecoin);
+
+    /// @notice Get the Carstore contract.
+    /// @return Carstore contract address.
+    function carstore() external view returns (ICarstore);
+
+    /// @notice Get the Storages contract.
+    /// @return Storages contract address.
+    function storages() external view returns (IStorages);
+
+    /// @notice Get the MerkleUtils contract.
+    /// @return MerkleUtils contract address.
+    function merkleUtils() external view returns (IMerkleUtils);
+
+    /// @notice Get the Datasets contract.
+    /// @return Datasets contract address.
+    function datasets() external view returns (IDatasets);
+
+    /// @notice Get the DatasetsProof contract.
+    /// @return DatasetsProof contract address.
+    function datasetsProof() external view returns (IDatasetsProof);
+
+    /// @notice Get the DatasetsChallenge contract.
+    /// @return DatasetsChallenge contract address.
+    function datasetsChallenge() external view returns (IDatasetsChallenge);
+
+    /// @notice Get the DatasetsRequirement contract.
+    /// @return DatasetsRequirement contract address.
+    function datasetsRequirement() external view returns (IDatasetsRequirement);
+
+    /// @notice Get the Matchings contract.
+    /// @return Matchings contract address.
+    function matchings() external view returns (IMatchings);
+
+    /// @notice Get the MatchingsBids contract.
+    /// @return MatchingsBids contract address.
+    function matchingsBids() external view returns (IMatchingsBids);
+
+    /// @notice Get the MatchingsTarget contract.
+    /// @return MatchingsTarget contract address.
+    function matchingsTarget() external view returns (IMatchingsTarget);
 }

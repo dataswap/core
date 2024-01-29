@@ -16,6 +16,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {RolesType} from "src/v0.8/types/RolesType.sol";
+
 import {Roles} from "src/v0.8/core/access/Roles.sol";
 import {Filplus} from "src/v0.8/core/filplus/Filplus.sol";
 import {MockFilecoin} from "src/v0.8/mocks/core/filecoin/MockFilecoin.sol";
@@ -77,87 +79,33 @@ contract BaseTestSetup {
         escrow.initialize(address(role));
 
         datasets = new Datasets();
-        datasets.initialize(
-            governanceContractAddresss,
-            address(role),
-            address(escrow)
-        );
+        datasets.initialize(governanceContractAddresss, address(role));
 
         datasetsRequirement = new DatasetsRequirement();
         datasetsRequirement.initialize(
             governanceContractAddresss,
-            address(role),
-            address(filplus),
-            address(datasets),
-            address(escrow)
+            address(role)
         );
 
         datasetsProof = new DatasetsProof();
-        datasetsProof.initialize(
-            governanceContractAddresss,
-            address(role),
-            address(filplus),
-            address(carstore),
-            address(datasets),
-            address(datasetsRequirement),
-            address(escrow)
-        );
+        datasetsProof.initialize(governanceContractAddresss, address(role));
 
         datasetsChallenge = new DatasetsChallenge();
-        datasetsChallenge.initialize(
-            governanceContractAddresss,
-            address(role),
-            address(datasetsProof),
-            address(merkleUtils),
-            address(escrow)
-        );
-
-        datasets.initDependencies(address(datasetsProof));
-        datasetsProof.initDependencies(address(datasetsChallenge));
+        datasetsChallenge.initialize(governanceContractAddresss, address(role));
     }
 
     /// @dev Initialize the enhance contracts.
     function enhanceSetup() internal {
         baseSetup();
         matchings = new Matchings();
-        matchings.initialize(
-            governanceContractAddresss,
-            address(role),
-            address(datasetsRequirement)
-        );
+        matchings.initialize(governanceContractAddresss, address(role));
 
         matchingsTarget = new MatchingsTarget();
-        matchingsTarget.initialize(
-            governanceContractAddresss,
-            address(role),
-            address(filplus),
-            address(carstore),
-            address(datasets),
-            address(datasetsRequirement),
-            address(datasetsProof),
-            address(escrow)
-        );
+        matchingsTarget.initialize(governanceContractAddresss, address(role));
 
         matchingsBids = new MatchingsBids();
-        matchingsBids.initialize(
-            governanceContractAddresss,
-            address(role),
-            address(filplus),
-            address(carstore),
-            address(datasets),
-            address(datasetsRequirement),
-            address(datasetsProof),
-            address(escrow)
-        );
+        matchingsBids.initialize(governanceContractAddresss, address(role));
 
-        matchingsTarget.initDependencies(
-            address(matchings),
-            address(matchingsBids)
-        );
-        matchingsBids.initDependencies(
-            address(matchings),
-            address(matchingsTarget)
-        );
         storages = new Storages();
         storages.initialize(
             governanceContractAddresss,
@@ -171,10 +119,7 @@ contract BaseTestSetup {
             address(escrow),
             address(datasets)
         );
-        matchings.initDependencies(address(storages));
         storages.registDataswapDatacap(100000000000000);
-
-        escrow.initDependencies(address(datasetsProof), address(storages));
 
         address[] memory _contracts = new address[](15);
         _contracts[0] = address(0);
@@ -193,5 +138,51 @@ contract BaseTestSetup {
         _contracts[13] = address(filecoin);
         _contracts[14] = address(merkleUtils);
         role.grantDataswapContractRole(_contracts);
+        role.registerContract(RolesType.ContractType.Escrow, address(escrow));
+        role.registerContract(RolesType.ContractType.Filplus, address(filplus));
+        role.registerContract(
+            RolesType.ContractType.Filecoin,
+            address(filecoin)
+        );
+        role.registerContract(
+            RolesType.ContractType.Carstore,
+            address(carstore)
+        );
+        role.registerContract(
+            RolesType.ContractType.Storages,
+            address(storages)
+        );
+        role.registerContract(
+            RolesType.ContractType.MerkleUtils,
+            address(merkleUtils)
+        );
+        role.registerContract(
+            RolesType.ContractType.Datasets,
+            address(datasets)
+        );
+        role.registerContract(
+            RolesType.ContractType.DatasetsProof,
+            address(datasetsProof)
+        );
+        role.registerContract(
+            RolesType.ContractType.DatasetsChallenge,
+            address(datasetsChallenge)
+        );
+        role.registerContract(
+            RolesType.ContractType.DatasetsRequirement,
+            address(datasetsRequirement)
+        );
+        role.registerContract(
+            RolesType.ContractType.Matchings,
+            address(matchings)
+        );
+        role.registerContract(
+            RolesType.ContractType.MatchingsBids,
+            address(matchingsBids)
+        );
+        role.registerContract(
+            RolesType.ContractType.MatchingsTarget,
+            address(matchingsTarget)
+        );
     }
 }
