@@ -20,14 +20,6 @@ pragma solidity ^0.8.21;
 
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
-import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
-import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
-import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
-import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
-import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
-import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
-import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 /// shared
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
@@ -58,40 +50,16 @@ contract Storages is
     mapping(uint64 => StorageType.Storage) private storages; //matchingId=>Matchedstore
 
     address private governanceAddress;
-    IEscrow private escrow;
-    IFilplus private filplus;
-    IFilecoin private filecoin;
-    IDatasets public datasets;
-    ICarstore public carstore;
-    IMatchings public matchings;
-    IMatchingsTarget public matchingsTarget;
-    IMatchingsBids public matchingsBids;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
     /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
     function initialize(
         address _governanceAddress,
-        address _roles,
-        address _filplus,
-        address _filecoin,
-        address _carstore,
-        address _matchings,
-        address _matchingsTarget,
-        address _matchingsBids,
-        address _escrow,
-        address _datasets
+        address _roles
     ) public initializer {
         StorageStatisticsBase.storageStatisticsBaseInitialize(_roles);
         governanceAddress = _governanceAddress;
-        escrow = IEscrow(_escrow);
-        filplus = IFilplus(_filplus);
-        filecoin = IFilecoin(_filecoin);
-        datasets = IDatasets(_datasets);
-        carstore = ICarstore(_carstore);
-        matchings = IMatchings(_matchings);
-        matchingsTarget = IMatchingsTarget(_matchingsTarget);
-        matchingsBids = IMatchingsBids(_matchingsBids);
         __UUPSUpgradeable_init();
     }
 
@@ -122,29 +90,33 @@ contract Storages is
         uint64 _claimId
     )
         internal
-        onlyAddress(matchingsBids.getMatchingWinner(_matchingId))
-        onlyUnsetCarReplicaFilecoinClaimId(carstore, _id, _matchingId)
+        onlyAddress(roles.matchingsBids().getMatchingWinner(_matchingId))
+        onlyUnsetCarReplicaFilecoinClaimId(roles.carstore(), _id, _matchingId)
     {
         require(
             CarReplicaType.State.Matched ==
-                carstore.getCarReplicaState(_id, _matchingId),
+                roles.carstore().getCarReplicaState(_id, _matchingId),
             "Invalid Replica State"
         );
 
         StorageType.Storage storage storage_ = storages[_matchingId];
 
-        bytes memory dataCid = filecoin.getReplicaClaimData(
+        bytes memory dataCid = roles.filecoin().getReplicaClaimData(
             _provider,
             _claimId
         );
-        bytes32 _hash = carstore.getCarHash(_id);
+        bytes32 _hash = roles.carstore().getCarHash(_id);
         bytes memory cid = CidUtils.hashToCID(_hash);
 
         require(keccak256(dataCid) == keccak256(cid), "cid mismatch");
         storage_.doneCars.push(_id);
 
         /// Note:set claim id in carstore berfore submitClaimid
-        carstore.__setCarReplicaFilecoinClaimId(_id, _matchingId, _claimId);
+        roles.carstore().__setCarReplicaFilecoinClaimId(
+            _id,
+            _matchingId,
+            _claimId
+        );
 
         emit StoragesEvents.StorageClaimIdSubmitted(_matchingId, _id, _claimId);
     }
@@ -173,25 +145,26 @@ contract Storages is
             );
         }
         // Notify the escrow contract to update the payment amount
-        escrow.__emitPaymentUpdate(
+        roles.escrow().__emitPaymentUpdate(
             EscrowType.Type.DataPrepareFeeByProvider,
-            matchingsBids.getMatchingWinner(_matchingId),
+            roles.matchingsBids().getMatchingWinner(_matchingId),
             _matchingId,
-            matchings.getMatchingInitiator(_matchingId),
+            roles.matchings().getMatchingInitiator(_matchingId),
             EscrowType.PaymentEvent.SyncPaymentLock
         );
 
-        (uint64 datasetId, , , , , uint16 replicaIndex, ) = matchingsTarget
+        (uint64 datasetId, , , , , uint16 replicaIndex, ) = roles
+            .matchingsTarget()
             .getMatchingTarget(_matchingId);
 
-        uint64 _size = carstore.getCarsSize(_ids);
+        uint64 _size = roles.carstore().getCarsSize(_ids);
         _addStoraged(datasetId, replicaIndex, _matchingId, _provider, _size);
 
-        escrow.__emitPaymentUpdate(
+        roles.escrow().__emitPaymentUpdate(
             EscrowType.Type.DataPrepareFeeByClient,
-            datasets.getDatasetMetadataSubmitter(datasetId),
+            roles.datasets().getDatasetMetadataSubmitter(datasetId),
             _matchingId,
-            matchings.getMatchingInitiator(_matchingId),
+            roles.matchings().getMatchingInitiator(_matchingId),
             EscrowType.PaymentEvent.SyncPaymentLock
         );
     }
@@ -212,43 +185,22 @@ contract Storages is
         return uint64(storage_.doneCars.length);
     }
 
-    /// @dev Gets the stored size in the matchedstore.
-    function getTotalStoredSize(
-        uint64 _matchingId
-    ) public view returns (uint64) {
-        StorageType.Storage storage storage_ = storages[_matchingId];
-        uint64 size = 0;
-        for (uint64 i = 0; i < storage_.doneCars.length; i++) {
-            size += carstore.getCarSize(storage_.doneCars[i]);
-        }
-        return size;
-    }
-
-    /// @dev Gets the car size in the matchedstore.
-    function getStoredCarSize(
-        uint64 _matchingId,
-        uint64 _id
-    ) public view returns (uint64) {
-        StorageType.Storage storage storage_ = storages[_matchingId];
-        for (uint64 i = 0; i < storage_.doneCars.length; i++) {
-            if (storage_.doneCars[i] == _id) {
-                return carstore.getCarSize(_id);
-            }
-        }
-        return 0;
-    }
-
     /// @dev Get the provider allow payment amount
     function getProviderLockPayment(
         uint64 _matchingId
     ) public view returns (uint256) {
-        uint64 storedSize = getTotalStoredSize(_matchingId);
-        (, , uint64 totalSize, , , , ) = matchingsTarget.getMatchingTarget(
-            _matchingId
-        );
-        uint256 totalPayment = matchingsBids.getMatchingBidAmount(
+        (
+            uint256 totalSize,
+            uint256 storedSize,
+            ,
+            ,
+            ,
+            ,
+
+        ) = getMatchingStorageOverview(_matchingId);
+        uint256 totalPayment = roles.matchingsBids().getMatchingBidAmount(
             _matchingId,
-            matchingsBids.getMatchingWinner(_matchingId)
+            roles.matchingsBids().getMatchingWinner(_matchingId)
         );
         return (totalPayment / totalSize) * (totalSize - storedSize);
     }
@@ -257,19 +209,33 @@ contract Storages is
     function getClientLockPayment(
         uint64 _matchingId
     ) public view returns (uint256) {
-        uint64 storedSize = getTotalStoredSize(_matchingId);
-        (, , uint64 totalSize, , , , uint256 totalPayment) = matchingsTarget
+        (, , , , , , uint256 totalPayment) = roles
+            .matchingsTarget()
             .getMatchingTarget(_matchingId);
+        (
+            uint256 totalSize,
+            uint256 storedSize,
+            ,
+            ,
+            ,
+            ,
+
+        ) = getMatchingStorageOverview(_matchingId);
         return (totalPayment / totalSize) * (totalSize - storedSize);
     }
 
     /// @dev Checks if all cars are done in the matchedstore.
     function isAllStoredDone(uint64 _matchingId) public view returns (bool) {
-        StorageType.Storage storage storage_ = storages[_matchingId];
-        (, uint64[] memory cars, , , , , ) = matchingsTarget.getMatchingTarget(
-            _matchingId
-        );
-        return storage_.doneCars.length == cars.length;
+        (
+            uint256 total,
+            uint256 completed,
+            ,
+            ,
+            ,
+            ,
+
+        ) = getMatchingStorageOverview(_matchingId);
+        return total == completed;
     }
 
     /// @dev Checks if store expiration in the matchedstore.
@@ -286,7 +252,7 @@ contract Storages is
             ,
             ,
 
-        ) = matchings.getMatchingMetadata(_matchingId);
+        ) = roles.matchings().getMatchingMetadata(_matchingId);
         if (block.number > createdBlockNumber + storageCompletionPeriodBlocks) {
             return true;
         } else {
@@ -298,8 +264,8 @@ contract Storages is
     /// @param _matchingId The ID of the matching
     function addDatacapChunkCollateral(uint64 _matchingId) public payable {
         uint256 requirement = getCollateralRequirement();
-        address winner = matchingsBids.getMatchingWinner(_matchingId);
-        (, , uint256 currentFunds, , ) = escrow.getOwnerFund(
+        address winner = roles.matchingsBids().getMatchingWinner(_matchingId);
+        (, , uint256 currentFunds, , ) = roles.escrow().getOwnerFund(
             EscrowType.Type.DatacapChunkCollateral,
             winner,
             _matchingId
@@ -307,7 +273,7 @@ contract Storages is
         uint256 requiredFunds = requirement - currentFunds;
         require(msg.value >= requiredFunds, "Insufficient collateral funds");
 
-        escrow.collateral{value: msg.value}(
+        roles.escrow().collateral{value: msg.value}(
             EscrowType.Type.DatacapChunkCollateral,
             winner,
             _matchingId,
@@ -328,11 +294,11 @@ contract Storages is
         uint64 _matchingId,
         uint64 _size // solhint-disable-next-line
     ) internal {
-        (uint64 datasetId, , , , , , ) = matchingsTarget.getMatchingTarget(
-            _matchingId
-        );
-        uint64 client = datasets.getDatasetMetadataClient(datasetId);
-        filecoin.__allocateDatacap(client, uint256(_size));
+        (uint64 datasetId, , , , , , ) = roles
+            .matchingsTarget()
+            .getMatchingTarget(_matchingId);
+        uint64 client = roles.datasets().getDatasetMetadataClient(datasetId);
+        roles.filecoin().__allocateDatacap(client, uint256(_size));
     }
 
     /// @notice Retrieves information about the dataset associated with a matching process.
@@ -349,10 +315,10 @@ contract Storages is
         view
         returns (uint64 datasetId, uint64 client, uint16 replicaIndex)
     {
-        (datasetId, , , , , replicaIndex, ) = matchingsTarget.getMatchingTarget(
-            _matchingId
-        );
-        client = datasets.getDatasetMetadataClient(datasetId);
+        (datasetId, , , , , replicaIndex, ) = roles
+            .matchingsTarget()
+            .getMatchingTarget(_matchingId);
+        client = roles.datasets().getDatasetMetadataClient(datasetId);
         return (datasetId, client, replicaIndex);
     }
 
@@ -362,49 +328,55 @@ contract Storages is
         uint64 _matchingId
     )
         external
-        onlyAddress(matchings.getMatchingInitiator(_matchingId))
-        onlyNotZeroAddress(matchings.getMatchingInitiator(_matchingId))
+        onlyAddress(roles.matchings().getMatchingInitiator(_matchingId))
+        onlyNotZeroAddress(roles.matchings().getMatchingInitiator(_matchingId))
         validNextDatacapAllocation(this, _matchingId)
         returns (uint64)
     {
-        (, , uint256 currentFunds, , ) = escrow.getOwnerFund(
+        (, , uint256 currentFunds, , ) = roles.escrow().getOwnerFund(
             EscrowType.Type.DatacapChunkCollateral,
-            matchingsBids.getMatchingWinner(_matchingId),
+            roles.matchingsBids().getMatchingWinner(_matchingId),
             _matchingId
         );
         uint256 requirement = getCollateralRequirement();
         require(currentFunds >= requirement, "Insufficient collateral funds");
 
-        uint64 remainingUnallocatedDatacap = getRemainingUnallocatedDatacap(
-            _matchingId
-        );
-        uint64 maxAllocateCapacityPreTime = filplus
+        (
+            ,
+            ,
+            ,
+            ,
+            ,
+            uint256 remainingUnallocatedDatacap,
+
+        ) = getMatchingStorageOverview(_matchingId);
+        uint64 maxAllocateCapacityPreTime = roles
+            .filplus()
             .datacapRulesMaxAllocatedSizePerTime();
         (uint64 datasetId, , uint16 replicaIndex) = _getDatasetInfo(
             _matchingId
         );
         if (remainingUnallocatedDatacap <= maxAllocateCapacityPreTime) {
+            _allocateDatacap(_matchingId, uint64(remainingUnallocatedDatacap));
             _addAllocated(
                 datasetId,
                 replicaIndex,
                 _matchingId,
                 remainingUnallocatedDatacap
             );
-            _allocateDatacap(_matchingId, remainingUnallocatedDatacap);
-
             emit StoragesEvents.DatacapAllocated(
                 _matchingId,
-                remainingUnallocatedDatacap
+                uint64(remainingUnallocatedDatacap)
             );
-            return remainingUnallocatedDatacap;
+            return uint64(remainingUnallocatedDatacap);
         } else {
+            _allocateDatacap(_matchingId, maxAllocateCapacityPreTime);
             _addAllocated(
                 datasetId,
                 replicaIndex,
                 _matchingId,
                 maxAllocateCapacityPreTime
             );
-            _allocateDatacap(_matchingId, maxAllocateCapacityPreTime);
 
             emit StoragesEvents.DatacapAllocated(
                 _matchingId,
@@ -419,7 +391,9 @@ contract Storages is
         // TODO: PRICE_PER_BYTE import from governance
         uint64 PER_TIB_BYTE = (1024 * 1024 * 1024 * 1024);
         uint256 PRICE_PER_BYTE = (1000000000000000000 / PER_TIB_BYTE);
-        return filplus.datacapRulesMaxAllocatedSizePerTime() * PRICE_PER_BYTE;
+        return
+            roles.filplus().datacapRulesMaxAllocatedSizePerTime() *
+            PRICE_PER_BYTE;
     }
 
     /// @notice Get the updated collateral funds for datacap chunk based on real-time business data
@@ -428,17 +402,22 @@ contract Storages is
     function getDatacapChunkCollateralFunds(
         uint64 _matchingId
     ) public view returns (uint256) {
-        (, , uint256 availableFunds, , ) = escrow.getOwnerFund(
+        (, , uint256 availableFunds, , ) = roles.escrow().getOwnerFund(
             EscrowType.Type.DatacapChunkCollateral,
-            matchingsBids.getMatchingWinner(_matchingId),
+            roles.matchingsBids().getMatchingWinner(_matchingId),
             _matchingId
         );
 
         if (isStorageExpiration(_matchingId) == true) {
-            (, , uint64 matchingSize, , , , ) = matchingsTarget
-                .getMatchingTarget(_matchingId);
-            uint64 storedSize = getTotalStoredSize(_matchingId);
+            (
+                uint256 matchingSize,
+                uint256 storedSize,
+                ,
+                ,
+                ,
+                ,
 
+            ) = getMatchingStorageOverview(_matchingId);
             // TODO: PRICE_PER_BYTE import from governance
             uint64 PER_TIB_BYTE = (1024 * 1024 * 1024 * 1024);
             uint256 PRICE_PER_BYTE = (1000000000000000000 / PER_TIB_BYTE);
@@ -458,20 +437,24 @@ contract Storages is
         uint64 _matchingId
     ) public view returns (uint256) {
         if (isStorageExpiration(_matchingId) == true) {
-            (, , uint64 matchingSize, , , , ) = matchingsTarget
-                .getMatchingTarget(_matchingId);
+            (
+                uint256 matchingSize,
+                uint256 storedSize,
+                ,
+                ,
+                ,
+                ,
 
-            uint64 storedSize = getTotalStoredSize(_matchingId);
-
+            ) = getMatchingStorageOverview(_matchingId);
             // TODO: PRICE_PER_BYTE import from governance
             uint64 PER_TIB_BYTE = (1024 * 1024 * 1024 * 1024);
             uint256 PRICE_PER_BYTE = (1000000000000000000 / PER_TIB_BYTE);
             uint256 requiredFunds = (matchingSize - storedSize) *
                 PRICE_PER_BYTE;
 
-            (, , uint256 availableFunds, , ) = escrow.getOwnerFund(
+            (, , uint256 availableFunds, , ) = roles.escrow().getOwnerFund(
                 EscrowType.Type.DatacapChunkCollateral,
-                matchingsBids.getMatchingWinner(_matchingId),
+                roles.matchingsBids().getMatchingWinner(_matchingId),
                 _matchingId
             );
 
@@ -485,91 +468,46 @@ contract Storages is
         return 0;
     }
 
-    /// @dev Gets the allocated matched datacap for a matching process.
-    /// @param _matchingId The ID of the matching process.
-    /// @return The allocated datacap size.
-    function getAllocatedDatacap(
-        uint64 _matchingId
-    ) public view returns (uint64) {
-        (
-            uint256 total,
-            ,
-            ,
-            ,
-            ,
-            uint256 unallocatedDatacap,
-
-        ) = getMatchingStorageOverview(_matchingId);
-        return uint64(total - unallocatedDatacap);
-    }
-
-    /// @notice Gets the available datacap that can still be allocated for a matching process.
-    /// @param _matchingId The ID of the matching process.
-    /// @return The available datacap size.
-    function getAvailableDatacap(
-        uint64 _matchingId
-    ) public view returns (uint64) {
-        (, , , uint256 availableDatacap, , , ) = getMatchingStorageOverview(
-            _matchingId
-        );
-        return uint64(availableDatacap);
-    }
-
-    /// @dev Gets the total datacap size needed to be allocated for a matching process.
-    /// @param _matchingId The ID of the matching process.
-    /// @return The total datacap size needed.
-    function getTotalDatacapAllocationRequirement(
-        uint64 _matchingId
-    ) public view returns (uint64) {
-        (uint256 total, , , , , , ) = getMatchingStorageOverview(_matchingId);
-        return uint64(total);
-    }
-
-    /// @dev Gets the remaining datacap size needed to be allocated for a matching process.
-    /// @param _matchingId The ID of the matching process.
-    /// @return The remaining datacap size needed.
-    function getRemainingUnallocatedDatacap(
-        uint64 _matchingId
-    ) public view returns (uint64) {
-        (, , , , , uint256 unallocatedDatacap, ) = getMatchingStorageOverview(
-            _matchingId
-        );
-        return uint64(unallocatedDatacap);
-    }
-
     /// @dev Checks if the next datacap allocation is allowed for a matching process.
     /// @param _matchingId The ID of the matching process.
     /// @return True if next allocation is allowed, otherwise false.
     function isNextDatacapAllocationValid(
         uint64 _matchingId
     ) public view returns (bool) {
-        uint64 totalDatacapAllocationRequirement = getTotalDatacapAllocationRequirement(
-                _matchingId
-            );
-        uint64 allocatedDatacap = getAllocatedDatacap(_matchingId);
-        uint64 reallyStored = getTotalStoredSize(_matchingId);
-        uint64 availableDatacap = getAvailableDatacap(_matchingId);
-        uint64 allocationThreshold = (filplus
+        (
+            uint256 totalDatacapAllocationRequirement,
+            uint256 reallyStored,
+            ,
+            uint256 availableDatacap,
+            ,
+            uint256 unallocatedDatacap,
+
+        ) = getMatchingStorageOverview(_matchingId);
+        uint64 allocatedDatacap = uint64(
+            totalDatacapAllocationRequirement - unallocatedDatacap
+        );
+        uint64 allocationThreshold = (roles
+            .filplus()
             .datacapRulesMaxRemainingPercentageForNext() / 100) *
-            filplus.datacapRulesMaxAllocatedSizePerTime();
+            roles.filplus().datacapRulesMaxAllocatedSizePerTime();
 
         if (allocatedDatacap > totalDatacapAllocationRequirement) {
             revert Errors.AllocatedDatacapExceedsTotalRequirement(
                 allocatedDatacap,
-                totalDatacapAllocationRequirement
+                uint64(totalDatacapAllocationRequirement)
             );
         }
 
         if (reallyStored > allocatedDatacap) {
             revert Errors.StoredExceedsAllocatedDatacap(
-                reallyStored,
+                uint64(reallyStored),
                 allocatedDatacap
             );
         }
 
         if (availableDatacap > allocationThreshold) {
             revert Errors.AvailableDatacapExceedAllocationThreshold(
-                availableDatacap,
+                uint64(availableDatacap),
                 allocationThreshold
             );
         }

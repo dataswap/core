@@ -18,12 +18,8 @@
 
 pragma solidity ^0.8.21;
 
-import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
-import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
-import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
-import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IStorageStatistics} from "src/v0.8/interfaces/core/statistics/IStorageStatistics.sol";
-import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 
 /// @title Interface for Matchedstores contract
 interface IStorages is IStorageStatistics {
@@ -51,22 +47,6 @@ interface IStorages is IStorageStatistics {
     /// @return The count of done cars in the matchedstore.
     function getStoredCarCount(
         uint64 _matchingId
-    ) external view returns (uint64);
-
-    /// @notice get total stored size
-    /// @param _matchingId The ID of the matching.
-    /// @return The total size of the matching's stored cars.
-    function getTotalStoredSize(
-        uint64 _matchingId
-    ) external view returns (uint64);
-
-    ///@notice get car size
-    /// @param _matchingId The ID of the matching.
-    /// @param _id The content identifier of the matched data.
-    /// @return The size of the matching's stored cars.
-    function getStoredCarSize(
-        uint64 _matchingId,
-        uint64 _id
     ) external view returns (uint64);
 
     /// @dev Get the collateral amount
@@ -116,53 +96,10 @@ interface IStorages is IStorageStatistics {
     /// @notice Get collateral funds requirement for allocate chunk datacap
     function getCollateralRequirement() external returns (uint256);
 
-    /// @dev Gets the allocated matched datacap for a storage.
-    /// @param _matchingId The ID of the matching process.
-    /// @return The allocated datacap size.
-    function getAvailableDatacap(
-        uint64 _matchingId
-    ) external view returns (uint64);
-
-    /// @dev Gets the allocated matched datacap for a matching process.
-    /// @param _matchingId The ID of the matching process.
-    /// @return The allocated datacap size.
-    function getAllocatedDatacap(
-        uint64 _matchingId
-    ) external view returns (uint64);
-
-    /// @dev Gets the total datacap size needed to be allocated for a matching process.
-    /// @param _matchingId The ID of the matching process.
-    /// @return The total datacap size needed.
-    function getTotalDatacapAllocationRequirement(
-        uint64 _matchingId
-    ) external view returns (uint64);
-
-    /// @dev Gets the remaining datacap size needed to be allocated for a matching process.
-    /// @param _matchingId The ID of the matching process.
-    /// @return The remaining datacap size needed.
-    function getRemainingUnallocatedDatacap(
-        uint64 _matchingId
-    ) external view returns (uint64);
-
     /// @dev Checks if the next datacap allocation is allowed for a matching process.
     /// @param _matchingId The ID of the matching process.
     /// @return True if next allocation is allowed, otherwise false.
     function isNextDatacapAllocationValid(
         uint64 _matchingId
     ) external view returns (bool);
-
-    ///@notice get carstore instance
-    function carstore() external view returns (ICarstore);
-
-    ///@notice get datasets instance
-    function datasets() external view returns (IDatasets);
-
-    ///@notice get matchings instance
-    function matchings() external view returns (IMatchings);
-
-    ///@notice get matchingsTarget instance
-    function matchingsTarget() external view returns (IMatchingsTarget);
-
-    ///@notice get matchingsBids instance
-    function matchingsBids() external view returns (IMatchingsBids);
 }

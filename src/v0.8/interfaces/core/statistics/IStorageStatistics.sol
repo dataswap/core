@@ -21,6 +21,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IStatistics} from "src/v0.8/interfaces/core/statistics/IStatistics.sol";
 
 /// @title IStorageStatistics Interface
@@ -139,4 +140,8 @@ interface IStorageStatistics is IStatistics {
             uint256 unallocatedDatacap,
             uint64[] memory storageProviders
         );
+
+    /// @notice Get the Roles contract.
+    /// @return Roles contract address.
+    function roles() external view returns (IRoles);
 }

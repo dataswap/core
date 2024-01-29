@@ -66,14 +66,6 @@ interface IStoragesAssertion is IStorageStatisticsBaseAssertion {
         uint64 _expectCount
     ) external;
 
-    /// @notice Asserts the retrieval of the total stored size in a matching.
-    /// @param _matchingId The ID of the matching.
-    /// @param _expectSize The expected total stored size.
-    function getTotalStoredSizeAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
-    ) external;
-
     /// @notice Asserts whether all storage deals for a matching are done.
     /// @param _matchingId The ID of the matching.
     /// @param _expectIsAllStoredDone The expected result indicating whether all storage deals are done for the matching.
@@ -88,38 +80,6 @@ interface IStoragesAssertion is IStorageStatisticsBaseAssertion {
     function requestAllocateDatacapAssertion(
         address caller,
         uint64 _matchingId
-    ) external;
-
-    /// @notice Asserts the retrieval of available datacap.
-    /// @param _matchingId The matching ID for which available datacap is retrieved.
-    /// @param _expectSize The expected available datacap size.
-    function getAvailableDatacapAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
-    ) external;
-
-    /// @notice Asserts the retrieval of allocated datacap.
-    /// @param _matchingId The matching ID for which allocated datacap is retrieved.
-    /// @param _expectSize The expected allocated datacap size.
-    function getAllocatedDatacapAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
-    ) external;
-
-    /// @notice Asserts the retrieval of the total datacap allocation requirement.
-    /// @param _matchingId The matching ID for which the total allocation requirement is retrieved.
-    /// @param _expectSize The expected total allocation requirement size.
-    function getTotalDatacapAllocationRequirementAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
-    ) external;
-
-    /// @notice Asserts the retrieval of the remaining unallocated datacap.
-    /// @param _matchingId The matching ID for which the remaining unallocated datacap is retrieved.
-    /// @param _expectSize The expected remaining unallocated datacap size.
-    function getRemainingUnallocatedDatacapAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
     ) external;
 
     /// @notice Asserts whether the next datacap allocation is valid.

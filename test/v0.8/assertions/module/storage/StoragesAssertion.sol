@@ -90,7 +90,7 @@ contract StoragesAssertion is
             _cids,
             _claimIds
         );
-        uint64 size = storages.carstore().getCarsSize(_cids);
+        uint64 size = storages.roles().carstore().getCarsSize(_cids);
         uint64[] memory sps = _getStorageProviders(storageProviders, _provider);
         getMatchingStorageOverviewAssertion(
             _matchingId,
@@ -119,6 +119,7 @@ contract StoragesAssertion is
         uint64[] memory _claimIds
     ) internal {
         (uint64 datasetId, , , , , uint16 replicaIndex, ) = storages
+            .roles()
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
         (
@@ -137,7 +138,7 @@ contract StoragesAssertion is
             _cids,
             _claimIds
         );
-        uint64 size = storages.carstore().getCarsSize(_cids);
+        uint64 size = storages.roles().carstore().getCarsSize(_cids);
         getReplicaStorageOverviewAssertion(
             datasetId,
             replicaIndex,
@@ -165,6 +166,7 @@ contract StoragesAssertion is
         uint64[] memory _claimIds
     ) internal {
         (uint64 datasetId, , , , , , ) = storages
+            .roles()
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
         (
@@ -183,7 +185,7 @@ contract StoragesAssertion is
             _cids,
             _claimIds
         );
-        uint64 size = storages.carstore().getCarsSize(_cids);
+        uint64 size = storages.roles().carstore().getCarsSize(_cids);
 
         getDatasetStorageOverviewAssertion(
             datasetId,
@@ -227,7 +229,7 @@ contract StoragesAssertion is
             _cids,
             _claimIds
         );
-        uint64 size = storages.carstore().getCarsSize(_cids);
+        uint64 size = storages.roles().carstore().getCarsSize(_cids);
         getStorageOverviewAssertion(
             dataswapTotal,
             total,
@@ -254,7 +256,6 @@ contract StoragesAssertion is
     ) external {
         // Record the count of stored cars before the action.
         uint64 oldDoneCount = storages.getStoredCarCount(_matchingId);
-        uint64 oldtotalStoredSize = storages.getTotalStoredSize(_matchingId);
         uint64[] memory cid = new uint64[](1);
         uint64[] memory claimId = new uint64[](1);
         cid[0] = _cid;
@@ -271,8 +272,6 @@ contract StoragesAssertion is
 
         // Assert that the count of stored cars has increased by one after the action.
         getStoredCarCountAssertion(_matchingId, oldDoneCount + 1);
-        uint64 carSize = storages.getStoredCarSize(_matchingId, _cid);
-        getTotalStoredSizeAssertion(_matchingId, oldtotalStoredSize + carSize);
     }
 
     /// @notice Assertion function to test the submission of multiple storage claim IDs.
@@ -322,16 +321,6 @@ contract StoragesAssertion is
         uint64 _expectCount
     ) public {
         assertEq(storages.getStoredCarCount(_matchingId), _expectCount);
-    }
-
-    /// @notice Assertion function to get the total stored size for a matching.
-    /// @param _matchingId The matching ID for which to retrieve the total stored size.
-    /// @param _expectSize The expected total stored size.
-    function getTotalStoredSizeAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
-    ) public {
-        assertEq(storages.getTotalStoredSize(_matchingId), _expectSize);
     }
 
     /// @notice Assertion function to check if all storage is done for a matching.
@@ -388,6 +377,7 @@ contract StoragesAssertion is
         uint64 _matchingId
     ) internal returns (uint64) {
         (uint64 datasetId, , , , , uint16 replicaIndex, ) = storages
+            .roles()
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
         (
@@ -426,6 +416,7 @@ contract StoragesAssertion is
         uint64 _matchingId
     ) internal returns (uint64) {
         (uint64 datasetId, , , , , , ) = storages
+            .roles()
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
         (
@@ -496,89 +487,15 @@ contract StoragesAssertion is
         uint64 _matchingId
     ) external {
         // Before the action, capture the initial state.
-        uint64 oldAvailableDatacap = storages.getAvailableDatacap(_matchingId);
         isNextDatacapAllocationValidAssertion(_matchingId, true);
-        uint64 oldAllocatedDatacap = storages.getAllocatedDatacap(_matchingId);
-        uint64 oldRemainingUnallocatedDatacap = storages
-            .getRemainingUnallocatedDatacap(_matchingId);
-        getTotalDatacapAllocationRequirementAssertion(
-            _matchingId,
-            oldAllocatedDatacap + oldRemainingUnallocatedDatacap
-        );
-
         vm.deal(address(this), 200 ether);
         uint256 amount = storages.getCollateralRequirement();
         storages.addDatacapChunkCollateral{value: amount}(_matchingId);
 
         // Perform the action.
-        //vm.prank(caller);
-        //uint64 addDatacap = storages.requestAllocateDatacap(_matchingId);
-        uint64 addDatacap = _requestAllocateDatacapStatisticsOverviewAssertion(
-            caller,
-            _matchingId
-        );
-
-        // After the action, assert the updated state.
-        getAvailableDatacapAssertion(
-            _matchingId,
-            oldAvailableDatacap + addDatacap
-        );
-        getAllocatedDatacapAssertion(
-            _matchingId,
-            oldAllocatedDatacap + addDatacap
-        );
-        getRemainingUnallocatedDatacapAssertion(
-            _matchingId,
-            oldRemainingUnallocatedDatacap - addDatacap
-        );
+        _requestAllocateDatacapStatisticsOverviewAssertion(caller, _matchingId);
 
         isNextDatacapAllocationValidAssertion(_matchingId, false);
-    }
-
-    /// @notice Assertion function for getting the available datacap for a matching ID.
-    /// @param _matchingId The matching ID for which to get the available datacap.
-    /// @param _expectSize The expected available datacap size.
-    function getAvailableDatacapAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
-    ) public {
-        assertEq(storages.getAvailableDatacap(_matchingId), _expectSize);
-    }
-
-    /// @notice Assertion function for getting the allocated datacap for a matching ID.
-    /// @param _matchingId The matching ID for which to get the allocated datacap.
-    /// @param _expectSize The expected allocated datacap size.
-    function getAllocatedDatacapAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
-    ) public {
-        assertEq(storages.getAllocatedDatacap(_matchingId), _expectSize);
-    }
-
-    /// @notice Assertion function for getting the total datacap allocation requirement for a matching ID.
-    /// @param _matchingId The matching ID for which to get the total datacap allocation requirement.
-    /// @param _expectSize The expected total datacap allocation requirement size.
-    function getTotalDatacapAllocationRequirementAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
-    ) public {
-        assertEq(
-            storages.getTotalDatacapAllocationRequirement(_matchingId),
-            _expectSize
-        );
-    }
-
-    /// @notice Assertion function for getting the remaining unallocated datacap for a matching ID.
-    /// @param _matchingId The matching ID for which to get the remaining unallocated datacap.
-    /// @param _expectSize The expected remaining unallocated datacap size.
-    function getRemainingUnallocatedDatacapAssertion(
-        uint64 _matchingId,
-        uint64 _expectSize
-    ) public {
-        assertEq(
-            storages.getRemainingUnallocatedDatacap(_matchingId),
-            _expectSize
-        );
     }
 
     /// @notice Assertion function for checking if the next datacap allocation is valid for a matching ID.

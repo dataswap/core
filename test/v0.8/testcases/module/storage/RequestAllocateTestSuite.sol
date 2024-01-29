@@ -34,7 +34,7 @@ contract RequestAllocateTestCaseWithSuccess is DatacapTestBase {
     ) DatacapTestBase(_storages, _datacapsHelpers, _storagesAssertion) {}
 
     function action(uint64 _matchingId) internal virtual override {
-        address initiator = storages.matchings().getMatchingInitiator(
+        address initiator = storages.roles().matchings().getMatchingInitiator(
             _matchingId
         );
 
@@ -58,7 +58,7 @@ contract RequestAllocateTestSuiteWithInvalidMatchingId is DatacapTestBase {
     function before() internal virtual override returns (uint64) {}
 
     function action(uint64 _matchingId) internal virtual override {
-        address initiator = storages.matchings().getMatchingInitiator(
+        address initiator = storages.roles().matchings().getMatchingInitiator(
             _matchingId
         );
 
@@ -81,7 +81,7 @@ contract RequestAllocateTestSuiteWithInvalidCaller is DatacapTestBase {
     {}
 
     function action(uint64 _matchingId) internal virtual override {
-        address initiator = storages.matchings().getMatchingInitiator(
+        address initiator = storages.roles().matchings().getMatchingInitiator(
             _matchingId
         );
         vm.assume(msg.sender != initiator);
@@ -104,7 +104,7 @@ contract RequestAllocateTestSuiteWithInvalidNextRequest is DatacapTestBase {
     {}
 
     function action(uint64 _matchingId) internal virtual override {
-        address initiator = storages.matchings().getMatchingInitiator(
+        address initiator = storages.roles().matchings().getMatchingInitiator(
             _matchingId
         );
         storagesAssertion.requestAllocateDatacapAssertion(

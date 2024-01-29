@@ -56,6 +56,7 @@ contract SubmitStorageClaimIdTestCaseWithSuccess is StoragesTestBase {
 
     function action(uint64 _matchingId) internal virtual override {
         (, uint64[] memory cars, , , , , ) = storages
+            .roles()
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
         uint64 id = cars[0];
@@ -63,7 +64,7 @@ contract SubmitStorageClaimIdTestCaseWithSuccess is StoragesTestBase {
         bytes memory dataCid = CidUtils.hashToCID(carstore.getCarHash(id));
         uint64 claimId = storagesHelpers.generateFilecoinClaimId();
         filecoin.setMockClaimData(claimId, dataCid);
-        address winner = storages.matchingsBids().getMatchingWinner(
+        address winner = storages.roles().matchingsBids().getMatchingWinner(
             _matchingId
         );
         storagesAssertion.submitStorageClaimIdAssertion(
@@ -105,6 +106,7 @@ contract SubmitStorageClaimIdTestCaseWithInvalidAddress is StoragesTestBase {
 
     function action(uint64 _matchingId) internal virtual override {
         (, uint64[] memory cars, , , , , ) = storages
+            .roles()
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
         uint64 id = cars[0];
@@ -151,7 +153,7 @@ contract SubmitStorageClaimIdTestCaseWithInvalidCid is StoragesTestBase {
         uint64 id = 1;
         uint64 provider = 0;
         uint64 claimId = storagesHelpers.generateFilecoinClaimId();
-        address winner = storages.matchingsBids().getMatchingWinner(
+        address winner = storages.roles().matchingsBids().getMatchingWinner(
             _matchingId
         );
         vm.expectRevert(
@@ -198,6 +200,7 @@ contract SubmitStorageClaimIdTestCaseWithDuplicateCid is StoragesTestBase {
 
     function action(uint64 _matchingId) internal virtual override {
         (, uint64[] memory cars, , , , , ) = storages
+            .roles()
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
         uint64 id = cars[0];
@@ -206,7 +209,7 @@ contract SubmitStorageClaimIdTestCaseWithDuplicateCid is StoragesTestBase {
         uint64 claimId = storagesHelpers.generateFilecoinClaimId();
         filecoin.setMockClaimData(claimId, dataCid);
 
-        address winner = storages.matchingsBids().getMatchingWinner(
+        address winner = storages.roles().matchingsBids().getMatchingWinner(
             _matchingId
         );
         storagesAssertion.submitStorageClaimIdAssertion(
