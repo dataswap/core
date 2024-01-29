@@ -58,4 +58,7 @@ library FilplusEvents {
 
     // Event emitted when the maximum remaining percentage for the next allocation rule is set
     event SetDatacapRulesMaxRemainingPercentageForNext(uint64 _newValue);
+
+    // Event emitted when the datacap chunk land price pre byte rule is set
+    event SetDatacapChunkLandPricePreByte(uint256 _newValue);
 }
