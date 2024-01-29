@@ -41,6 +41,12 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     // solhint-disable-next-line
     address public GOVERNANCE_ADDRESS; //The address of the governance contract.
 
+    // Number of blocks per day.
+    uint64 public constant PER_DAY_BLOCKNUMBER = 2880;
+    uint64 public constant PER_TIB_BYTE = (1024 * 1024 * 1024 * 1024);
+    address payable public constant BURN_ADDRESS =
+        payable(0xff00000000000000000000000000000000000063); // Filecoin burn address.
+
     ///@notice dataset region rules
     uint16 public datasetRuleMinRegionsPerDataset; // Minimum required number of regions (e.g., 3).
 
@@ -65,6 +71,8 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     uint64 public datacapRulesMaxAllocatedSizePerTime; // Maximum allocate datacap size per time.
 
     uint8 public datacapRulesMaxRemainingPercentageForNext; // Minimum completion percentage for the next allocation.
+
+    uint256 public datacapChunkLandPricePreByte; // The datacap chunk land price pre byte.
 
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
@@ -93,6 +101,8 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         //defalut datacap rules
         datacapRulesMaxAllocatedSizePerTime = 50 * 1024 * 1024 * 1024 * 1024; //50TB
         datacapRulesMaxRemainingPercentageForNext = 20; //20%
+
+        datacapChunkLandPricePreByte = (1000000000000000000 / PER_TIB_BYTE); // 1/1T
 
         __UUPSUpgradeable_init();
     }
@@ -257,6 +267,28 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     // solhint-disable-next-line
     {
 
+    }
+
+    /// @notice Set the dataset price pre byte complies with filplus rules.
+    function setDatacapChunkLandPricePreByte(
+        uint256 _newValue
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
+        datacapChunkLandPricePreByte = _newValue;
+        emit FilplusEvents.SetDatacapChunkLandPricePreByte(_newValue);
+    }
+
+    /// @notice Get the dataset price pre byte complies with filplus rules.
+    function getDatacapChunkLandPricePreByte()
+        external
+        view
+        returns (uint256 price)
+    {
+        price = datacapChunkLandPricePreByte;
+    }
+
+    /// @notice Returns the burn address
+    function getBurnAddress() external pure returns (address) {
+        return BURN_ADDRESS;
     }
 
     /// @notice Check if the storage regions complies with filplus rules.

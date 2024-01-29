@@ -100,6 +100,18 @@ interface IFilplus {
             uint64 durationBlocks
         );
 
+    /// @notice Returns the burn address
+    function getBurnAddress() external view returns (address);
+
+    /// @notice Set the datacap chunk land price pre byte complies with filplus rules.
+    function setDatacapChunkLandPricePreByte(uint256 _newValue) external;
+
+    /// @notice Get the datacap chunk land price pre byte complies with filplus rules.
+    function getDatacapChunkLandPricePreByte()
+        external
+        view
+        returns (uint256 price);
+
     // Default getter functions for public variables
     function datasetRuleMinRegionsPerDataset() external view returns (uint16);
 

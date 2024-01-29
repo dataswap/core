@@ -31,6 +31,7 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {IFinance} from "src/v0.8/interfaces/core/IFinance.sol";
 import {DataTradingFeeLIB} from "src/v0.8/core/finance/library/DataTradingFeeLIB.sol";
+import {DatacapChunkLandLIB} from "src/v0.8/core/finance/library/DatacapChunkLandLIB.sol";
 
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 
@@ -117,6 +118,13 @@ contract Finance is Initializable, UUPSUpgradeable, RolesModifiers, IFinance {
     ) external view {
         if (_type == FinanceType.Type.DataTradingFee) {
             DataTradingFeeLIB.getPayeeInfo(
+                _datasetId,
+                _matchingId,
+                _token,
+                roles
+            );
+        } else if (_type == FinanceType.Type.DatacapChunkLandCollateral) {
+            DatacapChunkLandLIB.getPayeeInfo(
                 _datasetId,
                 _matchingId,
                 _token,
