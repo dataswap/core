@@ -56,6 +56,7 @@ contract SubmitStorageClaimIdsTestCaseWithSuccess is StoragesTestBase {
 
     function action(uint64 _matchingId) internal virtual override {
         (, uint64[] memory cars, , , , , ) = storages
+            .roles()
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
         uint64 provider = 0;
@@ -72,7 +73,7 @@ contract SubmitStorageClaimIdsTestCaseWithSuccess is StoragesTestBase {
             filecoin.setMockClaimData(claimIds[i], dataCid);
         }
 
-        address winner = storages.matchingsBids().getMatchingWinner(
+        address winner = storages.roles().matchingsBids().getMatchingWinner(
             _matchingId
         );
         storagesAssertion.isAllStoredDoneAssertion(_matchingId, false);

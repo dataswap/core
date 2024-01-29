@@ -46,7 +46,7 @@ contract StoragesHelpers is IStoragesHelpers, Test {
 
     function setup() external returns (uint64 datasetId, uint64 matchingId) {
         (datasetId, matchingId) = matchingsHelpers.completeMatchingWorkflow();
-        address initiator = storages.matchings().getMatchingInitiator(
+        address initiator = storages.roles().matchings().getMatchingInitiator(
             matchingId
         );
         assertion.requestAllocateDatacapAssertion(initiator, matchingId);

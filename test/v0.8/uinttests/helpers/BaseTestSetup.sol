@@ -107,18 +107,7 @@ contract BaseTestSetup {
         matchingsBids.initialize(governanceContractAddresss, address(role));
 
         storages = new Storages();
-        storages.initialize(
-            governanceContractAddresss,
-            address(role),
-            address(filplus),
-            address(filecoin),
-            address(carstore),
-            address(matchings),
-            address(matchingsTarget),
-            address(matchingsBids),
-            address(escrow),
-            address(datasets)
-        );
+        storages.initialize(governanceContractAddresss, address(role));
         storages.registDataswapDatacap(100000000000000);
 
         address[] memory _contracts = new address[](15);

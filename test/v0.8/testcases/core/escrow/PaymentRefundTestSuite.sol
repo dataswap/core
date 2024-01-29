@@ -61,6 +61,7 @@ contract PaymentRefundTestCaseWithSuccess is EscrowTestSuiteBase {
         (uint64 datasetId, uint64 matchingId) = storagesHelpers.setup();
 
         (, uint64[] memory cars, , , , , ) = storages
+            .roles()
             .matchingsTarget()
             .getMatchingTarget(matchingId);
 
@@ -114,7 +115,7 @@ contract PaymentRefundTestCaseWithSuccess is EscrowTestSuiteBase {
             EscrowType.Type.TotalDataPrepareFeeByClient,
             _owner,
             matchingId,
-            storages.matchings().getMatchingInitiator(matchingId),
+            storages.roles().matchings().getMatchingInitiator(matchingId),
             EscrowType.PaymentEvent.AddPaymentSubAccount
         );
         vm.stopPrank();
