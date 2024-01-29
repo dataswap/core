@@ -20,7 +20,6 @@ pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
 
 /// @title IDatasetsChallenge
 interface IDatasetsChallenge {
@@ -65,6 +64,7 @@ interface IDatasetsChallenge {
         uint64 _datasetId
     ) external view returns (uint64);
 
-    /// @notice get  merkle utils
-    function merkleUtils() external view returns (IMerkleUtils);
+    /// @notice Get the Roles contract.
+    /// @return Roles contract address.
+    function roles() external view returns (IRoles);
 }

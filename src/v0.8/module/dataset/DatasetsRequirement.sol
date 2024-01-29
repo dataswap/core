@@ -20,10 +20,7 @@ pragma solidity ^0.8.21;
 
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
-import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
-import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 ///shared
 import {DatasetsEvents} from "src/v0.8/shared/events/DatasetsEvents.sol";
 import {DatasetsModifiers} from "src/v0.8/shared/modifiers/DatasetsModifiers.sol";
@@ -55,26 +52,16 @@ contract DatasetsRequirement is
 
     address public governanceAddress;
     IRoles public roles;
-    IFilplus private filplus;
-    IDatasets private datasets;
-
-    IEscrow public escrow;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
     /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
     function initialize(
         address _governanceAddress,
-        address _roles,
-        address _filplus,
-        address _datasets,
-        address _escrow
+        address _roles
     ) public initializer {
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
-        escrow = IEscrow(_escrow);
-        filplus = IFilplus(_filplus);
-        datasets = IDatasets(_datasets);
         __UUPSUpgradeable_init();
     }
 
@@ -107,7 +94,7 @@ contract DatasetsRequirement is
         );
 
         // Datacap collateral escrow
-        escrow.collateral{value: totalCollateral}(
+        roles.escrow().collateral{value: totalCollateral}(
             EscrowType.Type.DatacapCollateral,
             msg.sender,
             _datasetId,
@@ -115,7 +102,7 @@ contract DatasetsRequirement is
         );
 
         // Data preparer calculate fees escrow dataset total account
-        escrow.payment{value: _amount}(
+        roles.escrow().payment{value: _amount}(
             EscrowType.Type.TotalDataPrepareFeeByClient,
             msg.sender,
             _datasetId,
@@ -143,11 +130,11 @@ contract DatasetsRequirement is
     )
         external
         payable
-        onlyDatasetState(datasets, _datasetId, DatasetType.State.None)
-        onlyAddress(datasets.getDatasetMetadataSubmitter(_datasetId))
+        onlyDatasetState(roles.datasets(), _datasetId, DatasetType.State.None)
+        onlyAddress(roles.datasets().getDatasetMetadataSubmitter(_datasetId))
     {
         require(
-            filplus.isCompliantRuleTotalReplicasPerDataset(
+            roles.filplus().isCompliantRuleTotalReplicasPerDataset(
                 _dataPreparers,
                 _storageProviders,
                 _regions,
@@ -158,7 +145,11 @@ contract DatasetsRequirement is
         );
 
         require(
-            filplus.isCompliantRuleGeolocation(_regions, _countrys, _citys),
+            roles.filplus().isCompliantRuleGeolocation(
+                _regions,
+                _countrys,
+                _citys
+            ),
             "Invalid region distribution"
         );
 
@@ -170,7 +161,7 @@ contract DatasetsRequirement is
             ];
 
         require(
-            datasets.__requireValidDatasetMetadata(_datasetId),
+            roles.datasets().__requireValidDatasetMetadata(_datasetId),
             "Invalid Metadata"
         );
 
@@ -182,7 +173,7 @@ contract DatasetsRequirement is
             _citys
         );
 
-        datasets.__reportDatasetReplicaRequirementSubmitted(_datasetId);
+        roles.datasets().__reportDatasetReplicaRequirementSubmitted(_datasetId);
         emit DatasetsEvents.DatasetReplicaRequirementSubmitted(
             _datasetId,
             msg.sender
@@ -227,7 +218,7 @@ contract DatasetsRequirement is
     function getDatasetPreCollateralRequirements(
         uint64 _datasetId
     ) public view onlyNotZero(_datasetId) returns (uint256) {
-        (, , , , , , , , uint64 size, , ) = datasets.getDatasetMetadata(
+        (, , , , , , , , uint64 size, , ) = roles.datasets().getDatasetMetadata(
             _datasetId
         );
         // TODO: PRICE_PER_BYTE import from governance

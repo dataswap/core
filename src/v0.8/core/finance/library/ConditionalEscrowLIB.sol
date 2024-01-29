@@ -22,9 +22,7 @@ import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
-import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
-import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
-import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 
 /// @title ConditionalEscrowLIB
 /// @dev This library provides functionality to manage the release conditions of escrow collateral.
@@ -33,14 +31,12 @@ library ConditionalEscrowLIB {
 
     /// @dev Determines the amount available for collateral from a datacap collateral
     /// @param _id The business id associated with the credited funds.
-    /// @param _storages The storages contract object.
-    /// @param _datasetsProof The datasetsProof contract object.
+    /// @param _roles The roles contract object.
     /// @param _createBlockNumber The escrow account create block number.
     /// @param _total The escrow account total funds.
     function datacapCollateral(
         uint64 _id, // datasetId
-        IStorages _storages,
-        IDatasetsProof _datasetsProof,
+        IRoles _roles,
         uint64 _createBlockNumber,
         uint256 _total
     ) internal view returns (uint256) {
@@ -50,9 +46,7 @@ library ConditionalEscrowLIB {
         // - If it's in the 'MetadataRejected' status,
         // - or if it's not in the 'MetadataApproved' status and has been staked for over 180 days,
         // - or if it has been mortgaged for over 365 days, the funds are eligible for withdrawal.
-        DatasetType.State datasetState = _storages.datasets().getDatasetState(
-            _id
-        );
+        DatasetType.State datasetState = _roles.datasets().getDatasetState(_id);
 
         if (
             (datasetState == DatasetType.State.MetadataRejected) ||
@@ -68,17 +62,17 @@ library ConditionalEscrowLIB {
         // - If it's in the 'allCompleted' status,
         // - it's all proof completed collateral funds
         if (
-            _datasetsProof.isDatasetProofallCompleted(
+            _roles.datasetsProof().isDatasetProofallCompleted(
                 _id,
                 DatasetType.DataType.Source
             )
         ) {
-            collateralFunds = _datasetsProof.getDatasetCollateralRequirement(
-                _id
-            );
+            collateralFunds = _roles
+                .datasetsProof()
+                .getDatasetCollateralRequirement(_id);
         } else {
             // Others are pre collateral funds
-            collateralFunds = _datasetsProof
+            collateralFunds = _roles
                 .datasetsRequirement()
                 .getDatasetPreCollateralRequirements(_id);
         }
@@ -92,61 +86,61 @@ library ConditionalEscrowLIB {
 
     /// @dev Determines the amount available for collateral from a datacap chunk collateral
     /// @param _id The business id associated with the credited funds.
-    /// @param _storages The storages contract object.
+    /// @param _roles The roles contract object.
     function datacapChunkCollateral(
         uint64 _id, // matchingId
-        IStorages _storages
+        IRoles _roles
     ) internal view returns (uint256) {
-        return _storages.getDatacapChunkCollateralFunds(_id);
+        return _roles.storages().getDatacapChunkCollateralFunds(_id);
     }
 
     /// @dev Determines the amount available for burn from a datacap chunk collateral
     /// @param _id The business id associated with the credited funds.
-    /// @param _storages The storage contract object.
+    /// @param _roles The roles contract object.
     function datacapChunkBurn(
         uint64 _id, // matchingId
-        IStorages _storages
+        IRoles _roles
     ) internal view returns (uint256) {
-        return _storages.getDatacapChunkBurnFunds(_id);
+        return _roles.storages().getDatacapChunkBurnFunds(_id);
     }
 
     /// @dev Determines the amount available for payment from a data prepare fee by provider
     /// @param _id The business id associated with the credited funds.
-    /// @param _storages The storages contract object.
+    /// @param _roles The roles contract object.
     function providerLockPayment(
         uint64 _id, // matchingId
-        IStorages _storages
+        IRoles _roles
     ) internal view returns (uint256) {
-        return _storages.getProviderLockPayment(_id);
+        return _roles.storages().getProviderLockPayment(_id);
     }
 
     /// @dev Determines the amount available for payment from a data prepare fee by client
     /// @param _id The business id associated with the credited funds.
-    /// @param _storages The storages contract object.
+    /// @param _roles The roles contract object.
     function clientLockPayment(
         uint64 _id, // matchingId
-        IStorages _storages
+        IRoles _roles
     ) internal view returns (uint256) {
-        return _storages.getClientLockPayment(_id);
+        return _roles.storages().getClientLockPayment(_id);
     }
 
     /// @dev Handles the logic for refunding payments based on escrow type, ID.
     /// @param _type The Escrow type for the credited funds.
     /// @param _owner The destination address for the credited funds.
     /// @param _id The business id associated with the credited funds.
-    /// @param _storages The storages contract object.
+    /// @param _roles The roles contract object.
     function isPaymentAllowRefund(
         EscrowType.Type _type,
         address _owner,
         uint64 _id,
-        IStorages _storages
+        IRoles _roles
     ) internal view returns (bool) {
         // Unsuccessful bidders will be refunded after the matching completed.
         if (
             _type == EscrowType.Type.DataPrepareFeeByProvider &&
-            _storages.matchings().getMatchingState(_id) ==
+            _roles.matchings().getMatchingState(_id) ==
             MatchingType.State.Completed &&
-            _storages.matchingsBids().getMatchingWinner(_id) != _owner
+            _roles.matchingsBids().getMatchingWinner(_id) != _owner
         ) {
             return true;
         }
@@ -156,13 +150,13 @@ library ConditionalEscrowLIB {
             _type == EscrowType.Type.DataPrepareFeeByProvider ||
             _type == EscrowType.Type.DataPrepareFeeByClient
         ) {
-            return _storages.isStorageExpiration(_id);
+            return _roles.storages().isStorageExpiration(_id);
         }
 
         // Refunds are available if a dataset is rejected
         if (
             _type == EscrowType.Type.DatasetAuditFee &&
-            _storages.datasets().getDatasetState(_id) ==
+            _roles.datasets().getDatasetState(_id) ==
             DatasetType.State.MetadataApproved
         ) {
             return true;
@@ -175,27 +169,23 @@ library ConditionalEscrowLIB {
     /// @param _id The business id associated with the credited funds.
     /// @param _datasetId The dataset id.
     /// @param _paymentLock The payment lock amount.
-    /// @param _datasetsProof The dataetsProof contract object.
-    /// @param _storages The storages contract object.
+    /// @param _roles The roles contract object.
     function clientSubPaymentAccount(
         uint64 _id, // matchingId
         uint64 _datasetId,
         uint256 _paymentLock,
-        IDatasetsProof _datasetsProof,
-        IStorages _storages
+        IRoles _roles
     ) internal view returns (uint256) {
-        (, , uint64 matchingSize, , , , ) = _storages
+        (, , uint64 matchingSize, , , , ) = _roles
             .matchingsTarget()
             .getMatchingTarget(_id);
 
-        uint64 unusedSize = _datasetsProof.getDatasetSize(
+        uint64 unusedSize = _roles.datasetsProof().getDatasetSize(
             _datasetId,
             DatasetType.DataType.Source
         ) *
-            _datasetsProof.datasetsRequirement().getDatasetReplicasCount(
-                _datasetId
-            ) -
-            _storages.datasets().getDatasetUsedSize(_datasetId);
+            _roles.datasetsRequirement().getDatasetReplicasCount(_datasetId) -
+            _roles.datasets().getDatasetUsedSize(_datasetId);
 
         return (_paymentLock / unusedSize) * matchingSize;
     }
@@ -208,17 +198,17 @@ library ConditionalEscrowLIB {
     /// @param _id The business id associated with the credited funds.
     /// @param _beneficiary The address of the beneficiary.
     /// @param _paymentLock The payment lock amount.
-    /// @param _storages The Storages contract providing access to relevant data.
+    /// @param _roles The Roles contract providing access to relevant data.
     function paymentBeneficiaryAmountByProvider(
         address _owner,
         uint64 _id,
         address _beneficiary,
         uint256 _paymentLock,
-        IStorages _storages
+        IRoles _roles
     ) internal view returns (uint256) {
         if (
-            _storages.matchings().getMatchingInitiator(_id) == _beneficiary &&
-            _storages.matchingsBids().getMatchingWinner(_id) == _owner
+            _roles.matchings().getMatchingInitiator(_id) == _beneficiary &&
+            _roles.matchingsBids().getMatchingWinner(_id) == _owner
         ) {
             return _paymentLock;
         }
@@ -228,11 +218,11 @@ library ConditionalEscrowLIB {
 
     /// @dev Calculate the payment amount for an dataset audit.
     /// @param _id The business id associated with the credited funds.
-    /// @param _datasetsProof The dataetsProof contract object.
+    /// @param _roles The roles contract object.
     function paymentBeneficiaryAmountDataAuditFee(
         uint64 _id,
-        IDatasetsProof _datasetsProof
+        IRoles _roles
     ) internal view returns (uint256) {
-        return _datasetsProof.getDatasetDataAuditorFees(_id);
+        return _roles.datasetsProof().getDatasetDataAuditorFees(_id);
     }
 }

@@ -119,7 +119,7 @@ contract SubmittChallengeProofsTestCaseWithFail is DatasetsTestBase {
         uint32[] memory paths = new uint32[](pointCount);
         uint64 randomSeed;
 
-        datasetsChallenge.merkleUtils().setMockValidState(false);
+        datasets.roles().merkleUtils().setMockValidState(false);
         (randomSeed, leaves, siblings, paths) = datasetsHelpers
             .generateVerification(pointCount);
 

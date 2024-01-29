@@ -20,13 +20,11 @@ pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IStatistics} from "src/v0.8/interfaces/core/statistics/IStatistics.sol";
 
 /// @title IMatchings
 interface IMatchings is IStatistics {
-    /// @notice The function to init the dependencies of a matchings.
-    function initDependencies(address _storages) external;
-
     /// @notice Function for create a new matching.
     /// @param _datasetId The dataset id to create matching.
     /// @param _bidSelectionRule The rules for determining the winning bid.
@@ -139,4 +137,8 @@ interface IMatchings is IStatistics {
 
     // Default getter functions for public variables
     function matchingsCount() external view returns (uint64);
+
+    /// @notice Get the Roles contract.
+    /// @return Roles contract address.
+    function roles() external view returns (IRoles);
 }

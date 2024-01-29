@@ -20,11 +20,8 @@ pragma solidity ^0.8.21;
 
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
-import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
-import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
-import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
+
 ///shared
 import {DatasetsEvents} from "src/v0.8/shared/events/DatasetsEvents.sol";
 import {CarstoreModifiers} from "src/v0.8/shared/modifiers/CarstoreModifiers.sol";
@@ -55,25 +52,17 @@ contract DatasetsChallenge is
 
     address public governanceAddress;
     IRoles public roles;
-    IEscrow public escrow;
-    IMerkleUtils public merkleUtils;
-    IDatasetsProof public datasetProof;
+
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
     /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
     function initialize(
         address _governanceAddress,
-        address _roles,
-        address _datasetProof,
-        address _merkleUtils,
-        address _escrow
+        address _roles
     ) public initializer {
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
-        escrow = IEscrow(_escrow);
-        datasetProof = IDatasetsProof(_datasetProof);
-        merkleUtils = IMerkleUtils(_merkleUtils);
         __UUPSUpgradeable_init();
     }
 
@@ -122,21 +111,21 @@ contract DatasetsChallenge is
             _siblings,
             _paths,
             roots,
-            merkleUtils
+            roles.merkleUtils()
         );
 
         // Add dataset auditor to beneficiary list
-        escrow.__emitPaymentUpdate(
+        roles.escrow().__emitPaymentUpdate(
             EscrowType.Type.DatasetAuditFee,
-            datasetProof.datasets().getDatasetMetadataSubmitter(_datasetId),
+            roles.datasets().getDatasetMetadataSubmitter(_datasetId),
             _datasetId,
             msg.sender,
             EscrowType.PaymentEvent.SyncPaymentBeneficiary
         );
         // Allow payment
-        escrow.__emitPaymentUpdate(
+        roles.escrow().__emitPaymentUpdate(
             EscrowType.Type.DatasetAuditFee,
-            datasetProof.datasets().getDatasetMetadataSubmitter(_datasetId),
+            roles.datasets().getDatasetMetadataSubmitter(_datasetId),
             _datasetId,
             msg.sender,
             EscrowType.PaymentEvent.SyncPaymentLock
@@ -200,7 +189,7 @@ contract DatasetsChallenge is
         uint64 _datasetId
     ) public view returns (uint64) {
         uint32 smallDataSet = 1000;
-        uint64 carCount = datasetProof.getDatasetProofCount(
+        uint64 carCount = roles.datasetsProof().getDatasetProofCount(
             _datasetId,
             DatasetType.DataType.Source
         );
@@ -252,7 +241,7 @@ contract DatasetsChallenge is
         );
 
         return
-            datasetProof.getDatasetProof(
+            roles.datasetsProof().getDatasetProof(
                 _datasetId,
                 DatasetType.DataType.Source,
                 index,

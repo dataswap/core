@@ -18,17 +18,12 @@
 
 pragma solidity ^0.8.21;
 
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
 /// @title IMatchingsBid
 interface IMatchingsBids {
-    /// @notice The function to init the dependencies of a matchingsBids.
-    function initDependencies(
-        address _matchings,
-        address _matchingsTarget
-    ) external;
-
     /// @notice  Function for bidding on a matching
     function bidding(uint64 _matchingId, uint256 _amount) external payable;
 
@@ -82,4 +77,8 @@ interface IMatchingsBids {
         uint64 _matchingId,
         address _bidder
     ) external view returns (bool);
+
+    /// @notice Get the Roles contract.
+    /// @return Roles contract address.
+    function roles() external view returns (IRoles);
 }

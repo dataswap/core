@@ -20,12 +20,6 @@ pragma solidity ^0.8.21;
 
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
-import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
-import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
-import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
-import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
-import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
 import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 
 ///shared
@@ -58,12 +52,6 @@ contract DatasetsProof is
 
     address public governanceAddress;
     IRoles public roles;
-    IEscrow public escrow;
-    IFilplus private filplus;
-    ICarstore private carstore;
-    IDatasets public datasets;
-    IDatasetsChallenge public datasetsChallenge;
-    IDatasetsRequirement public datasetsRequirement;
 
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
@@ -71,31 +59,12 @@ contract DatasetsProof is
     /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
     function initialize(
         address _governanceAddress,
-        address _roles,
-        address _filplus,
-        address _carstore,
-        address _datasets,
-        address _datasetsRequirement,
-        address _escrow
+        address _roles
     ) public initializer {
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
-        escrow = IEscrow(_escrow);
-        filplus = IFilplus(_filplus);
-        carstore = ICarstore(_carstore);
-        datasets = IDatasets(_datasets);
-
-        datasetsRequirement = IDatasetsRequirement(_datasetsRequirement);
 
         __UUPSUpgradeable_init();
-    }
-
-    /// @notice initDependencies function to initialize the datasetsChallenge contract.
-    /// @dev After the contract is deployed, this function needs to be called manually!
-    function initDependencies(
-        address _datasetsChallenge
-    ) public onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
-        datasetsChallenge = IDatasetsChallenge(_datasetsChallenge);
     }
 
     /// @notice UUPS Upgradeable function to update the roles implementation
@@ -129,7 +98,7 @@ contract DatasetsProof is
             msg.sender
         )
         onlyDatasetState(
-            datasets,
+            roles.datasets(),
             _datasetId,
             DatasetType.State.MetadataApproved
         )
@@ -172,7 +141,7 @@ contract DatasetsProof is
     )
         internal
         onlyDatasetState(
-            datasets,
+            roles.datasets(),
             _datasetId,
             DatasetType.State.MetadataApproved
         )
@@ -187,11 +156,11 @@ contract DatasetsProof is
             "Invalid Dataset submitter"
         );
 
-        uint16 replicaCount = datasetsRequirement.getDatasetReplicasCount(
-            _datasetId
-        );
+        uint16 replicaCount = roles
+            .datasetsRequirement()
+            .getDatasetReplicasCount(_datasetId);
 
-        (uint64[] memory leafIds, uint64 size) = carstore.__addCars(
+        (uint64[] memory leafIds, uint64 size) = roles.carstore().__addCars(
             _leafHashes,
             _datasetId,
             _leafSizes,
@@ -220,12 +189,14 @@ contract DatasetsProof is
             datasetProof.mappingFilesProof.allCompleted
         ) {
             require(
-                filplus.isCompliantRuleMaxProportionOfMappingFilesToDataset(
-                    datasetProof.getDatasetSize(
-                        DatasetType.DataType.MappingFiles
+                roles
+                    .filplus()
+                    .isCompliantRuleMaxProportionOfMappingFilesToDataset(
+                        datasetProof.getDatasetSize(
+                            DatasetType.DataType.MappingFiles
+                        ),
+                        datasetProof.getDatasetSize(DatasetType.DataType.Source)
                     ),
-                    datasetProof.getDatasetSize(DatasetType.DataType.Source)
-                ),
                 "Invalid mappingFiles percentage"
             );
 
@@ -235,30 +206,30 @@ contract DatasetsProof is
             uint256 datasetAuditorFee = getDatasetDataAuditorFeesRequirement(
                 _datasetId
             );
-            (uint256 total, , , , ) = escrow.getOwnerFund(
+            (uint256 total, , , , ) = roles.escrow().getOwnerFund(
                 EscrowType.Type.DatacapCollateral,
-                datasets.getDatasetMetadataSubmitter(_datasetId),
+                roles.datasets().getDatasetMetadataSubmitter(_datasetId),
                 _datasetId
             );
-            (, uint256 lock, , , ) = escrow.getOwnerFund(
+            (, uint256 lock, , , ) = roles.escrow().getOwnerFund(
                 EscrowType.Type.DatasetAuditFee,
-                datasets.getDatasetMetadataSubmitter(_datasetId),
+                roles.datasets().getDatasetMetadataSubmitter(_datasetId),
                 _datasetId
             );
             if (total < collateralRequirement || lock < datasetAuditorFee) {
-                datasets.__reportFundsNotEnough(_datasetId);
+                roles.datasets().__reportFundsNotEnough(_datasetId);
                 emit DatasetsEvents.FundsNotEnough(_datasetId, msg.sender);
                 return DatasetType.State.FundsNotEnough;
             } else {
                 // Update collateral funds to collateral requirement
-                escrow.__emitCollateralUpdate(
+                roles.escrow().__emitCollateralUpdate(
                     EscrowType.Type.DatacapCollateral,
-                    datasets.getDatasetMetadataSubmitter(_datasetId),
+                    roles.datasets().getDatasetMetadataSubmitter(_datasetId),
                     _datasetId,
                     EscrowType.CollateralEvent.SyncCollateral
                 );
 
-                datasets.__reportDatasetProofSubmitted(_datasetId);
+                roles.datasets().__reportDatasetProofSubmitted(_datasetId);
                 emit DatasetsEvents.DatasetProofSubmitted(
                     _datasetId,
                     msg.sender
@@ -301,7 +272,7 @@ contract DatasetsProof is
     )
         public
         payable
-        onlyAddress(datasets.getDatasetMetadataSubmitter(_datasetId))
+        onlyAddress(roles.datasets().getDatasetMetadataSubmitter(_datasetId))
     {
         require(
             _datacapCollateral == getDatasetAppendCollateral(_datasetId),
@@ -319,7 +290,7 @@ contract DatasetsProof is
 
         uint256 totalCollateral = msg.value - _dataAuditorFees;
         // Append datacap collateral escrow
-        escrow.collateral{value: totalCollateral}(
+        roles.escrow().collateral{value: totalCollateral}(
             EscrowType.Type.DatacapCollateral,
             msg.sender,
             _datasetId,
@@ -327,14 +298,14 @@ contract DatasetsProof is
         );
 
         // dataset auditor calculate fees escrow
-        escrow.payment{value: _dataAuditorFees}(
+        roles.escrow().payment{value: _dataAuditorFees}(
             EscrowType.Type.DatasetAuditFee,
             msg.sender,
             _datasetId,
             _dataAuditorFees
         );
 
-        datasets.__reportFundsEnough(_datasetId);
+        roles.datasets().__reportFundsEnough(_datasetId);
         emit DatasetsEvents.FundsEnough(_datasetId, msg.sender);
     }
 
@@ -345,9 +316,9 @@ contract DatasetsProof is
         uint256 collateralRequirement = getDatasetCollateralRequirement(
             _datasetId
         );
-        (uint256 total, , , , ) = escrow.getOwnerFund(
+        (uint256 total, , , , ) = roles.escrow().getOwnerFund(
             EscrowType.Type.DatacapCollateral,
-            datasets.getDatasetMetadataSubmitter(_datasetId),
+            roles.datasets().getDatasetMetadataSubmitter(_datasetId),
             _datasetId
         );
 
@@ -370,7 +341,7 @@ contract DatasetsProof is
             _datasetId
         ];
         return
-            carstore.getCarsHashs(
+            roles.carstore().getCarsHashs(
                 datasetProof.getDatasetProof(_dataType, _index, _len)
             );
     }
@@ -416,7 +387,7 @@ contract DatasetsProof is
         uint256 PRICE_PER_BYTE = (1000000000000000000 / PER_TIB_BYTE);
         return
             getDatasetSize(_datasetId, DatasetType.DataType.Source) *
-            datasetsRequirement.getDatasetReplicasCount(_datasetId) *
+            roles.datasetsRequirement().getDatasetReplicasCount(_datasetId) *
             PRICE_PER_BYTE;
     }
 
@@ -428,7 +399,7 @@ contract DatasetsProof is
         uint64 CHALLENGE_PROOFS_SUBMIT_COUNT = 10;
         uint256 PRICE_PER_POINT = (1000000000000000000 / 1000);
         return
-            datasetsChallenge.getChallengeSubmissionCount(_datasetId) *
+            roles.datasetsChallenge().getChallengeSubmissionCount(_datasetId) *
             CHALLENGE_PROOFS_SUBMIT_COUNT *
             PRICE_PER_POINT;
     }
@@ -440,7 +411,7 @@ contract DatasetsProof is
         // TODO: PRICE_PER_POINT import from governance
         uint256 PRICE_PER_POINT = (1000000000000000000 / 1000);
         return
-            datasetsChallenge.getChallengeSubmissionCount(_datasetId) *
+            roles.datasetsChallenge().getChallengeSubmissionCount(_datasetId) *
             PRICE_PER_POINT;
     }
 
@@ -460,7 +431,7 @@ contract DatasetsProof is
         uint64 _datasetId,
         uint64 _id
     ) public view onlyNotZero(_datasetId) returns (bool) {
-        return _datasetId == carstore.getCarDatasetId(_id);
+        return _datasetId == roles.carstore().getCarDatasetId(_id);
     }
 
     ///@notice Check if a dataset has cids

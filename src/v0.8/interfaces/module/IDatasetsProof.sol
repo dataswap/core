@@ -18,12 +18,8 @@
 
 pragma solidity ^0.8.21;
 
-import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
-import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
-import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
-import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
+import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 
 /// @title IDatasetsProof
 interface IDatasetsProof {
@@ -126,12 +122,7 @@ interface IDatasetsProof {
         DatasetType.DataType _dataType
     ) external view returns (bool);
 
-    ///@notice get datasets instance
-    function datasets() external view returns (IDatasets);
-
-    ///@notice get datasetsChallenge instance
-    function datasetsChallenge() external view returns (IDatasetsChallenge);
-
-    ///@notice get datasetsRequirement instance
-    function datasetsRequirement() external view returns (IDatasetsRequirement);
+    /// @notice Get the Roles contract.
+    /// @return Roles contract address.
+    function roles() external view returns (IRoles);
 }

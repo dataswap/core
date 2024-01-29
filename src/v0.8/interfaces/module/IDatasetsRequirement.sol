@@ -20,7 +20,6 @@ pragma solidity ^0.8.21;
 
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
 
 /// @title IDatasetsRequirement
 interface IDatasetsRequirement {
@@ -67,4 +66,8 @@ interface IDatasetsRequirement {
     function getDatasetPreCollateralRequirements(
         uint64 _datasetId
     ) external view returns (uint256);
+
+    /// @notice Get the Roles contract.
+    /// @return Roles contract address.
+    function roles() external view returns (IRoles);
 }

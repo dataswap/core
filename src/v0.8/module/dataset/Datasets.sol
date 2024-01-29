@@ -20,10 +20,8 @@ pragma solidity ^0.8.21;
 
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
-import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
-import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
+
 ///shared
 import {DatasetsEvents} from "src/v0.8/shared/events/DatasetsEvents.sol";
 import {DatasetsModifiers} from "src/v0.8/shared/modifiers/DatasetsModifiers.sol";
@@ -61,31 +59,19 @@ contract Datasets is
 
     address public governanceAddress;
     IRoles public roles;
-    IEscrow public escrow;
-    IDatasetsProof public datasetsProof;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
     /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
     function initialize(
         address _governanceAddress,
-        address _roles,
-        address _escrow
+        address _roles
     ) public initializer {
         StatisticsBase.statisticsBaseInitialize();
         governanceAddress = _governanceAddress;
         roles = IRoles(_roles);
-        escrow = IEscrow(_escrow);
 
         __UUPSUpgradeable_init();
-    }
-
-    /// @notice initDependencies function to initialize the datasetsProof contract.
-    /// @dev After the contract is deployed, this function needs to be called manually!
-    function initDependencies(
-        address _datasetsProof
-    ) public onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
-        datasetsProof = IDatasetsProof(_datasetsProof);
     }
 
     /// @notice UUPS Upgradeable function to update the roles implementation
@@ -118,24 +104,25 @@ contract Datasets is
         onlyAddress(governanceAddress)
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        (uint256 funds, , , , ) = escrow.getOwnerFund(
+        (uint256 funds, , , , ) = roles.escrow().getOwnerFund(
             EscrowType.Type.DatacapCollateral,
             dataset.metadata.submitter,
             _datasetId
         );
-        uint64 mappingSize = datasetsProof.getDatasetSize(
+        uint64 mappingSize = roles.datasetsProof().getDatasetSize(
             _datasetId,
             DatasetType.DataType.MappingFiles
         );
-        uint64 sourceSize = datasetsProof.getDatasetSize(
+        uint64 sourceSize = roles.datasetsProof().getDatasetSize(
             _datasetId,
             DatasetType.DataType.Source
         );
         if (
-            funds >= datasetsProof.getDatasetCollateralRequirement(_datasetId)
+            funds >=
+            roles.datasetsProof().getDatasetCollateralRequirement(_datasetId)
         ) {
             // Update collateral funds to collateral requirement
-            escrow.__emitCollateralUpdate(
+            roles.escrow().__emitCollateralUpdate(
                 EscrowType.Type.DatacapCollateral,
                 dataset.metadata.submitter,
                 _datasetId,
@@ -203,11 +190,11 @@ contract Datasets is
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset.rejectDataset();
-        uint64 mappingSize = datasetsProof.getDatasetSize(
+        uint64 mappingSize = roles.datasetsProof().getDatasetSize(
             _datasetId,
             DatasetType.DataType.MappingFiles
         );
-        uint64 sourceSize = datasetsProof.getDatasetSize(
+        uint64 sourceSize = roles.datasetsProof().getDatasetSize(
             _datasetId,
             DatasetType.DataType.Source
         );
@@ -399,11 +386,11 @@ contract Datasets is
     ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
 
-        uint64 mappingSize = datasetsProof.getDatasetSize(
+        uint64 mappingSize = roles.datasetsProof().getDatasetSize(
             _datasetId,
             DatasetType.DataType.MappingFiles
         );
-        uint64 sourceSize = datasetsProof.getDatasetSize(
+        uint64 sourceSize = roles.datasetsProof().getDatasetSize(
             _datasetId,
             DatasetType.DataType.Source
         );
