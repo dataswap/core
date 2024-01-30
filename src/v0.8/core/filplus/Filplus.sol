@@ -74,6 +74,9 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
 
     uint256 public datacapChunkLandPricePreByte; // The datacap chunk land price pre byte.
 
+    uint256 public challengeProofsPricePrePoint; // The challenge proofs price pre point.
+    uint16 public challengeProofsSubmiterCount; // The challenge proofs submiter count.
+
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -103,6 +106,8 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         datacapRulesMaxRemainingPercentageForNext = 20; //20%
 
         datacapChunkLandPricePreByte = (1000000000000000000 / PER_TIB_BYTE); // 1/1T
+        challengeProofsPricePrePoint = (1000000000000000000 / 1000); // 0.0001/POINT
+        challengeProofsSubmiterCount = 10; // 10
 
         __UUPSUpgradeable_init();
     }
@@ -275,6 +280,40 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
         datacapChunkLandPricePreByte = _newValue;
         emit FilplusEvents.SetDatacapChunkLandPricePreByte(_newValue);
+    }
+
+    /// @notice Set the challenge proofs submiter Count complies with filplus rules.
+    function setChallengeProofsSubmiterCount(
+        uint16 _newValue
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
+        challengeProofsSubmiterCount = _newValue;
+        emit FilplusEvents.SetChallengeProofsSubmiterCount(_newValue);
+    }
+
+    /// @notice Set the challenge proofs price pre point complies with filplus rules.
+    function setChallengeProofsPricePrePoint(
+        uint256 _newValue
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
+        challengeProofsPricePrePoint = _newValue;
+        emit FilplusEvents.SetChallengeProofsPricePrePoint(_newValue);
+    }
+
+    /// @notice Get the challenge proofs price pre point complies with filplus rules.
+    function getChallengeProofsPricePrePoint()
+        external
+        view
+        returns (uint256 price)
+    {
+        price = challengeProofsPricePrePoint;
+    }
+
+    /// @notice Get the challenge proofs submiter count complies with filplus rules.
+    function getChallengeProofsSubmiterCount()
+        external
+        view
+        returns (uint16 count)
+    {
+        count = challengeProofsSubmiterCount;
     }
 
     /// @notice Get the dataset price pre byte complies with filplus rules.

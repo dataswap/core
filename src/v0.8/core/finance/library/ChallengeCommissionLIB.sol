@@ -25,12 +25,12 @@ import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 
 import {ArraysPaymentInfoLIB} from "src/v0.8/shared/utils/array/ArrayLIB.sol";
 
-/// @title DatacapChunkLandLIB
-/// @dev This library provides functions for managing DatacapChunkLand-related operations.
-library DatacapChunkLandLIB {
+/// @title ChallengeCommissionLIB
+/// @dev This library provides functions for managing ChallengeCommission-related operations.
+library ChallengeCommissionLIB {
     using ArraysPaymentInfoLIB for FinanceType.PaymentInfo[];
 
-    /// @dev Retrieves payee information for DatacapChunkLand.
+    /// @dev Retrieves payee information for ChallengeCommission.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
@@ -198,55 +198,51 @@ library DatacapChunkLandLIB {
         }
     }
 
-    /// @notice Get dataset DatacapChunkLand requirement.
+    /// @notice Get dataset ChallengeCommission requirement.
+    /// @param _datasetId The ID of the dataset.
     /// @param _roles The roles contract interface.
     /// @return amount The requirement amount.
     function getRequirement(
-        uint64 /*_datasetId*/,
-        uint64 _matchingId,
+        uint64 _datasetId,
+        uint64 /*_matchingId*/,
         address /*_token*/,
         IRoles _roles
     ) internal view returns (uint256 amount) {
-        uint256 price = _roles.filplus().getDatacapChunkLandPricePreByte();
-        (uint256 total, , , , , , ) = _roles
-            .storages()
-            .getMatchingStorageOverview(_matchingId);
-
-        uint64 maxAllocated = _roles
-            .filplus()
-            .datacapRulesMaxAllocatedSizePerTime();
-
-        amount = Math.min(total, maxAllocated) * price;
+        return
+            _roles.datasetsChallenge().getChallengeSubmissionCount(_datasetId) *
+            _roles.filplus().getChallengeProofsSubmiterCount() *
+            _roles.filplus().getChallengeProofsPricePrePoint();
     }
 
     /// @dev Internal function to get owners associated with a dataset and matching process.
-    /// @param _matchingId The ID of the matching process.
+    /// @param _datasetId The ID of the dataset.
     /// @param _roles The roles contract interface.
     /// @return owners An array containing the addresses of the dataset and matching process owners.
     function _getOwners(
-        uint64 /*_datasetId*/,
-        uint64 _matchingId,
+        uint64 _datasetId,
+        uint64 /*_matchingId*/,
         IRoles _roles
     ) internal view returns (address[] memory owners) {
         owners = new address[](1);
-        owners[0] = _roles.matchingsBids().getMatchingWinner(_matchingId);
+        owners[0] = _roles.datasets().getDatasetMetadataSubmitter(_datasetId);
     }
 
     /// @dev Internal function to get payees associated with a dataset and matching process.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _roles The roles contract interface.
     /// @return payees An array containing the address of the matching process initiator.
     function _getPayees(
-        uint64 /*_datasetId*/,
+        uint64 _datasetId,
         uint64 /*_matchingId*/,
-        IRoles /*_roles*/
-    )
-        internal
-        view
-        returns (
-            address[] memory payees // solhint-disable-next-line
-        )
-    {}
+        IRoles _roles
+    ) internal view returns (address[] memory payees) {
+        (payees, ) = _roles
+            .datasetsChallenge()
+            .getDatasetChallengeProofsSubmitters(_datasetId);
+    }
 
     /// @dev Internal function to get refund amount.
+    /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
     /// @param _owner An array containing the addresses of the dataset and matching process owners.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
@@ -259,66 +255,18 @@ library DatacapChunkLandLIB {
         address _token,
         IRoles _roles
     ) internal view returns (uint256 amount) {
-        (, uint256 expenditure, uint256 total) = _roles
-            .finance()
-            .getAccountEscrow(
-                _datasetId,
-                _matchingId,
-                _owner,
-                _token,
-                FinanceType.Type.DatacapChunkLandCollateral
-            );
-
-        amount = total - expenditure;
-
-        (uint256 totalSize, uint256 storedSize, , , , , ) = _roles
-            .storages()
-            .getMatchingStorageOverview(_matchingId);
-
-        uint256 price = _roles.filplus().getDatacapChunkLandPricePreByte();
-        uint256 burned = (totalSize - storedSize) * price;
-
-        return burned < amount ? amount - burned : 0;
+        (, , amount) = _roles.finance().getAccountEscrow(
+            _datasetId,
+            _matchingId,
+            _owner,
+            _token,
+            FinanceType.Type.ChallengeCommission
+        );
     }
 
     /// @dev Internal function to get burn amount.
-    /// @param _matchingId The ID of the matching process.
-    /// @param _owner An array containing the addresses of the dataset and matching process owners.
-    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
-    /// @param _roles The roles contract interface.
     /// @return amount The burn amount.
     function _getBurnAmount(
-        uint64 _datasetId,
-        uint64 _matchingId,
-        address _owner,
-        address _token,
-        IRoles _roles
-    ) internal view returns (uint256 amount) {
-        (, uint256 expenditure, uint256 total) = _roles
-            .finance()
-            .getAccountEscrow(
-                _datasetId,
-                _matchingId,
-                _owner,
-                _token,
-                FinanceType.Type.DatacapChunkLandCollateral
-            );
-
-        amount = total - expenditure;
-
-        (uint256 totalSize, uint256 storedSize, , , , , ) = _roles
-            .storages()
-            .getMatchingStorageOverview(_matchingId);
-
-        uint256 price = _roles.filplus().getDatacapChunkLandPricePreByte();
-        uint256 burned = (totalSize - storedSize) * price;
-
-        amount = Math.min(amount, burned);
-    }
-
-    /// @dev Internal function to get payment amount.
-    /// @return amount The payment amount.
-    function _getPaymentAmount(
         uint64 /*_datasetId*/,
         uint64 /*_matchingId*/,
         address /*_owner*/,
@@ -332,42 +280,61 @@ library DatacapChunkLandLIB {
         )
     {}
 
-    /// @dev Internal function to check if a refund is applicable.
+    /// @dev Internal function to get payment amount.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
+    /// @param _owner An array containing the addresses of the dataset and matching process owners.
+    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @param _roles The roles contract interface.
-    /// @return refund A boolean indicating whether a refund is applicable.
-    function _isRefund(
+    /// @return amount The payment amount.
+    function _getPaymentAmount(
         uint64 _datasetId,
         uint64 _matchingId,
+        address _owner,
+        address _token,
         IRoles _roles
-    ) internal view returns (bool refund) {
-        return ((_matchingId != 0 &&
-            _roles.storages().isStorageExpiration(_matchingId)) ||
-            _roles.datasets().getDatasetState(_datasetId) ==
-            DatasetType.State.MetadataRejected);
+    ) internal view returns (uint256 amount) {
+        (, , uint256 total) = _roles.finance().getAccountEscrow(
+            _datasetId,
+            _matchingId,
+            _owner,
+            _token,
+            FinanceType.Type.ChallengeCommission
+        );
+        address[] memory payees = _getPayees(_datasetId, _matchingId, _roles);
+        amount = total / payees.length;
     }
 
-    /// @dev Internal function to check if a burn is applicable.
-    /// @param _matchingId The ID of the matching process.
-    /// @param _roles The roles contract interface.
-    /// @return burn A boolean indicating whether a burn is applicable.
-    function _isBurn(
-        uint64 /*_datasetId*/,
-        uint64 _matchingId,
-        IRoles _roles
-    ) internal view returns (bool burn) {
-        return (_matchingId != 0 &&
-            _roles.storages().isStorageExpiration(_matchingId));
-    }
-
-    /// @dev Internal function to check if a payment is applicable.
-    /// @return payment A boolean indicating whether a payment is applicable.
-    function _isPayment(
+    /// @dev Internal function to check if a refund is applicable.
+    /// @return refund A boolean indicating whether a refund is applicable.
+    function _isRefund(
         uint64 /*_datasetId*/,
         uint64 /*_matchingId*/,
         IRoles /*_roles*/
-    ) internal pure returns (bool payment) {
-        payment = false;
+    ) internal pure returns (bool refund) {
+        return false; // TODO: Expiration refund.
+    }
+
+    /// @dev Internal function to check if a burn is applicable.
+    /// @return burn A boolean indicating whether a burn is applicable.
+    function _isBurn(
+        uint64 /*_datasetId*/,
+        uint64 /*_matchingId*/,
+        IRoles /*_roles*/
+    ) internal pure returns (bool burn) {
+        burn = false;
+    }
+
+    /// @dev Internal function to check if a payment is applicable.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _roles The roles contract interface.
+    /// @return payment A boolean indicating whether a payment is applicable.
+    function _isPayment(
+        uint64 _datasetId,
+        uint64 /*_matchingId*/,
+        IRoles _roles
+    ) internal view returns (bool payment) {
+        return (_roles.datasets().getDatasetState(_datasetId) ==
+            DatasetType.State.DatasetApproved);
     }
 }

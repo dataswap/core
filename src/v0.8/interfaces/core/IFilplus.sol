@@ -106,6 +106,24 @@ interface IFilplus {
     /// @notice Set the datacap chunk land price pre byte complies with filplus rules.
     function setDatacapChunkLandPricePreByte(uint256 _newValue) external;
 
+    /// @notice Set the challenge proofs submiter Count complies with filplus rules.
+    function setChallengeProofsSubmiterCount(uint16 _newValue) external;
+
+    /// @notice Set the challenge proofs price pre point complies with filplus rules.
+    function setChallengeProofsPricePrePoint(uint256 _newValue) external;
+
+    /// @notice Get the challenge proofs price pre point complies with filplus rules.
+    function getChallengeProofsPricePrePoint()
+        external
+        view
+        returns (uint256 price);
+
+    /// @notice Get the challenge proofs submiter count complies with filplus rules.
+    function getChallengeProofsSubmiterCount()
+        external
+        view
+        returns (uint16 count);
+
     /// @notice Get the datacap chunk land price pre byte complies with filplus rules.
     function getDatacapChunkLandPricePreByte()
         external

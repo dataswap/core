@@ -91,11 +91,9 @@ contract DatasetsChallenge is
         bytes32[][] memory _siblings,
         uint32[] memory _paths
     ) external onlyRole(roles, RolesType.DATASET_AUDITOR) {
-        // TODO: CHALLENGE_PROOFS_SUBMIT_COUNT import from governance
-        uint64 CHALLENGE_PROOFS_SUBMIT_COUNT = 10;
         require(
             getDatasetChallengeProofsCount(_datasetId) <=
-                CHALLENGE_PROOFS_SUBMIT_COUNT,
+                roles.filplus().getChallengeProofsSubmiterCount(),
             "exceeds maximum challenge proofs count"
         );
         DatasetType.DatasetChallengeProof
