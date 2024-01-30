@@ -88,6 +88,114 @@ library DataTradingFeeLIB {
         }
     }
 
+    /// @dev Internal function to get refund information.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _matchingId The ID of the matching process.
+    /// @param _owners An array containing the addresses of the dataset and matching process owners.
+    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
+    /// @param _roles The roles contract interface.
+    /// @return refunds An array containing payment information for refund.
+    function _getRefundInfo(
+        uint64 _datasetId,
+        uint64 _matchingId,
+        address[] memory _owners,
+        address _token,
+        IRoles _roles
+    ) internal view returns (FinanceType.PaymentInfo[] memory refunds) {
+        uint256 ownersLen = _owners.length;
+        refunds = new FinanceType.PaymentInfo[](ownersLen);
+        for (uint256 i = 0; i < ownersLen; i++) {
+            uint256 amount = _getRefundAmount(
+                _datasetId,
+                _matchingId,
+                _owners[i],
+                _token,
+                _roles
+            );
+            FinanceType.PayeeInfo[] memory payees = new FinanceType.PayeeInfo[](
+                1
+            );
+            payees[0] = FinanceType.PayeeInfo(_owners[i], amount);
+            refunds[i] = FinanceType.PaymentInfo(_owners[i], amount, payees);
+        }
+    }
+
+    /// @dev Internal function to get burn information.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _matchingId The ID of the matching process.
+    /// @param _owners An array containing the addresses of the dataset and matching process owners.
+    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
+    /// @param _roles The roles contract interface.
+    /// @return burns An array containing payment information for burn.
+    function _getBurnInfo(
+        uint64 _datasetId,
+        uint64 _matchingId,
+        address[] memory _owners,
+        address _token,
+        IRoles _roles
+    ) internal view returns (FinanceType.PaymentInfo[] memory burns) {
+        uint256 ownersLen = _owners.length;
+        burns = new FinanceType.PaymentInfo[](ownersLen);
+        for (uint256 i = 0; i < ownersLen; i++) {
+            uint256 amount = _getBurnAmount(
+                _datasetId,
+                _matchingId,
+                _owners[i],
+                _token,
+                _roles
+            );
+            FinanceType.PayeeInfo[] memory payees = new FinanceType.PayeeInfo[](
+                1
+            );
+            payees[0] = FinanceType.PayeeInfo(
+                _roles.filplus().getBurnAddress(),
+                amount
+            );
+            burns[i] = FinanceType.PaymentInfo(_owners[i], amount, payees);
+        }
+    }
+
+    /// @dev Internal function to get payment information.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _matchingId The ID of the matching process.
+    /// @param _owners An array containing the addresses of the dataset and matching process owners.
+    /// @param _payees An array containing the address of the matching process initiator.
+    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
+    /// @param _roles The roles contract interface.
+    /// @return payments An array containing payment information.
+    function _getPaymentInfo(
+        uint64 _datasetId,
+        uint64 _matchingId,
+        address[] memory _owners,
+        address[] memory _payees,
+        address _token,
+        IRoles _roles
+    ) internal view returns (FinanceType.PaymentInfo[] memory payments) {
+        uint256 ownersLen = _owners.length;
+        uint256 payeesLen = _payees.length;
+        payments = new FinanceType.PaymentInfo[](ownersLen);
+        for (uint256 i = 0; i < ownersLen; i++) {
+            uint256 amount = _getPaymentAmount(
+                _datasetId,
+                _matchingId,
+                _owners[i],
+                _token,
+                _roles
+            );
+            FinanceType.PayeeInfo[] memory payees = new FinanceType.PayeeInfo[](
+                payeesLen
+            );
+            for (uint256 j = 0; j < payeesLen; j++) {
+                payees[j] = FinanceType.PayeeInfo(
+                    _payees[j],
+                    amount / payeesLen
+                );
+            }
+
+            payments[i] = FinanceType.PaymentInfo(_owners[i], amount, payees);
+        }
+    }
+
     /// @notice Get dataset pre-conditional collateral requirement.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
@@ -142,95 +250,6 @@ library DataTradingFeeLIB {
     ) internal view returns (address[] memory payees) {
         payees = new address[](1);
         payees[0] = _roles.matchings().getMatchingInitiator(_matchingId);
-    }
-
-    /// @dev Internal function to get refund information.
-    /// @param _datasetId The ID of the dataset.
-    /// @param _matchingId The ID of the matching process.
-    /// @param _owners An array containing the addresses of the dataset and matching process owners.
-    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
-    /// @param _roles The roles contract interface.
-    /// @return refunds An array containing payment information for refund.
-    function _getRefundInfo(
-        uint64 _datasetId,
-        uint64 _matchingId,
-        address[] memory _owners,
-        address _token,
-        IRoles _roles
-    ) internal view returns (FinanceType.PaymentInfo[] memory refunds) {
-        uint256 ownersLen = _owners.length;
-        refunds = new FinanceType.PaymentInfo[](ownersLen);
-        for (uint256 i = 0; i < ownersLen; i++) {
-            uint256 amount = _getRefundAmount(
-                _datasetId,
-                _matchingId,
-                _owners[i],
-                _token,
-                _roles
-            );
-            FinanceType.PayeeInfo[] memory payees = new FinanceType.PayeeInfo[](
-                1
-            );
-            payees[0] = FinanceType.PayeeInfo(_owners[i], amount);
-            refunds[i] = FinanceType.PaymentInfo(_owners[i], amount, payees);
-        }
-    }
-
-    /// @dev Internal function to get burn information.
-    /// @return burns An array containing payment information for burn.
-    function _getBurnInfo(
-        uint64 /*_datasetId*/,
-        uint64 /*_matchingId*/,
-        address[] memory /*_owners*/,
-        address /*_token*/,
-        IRoles /*_roles*/
-    )
-        internal
-        pure
-        returns (
-            FinanceType.PaymentInfo[] memory burns // solhint-disable-next-line
-        )
-    {}
-
-    /// @dev Internal function to get payment information.
-    /// @param _datasetId The ID of the dataset.
-    /// @param _matchingId The ID of the matching process.
-    /// @param _owners An array containing the addresses of the dataset and matching process owners.
-    /// @param _payees An array containing the address of the matching process initiator.
-    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
-    /// @param _roles The roles contract interface.
-    /// @return payments An array containing payment information.
-    function _getPaymentInfo(
-        uint64 _datasetId,
-        uint64 _matchingId,
-        address[] memory _owners,
-        address[] memory _payees,
-        address _token,
-        IRoles _roles
-    ) internal view returns (FinanceType.PaymentInfo[] memory payments) {
-        uint256 ownersLen = _owners.length;
-        uint256 payeesLen = _payees.length;
-        payments = new FinanceType.PaymentInfo[](ownersLen);
-        for (uint256 i = 0; i < ownersLen; i++) {
-            uint256 amount = _getPaymentAmount(
-                _datasetId,
-                _matchingId,
-                _owners[i],
-                _token,
-                _roles
-            );
-            FinanceType.PayeeInfo[] memory payees = new FinanceType.PayeeInfo[](
-                payeesLen
-            );
-            for (uint256 j = 0; j < payeesLen; j++) {
-                payees[j] = FinanceType.PayeeInfo(
-                    _payees[j],
-                    amount / payeesLen
-                );
-            }
-
-            payments[i] = FinanceType.PaymentInfo(_owners[i], amount, payees);
-        }
     }
 
     /// @dev Internal function to get refund amount.

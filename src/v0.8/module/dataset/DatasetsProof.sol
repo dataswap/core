@@ -395,24 +395,19 @@ contract DatasetsProof is
     function getDatasetDataAuditorFeesRequirement(
         uint64 _datasetId
     ) public view onlyNotZero(_datasetId) returns (uint256) {
-        // TODO: CHALLENGE_PROOFS_SUBMIT_COUNT, PRICE_PER_POINT import from governance
-        uint64 CHALLENGE_PROOFS_SUBMIT_COUNT = 10;
-        uint256 PRICE_PER_POINT = (1000000000000000000 / 1000);
         return
             roles.datasetsChallenge().getChallengeSubmissionCount(_datasetId) *
-            CHALLENGE_PROOFS_SUBMIT_COUNT *
-            PRICE_PER_POINT;
+            roles.filplus().getChallengeProofsSubmiterCount() *
+            roles.filplus().getChallengeProofsPricePrePoint();
     }
 
     /// @notice Get an audit fee
     function getDatasetDataAuditorFees(
         uint64 _datasetId
     ) public view onlyNotZero(_datasetId) returns (uint256) {
-        // TODO: PRICE_PER_POINT import from governance
-        uint256 PRICE_PER_POINT = (1000000000000000000 / 1000);
         return
             roles.datasetsChallenge().getChallengeSubmissionCount(_datasetId) *
-            PRICE_PER_POINT;
+            roles.filplus().getChallengeProofsPricePrePoint();
     }
 
     ///@notice Check if a dataset proof all completed

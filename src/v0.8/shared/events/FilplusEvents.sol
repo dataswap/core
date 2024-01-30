@@ -61,4 +61,10 @@ library FilplusEvents {
 
     // Event emitted when the datacap chunk land price pre byte rule is set
     event SetDatacapChunkLandPricePreByte(uint256 _newValue);
+
+    // Event emitted when the challenge proofs submiter count rule is set
+    event SetChallengeProofsSubmiterCount(uint16 _newValue);
+
+    // Event emitted when the challenge proofs price pre point rule is set
+    event SetChallengeProofsPricePrePoint(uint256 _newValue);
 }
