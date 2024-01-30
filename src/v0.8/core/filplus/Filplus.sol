@@ -72,8 +72,8 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
 
     uint8 public datacapRulesMaxRemainingPercentageForNext; // Minimum completion percentage for the next allocation.
 
+    uint256 public datacapPricePreByte; // The datacap price pre byte.
     uint256 public datacapChunkLandPricePreByte; // The datacap chunk land price pre byte.
-
     uint256 public challengeProofsPricePrePoint; // The challenge proofs price pre point.
     uint16 public challengeProofsSubmiterCount; // The challenge proofs submiter count.
 
@@ -108,6 +108,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         datacapChunkLandPricePreByte = (1000000000000000000 / PER_TIB_BYTE); // 1/1T
         challengeProofsPricePrePoint = (1000000000000000000 / 1000); // 0.0001/POINT
         challengeProofsSubmiterCount = 10; // 10
+        datacapPricePreByte = datacapChunkLandPricePreByte; // 1/1T
 
         __UUPSUpgradeable_init();
     }
@@ -274,7 +275,15 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
 
     }
 
-    /// @notice Set the dataset price pre byte complies with filplus rules.
+    /// @notice Set the datacap price pre byte complies with filplus rules.
+    function setDatacapPricePreByte(
+        uint256 _newValue
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
+        datacapPricePreByte = _newValue;
+        emit FilplusEvents.SetDatacapPricePreByte(_newValue);
+    }
+
+    /// @notice Set the datacap chunk land price pre byte complies with filplus rules.
     function setDatacapChunkLandPricePreByte(
         uint256 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
@@ -316,7 +325,12 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         count = challengeProofsSubmiterCount;
     }
 
-    /// @notice Get the dataset price pre byte complies with filplus rules.
+    /// @notice Get the datacap price pre byte complies with filplus rules.
+    function getDatacapPricePreByte() external view returns (uint256 price) {
+        price = datacapPricePreByte;
+    }
+
+    /// @notice Get the datacap chunk land price pre byte complies with filplus rules.
     function getDatacapChunkLandPricePreByte()
         external
         view
