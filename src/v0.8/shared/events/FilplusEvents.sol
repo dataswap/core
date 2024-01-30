@@ -67,4 +67,7 @@ library FilplusEvents {
 
     // Event emitted when the challenge proofs price pre point rule is set
     event SetChallengeProofsPricePrePoint(uint256 _newValue);
+
+    // Event emitted when the datacap price pre byte rule is set
+    event SetDatacapPricePreByte(uint256 _newValue);
 }
