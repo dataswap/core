@@ -3,13 +3,15 @@ import { DeployFunction } from "hardhat-deploy/types";
 import "@nomiclabs/hardhat-ethers";
 import { deployAndSaveContract } from "../scripts/utils";
 
-const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
-    const { deployments } = hre;
-    const roles = await deployments.get("Roles");
-    await deployAndSaveContract("Escrow", [roles.address], hre);
+const deployFunction: DeployFunction = async function (
+  hre: HardhatRuntimeEnvironment
+) {
+  const { deployments } = hre;
+  const roles = await deployments.get("Roles");
+  await deployAndSaveContract("Finance", [roles.address], hre);
 };
 
 export default deployFunction;
 
 deployFunction.dependencies = ["Roles"];
-deployFunction.tags = ["Escrow"];
+deployFunction.tags = ["Finance"];

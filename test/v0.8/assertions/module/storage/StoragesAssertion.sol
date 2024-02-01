@@ -488,9 +488,6 @@ contract StoragesAssertion is
     ) external {
         // Before the action, capture the initial state.
         isNextDatacapAllocationValidAssertion(_matchingId, true);
-        vm.deal(address(this), 200 ether);
-        uint256 amount = storages.getCollateralRequirement();
-        storages.addDatacapChunkCollateral{value: amount}(_matchingId);
 
         // Perform the action.
         _requestAllocateDatacapStatisticsOverviewAssertion(caller, _matchingId);

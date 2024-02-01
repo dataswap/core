@@ -20,7 +20,6 @@ pragma solidity ^0.8.21;
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 
 import {IAccessControlEnumerableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/IAccessControlEnumerableUpgradeable.sol";
-import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
@@ -95,10 +94,6 @@ interface IRoles is IAccessControlEnumerableUpgradeable {
         RolesType.ContractType _type,
         address _contract
     ) external;
-
-    /// @notice Get the Escrow contract.
-    /// @return Escrow contract address.
-    function escrow() external view returns (IEscrow);
 
     /// @notice Get the Filplus contract.
     /// @return Filplus contract address.

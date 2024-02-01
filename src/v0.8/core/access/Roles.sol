@@ -27,7 +27,6 @@ import {AccessControlEnumerableUpgradeable} from "@openzeppelin/contracts-upgrad
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IFinance} from "src/v0.8/interfaces/core/IFinance.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
@@ -52,7 +51,6 @@ contract Roles is
     Ownable2StepUpgradeable,
     AccessControlEnumerableUpgradeable
 {
-    IEscrow public escrow;
     IFilplus public filplus;
     IFinance public finance;
     IFilecoin public filecoin;
@@ -98,9 +96,7 @@ contract Roles is
         RolesType.ContractType _type,
         address _contract
     ) public onlyOwner {
-        if (_type == RolesType.ContractType.Escrow) {
-            escrow = IEscrow(_contract);
-        } else if (_type == RolesType.ContractType.Filplus) {
+        if (_type == RolesType.ContractType.Filplus) {
             filplus = IFilplus(_contract);
         } else if (_type == RolesType.ContractType.Finance) {
             finance = IFinance(_contract);

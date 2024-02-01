@@ -29,7 +29,6 @@ library DatasetType {
         MetadataSubmitted, // Metadata submitted but not approved.
         MetadataApproved, // Metadata has been approved.
         MetadataRejected, // Metadata submission has been rejected.
-        FundsNotEnough, // Not enough collateral when submit proof or challenge proof.
         DatasetProofSubmitted, // Proof of dataset submitted.
         DatasetApproved // Dataset has been approved.
     }
@@ -39,8 +38,6 @@ library DatasetType {
         SubmitMetadata, // Metadata submission event.
         MetadataApproved, // Metadata approval event.
         MetadataRejected, // Metadata rejection event.
-        NotEnoughCollateral, // Dataset not enough collateral event.
-        EnoughCollateral, // Dataset enough collateral event.
         SubmitDatasetProof, // Dataset proof submission event.
         DatasetApproved, // Dataset approval event.
         DatasetRejected // Dataset rejection event.

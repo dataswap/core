@@ -49,16 +49,6 @@ interface IStorages is IStorageStatistics {
         uint64 _matchingId
     ) external view returns (uint64);
 
-    /// @dev Get the collateral amount
-    function getProviderLockPayment(
-        uint64 _matchingId
-    ) external view returns (uint256);
-
-    /// @dev Get the client allow payment amount
-    function getClientLockPayment(
-        uint64 _matchingId
-    ) external view returns (uint256);
-
     /// @dev Checks if all cars are done in the matchedstore.
     /// @param _matchingId The ID of the matching.
     /// @return True if all cars are done in the matchedstore, otherwise false.
@@ -69,32 +59,11 @@ interface IStorages is IStorageStatistics {
         uint64 _matchingId
     ) external view returns (bool);
 
-    /// @notice Add collateral funds for allocating datacap chunk
-    /// @param _matchingId The ID of the matching
-    function addDatacapChunkCollateral(uint64 _matchingId) external payable;
-
     /// @dev Requests the allocation of matched datacap for a matching process.
     /// @param _matchingId The ID of the matching process.
     function requestAllocateDatacap(
         uint64 _matchingId
     ) external returns (uint64);
-
-    /// @notice Get the updated collateral funds for datacap chunk based on real-time business data
-    /// @param _matchingId The ID of the matching
-    /// @return The updated collateral funds required
-    function getDatacapChunkCollateralFunds(
-        uint64 _matchingId
-    ) external view returns (uint256);
-
-    /// @notice Get the updated burn funds for datacap chunk based on real-time business data
-    /// @param _matchingId The ID of the matching
-    /// @return The updated burn funds required
-    function getDatacapChunkBurnFunds(
-        uint64 _matchingId
-    ) external view returns (uint256);
-
-    /// @notice Get collateral funds requirement for allocate chunk datacap
-    function getCollateralRequirement() external returns (uint256);
 
     /// @dev Checks if the next datacap allocation is allowed for a matching process.
     /// @param _matchingId The ID of the matching process.
