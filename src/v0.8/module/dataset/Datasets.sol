@@ -34,7 +34,6 @@ import {DatasetAuditLIB} from "src/v0.8/module/dataset/library/metadata/DatasetA
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
-import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {GeolocationType} from "src/v0.8/types/GeolocationType.sol";
 
@@ -104,11 +103,7 @@ contract Datasets is
         onlyAddress(governanceAddress)
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-        (uint256 funds, , , , ) = roles.escrow().getOwnerFund(
-            EscrowType.Type.DatacapCollateral,
-            dataset.metadata.submitter,
-            _datasetId
-        );
+
         uint64 mappingSize = roles.datasetsProof().getDatasetSize(
             _datasetId,
             DatasetType.DataType.MappingFiles
@@ -117,29 +112,12 @@ contract Datasets is
             _datasetId,
             DatasetType.DataType.Source
         );
-        if (
-            funds >=
-            roles.datasetsProof().getDatasetCollateralRequirement(_datasetId)
-        ) {
-            // Update collateral funds to collateral requirement
-            roles.escrow().__emitCollateralUpdate(
-                EscrowType.Type.DatacapCollateral,
-                dataset.metadata.submitter,
-                _datasetId,
-                EscrowType.CollateralEvent.SyncCollateral
-            );
 
-            dataset.approveDataset();
+        dataset.approveDataset();
 
-            _addCountSuccess(1);
-            _addSizeSuccess(mappingSize + sourceSize);
-            emit DatasetsEvents.DatasetApproved(_datasetId);
-        } else {
-            dataset.rejectDataset();
-            _addCountFailed(1);
-            _addSizeFailed(mappingSize + sourceSize);
-            emit DatasetsEvents.DatasetRejected(_datasetId);
-        }
+        _addCountSuccess(1);
+        _addSizeSuccess(mappingSize + sourceSize);
+        emit DatasetsEvents.DatasetApproved(_datasetId);
     }
 
     ///@notice Approve the metadata of a dataset.
@@ -359,24 +337,6 @@ contract Datasets is
     ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset._emitDatasetEvent(DatasetType.Event.SubmitMetadata);
-    }
-
-    /// @notice Report the dataset has not enough collateral.
-    /// @dev This function is intended for use only by the 'dataswap' contract.
-    function __reportFundsNotEnough(
-        uint64 _datasetId
-    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        dataset._emitDatasetEvent(DatasetType.Event.NotEnoughCollateral);
-    }
-
-    /// @notice Report the dataset has enough collateral.
-    /// @dev This function is intended for use only by the 'dataswap' contract.
-    function __reportFundsEnough(
-        uint64 _datasetId
-    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        dataset._emitDatasetEvent(DatasetType.Event.EnoughCollateral);
     }
 
     /// @notice Report the dataset proof has already been submitted.

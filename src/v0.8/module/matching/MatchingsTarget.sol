@@ -31,7 +31,6 @@ import {ArrayAddressLIB} from "src/v0.8/shared/utils/array/ArrayLIB.sol";
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
-import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
@@ -160,38 +159,13 @@ contract MatchingsTarget is
 
     /// @notice  Internal function for after publishing a matching
     /// @param _matchingId The matching id to publish cars.
-    /// @param _datasetId The datasetId id of matching.
     /// @param _target The matching target object contract.
     function _afterCompletePublish(
         uint64 _matchingId,
-        uint64 _datasetId,
         MatchingType.MatchingTarget storage _target
     ) internal {
         _beforeBidding(_matchingId);
         roles.matchings().__reportPublishMatching(_matchingId, _target.size);
-
-        address datasetInitiator = roles.datasets().getDatasetMetadataSubmitter(
-            _datasetId
-        );
-        address matchingInitiator = roles.matchings().getMatchingInitiator(
-            _matchingId
-        );
-        // Emit Synchronize matching payment sub account
-        roles.escrow().__emitPaymentUpdate(
-            EscrowType.Type.TotalDataPrepareFeeByClient,
-            datasetInitiator,
-            _matchingId,
-            matchingInitiator,
-            EscrowType.PaymentEvent.AddPaymentSubAccount
-        );
-
-        (uint256 total, , , , ) = roles.escrow().getBeneficiaryFund(
-            EscrowType.Type.TotalDataPrepareFeeByClient,
-            datasetInitiator,
-            _matchingId,
-            matchingInitiator
-        );
-        _target._updateSubsidy(total); // update subsidy amount
 
         (, , uint64 datasize, , , , ) = getMatchingTarget(_matchingId);
         // update dataset used size
@@ -239,7 +213,7 @@ contract MatchingsTarget is
         );
 
         if (complete) {
-            _afterCompletePublish(_matchingId, _datasetId, target);
+            _afterCompletePublish(_matchingId, target);
             emit MatchingsEvents.MatchingPublished(_matchingId, msg.sender);
         }
     }

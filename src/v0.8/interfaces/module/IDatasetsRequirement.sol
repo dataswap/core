@@ -62,11 +62,6 @@ interface IDatasetsRequirement {
             uint32[] memory cityCodes
         );
 
-    ///@notice Get dataset pre conditional
-    function getDatasetPreCollateralRequirements(
-        uint64 _datasetId
-    ) external view returns (uint256);
-
     /// @notice Get the Roles contract.
     /// @return Roles contract address.
     function roles() external view returns (IRoles);

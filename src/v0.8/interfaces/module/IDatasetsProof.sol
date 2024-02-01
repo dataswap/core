@@ -46,28 +46,6 @@ interface IDatasetsProof {
         uint64 _datasetId
     ) external returns (DatasetType.State);
 
-    /// @notice Append dataset escrow funds. include datacap collateral and dataset auditor calculate fees.
-    function appendDatasetFunds(
-        uint64 _datasetId,
-        uint256 _datacapCollateral,
-        uint256 _dataAuditorFees
-    ) external payable;
-
-    /// @notice Get dataset need append collateral funds
-    function getDatasetAppendCollateral(
-        uint64 _datasetId
-    ) external view returns (uint256);
-
-    /// @notice Get the dataset requires funding for dataset auditor fees
-    function getDatasetDataAuditorFeesRequirement(
-        uint64 _datasetId
-    ) external view returns (uint256);
-
-    /// @notice Get an audit fee
-    function getDatasetDataAuditorFees(
-        uint64 _datasetId
-    ) external view returns (uint256);
-
     ///@notice Get dataset source CIDs
     function getDatasetProof(
         uint64 _datasetId,
@@ -92,11 +70,6 @@ interface IDatasetsProof {
         uint64 _datasetId,
         DatasetType.DataType _dataType
     ) external view returns (uint64);
-
-    ///@notice Get dataset minimum conditional
-    function getDatasetCollateralRequirement(
-        uint64 _datasetId
-    ) external view returns (uint256);
 
     ///@notice Check if a dataset has a car id
     function isDatasetContainsCar(

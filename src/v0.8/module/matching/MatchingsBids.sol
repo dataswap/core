@@ -32,7 +32,6 @@ import {ArrayAddressLIB, ArrayUint64LIB} from "src/v0.8/shared/utils/array/Array
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
-import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
@@ -150,8 +149,6 @@ contract MatchingsBids is
             uint64 pausedBlockCount
         ) = roles.matchings().getMatchingMetadata(_matchingId);
 
-        _processPaymentEscrow(_matchingId, _amount, bidSelectionRule);
-
         bids._matchingBidding(
             bidSelectionRule,
             biddingThreshold,
@@ -163,34 +160,6 @@ contract MatchingsBids is
             _amount
         );
         return bidSelectionRule;
-    }
-
-    /// @dev Process payment fund escrow
-    function _processPaymentEscrow(
-        uint64 _matchingId,
-        uint256 _amount,
-        MatchingType.BidSelectionRule _bidSelectionRule
-    ) internal {
-        // Payment only when HighestBid and ImmediateAtLeast
-        if (
-            _bidSelectionRule == MatchingType.BidSelectionRule.HighestBid ||
-            _bidSelectionRule == MatchingType.BidSelectionRule.ImmediateAtLeast
-        ) {
-            (, uint256 hasBid, , , ) = roles.escrow().getOwnerFund(
-                EscrowType.Type.DataPrepareFeeByProvider,
-                msg.sender,
-                _matchingId
-            );
-            require(_amount > hasBid, "Invalid amount");
-
-            // Payment amount to escrow contract
-            roles.escrow().payment{value: msg.value}(
-                EscrowType.Type.DataPrepareFeeByProvider,
-                msg.sender,
-                _matchingId,
-                _amount - hasBid
-            );
-        }
     }
 
     ///@dev update cars info to carStore after matching failed
@@ -332,14 +301,6 @@ contract MatchingsBids is
                 uint64 _size
             ) = _beforeMatchingCompleted(_matchingId);
             bids.winner = winner;
-
-            roles.escrow().__emitPaymentUpdate(
-                EscrowType.Type.DataPrepareFeeByProvider,
-                winner,
-                _matchingId,
-                roles.matchings().getMatchingInitiator(_matchingId),
-                EscrowType.PaymentEvent.SyncPaymentBeneficiary
-            );
 
             roles.matchings().__reportMatchingHasWinner(
                 _matchingId,

@@ -30,7 +30,6 @@ import {StorageStatisticsBase} from "src/v0.8/core/statistics/StorageStatisticsB
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
-import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 import {StorageType} from "src/v0.8/types/StorageType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
@@ -144,14 +143,6 @@ contract Storages is
                 _claimIds[i]
             );
         }
-        // Notify the escrow contract to update the payment amount
-        roles.escrow().__emitPaymentUpdate(
-            EscrowType.Type.DataPrepareFeeByProvider,
-            roles.matchingsBids().getMatchingWinner(_matchingId),
-            _matchingId,
-            roles.matchings().getMatchingInitiator(_matchingId),
-            EscrowType.PaymentEvent.SyncPaymentLock
-        );
 
         (uint64 datasetId, , , , , uint16 replicaIndex, ) = roles
             .matchingsTarget()
@@ -159,14 +150,6 @@ contract Storages is
 
         uint64 _size = roles.carstore().getCarsSize(_ids);
         _addStoraged(datasetId, replicaIndex, _matchingId, _provider, _size);
-
-        roles.escrow().__emitPaymentUpdate(
-            EscrowType.Type.DataPrepareFeeByClient,
-            roles.datasets().getDatasetMetadataSubmitter(datasetId),
-            _matchingId,
-            roles.matchings().getMatchingInitiator(_matchingId),
-            EscrowType.PaymentEvent.SyncPaymentLock
-        );
     }
 
     /// @dev Gets the list of done cars in the matchedstore.
@@ -183,45 +166,6 @@ contract Storages is
     ) public view returns (uint64) {
         StorageType.Storage storage storage_ = storages[_matchingId];
         return uint64(storage_.doneCars.length);
-    }
-
-    /// @dev Get the provider allow payment amount
-    function getProviderLockPayment(
-        uint64 _matchingId
-    ) public view returns (uint256) {
-        (
-            uint256 totalSize,
-            uint256 storedSize,
-            ,
-            ,
-            ,
-            ,
-
-        ) = getMatchingStorageOverview(_matchingId);
-        uint256 totalPayment = roles.matchingsBids().getMatchingBidAmount(
-            _matchingId,
-            roles.matchingsBids().getMatchingWinner(_matchingId)
-        );
-        return (totalPayment / totalSize) * (totalSize - storedSize);
-    }
-
-    /// @dev Get the client allow payment amount
-    function getClientLockPayment(
-        uint64 _matchingId
-    ) public view returns (uint256) {
-        (, , , , , , uint256 totalPayment) = roles
-            .matchingsTarget()
-            .getMatchingTarget(_matchingId);
-        (
-            uint256 totalSize,
-            uint256 storedSize,
-            ,
-            ,
-            ,
-            ,
-
-        ) = getMatchingStorageOverview(_matchingId);
-        return (totalPayment / totalSize) * (totalSize - storedSize);
     }
 
     /// @dev Checks if all cars are done in the matchedstore.
@@ -258,34 +202,6 @@ contract Storages is
         } else {
             return false;
         }
-    }
-
-    /// @notice Add collateral funds for allocating datacap chunk
-    /// @param _matchingId The ID of the matching
-    function addDatacapChunkCollateral(uint64 _matchingId) public payable {
-        uint256 requirement = getCollateralRequirement();
-        address winner = roles.matchingsBids().getMatchingWinner(_matchingId);
-        (, , uint256 currentFunds, , ) = roles.escrow().getOwnerFund(
-            EscrowType.Type.DatacapChunkCollateral,
-            winner,
-            _matchingId
-        );
-        uint256 requiredFunds = requirement - currentFunds;
-        require(msg.value >= requiredFunds, "Insufficient collateral funds");
-
-        roles.escrow().collateral{value: msg.value}(
-            EscrowType.Type.DatacapChunkCollateral,
-            winner,
-            _matchingId,
-            requiredFunds
-        );
-
-        emit StoragesEvents.DatacapChunkCollateral(
-            _matchingId,
-            winner,
-            msg.value,
-            requiredFunds
-        );
     }
 
     /// @dev Internal function to allocate matched datacap.
@@ -333,14 +249,6 @@ contract Storages is
         validNextDatacapAllocation(this, _matchingId)
         returns (uint64)
     {
-        (, , uint256 currentFunds, , ) = roles.escrow().getOwnerFund(
-            EscrowType.Type.DatacapChunkCollateral,
-            roles.matchingsBids().getMatchingWinner(_matchingId),
-            _matchingId
-        );
-        uint256 requirement = getCollateralRequirement();
-        require(currentFunds >= requirement, "Insufficient collateral funds");
-
         (
             ,
             ,
@@ -384,88 +292,6 @@ contract Storages is
             );
             return maxAllocateCapacityPreTime;
         }
-    }
-
-    /// @notice Get collateral funds requirement for allocate chunk datacap
-    function getCollateralRequirement() public view returns (uint256) {
-        // TODO: PRICE_PER_BYTE import from governance
-        uint64 PER_TIB_BYTE = (1024 * 1024 * 1024 * 1024);
-        uint256 PRICE_PER_BYTE = (1000000000000000000 / PER_TIB_BYTE);
-        return
-            roles.filplus().datacapRulesMaxAllocatedSizePerTime() *
-            PRICE_PER_BYTE;
-    }
-
-    /// @notice Get the updated collateral funds for datacap chunk based on real-time business data
-    /// @param _matchingId The ID of the matching
-    /// @return The updated collateral funds required
-    function getDatacapChunkCollateralFunds(
-        uint64 _matchingId
-    ) public view returns (uint256) {
-        (, , uint256 availableFunds, , ) = roles.escrow().getOwnerFund(
-            EscrowType.Type.DatacapChunkCollateral,
-            roles.matchingsBids().getMatchingWinner(_matchingId),
-            _matchingId
-        );
-
-        if (isStorageExpiration(_matchingId) == true) {
-            (
-                uint256 matchingSize,
-                uint256 storedSize,
-                ,
-                ,
-                ,
-                ,
-
-            ) = getMatchingStorageOverview(_matchingId);
-            // TODO: PRICE_PER_BYTE import from governance
-            uint64 PER_TIB_BYTE = (1024 * 1024 * 1024 * 1024);
-            uint256 PRICE_PER_BYTE = (1000000000000000000 / PER_TIB_BYTE);
-            uint256 requiredFunds = (matchingSize - storedSize) *
-                PRICE_PER_BYTE;
-
-            if (requiredFunds < availableFunds) return requiredFunds;
-        }
-
-        return availableFunds;
-    }
-
-    /// @notice Get the updated burn funds for datacap chunk based on real-time business data
-    /// @param _matchingId The ID of the matching
-    /// @return The updated burn funds required
-    function getDatacapChunkBurnFunds(
-        uint64 _matchingId
-    ) public view returns (uint256) {
-        if (isStorageExpiration(_matchingId) == true) {
-            (
-                uint256 matchingSize,
-                uint256 storedSize,
-                ,
-                ,
-                ,
-                ,
-
-            ) = getMatchingStorageOverview(_matchingId);
-            // TODO: PRICE_PER_BYTE import from governance
-            uint64 PER_TIB_BYTE = (1024 * 1024 * 1024 * 1024);
-            uint256 PRICE_PER_BYTE = (1000000000000000000 / PER_TIB_BYTE);
-            uint256 requiredFunds = (matchingSize - storedSize) *
-                PRICE_PER_BYTE;
-
-            (, , uint256 availableFunds, , ) = roles.escrow().getOwnerFund(
-                EscrowType.Type.DatacapChunkCollateral,
-                roles.matchingsBids().getMatchingWinner(_matchingId),
-                _matchingId
-            );
-
-            if (requiredFunds < availableFunds) {
-                return requiredFunds;
-            } else {
-                return availableFunds;
-            }
-        }
-
-        return 0;
     }
 
     /// @dev Checks if the next datacap allocation is allowed for a matching process.

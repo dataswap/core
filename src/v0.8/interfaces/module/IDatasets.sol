@@ -109,14 +109,6 @@ interface IDatasets is IStatistics {
         uint64 _datasetId
     ) external view returns (bool);
 
-    /// @notice Report the dataset has not enough collateral.
-    /// @dev This function is intended for use only by the 'dataswap' contract.
-    function __reportFundsNotEnough(uint64 _datasetId) external;
-
-    /// @notice Report the dataset has enough collateral.
-    /// @dev This function is intended for use only by the 'dataswap' contract.
-    function __reportFundsEnough(uint64 _datasetId) external;
-
     /// @notice Report the dataset replica has already been submitted.
     /// @dev This function is intended for use only by the 'dataswap' contract.
     function __reportDatasetReplicaRequirementSubmitted(

@@ -29,7 +29,6 @@ import {DatasetReplicaRequirementLIB} from "src/v0.8/module/dataset/library/requ
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
-import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {GeolocationType} from "src/v0.8/types/GeolocationType.sol";
 
@@ -80,36 +79,6 @@ contract DatasetsRequirement is
         return _getImplementation();
     }
 
-    ///@notice Process replica requirement fund for a dataset
-    /// @param _amount The data preparer calculate fees.
-    function _processDatasetReplicaFund(
-        uint64 _datasetId,
-        uint256 _amount
-    ) internal {
-        uint256 preCollateral = getDatasetPreCollateralRequirements(_datasetId);
-        uint256 totalCollateral = msg.value - _amount;
-        require(
-            msg.value >= preCollateral + _amount,
-            "Insufficient collateral funds"
-        );
-
-        // Datacap collateral escrow
-        roles.escrow().collateral{value: totalCollateral}(
-            EscrowType.Type.DatacapCollateral,
-            msg.sender,
-            _datasetId,
-            preCollateral
-        );
-
-        // Data preparer calculate fees escrow dataset total account
-        roles.escrow().payment{value: _amount}(
-            EscrowType.Type.TotalDataPrepareFeeByClient,
-            msg.sender,
-            _datasetId,
-            _amount
-        );
-    }
-
     ///@notice Submit replica requirement for a dataset
     ///        Note: submmiter of dataset can submit dataset replica requirement
     /// @param _datasetId The ID of the dataset for which proof is submitted.
@@ -118,7 +87,6 @@ contract DatasetsRequirement is
     /// @param _regions The region specified by the client, and the client must specify a region for the replicas.
     /// @param _countrys The country specified by the client, and the client must specify a country for the replicas.
     /// @param _citys The citys specified by the client, when the country of a replica is duplicated, citys must be specified and cannot be empty.
-    /// @param _amount The data preparer calculate fees.
     function submitDatasetReplicaRequirements(
         uint64 _datasetId,
         address[][] memory _dataPreparers,
@@ -126,7 +94,7 @@ contract DatasetsRequirement is
         uint16[] memory _regions,
         uint16[] memory _countrys,
         uint32[][] memory _citys,
-        uint256 _amount
+        uint256 /*_amount*/
     )
         external
         payable
@@ -152,8 +120,6 @@ contract DatasetsRequirement is
             ),
             "Invalid region distribution"
         );
-
-        _processDatasetReplicaFund(_datasetId, _amount);
 
         DatasetType.DatasetReplicasRequirement
             storage datasetReplicasRequirement = datasetReplicasRequirements[
@@ -212,18 +178,5 @@ contract DatasetsRequirement is
                 _datasetId
             ];
         return datasetReplicasRequirement.getDatasetReplicaRequirement(_index);
-    }
-
-    ///@notice Get dataset pre conditional
-    function getDatasetPreCollateralRequirements(
-        uint64 _datasetId
-    ) public view onlyNotZero(_datasetId) returns (uint256) {
-        (, , , , , , , , uint64 size, , ) = roles.datasets().getDatasetMetadata(
-            _datasetId
-        );
-        // TODO: PRICE_PER_BYTE import from governance
-        uint64 PER_TIB_BYTE = (1024 * 1024 * 1024 * 1024);
-        uint256 PRICE_PER_BYTE = (1000000000000000000 / PER_TIB_BYTE);
-        return size * getDatasetReplicasCount(_datasetId) * PRICE_PER_BYTE;
     }
 }

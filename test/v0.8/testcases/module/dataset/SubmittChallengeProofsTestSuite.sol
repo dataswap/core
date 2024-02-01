@@ -50,12 +50,7 @@ contract SubmittChallengeProofsTestCaseWithSuccess is DatasetsTestBase {
 
     function before() internal virtual override returns (uint64 id) {
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return
-            setup.verificationTestSetup(
-                datasetsHelpers,
-                datasets,
-                datasetsProof
-            );
+        return setup.verificationTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64 _id) internal virtual override {
@@ -104,12 +99,7 @@ contract SubmittChallengeProofsTestCaseWithFail is DatasetsTestBase {
 
     function before() internal virtual override returns (uint64 id) {
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return
-            setup.verificationTestSetup(
-                datasetsHelpers,
-                datasets,
-                datasetsProof
-            );
+        return setup.verificationTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64 _id) internal virtual override {
@@ -161,12 +151,7 @@ contract SubmittChallengeProofsTestCaseWithIllegalRole is DatasetsTestBase {
 
     function before() internal virtual override returns (uint64 id) {
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return
-            setup.verificationTestSetup(
-                datasetsHelpers,
-                datasets,
-                datasetsProof
-            );
+        return setup.verificationTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64 _id) internal virtual override {

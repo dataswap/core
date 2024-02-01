@@ -21,8 +21,6 @@ pragma solidity ^0.8.21;
 import {SendAPI} from "@zondax/filecoin-solidity/contracts/v0.8/SendAPI.sol";
 import {FilAddresses} from "@zondax/filecoin-solidity/contracts/v0.8/utils/FilAddresses.sol";
 
-import {EscrowType} from "src/v0.8/types/EscrowType.sol";
-import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {MatchingStateMachineLIB} from "src/v0.8/module/matching/library/MatchingStateMachineLIB.sol";
 

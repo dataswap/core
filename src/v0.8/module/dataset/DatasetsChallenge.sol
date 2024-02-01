@@ -30,7 +30,6 @@ import {DatasetChallengeProofLIB} from "src/v0.8/module/dataset/library/challeng
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
-import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {GeolocationType} from "src/v0.8/types/GeolocationType.sol";
 
@@ -110,23 +109,6 @@ contract DatasetsChallenge is
             _paths,
             roots,
             roles.merkleUtils()
-        );
-
-        // Add dataset auditor to beneficiary list
-        roles.escrow().__emitPaymentUpdate(
-            EscrowType.Type.DatasetAuditFee,
-            roles.datasets().getDatasetMetadataSubmitter(_datasetId),
-            _datasetId,
-            msg.sender,
-            EscrowType.PaymentEvent.SyncPaymentBeneficiary
-        );
-        // Allow payment
-        roles.escrow().__emitPaymentUpdate(
-            EscrowType.Type.DatasetAuditFee,
-            roles.datasets().getDatasetMetadataSubmitter(_datasetId),
-            _datasetId,
-            msg.sender,
-            EscrowType.PaymentEvent.SyncPaymentLock
         );
 
         emit DatasetsEvents.DatasetChallengeProofsSubmitted(

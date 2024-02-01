@@ -30,7 +30,6 @@ import {DatasetProofLIB} from "src/v0.8/module/dataset/library/proof/DatasetProo
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
-import {EscrowType} from "src/v0.8/types/EscrowType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {GeolocationType} from "src/v0.8/types/GeolocationType.sol";
 
@@ -200,41 +199,9 @@ contract DatasetsProof is
                 "Invalid mappingFiles percentage"
             );
 
-            uint256 collateralRequirement = getDatasetCollateralRequirement(
-                _datasetId
-            );
-            uint256 datasetAuditorFee = getDatasetDataAuditorFeesRequirement(
-                _datasetId
-            );
-            (uint256 total, , , , ) = roles.escrow().getOwnerFund(
-                EscrowType.Type.DatacapCollateral,
-                roles.datasets().getDatasetMetadataSubmitter(_datasetId),
-                _datasetId
-            );
-            (, uint256 lock, , , ) = roles.escrow().getOwnerFund(
-                EscrowType.Type.DatasetAuditFee,
-                roles.datasets().getDatasetMetadataSubmitter(_datasetId),
-                _datasetId
-            );
-            if (total < collateralRequirement || lock < datasetAuditorFee) {
-                roles.datasets().__reportFundsNotEnough(_datasetId);
-                emit DatasetsEvents.FundsNotEnough(_datasetId, msg.sender);
-                return DatasetType.State.FundsNotEnough;
-            } else {
-                // Update collateral funds to collateral requirement
-                roles.escrow().__emitCollateralUpdate(
-                    EscrowType.Type.DatacapCollateral,
-                    roles.datasets().getDatasetMetadataSubmitter(_datasetId),
-                    _datasetId,
-                    EscrowType.CollateralEvent.SyncCollateral
-                );
+            roles.datasets().__reportDatasetProofSubmitted(_datasetId);
+            emit DatasetsEvents.DatasetProofSubmitted(_datasetId, msg.sender);
 
-                roles.datasets().__reportDatasetProofSubmitted(_datasetId);
-                emit DatasetsEvents.DatasetProofSubmitted(
-                    _datasetId,
-                    msg.sender
-                );
-            }
             return DatasetType.State.DatasetProofSubmitted;
         }
     }
@@ -262,72 +229,6 @@ contract DatasetsProof is
         if (_completed) {
             submitDatasetProofCompleted(_datasetId);
         }
-    }
-
-    /// @notice Append dataset escrow funds. include datacap collateral and dataset auditor calculate fees.
-    function appendDatasetFunds(
-        uint64 _datasetId,
-        uint256 _datacapCollateral,
-        uint256 _dataAuditorFees
-    )
-        public
-        payable
-        onlyAddress(roles.datasets().getDatasetMetadataSubmitter(_datasetId))
-    {
-        require(
-            _datacapCollateral == getDatasetAppendCollateral(_datasetId),
-            "Insufficient collateral funds"
-        );
-        require(
-            _dataAuditorFees ==
-                getDatasetDataAuditorFeesRequirement(_datasetId),
-            "Insufficient dataset auditor funds"
-        );
-        require(
-            msg.value >= _datacapCollateral + _dataAuditorFees,
-            "Insufficient msg.value funds"
-        );
-
-        uint256 totalCollateral = msg.value - _dataAuditorFees;
-        // Append datacap collateral escrow
-        roles.escrow().collateral{value: totalCollateral}(
-            EscrowType.Type.DatacapCollateral,
-            msg.sender,
-            _datasetId,
-            _datacapCollateral
-        );
-
-        // dataset auditor calculate fees escrow
-        roles.escrow().payment{value: _dataAuditorFees}(
-            EscrowType.Type.DatasetAuditFee,
-            msg.sender,
-            _datasetId,
-            _dataAuditorFees
-        );
-
-        roles.datasets().__reportFundsEnough(_datasetId);
-        emit DatasetsEvents.FundsEnough(_datasetId, msg.sender);
-    }
-
-    /// @notice Get the dataset requires append collateral funds
-    function getDatasetAppendCollateral(
-        uint64 _datasetId
-    ) public view returns (uint256) {
-        uint256 collateralRequirement = getDatasetCollateralRequirement(
-            _datasetId
-        );
-        (uint256 total, , , , ) = roles.escrow().getOwnerFund(
-            EscrowType.Type.DatacapCollateral,
-            roles.datasets().getDatasetMetadataSubmitter(_datasetId),
-            _datasetId
-        );
-
-        uint256 appendCollateral = 0;
-        if (collateralRequirement > total) {
-            appendCollateral = collateralRequirement - total;
-        }
-
-        return appendCollateral;
     }
 
     ///@notice Get dataset source CIDs
@@ -376,38 +277,6 @@ contract DatasetsProof is
             _datasetId
         ];
         return datasetProof.getDatasetSize(_dataType);
-    }
-
-    ///@notice Get dataset minimum conditional
-    function getDatasetCollateralRequirement(
-        uint64 _datasetId
-    ) public view onlyNotZero(_datasetId) returns (uint256) {
-        // TODO: PRICE_PER_BYTE import from governance
-        uint64 PER_TIB_BYTE = (1024 * 1024 * 1024 * 1024);
-        uint256 PRICE_PER_BYTE = (1000000000000000000 / PER_TIB_BYTE);
-        return
-            getDatasetSize(_datasetId, DatasetType.DataType.Source) *
-            roles.datasetsRequirement().getDatasetReplicasCount(_datasetId) *
-            PRICE_PER_BYTE;
-    }
-
-    /// @notice Get the dataset requires funding for dataset auditor fees
-    function getDatasetDataAuditorFeesRequirement(
-        uint64 _datasetId
-    ) public view onlyNotZero(_datasetId) returns (uint256) {
-        return
-            roles.datasetsChallenge().getChallengeSubmissionCount(_datasetId) *
-            roles.filplus().getChallengeProofsSubmiterCount() *
-            roles.filplus().getChallengeProofsPricePrePoint();
-    }
-
-    /// @notice Get an audit fee
-    function getDatasetDataAuditorFees(
-        uint64 _datasetId
-    ) public view onlyNotZero(_datasetId) returns (uint256) {
-        return
-            roles.datasetsChallenge().getChallengeSubmissionCount(_datasetId) *
-            roles.filplus().getChallengeProofsPricePrePoint();
     }
 
     ///@notice Check if a dataset proof all completed

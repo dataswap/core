@@ -51,7 +51,7 @@ contract ApproveTestCaseWithSuccess is DatasetsTestBase {
 
     function before() internal virtual override returns (uint64 id) {
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return setup.datasetTestSetup(datasetsHelpers, datasets, datasetsProof);
+        return setup.datasetTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64 _id) internal virtual override {
@@ -84,7 +84,7 @@ contract ApproveTestCaseWithInvalidAddress is DatasetsTestBase {
 
     function before() internal virtual override returns (uint64 id) {
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return setup.datasetTestSetup(datasetsHelpers, datasets, datasetsProof);
+        return setup.datasetTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64 _id) internal virtual override {
@@ -115,7 +115,7 @@ contract ApproveTestCaseWithZeroID is DatasetsTestBase {
 
     function before() internal virtual override returns (uint64 id) {
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return setup.datasetTestSetup(datasetsHelpers, datasets, datasetsProof);
+        return setup.datasetTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64) internal virtual override {
@@ -148,7 +148,7 @@ contract ApproveTestCaseWithInvalidState is DatasetsTestBase {
 
     function before() internal virtual override returns (uint64 id) {
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return setup.datasetTestSetup(datasetsHelpers, datasets, datasetsProof);
+        return setup.datasetTestSetup(datasetsHelpers, datasets);
     }
 
     function action(uint64 _id) internal virtual override {

@@ -388,17 +388,6 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             _mappingFilesLeavesCount,
             true
         );
-        uint256 collateralRequirement = datasetsProof
-            .getDatasetAppendCollateral(datasetId);
-        uint256 datasetAuditorFee = datasetsProof
-            .getDatasetDataAuditorFeesRequirement(datasetId);
-        vm.deal(address(9), 100 ether);
-        vm.prank(address(9));
-        datasetsProof.appendDatasetFunds{value: 100 ether}(
-            datasetId,
-            collateralRequirement,
-            datasetAuditorFee
-        );
 
         datasetsProof.submitDatasetProofCompleted(datasetId);
         vm.startPrank(admin);
