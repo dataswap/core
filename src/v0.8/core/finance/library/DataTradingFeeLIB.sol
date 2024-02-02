@@ -196,16 +196,52 @@ library DataTradingFeeLIB {
         }
     }
 
+    /// @notice Checks if the escrowed funds are sufficient for a given dataset, matching, token, and finance type.
+    /// @dev This function returns true if the escrowed funds are enough, otherwise, it returns false.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _matchingId The ID of the matching associated with the dataset.
+    /// @param _owner An array containing the addresses of the dataset and matching process owners.
+    /// @param _token The address of the token used for escrow.
+    /// @param _roles The roles contract interface.
+    /// @return A boolean indicating whether the escrowed funds are enough.
+    function isEscrowEnough(
+        uint64 _datasetId,
+        uint64 _matchingId,
+        address _owner,
+        address _token,
+        IRoles _roles
+    ) internal view returns (bool) {
+        (, uint256 expenditure, uint256 total) = _roles
+            .finance()
+            .getAccountEscrow(
+                _datasetId,
+                _matchingId,
+                _owner,
+                _token,
+                FinanceType.Type.DataTradingFee
+            );
+
+        uint256 requirement = getRequirement(
+            _datasetId,
+            _matchingId,
+            _owner,
+            _token,
+            _roles
+        );
+
+        return (total - expenditure >= requirement);
+    }
+
     /// @notice Get dataset pre-conditional collateral requirement.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
-    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @param _roles The roles contract interface.
     /// @return amount The collateral requirement amount.
     function getRequirement(
         uint64 _datasetId,
         uint64 _matchingId,
-        address _token,
+        address _owner,
+        address /*_token*/,
         IRoles _roles
     )
         internal
@@ -213,7 +249,22 @@ library DataTradingFeeLIB {
         returns (
             uint256 amount // solhint-disable-next-line
         )
-    {}
+    {
+        if (
+            _owner == _roles.datasets().getDatasetMetadataSubmitter(_datasetId)
+        ) {
+            /// TODO: Add dataTradingFee requirement get interface.
+        } else if (
+            _owner == _roles.matchingsBids().getMatchingWinner(_matchingId)
+        ) {
+            amount = _roles.matchingsBids().getMatchingBidAmount(
+                _matchingId,
+                _owner
+            );
+        } else {
+            require(false, "owner account does not exist");
+        }
+    }
 
     /// @dev Internal function to get owners associated with a dataset and matching process.
     /// @param _datasetId The ID of the dataset.

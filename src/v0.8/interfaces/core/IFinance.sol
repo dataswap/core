@@ -136,6 +136,7 @@ interface IFinance {
     /// @dev Retrieves the escrow requirement for a specific dataset, matching process, and token type.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
+    /// @param _owner The address of the account owner.
     /// @param _token The type of token for the escrow requirement (e.g., FIL, ERC-20).
     /// @return amount The required escrow amount for the specified dataset, matching process, and token type.
     /// Note: TypeX_EscrowLibrary needs to include the following methods.
@@ -147,7 +148,24 @@ interface IFinance {
     function getEscrowRequirement(
         uint64 _datasetId,
         uint64 _matchingId,
+        address _owner,
         address _token,
         FinanceType.Type _type
     ) external view returns (uint256 amount);
+
+    /// @notice Checks if the escrowed funds are sufficient for a given dataset, matching, token, and finance type.
+    /// @dev This function returns true if the escrowed funds are enough, otherwise, it returns false.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _matchingId The ID of the matching associated with the dataset.
+    /// @param _owner The address of the account owner.
+    /// @param _token The address of the token used for escrow.
+    /// @param _type The finance type indicating the purpose of the escrow.
+    /// @return A boolean indicating whether the escrowed funds are enough.
+    function isEscrowEnough(
+        uint64 _datasetId,
+        uint64 _matchingId,
+        address _owner,
+        address _token,
+        FinanceType.Type _type
+    ) external view returns (bool);
 }
