@@ -71,6 +71,10 @@ library RolesType {
         DatasetsRequirement,
         Matchings,
         MatchingsBids,
-        MatchingsTarget
+        MatchingsTarget,
+        DataTradingFee,
+        DatacapChunkLand,
+        DatacapCollateral,
+        ChallengeCommission
     }
 }

@@ -31,6 +31,7 @@ import {StorageStatisticsBase} from "src/v0.8/core/statistics/StorageStatisticsB
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {StorageType} from "src/v0.8/types/StorageType.sol";
+import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {CarReplicaType} from "src/v0.8/types/CarReplicaType.sol";
 
@@ -150,6 +151,13 @@ contract Storages is
 
         uint64 _size = roles.carstore().getCarsSize(_ids);
         _addStoraged(datasetId, replicaIndex, _matchingId, _provider, _size);
+
+        // roles.finance().claimEscrow(/// TODO: https://github.com/dataswap/core/issues/245
+        //     datasetId,
+        //     _matchingId,
+        //     FinanceType.FIL,
+        //     FinanceType.Type.DataTradingFee
+        // );
     }
 
     /// @dev Gets the list of done cars in the matchedstore.
@@ -264,6 +272,18 @@ contract Storages is
         (uint64 datasetId, , uint16 replicaIndex) = _getDatasetInfo(
             _matchingId
         );
+
+        // require( /// TODO: https://github.com/dataswap/core/issues/245
+        //     roles.finance().isEscrowEnough(
+        //         datasetId,
+        //         _matchingId,
+        //         roles.matchingsBids().getMatchingWinner(_matchingId),
+        //         FinanceType.FIL,
+        //         FinanceType.Type.DatacapChunkLandCollateral
+        //     ),
+        //     "DatacapChunkLandCollateral escrow not enough"
+        // );
+
         if (remainingUnallocatedDatacap <= maxAllocateCapacityPreTime) {
             _allocateDatacap(_matchingId, uint64(remainingUnallocatedDatacap));
             _addAllocated(

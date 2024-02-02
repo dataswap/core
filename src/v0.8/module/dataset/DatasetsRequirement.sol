@@ -30,6 +30,7 @@ import {DatasetReplicaRequirementLIB} from "src/v0.8/module/dataset/library/requ
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {GeolocationType} from "src/v0.8/types/GeolocationType.sol";
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -143,6 +144,8 @@ contract DatasetsRequirement is
             _citys
         );
 
+        _processEscrow(_datasetId);
+
         roles.datasets().__reportDatasetReplicaRequirementSubmitted(_datasetId);
         emit DatasetsEvents.DatasetReplicaRequirementSubmitted(
             _datasetId,
@@ -182,5 +185,25 @@ contract DatasetsRequirement is
                 _datasetId
             ];
         return datasetReplicasRequirement.getDatasetReplicaRequirement(_index);
+    }
+
+    ///@notice Process escrow
+    /// 1. Add DatacapCollateral escrow
+    /// 2. Add DataTradingFee escrow
+    function _processEscrow(
+        uint64 _datasetId
+    ) internal onlyNotZero(_datasetId) {
+        // roles.finance().escrow(/// TODO: https://github.com/dataswap/core/issues/245
+        //     _datasetId,
+        //     0,
+        //     FinanceType.FIL,
+        //     FinanceType.Type.DatacapCollateral
+        // );
+        // roles.finance().escrow(
+        //     _datasetId,
+        //     0,
+        //     FinanceType.FIL,
+        //     FinanceType.Type.DataTradingFee
+        // );
     }
 }

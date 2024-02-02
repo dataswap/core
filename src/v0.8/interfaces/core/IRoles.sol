@@ -46,6 +46,10 @@ import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirem
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
+import {DataTradingFee} from "src/v0.8/core/finance/base/DataTradingFee.sol";
+import {DatacapChunkLand} from "src/v0.8/core/finance/base/DatacapChunkLand.sol";
+import {ChallengeCommission} from "src/v0.8/core/finance/base/ChallengeCommission.sol";
+import {DatacapCollateral} from "src/v0.8/core/finance/base/DatacapCollateral.sol";
 
 /// @title IRoles Interface
 /// @notice This interface defines the role-based access control for various roles within the system.
@@ -151,4 +155,20 @@ interface IRoles is IAccessControlEnumerableUpgradeable {
     /// @notice Get the MatchingsTarget contract.
     /// @return MatchingsTarget contract address.
     function matchingsTarget() external view returns (IMatchingsTarget);
+
+    /// @notice Get the DataTradingFee contract.
+    /// @return DataTradingFee contract address.
+    function dataTradingFee() external view returns (DataTradingFee);
+
+    /// @notice Get the DatacapChunkLand contract.
+    /// @return DatacapChunkLand contract address.
+    function datacapChunkLand() external view returns (DatacapChunkLand);
+
+    /// @notice Get the ChallengeCommission contract.
+    /// @return ChallengeCommission contract address.
+    function challengeCommission() external view returns (ChallengeCommission);
+
+    /// @notice Get the DatacapCollateral contract.
+    /// @return DatacapCollateral contract address.
+    function datacapCollateral() external view returns (DatacapCollateral);
 }

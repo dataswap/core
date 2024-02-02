@@ -18,7 +18,9 @@ pragma solidity ^0.8.21;
 
 import {DSTest} from "ds-test/test.sol";
 import {Test} from "forge-std/Test.sol";
+import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
+
 import {IStoragesAssertion} from "test/v0.8/interfaces/assertions/module/IStoragesAssertion.sol";
 import {StorageStatisticsBaseAssertion} from "test/v0.8/assertions/core/statistics/StorageStatisticsBaseAssertion.sol";
 import {ArrayUint64LIB} from "src/v0.8/shared/utils/array/ArrayLIB.sol";

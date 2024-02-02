@@ -42,6 +42,11 @@ import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
 
+import {DataTradingFee} from "src/v0.8/core/finance/base/DataTradingFee.sol";
+import {DatacapChunkLand} from "src/v0.8/core/finance/base/DatacapChunkLand.sol";
+import {ChallengeCommission} from "src/v0.8/core/finance/base/ChallengeCommission.sol";
+import {DatacapCollateral} from "src/v0.8/core/finance/base/DatacapCollateral.sol";
+
 /// @title Role Contract
 /// @notice This contract defines the role-based access control for various roles within the system.
 contract Roles is
@@ -67,6 +72,11 @@ contract Roles is
     IMatchings public matchings;
     IMatchingsBids public matchingsBids;
     IMatchingsTarget public matchingsTarget;
+
+    DataTradingFee public dataTradingFee;
+    DatacapChunkLand public datacapChunkLand;
+    ChallengeCommission public challengeCommission;
+    DatacapCollateral public datacapCollateral;
 
     /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
     function initialize() public initializer {
@@ -123,6 +133,14 @@ contract Roles is
             matchingsBids = IMatchingsBids(_contract);
         } else if (_type == RolesType.ContractType.MatchingsTarget) {
             matchingsTarget = IMatchingsTarget(_contract);
+        } else if (_type == RolesType.ContractType.DataTradingFee) {
+            dataTradingFee = DataTradingFee(_contract);
+        } else if (_type == RolesType.ContractType.DatacapChunkLand) {
+            datacapChunkLand = DatacapChunkLand(_contract);
+        } else if (_type == RolesType.ContractType.DatacapCollateral) {
+            datacapCollateral = DatacapCollateral(_contract);
+        } else if (_type == RolesType.ContractType.ChallengeCommission) {
+            challengeCommission = ChallengeCommission(_contract);
         } else {
             require(false, "Invalid RolesType.ContractType");
         }
