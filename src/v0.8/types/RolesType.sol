@@ -24,6 +24,9 @@ library RolesType {
     /// @notice Default admin role
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 
+    /// @notice Bytes32 constant representing the role of a storage client.
+    bytes32 public constant STORAGE_CLIENT = keccak256("SC");
+
     /// @notice Bytes32 constant representing the role of a storage provider.
     bytes32 public constant STORAGE_PROVIDER = keccak256("SP");
 

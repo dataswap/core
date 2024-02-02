@@ -93,7 +93,6 @@ contract MatchingsBids is
     )
         external
         payable
-        onlyRole(roles, RolesType.STORAGE_PROVIDER)
         onlyMatchingState(
             roles.matchings(),
             _matchingId,
@@ -117,6 +116,7 @@ contract MatchingsBids is
             require(sp.isContains(msg.sender), "Invalid SP submitter");
         }
 
+        roles.grantDataswapRole(RolesType.STORAGE_PROVIDER, msg.sender);
         emit MatchingsEvents.MatchingBidPlaced(
             _matchingId,
             msg.sender,

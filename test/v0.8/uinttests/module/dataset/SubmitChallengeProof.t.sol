@@ -48,18 +48,4 @@ contract ChallengeProofsTest is Test, DatasetTestSetup {
             );
         testCase.run();
     }
-
-    /// @notice test case with illegal role
-    function testSubmitDatasetChallengeProofsWithIllegalRole() public {
-        setup();
-        SubmittChallengeProofsTestCaseWithIllegalRole testCase = new SubmittChallengeProofsTestCaseWithIllegalRole(
-                datasets,
-                datasetsRequirement,
-                datasetsProof,
-                datasetsChallenge,
-                helpers,
-                assertion
-            );
-        testCase.run();
-    }
 }

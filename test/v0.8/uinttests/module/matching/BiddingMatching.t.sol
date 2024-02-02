@@ -35,19 +35,6 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
         testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
     }
 
-    /// @notice test case with invalid role
-    function testBiddingMatchingWithInvalidRole(uint64 _amount) public {
-        setup();
-        BiddingTestCaseWithInvlalidRole testCase = new BiddingTestCaseWithInvlalidRole(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
-                helpers,
-                assertion
-            );
-        testCase.run(MatchingType.BidSelectionRule.HighestBid, _amount);
-    }
-
     /// @notice test case with invalid amount
     function testBiddingMatchingWithInvalidAmount(uint64 _amount) public {
         setup();
