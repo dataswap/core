@@ -32,6 +32,8 @@ import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {IFinance} from "src/v0.8/interfaces/core/IFinance.sol";
 import {DataTradingFeeLIB} from "src/v0.8/core/finance/library/DataTradingFeeLIB.sol";
 import {DatacapChunkLandLIB} from "src/v0.8/core/finance/library/DatacapChunkLandLIB.sol";
+import {ChallengeCommissionLIB} from "src/v0.8/core/finance/library/ChallengeCommissionLIB.sol";
+import {DatacapCollateralLIB} from "src/v0.8/core/finance/library/DatacapCollateralLIB.sol";
 
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 
@@ -130,6 +132,20 @@ contract Finance is Initializable, UUPSUpgradeable, RolesModifiers, IFinance {
                 _token,
                 roles
             );
+        } else if (_type == FinanceType.Type.ChallengeCommission) {
+            ChallengeCommissionLIB.getPayeeInfo(
+                _datasetId,
+                _matchingId,
+                _token,
+                roles
+            );
+        } else if (_type == FinanceType.Type.DatacapCollateral) {
+            DatacapCollateralLIB.getPayeeInfo(
+                _datasetId,
+                _matchingId,
+                _token,
+                roles
+            );
         }
     }
 
@@ -192,6 +208,7 @@ contract Finance is Initializable, UUPSUpgradeable, RolesModifiers, IFinance {
     /// @dev Retrieves the escrow requirement for a specific dataset, matching process, and token type.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
+    /// @param _owner The address of the account owner.
     /// @param _token The type of token for the escrow requirement (e.g., FIL, ERC-20).
     /// @return amount The required escrow amount for the specified dataset, matching process, and token type.
     /// Note: TypeX_EscrowLibrary needs to include the following methods.
@@ -203,7 +220,58 @@ contract Finance is Initializable, UUPSUpgradeable, RolesModifiers, IFinance {
     function getEscrowRequirement(
         uint64 _datasetId,
         uint64 _matchingId,
+        address _owner,
         address _token,
         FinanceType.Type _type
     ) external view returns (uint256 amount) {}
+
+    /// @notice Checks if the escrowed funds are sufficient for a given dataset, matching, token, and finance type.
+    /// @dev This function returns true if the escrowed funds are enough, otherwise, it returns false.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _matchingId The ID of the matching associated with the dataset.
+    /// @param _owner The address of the account owner.
+    /// @param _token The address of the token used for escrow.
+    /// @param _type The finance type indicating the purpose of the escrow.
+    /// @return enough A boolean indicating whether the escrowed funds are enough.
+    function isEscrowEnough(
+        uint64 _datasetId,
+        uint64 _matchingId,
+        address _owner,
+        address _token,
+        FinanceType.Type _type
+    ) external view returns (bool enough) {
+        if (_type == FinanceType.Type.DataTradingFee) {
+            enough = DataTradingFeeLIB.isEscrowEnough(
+                _datasetId,
+                _matchingId,
+                _owner,
+                _token,
+                roles
+            );
+        } else if (_type == FinanceType.Type.DatacapChunkLandCollateral) {
+            enough = DatacapChunkLandLIB.isEscrowEnough(
+                _datasetId,
+                _matchingId,
+                _owner,
+                _token,
+                roles
+            );
+        } else if (_type == FinanceType.Type.ChallengeCommission) {
+            enough = ChallengeCommissionLIB.isEscrowEnough(
+                _datasetId,
+                _matchingId,
+                _owner,
+                _token,
+                roles
+            );
+        } else if (_type == FinanceType.Type.DatacapCollateral) {
+            enough = DatacapCollateralLIB.isEscrowEnough(
+                _datasetId,
+                _matchingId,
+                _owner,
+                _token,
+                roles
+            );
+        }
+    }
 }
