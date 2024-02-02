@@ -34,6 +34,7 @@ import {DatasetStateMachineLIB} from "src/v0.8/module/dataset/library/metadata/D
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {GeolocationType} from "src/v0.8/types/GeolocationType.sol";
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -99,10 +100,6 @@ contract Datasets is
     {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
 
-        dataset._emitDatasetEvent(DatasetType.Event.Approved);
-
-        //TODO:finance.handleEscrow()
-
         uint64 mappingSize = roles.datasetsProof().getDatasetSize(
             _datasetId,
             DatasetType.DataType.MappingFiles
@@ -114,6 +111,15 @@ contract Datasets is
 
         _addCountSuccess(1);
         _addSizeSuccess(mappingSize + sourceSize);
+
+        // roles.finance().claimEscrow(/// TODO: https://github.com/dataswap/core/issues/245
+        //     _datasetId,
+        //     0,
+        //     FinanceType.FIL,
+        //     FinanceType.Type.ChallengeCommission
+        // );
+
+        dataset._emitDatasetEvent(DatasetType.Event.Approved);
         emit DatasetsEvents.DatasetApproved(_datasetId);
     }
 

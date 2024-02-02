@@ -42,6 +42,9 @@ library FinanceType {
         End
     }
 
+    /// @notice Escrow token types.
+    address public constant FIL = address(0);
+
     /// @notice enum representing the ReleaseType details.
     enum ReleaseType {
         Linear

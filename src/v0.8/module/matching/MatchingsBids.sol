@@ -34,6 +34,7 @@ import {ArrayAddressLIB, ArrayUint64LIB} from "src/v0.8/shared/utils/array/Array
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
+import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -117,6 +118,14 @@ contract MatchingsBids is
         }
 
         roles.grantDataswapRole(RolesType.STORAGE_PROVIDER, msg.sender);
+        // Add bidding escrow
+        // roles.finance().escrow(/// TODO: https://github.com/dataswap/core/issues/245
+        //     datasetId,
+        //     _matchingId,
+        //     FinanceType.FIL,
+        //     FinanceType.Type.DataTradingFee
+        // );
+
         emit MatchingsEvents.MatchingBidPlaced(
             _matchingId,
             msg.sender,
@@ -309,6 +318,13 @@ contract MatchingsBids is
                 _size,
                 winner
             );
+            // Refund bidding escrow for no winner
+            // roles.finance().claimEscrow(/// TODO: https://github.com/dataswap/core/issues/245
+            //     _datasetId,
+            //     _matchingId,
+            //     FinanceType.FIL,
+            //     FinanceType.Type.DataTradingFee
+            // );
         } else {
             uint64 _size = _afterMatchingFailed(_matchingId);
             roles.matchings().__reportMatchingNoWinner(_matchingId, _size);

@@ -221,6 +221,35 @@ contract DatasetsProof is
         //TODO:impl
     }
 
+    ///@notice _isEscrowEnough
+    /// 1. Is DatacapCollateral escrow enough?
+    /// 2. Is ChallengeCommission escrow enough?
+    function _isEscrowEnough(
+        uint64 /*_datasetId*/,
+        address /*_owner*/ /*onlyNotZero(_datasetId)*/
+    ) internal pure returns (bool) {
+        // if ( /// TODO: https://github.com/dataswap/core/issues/245
+        //     roles.finance().isEscrowEnough(
+        //         _datasetId,
+        //         0,
+        //         _owner,
+        //         FinanceType.FIL,
+        //         FinanceType.Type.DatacapCollateral
+        //     ) &&
+        //     roles.finance().isEscrowEnough(
+        //         _datasetId,
+        //         0,
+        //         _owner,
+        //         FinanceType.FIL,
+        //         FinanceType.Type.ChallengeCommission
+        //     )
+        // ) {
+        return true;
+        // } else {
+        //     return false;
+        // }
+    }
+
     ///@notice Submit proof completed for a dataset
     function submitDatasetProofCompleted(
         uint64 _datasetId
@@ -252,27 +281,11 @@ contract DatasetsProof is
                     ),
                 "Invalid mappingFiles percentage"
             );
-            //TODO: remove after finance impl merged
-            roles.datasets().__reportDatasetProofCompleted(_datasetId);
-            emit DatasetsEvents.DatasetProofSubmitted(_datasetId, msg.sender);
-            return DatasetType.State.ProofSubmitted;
 
-            //TODO: open after finance impl merged
-            /*
             if (
-                roles.finance().isEscrowEnough(
+                _isEscrowEnough(
                     _datasetId,
-                    0,
-                    roles.datasets().getDatasetMetadataSubmitter(_datasetId),
-                    address(0),
-                    FinanceType.Type.DatacapCollateral
-                ) ||
-                roles.finance().isEscrowEnough(
-                    _datasetId,
-                    0,
-                    roles.datasets().getDatasetMetadataSubmitter(_datasetId),
-                    address(0),
-                    FinanceType.Type.ChallengeCommission
+                    roles.datasets().getDatasetMetadataSubmitter(_datasetId)
                 )
             ) {
                 roles.datasets().__reportDatasetProofCompleted(_datasetId);
@@ -280,7 +293,7 @@ contract DatasetsProof is
                     _datasetId,
                     msg.sender
                 );
-                return DatasetType.State.DatasetProofSubmitted;
+                return DatasetType.State.ProofSubmitted;
             } else {
                 roles.datasets().__reportDatasetInsufficientEscrowFunds(
                     _datasetId
@@ -291,7 +304,6 @@ contract DatasetsProof is
                 );
                 return DatasetType.State.WaitEscrow;
             }
-        */
         }
     }
 

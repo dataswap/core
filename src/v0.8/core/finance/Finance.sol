@@ -30,12 +30,9 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 // type
 import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {IFinance} from "src/v0.8/interfaces/core/IFinance.sol";
-import {DataTradingFeeLIB} from "src/v0.8/core/finance/library/DataTradingFeeLIB.sol";
-import {DatacapChunkLandLIB} from "src/v0.8/core/finance/library/DatacapChunkLandLIB.sol";
-import {ChallengeCommissionLIB} from "src/v0.8/core/finance/library/ChallengeCommissionLIB.sol";
-import {DatacapCollateralLIB} from "src/v0.8/core/finance/library/DatacapCollateralLIB.sol";
 
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {Base} from "src/v0.8/core/finance/base/Base.sol";
 
 /// @title Finance
 /// @dev Base finance contract, holds funds designated for a payee until they withdraw them.
@@ -116,35 +113,12 @@ contract Finance is Initializable, UUPSUpgradeable, RolesModifiers, IFinance {
         address _token,
         FinanceType.Type _type
     ) external view {
-        if (_type == FinanceType.Type.DataTradingFee) {
-            DataTradingFeeLIB.getPayeeInfo(
-                _datasetId,
-                _matchingId,
-                _token,
-                roles
-            );
-        } else if (_type == FinanceType.Type.DatacapChunkLandCollateral) {
-            DatacapChunkLandLIB.getPayeeInfo(
-                _datasetId,
-                _matchingId,
-                _token,
-                roles
-            );
-        } else if (_type == FinanceType.Type.ChallengeCommission) {
-            ChallengeCommissionLIB.getPayeeInfo(
-                _datasetId,
-                _matchingId,
-                _token,
-                roles
-            );
-        } else if (_type == FinanceType.Type.DatacapCollateral) {
-            DatacapCollateralLIB.getPayeeInfo(
-                _datasetId,
-                _matchingId,
-                _token,
-                roles
-            );
-        }
+        _getEscrowContract(_type).getPayeeInfo(
+            _datasetId,
+            _matchingId,
+            _token,
+            roles
+        );
     }
 
     /// @dev Retrieves an account's overview, including deposit, withdraw, burned, balance, lock, escrow.
@@ -238,38 +212,26 @@ contract Finance is Initializable, UUPSUpgradeable, RolesModifiers, IFinance {
         address _token,
         FinanceType.Type _type
     ) external view returns (bool enough) {
+        enough = _getEscrowContract(_type).isEscrowEnough(
+            _datasetId,
+            _matchingId,
+            _owner,
+            _token,
+            roles
+        );
+    }
+
+    function _getEscrowContract(
+        FinanceType.Type _type
+    ) internal view returns (Base base) {
         if (_type == FinanceType.Type.DataTradingFee) {
-            enough = DataTradingFeeLIB.isEscrowEnough(
-                _datasetId,
-                _matchingId,
-                _owner,
-                _token,
-                roles
-            );
+            base = roles.dataTradingFee();
         } else if (_type == FinanceType.Type.DatacapChunkLandCollateral) {
-            enough = DatacapChunkLandLIB.isEscrowEnough(
-                _datasetId,
-                _matchingId,
-                _owner,
-                _token,
-                roles
-            );
+            base = roles.datacapChunkLand();
         } else if (_type == FinanceType.Type.ChallengeCommission) {
-            enough = ChallengeCommissionLIB.isEscrowEnough(
-                _datasetId,
-                _matchingId,
-                _owner,
-                _token,
-                roles
-            );
+            base = roles.challengeCommission();
         } else if (_type == FinanceType.Type.DatacapCollateral) {
-            enough = DatacapCollateralLIB.isEscrowEnough(
-                _datasetId,
-                _matchingId,
-                _owner,
-                _token,
-                roles
-            );
+            base = roles.datacapCollateral();
         }
     }
 }
