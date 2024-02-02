@@ -22,6 +22,7 @@ import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 library Errors {
     /// @notice commmon errors
     error ParamLengthMismatch(uint256 _expectedLength, uint256 _actualLength);
+    error InvalidGrantRole(bytes32 _role, address _account);
 
     /// @notice car errors
     error CarNotExist(uint64 _id);

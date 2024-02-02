@@ -125,6 +125,8 @@ contract DatasetsProof is
             "Invalid Dataset submitter"
         );
         datasetProof.addDatasetProofRoot(_dataType, _rootHash);
+
+        roles.grantDataswapRole(RolesType.DATASET_PROVIDER, msg.sender);
     }
 
     ///@notice Internal submit proof for a dataset

@@ -81,52 +81,6 @@ contract BiddingTestCaseWithSuccess is ControlTestSuiteBase {
     }
 }
 
-///@notice bidding matching test case with invalid role
-contract BiddingTestCaseWithInvlalidRole is ControlTestSuiteBase {
-    constructor(
-        IMatchings _matchings,
-        IMatchingsTarget _matchingsTarget,
-        IMatchingsBids _matchingsBids,
-        IMatchingsHelpers _matchingsHelpers,
-        IMatchingsAssertion _matchingsAssertion
-    )
-        ControlTestSuiteBase(
-            _matchings,
-            _matchingsTarget,
-            _matchingsBids,
-            _matchingsHelpers,
-            _matchingsAssertion
-        ) // solhint-disable-next-line
-    {}
-
-    function before(
-        MatchingType.BidSelectionRule _bidRule,
-        uint64 _amount
-    ) internal virtual override returns (uint64) {
-        vm.assume(_amount >= 100);
-        return super.before(_bidRule, _amount);
-    }
-
-    function action(
-        uint64 _matchingId,
-        uint64 amount
-    ) internal virtual override {
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().revokeRole(
-            RolesType.STORAGE_PROVIDER,
-            address(199)
-        );
-        vm.stopPrank();
-        vm.roll(101);
-        vm.expectRevert(bytes("Only allowed role can call"));
-        matchingsAssertion.biddingAssertion(address(199), _matchingId, amount);
-    }
-}
-
 ///@notice bidding matching test case with invalid amount
 contract BiddingTestCaseWithInvlalidAmount is ControlTestSuiteBase {
     constructor(

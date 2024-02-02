@@ -25,6 +25,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import {AccessControlEnumerableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlEnumerableUpgradeable.sol";
 import {RolesType} from "src/v0.8/types/RolesType.sol";
+import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
@@ -134,6 +135,26 @@ contract Roles is
     ) public onlyOwner {
         for (uint256 i = 0; i < _contracts.length; i++) {
             _grantRole(RolesType.DATASWAP_CONTRACT, _contracts[i]);
+        }
+    }
+
+    /// @dev Grants the dataswap role to a specified account.
+    /// @param _role The role to grant.
+    /// @param _account The address of the account to grant the role to.
+    function grantDataswapRole(
+        bytes32 _role,
+        address _account
+    ) public onlyRole(RolesType.DATASWAP_CONTRACT) {
+        if (
+            _role != RolesType.STORAGE_CLIENT &&
+            _role != RolesType.STORAGE_PROVIDER &&
+            _role != RolesType.DATASET_PROVIDER &&
+            _role != RolesType.DATASET_AUDITOR
+        ) {
+            revert Errors.InvalidGrantRole(_role, _account);
+        }
+        if (!hasRole(_role, _account)) {
+            _grantRole(_role, _account);
         }
     }
 

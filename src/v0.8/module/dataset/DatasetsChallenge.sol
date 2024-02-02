@@ -89,7 +89,7 @@ contract DatasetsChallenge is
         bytes32[] memory _leaves,
         bytes32[][] memory _siblings,
         uint32[] memory _paths
-    ) external onlyRole(roles, RolesType.DATASET_AUDITOR) {
+    ) external {
         require(
             getDatasetChallengeProofsCount(_datasetId) <=
                 roles.filplus().getChallengeProofsSubmiterCount(),
@@ -111,6 +111,7 @@ contract DatasetsChallenge is
             roles.merkleUtils()
         );
 
+        roles.grantDataswapRole(RolesType.DATASET_AUDITOR, msg.sender);
         emit DatasetsEvents.DatasetChallengeProofsSubmitted(
             _datasetId,
             msg.sender

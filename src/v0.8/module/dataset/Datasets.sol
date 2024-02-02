@@ -215,6 +215,9 @@ contract Datasets is
             _isPublic,
             _version
         );
+
+        roles.grantDataswapRole(RolesType.STORAGE_CLIENT, msg.sender);
+
         emit DatasetsEvents.DatasetMetadataSubmitted(
             datasetsCount(),
             msg.sender
