@@ -21,51 +21,58 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 
-import {Base} from "src/v0.8/core/finance/base/Base.sol";
+import {EscrowBase} from "src/v0.8/core/finance/escrow/EscrowBase.sol";
 
-/// @title ChallengeCommission
-/// @dev This contract provides functions for managing ChallengeCommission-related operations.
-contract ChallengeCommission is Base {
-    /// @notice Get dataset ChallengeCommission requirement.
+/// @title EscrowChallengeCommission
+/// @dev This contract provides functions for managing EscrowChallengeCommission-related operations.
+contract EscrowChallengeCommission is EscrowBase {
+    /// @notice Get dataset EscrowChallengeCommission requirement.
     /// @param _datasetId The ID of the dataset.
-    /// @param _roles The roles contract interface.
+    /// @param _matchingId The ID of the matching process.
+    /// @param _owner An array containing the addresses of the dataset and matching process owners.
+    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return amount The requirement amount.
     function getRequirement(
         uint64 _datasetId,
-        uint64 /*_matchingId*/,
-        address /*_owner*/,
-        address /*_token*/,
-        IRoles _roles
+        uint64 _matchingId,
+        address _owner,
+        address _token
     ) public view override returns (uint256 amount) {
-        return
-            _roles.datasetsChallenge().getChallengeSubmissionCount(_datasetId) *
-            _roles.filplus().getChallengeProofsSubmiterCount() *
-            _roles.filplus().getChallengeProofsPricePrePoint();
+        (, , uint256 current, ) = roles.finance().getAccountEscrow(
+            _datasetId,
+            _matchingId,
+            _owner,
+            _token,
+            FinanceType.Type.EscrowChallengeCommission
+        );
+
+        amount =
+            roles.datasetsChallenge().getChallengeSubmissionCount(_datasetId) *
+            roles.filplus().getChallengeProofsSubmiterCount() *
+            roles.filplus().getChallengeProofsPricePrePoint();
+
+        amount = current >= amount ? 0 : amount - current;
     }
 
     /// @dev Internal function to get owners associated with a dataset and matching process.
     /// @param _datasetId The ID of the dataset.
-    /// @param _roles The roles contract interface.
     /// @return owners An array containing the addresses of the dataset and matching process owners.
     function _getOwners(
         uint64 _datasetId,
-        uint64 /*_matchingId*/,
-        IRoles _roles
+        uint64 /*_matchingId*/
     ) internal view override returns (address[] memory owners) {
         owners = new address[](1);
-        owners[0] = _roles.datasets().getDatasetMetadataSubmitter(_datasetId);
+        owners[0] = roles.datasets().getDatasetMetadataSubmitter(_datasetId);
     }
 
     /// @dev Internal function to get payees associated with a dataset and matching process.
     /// @param _datasetId The ID of the dataset.
-    /// @param _roles The roles contract interface.
     /// @return payees An array containing the address of the matching process initiator.
     function _getPayees(
         uint64 _datasetId,
-        uint64 /*_matchingId*/,
-        IRoles _roles
+        uint64 /*_matchingId*/
     ) internal view override returns (address[] memory payees) {
-        (payees, ) = _roles
+        (payees, ) = roles
             .datasetsChallenge()
             .getDatasetChallengeProofsSubmitters(_datasetId);
     }
@@ -75,21 +82,19 @@ contract ChallengeCommission is Base {
     /// @param _matchingId The ID of the matching process.
     /// @param _owner An array containing the addresses of the dataset and matching process owners.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
-    /// @param _roles The roles contract interface.
     /// @return amount The refund amount.
     function _getRefundAmount(
         uint64 _datasetId,
         uint64 _matchingId,
         address _owner,
-        address _token,
-        IRoles _roles
+        address _token
     ) internal view override returns (uint256 amount) {
-        (, , amount) = _roles.finance().getAccountEscrow(
+        (, , , amount) = roles.finance().getAccountEscrow(
             _datasetId,
             _matchingId,
             _owner,
             _token,
-            FinanceType.Type.ChallengeCommission
+            FinanceType.Type.EscrowChallengeCommission
         );
     }
 
@@ -98,46 +103,41 @@ contract ChallengeCommission is Base {
     /// @param _matchingId The ID of the matching process.
     /// @param _owner An array containing the addresses of the dataset and matching process owners.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
-    /// @param _roles The roles contract interface.
     /// @return amount The payment amount.
     function _getPaymentAmount(
         uint64 _datasetId,
         uint64 _matchingId,
         address _owner,
-        address _token,
-        IRoles _roles
+        address _token
     ) internal view override returns (uint256 amount) {
-        (, , uint256 total) = _roles.finance().getAccountEscrow(
+        (, , , uint256 totalPayment) = roles.finance().getAccountEscrow(
             _datasetId,
             _matchingId,
             _owner,
             _token,
-            FinanceType.Type.ChallengeCommission
+            FinanceType.Type.EscrowChallengeCommission
         );
-        address[] memory payees = _getPayees(_datasetId, _matchingId, _roles);
-        amount = total / payees.length;
+        address[] memory payees = _getPayees(_datasetId, _matchingId);
+        amount = totalPayment / payees.length;
     }
 
     /// @dev Internal function to check if a refund is applicable.
     /// @return refund A boolean indicating whether a refund is applicable.
     function _isRefund(
         uint64 /*_datasetId*/,
-        uint64 /*_matchingId*/,
-        IRoles /*_roles*/
+        uint64 /*_matchingId*/
     ) internal pure override returns (bool refund) {
         return false; // TODO: Expiration refund.
     }
 
     /// @dev Internal function to check if a payment is applicable.
     /// @param _datasetId The ID of the dataset.
-    /// @param _roles The roles contract interface.
     /// @return payment A boolean indicating whether a payment is applicable.
     function _isPayment(
         uint64 _datasetId,
-        uint64 /*_matchingId*/,
-        IRoles _roles
+        uint64 /*_matchingId*/
     ) internal view override returns (bool payment) {
-        return (_roles.datasets().getDatasetState(_datasetId) ==
+        return (roles.datasets().getDatasetState(_datasetId) ==
             DatasetType.State.Approved);
     }
 }

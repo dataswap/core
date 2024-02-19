@@ -156,7 +156,7 @@ contract Storages is
         //     datasetId,
         //     _matchingId,
         //     FinanceType.FIL,
-        //     FinanceType.Type.DataTradingFee
+        //     FinanceType.Type.EscrowDataTradingFee
         // );
     }
 

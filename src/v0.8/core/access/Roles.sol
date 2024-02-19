@@ -28,6 +28,7 @@ import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IFinance} from "src/v0.8/interfaces/core/IFinance.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
@@ -41,11 +42,6 @@ import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirem
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
-
-import {DataTradingFee} from "src/v0.8/core/finance/base/DataTradingFee.sol";
-import {DatacapChunkLand} from "src/v0.8/core/finance/base/DatacapChunkLand.sol";
-import {ChallengeCommission} from "src/v0.8/core/finance/base/ChallengeCommission.sol";
-import {DatacapCollateral} from "src/v0.8/core/finance/base/DatacapCollateral.sol";
 
 /// @title Role Contract
 /// @notice This contract defines the role-based access control for various roles within the system.
@@ -73,10 +69,10 @@ contract Roles is
     IMatchingsBids public matchingsBids;
     IMatchingsTarget public matchingsTarget;
 
-    DataTradingFee public dataTradingFee;
-    DatacapChunkLand public datacapChunkLand;
-    ChallengeCommission public challengeCommission;
-    DatacapCollateral public datacapCollateral;
+    IEscrow public escrowDataTradingFee;
+    IEscrow public escrowDatacapCollateral;
+    IEscrow public escrowChallengeCommission;
+    IEscrow public escrowDatacapChunkLandCollateral;
 
     /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
     function initialize() public initializer {
@@ -133,14 +129,16 @@ contract Roles is
             matchingsBids = IMatchingsBids(_contract);
         } else if (_type == RolesType.ContractType.MatchingsTarget) {
             matchingsTarget = IMatchingsTarget(_contract);
-        } else if (_type == RolesType.ContractType.DataTradingFee) {
-            dataTradingFee = DataTradingFee(_contract);
-        } else if (_type == RolesType.ContractType.DatacapChunkLand) {
-            datacapChunkLand = DatacapChunkLand(_contract);
-        } else if (_type == RolesType.ContractType.DatacapCollateral) {
-            datacapCollateral = DatacapCollateral(_contract);
-        } else if (_type == RolesType.ContractType.ChallengeCommission) {
-            challengeCommission = ChallengeCommission(_contract);
+        } else if (_type == RolesType.ContractType.EscrowDataTradingFee) {
+            escrowDataTradingFee = IEscrow(_contract);
+        } else if (
+            _type == RolesType.ContractType.EscrowDatacapChunkLandCollateral
+        ) {
+            escrowDatacapChunkLandCollateral = IEscrow(_contract);
+        } else if (_type == RolesType.ContractType.EscrowDatacapCollateral) {
+            escrowDatacapCollateral = IEscrow(_contract);
+        } else if (_type == RolesType.ContractType.EscrowChallengeCommission) {
+            escrowChallengeCommission = IEscrow(_contract);
         } else {
             require(false, "Invalid RolesType.ContractType");
         }

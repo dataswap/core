@@ -72,9 +72,9 @@ library RolesType {
         Matchings,
         MatchingsBids,
         MatchingsTarget,
-        DataTradingFee,
-        DatacapChunkLand,
-        DatacapCollateral,
-        ChallengeCommission
+        EscrowDataTradingFee,
+        EscrowDatacapChunkLandCollateral,
+        EscrowDatacapCollateral,
+        EscrowChallengeCommission
     }
 }

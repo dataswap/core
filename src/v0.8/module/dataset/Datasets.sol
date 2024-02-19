@@ -116,7 +116,7 @@ contract Datasets is
         //     _datasetId,
         //     0,
         //     FinanceType.FIL,
-        //     FinanceType.Type.ChallengeCommission
+        //     FinanceType.Type.EscrowChallengeCommission
         // );
 
         dataset._emitDatasetEvent(DatasetType.Event.Approved);
