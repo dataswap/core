@@ -46,6 +46,7 @@ library DatasetReplicaRequirementLIB {
                 )
             );
         }
+        self.completedHeight = uint64(block.number);
     }
 
     ///@notice Get dataset replica requirement info

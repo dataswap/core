@@ -42,12 +42,23 @@ contract DatasetsModifiers is CarstoreModifiers {
     }
 
     /// @dev Modifier to ensure that a dataset metadata with the given accessMethod not exists.
-    modifier onlyDatasetMetadataNotExsits(
+    modifier onlyDatasetMetadataValid(
         IDatasets _datasets,
         string memory _accessMethod
     ) {
         if (_datasets.hasDatasetMetadata(_accessMethod)) {
-            revert Errors.DatasetMetadataAlreadyExist(_accessMethod);
+            uint64 associateDatasetId = _datasets.getDatasetIdForAccessMethod(
+                _accessMethod
+            );
+            if (
+                _datasets.getDatasetState(associateDatasetId) !=
+                DatasetType.State.Rejected
+            ) {
+                revert Errors.DatasetMetadataAlreadyExistAndRunning(
+                    _accessMethod,
+                    associateDatasetId
+                );
+            }
         }
         _;
     }

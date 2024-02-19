@@ -75,8 +75,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             _accessMethod,
             100,
             true,
-            1,
-            0
+            1
         );
         return datasetCount + 1;
     }
@@ -211,6 +210,59 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             leavesHashes,
             leavesIndexs[0],
             leavesSizes,
+            _complete
+        );
+    }
+
+    /// @notice Submit a proof for a dataset.
+    /// @param caller The address of the caller.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _associatedDatasetId The ID of the dataset.
+    /// @param _dataType The data type of the dataset.
+    /// @param _accessMethod The access method for the dataset.
+    /// @param _complete A flag indicating if the proof is complete.
+    function submitDatasetProofWithCarIds(
+        address caller,
+        uint64 _datasetId,
+        uint64 _associatedDatasetId,
+        DatasetType.DataType _dataType,
+        string memory _accessMethod,
+        bool _complete
+    ) public {
+        bytes32 root = generateRoot();
+        vm.prank(caller);
+        datasetsProof.submitDatasetProofRoot(
+            _datasetId,
+            _dataType,
+            _accessMethod,
+            root
+        );
+
+        uint64 count = datasets.roles().datasetsProof().getDatasetProofCount(
+            _associatedDatasetId,
+            _dataType
+        );
+
+        bytes32[] memory hashs = datasetsProof.getDatasetProof(
+            _associatedDatasetId,
+            _dataType,
+            0,
+            count
+        );
+
+        uint64[] memory ids = datasets.roles().carstore().getCarsIds(hashs);
+        uint64[] memory starts = new uint64[](1);
+        uint64[] memory ends = new uint64[](1);
+        starts[0] = ids[0];
+        ends[0] = ids[count - 1];
+
+        vm.prank(caller);
+        datasetsProof.submitDatasetProofWithCarIds(
+            _datasetId,
+            _dataType,
+            starts,
+            ends,
+            0,
             _complete
         );
     }

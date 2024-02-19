@@ -27,7 +27,7 @@ import {DatasetsEvents} from "src/v0.8/shared/events/DatasetsEvents.sol";
 import {DatasetsModifiers} from "src/v0.8/shared/modifiers/DatasetsModifiers.sol";
 /// library
 import {DatasetProofLIB} from "src/v0.8/module/dataset/library/proof/DatasetProofLIB.sol";
-
+import {ArrayUint64LIB} from "src/v0.8/shared/utils/array/ArrayLIB.sol";
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
@@ -47,6 +47,7 @@ contract DatasetsProof is
     DatasetsModifiers
 {
     using DatasetProofLIB for DatasetType.DatasetProof;
+    using ArrayUint64LIB for uint64[];
 
     mapping(uint64 => DatasetType.DatasetProof) private datasetProofs; // Mapping of dataset ID to dataset details
 
@@ -103,6 +104,10 @@ contract DatasetsProof is
             DatasetType.State.RequirementSubmitted
         )
     {
+        if (isDatasetProofTimeout(_datasetId)) {
+            roles.datasets().__reportDatasetWorkflowTimeout(_datasetId);
+            return;
+        }
         //Note: params check in lib
         DatasetType.DatasetProof storage datasetProof = datasetProofs[
             _datasetId
@@ -130,6 +135,50 @@ contract DatasetsProof is
         roles.grantDataswapRole(RolesType.DATASET_PROVIDER, msg.sender);
     }
 
+    /// @notice Submits data to the carstore along with corresponding hashes.
+    /// @dev This internal function submits data along with their corresponding leaf hashes to the carstore, associated with a specific dataset.
+    /// @param _leafHashes An array containing the hashes of the data leaves.
+    /// @param _datasetId The ID of the dataset to which the data belongs.
+    /// @param _leafSizes An array containing the sizes of the data leaves.
+    /// @return leafIds An array containing the IDs of the submitted data leaves.
+    /// @return size The total size of the submitted data.
+    function _submitToCarstoreWithHashs(
+        bytes32[] memory _leafHashes,
+        uint64 _datasetId,
+        uint64[] memory _leafSizes
+    ) internal returns (uint64[] memory leafIds, uint64 size) {
+        require(
+            _leafHashes.length == _leafSizes.length,
+            "invalid leaves params"
+        );
+
+        uint16 replicaCount = roles
+            .datasetsRequirement()
+            .getDatasetReplicasCount(_datasetId);
+
+        leafIds = new uint64[](_leafHashes.length);
+
+        for (uint64 i; i < _leafHashes.length; i++) {
+            if (!roles.carstore().hasCarHash(_leafHashes[i])) {
+                leafIds[i] = roles.carstore().__addCar(
+                    _leafHashes[i],
+                    _datasetId,
+                    _leafSizes[i],
+                    replicaCount
+                );
+            } else {
+                leafIds[i] = roles.carstore().getCarId(_leafHashes[i]);
+                roles.carstore().__updateCar(
+                    leafIds[i],
+                    _datasetId,
+                    replicaCount
+                );
+            }
+        }
+        size = roles.carstore().getCarsSize(leafIds);
+        return (leafIds, size);
+    }
+
     ///@notice Internal submit proof for a dataset
     ///@dev Submit the proof of the dataset in batches,
     /// specifically by submitting the _leafHashes in the order of _leafIndexes.
@@ -140,14 +189,7 @@ contract DatasetsProof is
         uint64 _leafIndex,
         uint64[] memory _leafSizes,
         bool _completed
-    )
-        internal
-        onlyDatasetState(
-            roles.datasets(),
-            _datasetId,
-            DatasetType.State.RequirementSubmitted
-        )
-    {
+    ) internal {
         DatasetType.DatasetProof storage datasetProof = datasetProofs[
             _datasetId
         ];
@@ -158,16 +200,13 @@ contract DatasetsProof is
             "Invalid Dataset submitter"
         );
 
-        uint16 replicaCount = roles
-            .datasetsRequirement()
-            .getDatasetReplicasCount(_datasetId);
-
-        (uint64[] memory leafIds, uint64 size) = roles.carstore().__addCars(
+        (uint64[] memory leafIds, uint64 size) = _submitToCarstoreWithHashs(
             _leafHashes,
             _datasetId,
-            _leafSizes,
-            replicaCount
+            _leafSizes
         );
+
+        roles.datasets().__reportDatasetProofSubmitted(size);
 
         datasetProof.addDatasetProofBatch(
             _dataType,
@@ -188,7 +227,19 @@ contract DatasetsProof is
         uint64 _leafIndex,
         uint64[] memory _leafSizes,
         bool _completed
-    ) external {
+    )
+        external
+        onlyDatasetState(
+            roles.datasets(),
+            _datasetId,
+            DatasetType.State.RequirementSubmitted
+        )
+    {
+        if (isDatasetProofTimeout(_datasetId)) {
+            roles.datasets().__reportDatasetWorkflowTimeout(_datasetId);
+            return;
+        }
+
         _submitDatasetProof(
             _datasetId,
             _dataType,
@@ -203,22 +254,124 @@ contract DatasetsProof is
         }
     }
 
+    /// @notice Submits data to the carstore along with car IDs.
+    /// @dev This internal function is responsible for submitting data to the carstore along with the IDs of associated cars.
+    /// @param _leavesStarts An array containing the start values for each leaf range.
+    /// @param _leavesEnds An array containing the end values for each leaf range.
+    /// @param _datasetId The ID of the dataset associated with the data.
+    /// @return leafIds An array containing the IDs of the submitted data leaves.
+    /// @return size The total size of the submitted data.
+    function _submitToCarstoreWithCarIds(
+        uint64[] memory _leavesStarts,
+        uint64[] memory _leavesEnds,
+        uint64 _datasetId
+    ) internal returns (uint64[] memory leafIds, uint64 size) {
+        require(
+            _leavesStarts.length == _leavesEnds.length,
+            "invalid leaves params"
+        );
+
+        uint16 replicaCount = roles
+            .datasetsRequirement()
+            .getDatasetReplicasCount(_datasetId);
+
+        leafIds = _leavesStarts.mergeSequentialArray(_leavesEnds);
+
+        for (uint64 i; i < leafIds.length; i++) {
+            if (roles.carstore().hasCar(leafIds[i])) {
+                roles.carstore().__updateCar(
+                    leafIds[i],
+                    _datasetId,
+                    replicaCount
+                );
+            }
+        }
+        size = roles.carstore().getCarsSize(leafIds);
+        return (leafIds, size);
+    }
+
+    /// @notice Submits dataset proof along with car IDs.
+    /// @dev This internal function is responsible for submitting dataset proof along with the IDs of associated cars.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _dataType The type of data.
+    /// @param _leavesStarts An array containing the start values for each leaf range.
+    /// @param _leavesEnds An array containing the end values for each leaf range.
+    /// @param _leafIndex The index of the leaf.
+    /// @param _completed A boolean flag indicating whether the proof is complete.
+    function _submitDatasetProofWithCarIds(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType,
+        uint64[] memory _leavesStarts,
+        uint64[] memory _leavesEnds,
+        uint64 _leafIndex,
+        bool _completed
+    ) internal {
+        DatasetType.DatasetProof storage datasetProof = datasetProofs[
+            _datasetId
+        ];
+
+        // Checking if the current sender is the submitter.
+        require(
+            datasetProof.isDatasetSubmitter(msg.sender),
+            "Invalid Dataset submitter"
+        );
+
+        (uint64[] memory leafIds, uint64 size) = _submitToCarstoreWithCarIds(
+            _leavesStarts,
+            _leavesEnds,
+            _datasetId
+        );
+
+        roles.datasets().__reportDatasetProofSubmitted(size);
+
+        datasetProof.addDatasetProofBatch(
+            _dataType,
+            leafIds,
+            _leafIndex,
+            size,
+            _completed
+        );
+    }
+
     /// @notice Submits dataset proof with specified IDs.
     /// @param _datasetId The ID of the dataset.
     /// @param _dataType The data type of the dataset.
     /// @param _leavesStarts The starting indices of leaves in the Merkle tree.
     /// @param _leavesEnds The ending indices of leaves in the Merkle tree.
     /// @param _leafIndex The index of the leaf to submit proof for.
-    /// @param complete Indicates whether the proof submission is complete.
+    /// @param _completed Indicates whether the proof submission is complete.
     function submitDatasetProofWithCarIds(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         uint64[] memory _leavesStarts,
         uint64[] memory _leavesEnds,
         uint64 _leafIndex,
-        bool complete
-    ) external {
-        //TODO:impl
+        bool _completed
+    )
+        external
+        onlyDatasetState(
+            roles.datasets(),
+            _datasetId,
+            DatasetType.State.RequirementSubmitted
+        )
+    {
+        if (isDatasetProofTimeout(_datasetId)) {
+            roles.datasets().__reportDatasetWorkflowTimeout(_datasetId);
+            return;
+        }
+
+        _submitDatasetProofWithCarIds(
+            _datasetId,
+            _dataType,
+            _leavesStarts,
+            _leavesEnds,
+            _leafIndex,
+            _completed
+        );
+
+        if (_completed) {
+            submitDatasetProofCompleted(_datasetId);
+        }
     }
 
     ///@notice _isEscrowEnough
@@ -262,6 +415,10 @@ contract DatasetsProof is
         )
         returns (DatasetType.State state)
     {
+        if (isDatasetProofTimeout(_datasetId)) {
+            roles.datasets().__reportDatasetWorkflowTimeout(_datasetId);
+            return roles.datasets().getDatasetState(_datasetId);
+        }
         //Note: params check in lib
         DatasetType.DatasetProof storage datasetProof = datasetProofs[
             _datasetId
@@ -289,6 +446,7 @@ contract DatasetsProof is
                 )
             ) {
                 roles.datasets().__reportDatasetProofCompleted(_datasetId);
+                datasetProof.completedHeight = uint64(block.number);
                 emit DatasetsEvents.DatasetProofSubmitted(
                     _datasetId,
                     msg.sender
@@ -314,7 +472,16 @@ contract DatasetsProof is
     )
         external
         onlyAddress(roles.datasets().getDatasetMetadataSubmitter(_datasetId))
+        onlyDatasetState(
+            roles.datasets(),
+            _datasetId,
+            DatasetType.State.WaitEscrow
+        )
     {
+        if (isDatasetProofTimeout(_datasetId)) {
+            roles.datasets().__reportDatasetWorkflowTimeout(_datasetId);
+            return;
+        }
         uint256 amount = roles.finance().getEscrowRequirement(
             _datasetId,
             0,
@@ -399,6 +566,19 @@ contract DatasetsProof is
         return datasetProof.getDatasetSize(_dataType);
     }
 
+    /// @notice Retrieves the height at which the dataset proof is considered complete.
+    /// @dev This function returns the height at which the dataset proof is considered complete for the given dataset ID.
+    /// @param _datasetId The ID of the dataset.
+    /// @return The height at which the dataset proof is considered complete.
+    function getDatasetProofCompleteHeight(
+        uint64 _datasetId
+    ) external view onlyNotZero(_datasetId) returns (uint64) {
+        DatasetType.DatasetProof storage datasetProof = datasetProofs[
+            _datasetId
+        ];
+        return datasetProof.completedHeight;
+    }
+
     ///@notice Check if a dataset proof all completed
     function isDatasetProofallCompleted(
         uint64 _datasetId,
@@ -438,5 +618,56 @@ contract DatasetsProof is
             _datasetId
         ];
         return datasetProof.isDatasetSubmitter(_submitter);
+    }
+
+    /// @notice Checks if the associated dataset contains a specific car.
+    /// @dev This function verifies if the given dataset contains the specified car by checking if the car's ID is associated with the dataset.
+    /// @param _datasetId The ID of the dataset to check.
+    /// @param _carId The ID of the car to search for.
+    /// @return True if the associated dataset contains the car, false otherwise.
+    function isAssociatedDatasetContainsCar(
+        uint64 _datasetId,
+        uint64 _carId
+    ) public view returns (bool) {
+        uint64 associatedDatasetId = roles.datasets().getAssociatedDatasetId(
+            _datasetId
+        );
+        if (associatedDatasetId != 0) {
+            if (isDatasetContainsCar(associatedDatasetId, _carId)) {
+                return true;
+            } else {
+                return
+                    isAssociatedDatasetContainsCar(associatedDatasetId, _carId);
+            }
+        }
+        return false;
+    }
+
+    /// @notice Checks if the dataset proof has timed out.
+    /// @dev This function determines if the dataset proof for the given dataset ID has timed out.
+    /// @param _datasetId The ID of the dataset.
+    /// @return True if the dataset proof has timed out, false otherwise.
+    function isDatasetProofTimeout(
+        uint64 _datasetId
+    ) public view returns (bool) {
+        DatasetType.State state = roles.datasets().getDatasetState(_datasetId);
+        if (
+            state != DatasetType.State.WaitEscrow &&
+            state != DatasetType.State.RequirementSubmitted
+        ) {
+            return false;
+        }
+        uint64 completedHeight = roles
+            .datasetsRequirement()
+            .getDatasetRequirementCompleteHeight(_datasetId);
+
+        (uint64 proofBlockCount, ) = roles
+            .datasets()
+            .getDatasetTimeoutParameters(_datasetId);
+
+        if (uint64(block.number) >= completedHeight + proofBlockCount) {
+            return true;
+        }
+        return false;
     }
 }

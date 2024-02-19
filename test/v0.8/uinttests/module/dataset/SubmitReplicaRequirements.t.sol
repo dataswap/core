@@ -62,4 +62,18 @@ contract ReplicaRequirementsTest is Test, DatasetTestSetup {
             );
         testCase.run();
     }
+
+    /// @notice test case with timeout
+    function testSubmitReplicaRequirementsWithTimeout() public {
+        setup();
+        SubmitReplicaRequirementsTestCaseWithTimeout testCase = new SubmitReplicaRequirementsTestCaseWithTimeout(
+                datasets(),
+                datasetsRequirement(),
+                datasetsProof(),
+                datasetsChallenge(),
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
 }

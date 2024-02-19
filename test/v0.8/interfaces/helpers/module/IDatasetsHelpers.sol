@@ -103,6 +103,22 @@ interface IDatasetsHelpers {
         bool _complete
     ) external;
 
+    /// @notice Submit a proof for a dataset.
+    /// @param caller The address of the caller.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _associatedDatasetId The ID of the dataset.
+    /// @param _dataType The data type of the dataset.
+    /// @param _accessMethod The access method for the dataset.
+    /// @param _complete A flag indicating if the proof is complete.
+    function submitDatasetProofWithCarIds(
+        address caller,
+        uint64 _datasetId,
+        uint64 _associatedDatasetId,
+        DatasetType.DataType _dataType,
+        string memory _accessMethod,
+        bool _complete
+    ) external;
+
     ///@notice Submit replica requirement for a dataset.
     /// @param caller The address of the caller.
     /// @param _datasetId The ID of the dataset for which proof is submitted.

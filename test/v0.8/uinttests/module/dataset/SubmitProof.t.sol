@@ -76,4 +76,18 @@ contract SubmitProofTest is Test, DatasetTestSetup {
             );
         testCase.run();
     }
+
+    /// @notice test case with timeout
+    function testSubmitDatasetProofWithTimeout() public {
+        setup();
+        SubmitProofTestCaseWithTimeout testCase = new SubmitProofTestCaseWithTimeout(
+                datasets(),
+                datasetsRequirement(),
+                datasetsProof(),
+                datasetsChallenge(),
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
 }

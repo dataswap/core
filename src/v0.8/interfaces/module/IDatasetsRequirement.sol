@@ -62,6 +62,21 @@ interface IDatasetsRequirement {
             uint32[] memory cityCodes
         );
 
+    /// @notice Retrieves the height at which the dataset requirement is considered complete.
+    /// @dev This function returns the height at which the dataset requirement is considered complete for the given dataset ID.
+    /// @param _datasetId The ID of the dataset.
+    /// @return The height at which the dataset requirement is considered complete.
+    function getDatasetRequirementCompleteHeight(
+        uint64 _datasetId
+    ) external view returns (uint64);
+
+    /// @notice Checks if the dataset requirement has timed out.
+    /// @param _datasetId The ID of the dataset.
+    /// @return Whether the dataset requirement has timed out.
+    function isDatasetRequirementTimeout(
+        uint64 _datasetId
+    ) external view returns (bool);
+
     /// @notice Get the Roles contract.
     /// @return Roles contract address.
     function roles() external view returns (IRoles);

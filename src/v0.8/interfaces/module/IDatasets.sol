@@ -44,9 +44,12 @@ interface IDatasets is IStatistics {
         string memory _accessMethod,
         uint64 _sizeInBytes,
         bool _isPublic,
-        uint64 _version,
-        uint64 _associatedDatasetId
+        uint64 _version
     ) external returns (uint64);
+
+    /// @notice Reports a dataset workflow timeout event.
+    /// @param _datasetId The ID of the dataset for which the workflow timed out.
+    function reportDatasetWorkflowTimeout(uint64 _datasetId) external;
 
     /// @notice Updates timeout parameters for a dataset.
     /// @dev Can only be called in the MetadataSubmitted state
@@ -99,6 +102,21 @@ interface IDatasets is IStatistics {
         uint64 _datasetId
     ) external view returns (DatasetType.State);
 
+    /// @notice Retrieves the associated dataset ID for a given dataset ID.
+    /// @param _datasetId The ID of the dataset for which the associated dataset ID is being retrieved.
+    /// @return The associated dataset ID.
+    function getAssociatedDatasetId(
+        uint64 _datasetId
+    ) external view returns (uint64);
+
+    /// @notice Retrieves the dataset ID associated with a given access method.
+    /// @dev This function returns the dataset ID mapped to the keccak256 hash of the input access method.
+    /// @param _accessMethod The access method for which the dataset ID is being retrieved.
+    /// @return The dataset ID associated with the given access method.
+    function getDatasetIdForAccessMethod(
+        string memory _accessMethod
+    ) external view returns (uint64);
+
     ///@notice Check if a dataset has metadata
     function hasDatasetMetadata(
         string memory _accessMethod
@@ -123,6 +141,10 @@ interface IDatasets is IStatistics {
     function __reportDatasetReplicaRequirementSubmitted(
         uint64 _datasetId
     ) external;
+
+    /// @notice Reports that dataset proof has been submitted.
+    /// @param _proofSize The size of the dataset proof submitted.
+    function __reportDatasetProofSubmitted(uint64 _proofSize) external;
 
     /// @notice Report the dataset proof has already been submitted.
     /// @dev This function is intended for use only by the 'dataswap' contract.

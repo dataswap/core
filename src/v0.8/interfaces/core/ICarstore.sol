@@ -243,4 +243,26 @@ interface ICarstore is ICarstoreReadOnly {
         uint64 _matchingId,
         uint64 _claimId
     ) external;
+
+    /// @notice Updates information for a car.
+    /// @dev This function is intended to update various parameters associated with a car, such as its ID, dataset ID, and replica count.
+    /// @param _id The ID of the car to be updated.
+    /// @param _datasetId The dataset ID associated with the car.
+    /// @param _replicaCount The count of replicas associated with the car.
+    function __updateCar(
+        uint64 _id,
+        uint64 _datasetId,
+        uint16 _replicaCount
+    ) external;
+
+    /// @notice Updates information for multiple cars and returns the total size of the updated cars.
+    /// @dev This function is intended to update various parameters associated with multiple cars simultaneously, such as their IDs, dataset ID, and replica count, and then returns the total size of the updated cars.
+    /// @param _ids An array containing the IDs of the cars to be updated.
+    /// @param _datasetId The dataset ID associated with the cars.
+    /// @param _replicaCount The count of replicas associated with each car.
+    function __updateCars(
+        uint64[] memory _ids,
+        uint64 _datasetId,
+        uint16 _replicaCount
+    ) external;
 }

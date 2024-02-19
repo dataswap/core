@@ -87,8 +87,9 @@ contract SubmitMetadataTestCaseWithDuplicate is DatasetsTestBase {
         );
         vm.expectRevert(
             abi.encodeWithSelector(
-                Errors.DatasetMetadataAlreadyExist.selector,
-                "accessMethod"
+                Errors.DatasetMetadataAlreadyExistAndRunning.selector,
+                "accessMethod",
+                1
             )
         );
         datasetsAssertion.submitDatasetMetadataAssertion(

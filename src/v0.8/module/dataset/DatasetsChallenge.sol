@@ -24,7 +24,7 @@ import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.
 
 ///shared
 import {DatasetsEvents} from "src/v0.8/shared/events/DatasetsEvents.sol";
-import {CarstoreModifiers} from "src/v0.8/shared/modifiers/CarstoreModifiers.sol";
+import {DatasetsModifiers} from "src/v0.8/shared/modifiers/DatasetsModifiers.sol";
 /// library
 import {DatasetChallengeProofLIB} from "src/v0.8/module/dataset/library/challenge/DatasetChallengeProofLIB.sol";
 
@@ -43,7 +43,7 @@ contract DatasetsChallenge is
     Initializable,
     UUPSUpgradeable,
     IDatasetsChallenge,
-    CarstoreModifiers
+    DatasetsModifiers
 {
     using DatasetChallengeProofLIB for DatasetType.DatasetChallengeProof;
     mapping(uint64 => DatasetType.DatasetChallengeProof)
@@ -89,7 +89,18 @@ contract DatasetsChallenge is
         bytes32[] memory _leaves,
         bytes32[][] memory _siblings,
         uint32[] memory _paths
-    ) external {
+    )
+        external
+        onlyDatasetState(
+            roles.datasets(),
+            _datasetId,
+            DatasetType.State.ProofSubmitted
+        )
+    {
+        if (isDatasetAuditTimeout(_datasetId)) {
+            roles.datasets().__reportDatasetWorkflowTimeout(_datasetId);
+            return;
+        }
         require(
             getDatasetChallengeProofsCount(_datasetId) <=
                 roles.filplus().getChallengeProofsSubmiterCount(),
@@ -201,6 +212,31 @@ contract DatasetsChallenge is
                 _auditor,
                 _randomSeed
             );
+    }
+
+    /// @notice Checks if the dataset audit has timed out.
+    /// @dev This function determines if the dataset audit for the given dataset ID has timed out.
+    /// @param _datasetId The ID of the dataset.
+    /// @return True if the dataset audit has timed out, false otherwise.
+    function isDatasetAuditTimeout(
+        uint64 _datasetId
+    ) public view returns (bool) {
+        DatasetType.State state = roles.datasets().getDatasetState(_datasetId);
+        if (state != DatasetType.State.ProofSubmitted) {
+            return false;
+        }
+        uint64 completedHeight = roles
+            .datasetsProof()
+            .getDatasetProofCompleteHeight(_datasetId);
+
+        (, uint64 auditBlockCount) = roles
+            .datasets()
+            .getDatasetTimeoutParameters(_datasetId);
+
+        if (uint64(block.number) >= completedHeight + auditBlockCount) {
+            return true;
+        }
+        return false;
     }
 
     /// @notice To obtain the number of challenges to be completed

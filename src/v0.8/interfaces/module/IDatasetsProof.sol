@@ -47,14 +47,14 @@ interface IDatasetsProof {
     /// @param _leavesStarts The starting indices of leaves in the Merkle tree.
     /// @param _leavesEnds The ending indices of leaves in the Merkle tree.
     /// @param _leafIndex The index of the leaf to submit proof for.
-    /// @param complete Indicates whether the proof submission is complete.
+    /// @param _completed Indicates whether the proof submission is complete.
     function submitDatasetProofWithCarIds(
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         uint64[] memory _leavesStarts,
         uint64[] memory _leavesEnds,
         uint64 _leafIndex,
-        bool complete
+        bool _completed
     ) external;
 
     ///@notice Submit proof completed for a dataset
@@ -91,6 +91,14 @@ interface IDatasetsProof {
         DatasetType.DataType _dataType
     ) external view returns (uint64);
 
+    /// @notice Retrieves the height at which the dataset proof is considered complete.
+    /// @dev This function returns the height at which the dataset proof is considered complete for the given dataset ID.
+    /// @param _datasetId The ID of the dataset.
+    /// @return The height at which the dataset proof is considered complete.
+    function getDatasetProofCompleteHeight(
+        uint64 _datasetId
+    ) external view returns (uint64);
+
     ///@notice Check if a dataset has a car id
     function isDatasetContainsCar(
         uint64 _datasetId,
@@ -113,6 +121,24 @@ interface IDatasetsProof {
     function isDatasetProofallCompleted(
         uint64 _datasetId,
         DatasetType.DataType _dataType
+    ) external view returns (bool);
+
+    /// @notice Checks if the associated dataset contains a specific car.
+    /// @dev This function verifies if the given dataset contains the specified car by checking if the car's ID is associated with the dataset.
+    /// @param _datasetId The ID of the dataset to check.
+    /// @param _carId The ID of the car to search for.
+    /// @return True if the associated dataset contains the car, false otherwise.
+    function isAssociatedDatasetContainsCar(
+        uint64 _datasetId,
+        uint64 _carId
+    ) external view returns (bool);
+
+    /// @notice Checks if the dataset proof has timed out.
+    /// @dev This function determines if the dataset proof for the given dataset ID has timed out.
+    /// @param _datasetId The ID of the dataset.
+    /// @return True if the dataset proof has timed out, false otherwise.
+    function isDatasetProofTimeout(
+        uint64 _datasetId
     ) external view returns (bool);
 
     /// @notice Get the Roles contract.

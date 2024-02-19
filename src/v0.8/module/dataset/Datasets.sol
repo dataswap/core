@@ -54,7 +54,7 @@ contract Datasets is
     using DatasetStateMachineLIB for DatasetType.Dataset;
 
     mapping(uint64 => DatasetType.Dataset) private datasets; // Mapping of dataset ID to dataset details
-    mapping(bytes32 => uint64) private accessMethods; // Mapping of dataset accesss method to dataset Id
+    mapping(bytes32 => uint64) private accessMethodsToDatasetIds; // Mapping of dataset accesss method to dataset Id
 
     address public governanceAddress;
     IRoles public roles;
@@ -164,17 +164,13 @@ contract Datasets is
         string memory _accessMethod,
         uint64 _sizeInBytes,
         bool _isPublic,
-        uint64 _version,
-        uint64 _associatedDatasetId
-    )
-        external
-        onlyDatasetMetadataNotExsits(this, _accessMethod)
-        returns (uint64)
-    {
+        uint64 _version
+    ) external onlyDatasetMetadataValid(this, _accessMethod) returns (uint64) {
         //Note: params check in lib
         _addCountTotal(1);
 
         DatasetType.Dataset storage dataset = datasets[datasetsCount()];
+
         dataset.submitDatasetMetadata(
             _client,
             _title,
@@ -185,22 +181,52 @@ contract Datasets is
             _accessMethod,
             _sizeInBytes,
             _isPublic,
-            _version,
-            _associatedDatasetId
+            _version
         );
 
-        updateDatasetTimeoutParameters(
-            datasetsCount(),
+        dataset.submitDatasetRuntimeParameters(
             roles.filplus().datasetRuleMinProofTimeout(),
-            roles.filplus().datasetRuleMinAuditTimeout()
+            roles.filplus().datasetRuleMinAuditTimeout(),
+            accessMethodsToDatasetIds[dataset.getDatasetAccessMethodKey()]
         );
+
+        _updateDatasetIdForAccessMethod(datasetsCount());
+
         dataset._emitDatasetEvent(DatasetType.Event.SubmitMetadata);
+
         roles.grantDataswapRole(RolesType.STORAGE_CLIENT, msg.sender);
+
         emit DatasetsEvents.DatasetMetadataSubmitted(
             datasetsCount(),
             msg.sender
         );
         return datasetsCount();
+    }
+
+    /// @notice Reports a dataset workflow timeout event.
+    /// @param _datasetId The ID of the dataset for which the workflow timed out.
+    function reportDatasetWorkflowTimeout(uint64 _datasetId) public {
+        if (
+            roles.datasetsRequirement().isDatasetRequirementTimeout(
+                _datasetId
+            ) ||
+            roles.datasetsProof().isDatasetProofTimeout(_datasetId) ||
+            roles.datasetsChallenge().isDatasetAuditTimeout(_datasetId)
+        ) {
+            __reportDatasetWorkflowTimeout(_datasetId);
+        }
+    }
+
+    /// @notice Updates the dataset ID for a given access method.
+    /// @param _datasetId The ID of the dataset to be updated.
+    function _updateDatasetIdForAccessMethod(uint64 _datasetId) internal {
+        // Retrieve the dataset storage reference
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+
+        // Update the mapping of access methods to dataset IDs
+        accessMethodsToDatasetIds[
+            dataset.getDatasetAccessMethodKey()
+        ] = _datasetId;
     }
 
     /// @notice Updates timeout parameters for a dataset.
@@ -211,8 +237,20 @@ contract Datasets is
         uint64 _datasetId,
         uint64 _proofBlockCount,
         uint64 _auditBlockCount
-    ) public {
-        //TODO:impl
+    )
+        public
+        onlyDatasetState(this, _datasetId, DatasetType.State.MetadataSubmitted)
+    {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+
+        require(
+            _proofBlockCount > roles.filplus().datasetRuleMinProofTimeout() &&
+                _auditBlockCount > roles.filplus().datasetRuleMinAuditTimeout(),
+            "invalid dataset timeout parameters"
+        );
+
+        dataset.metadata.proofBlockCount = _proofBlockCount;
+        dataset.metadata.auditBlockCount = _auditBlockCount;
     }
 
     ///@notice Get dataset metadata
@@ -275,7 +313,13 @@ contract Datasets is
     /// @notice Get timeout params of dataset's metadata
     function getDatasetTimeoutParameters(
         uint64 _datasetId
-    ) external view returns (uint64 proofBlockCount, uint64 auditBlockCount) {}
+    ) external view returns (uint64 proofBlockCount, uint64 auditBlockCount) {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        return (
+            dataset.metadata.proofBlockCount,
+            dataset.metadata.auditBlockCount
+        );
+    }
 
     ///@notice Get dataset state
     function getDatasetState(
@@ -285,13 +329,40 @@ contract Datasets is
         return dataset.getDatasetState();
     }
 
+    /// @notice Retrieves the associated dataset ID for a given dataset ID.
+    /// @param _datasetId The ID of the dataset for which the associated dataset ID is being retrieved.
+    /// @return The associated dataset ID.
+    function getAssociatedDatasetId(
+        uint64 _datasetId
+    ) public view returns (uint64) {
+        DatasetType.Dataset storage dataset = datasets[_datasetId];
+        return dataset.metadata.associatedDatasetId;
+    }
+
+    /// @notice Retrieves the dataset ID associated with a given access method.
+    /// @dev This function returns the dataset ID mapped to the keccak256 hash of the input access method.
+    /// @param _accessMethod The access method for which the dataset ID is being retrieved.
+    /// @return The dataset ID associated with the given access method.
+    function getDatasetIdForAccessMethod(
+        string memory _accessMethod
+    ) public view returns (uint64) {
+        // Retrieve and return the dataset ID mapped to the keccak256 hash of the input access method
+        return
+            accessMethodsToDatasetIds[
+                keccak256(abi.encodePacked(_accessMethod))
+            ];
+    }
+
     ///@notice Check if a dataset has metadata
     function hasDatasetMetadata(
         string memory _accessMethod
     ) public view returns (bool) {
-        for (uint64 i = 1; i <= datasetsCount(); i++) {
-            DatasetType.Dataset storage dataset = datasets[i];
-            if (dataset.hasDatasetMetadata(_accessMethod)) return true;
+        if (
+            accessMethodsToDatasetIds[
+                keccak256(abi.encodePacked(_accessMethod))
+            ] != 0
+        ) {
+            return true;
         }
         return false;
     }
@@ -338,23 +409,20 @@ contract Datasets is
         dataset._emitDatasetEvent(DatasetType.Event.EscrowCompleted);
     }
 
+    /// @notice Reports that dataset proof has been submitted.
+    /// @param _proofSize The size of the dataset proof submitted.
+    function __reportDatasetProofSubmitted(
+        uint64 _proofSize
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
+        _addSizeTotal(_proofSize);
+    }
+
     /// @notice Report the dataset proof has already been submitted.
     /// @dev This function is intended for use only by the 'dataswap' contract.
     function __reportDatasetProofCompleted(
         uint64 _datasetId
     ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
-
-        uint64 mappingSize = roles.datasetsProof().getDatasetSize(
-            _datasetId,
-            DatasetType.DataType.MappingFiles
-        );
-        uint64 sourceSize = roles.datasetsProof().getDatasetSize(
-            _datasetId,
-            DatasetType.DataType.Source
-        );
-
-        _addSizeTotal(mappingSize + sourceSize);
         dataset._emitDatasetEvent(DatasetType.Event.ProofCompleted);
     }
 
@@ -362,7 +430,7 @@ contract Datasets is
     /// @param _datasetId The ID of the dataset for which the workflow timed out.
     function __reportDatasetWorkflowTimeout(
         uint64 _datasetId
-    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
+    ) public onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset._emitDatasetEvent(DatasetType.Event.WorkflowTimeout);
 
