@@ -303,6 +303,48 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         );
     }
 
+    /// @notice Updates information for a car.
+    /// @dev This function is intended to update various parameters associated with a car, such as its ID, dataset ID, and replica count.
+    /// @param _id The ID of the car to be updated.
+    /// @param _datasetId The dataset ID associated with the car.
+    /// @param _replicaCount The count of replicas associated with the car.
+    function __updateCar(
+        uint64 _id,
+        uint64 _datasetId,
+        uint16 _replicaCount
+    )
+        public
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
+        onlyCarExist(this, _id)
+    {
+        CarReplicaType.Car storage car = cars[getCarHash(_id)];
+        require(
+            roles.datasetsProof().isAssociatedDatasetContainsCar(
+                _datasetId,
+                _id
+            ),
+            "invalid associated datasetId"
+        );
+
+        car._setDatasetId(_datasetId);
+        car._initRepicas(_replicaCount);
+    }
+
+    /// @notice Updates information for multiple cars and returns the total size of the updated cars.
+    /// @dev This function is intended to update various parameters associated with multiple cars simultaneously, such as their IDs, dataset ID, and replica count, and then returns the total size of the updated cars.
+    /// @param _ids An array containing the IDs of the cars to be updated.
+    /// @param _datasetId The dataset ID associated with the cars.
+    /// @param _replicaCount The count of replicas associated with each car.
+    function __updateCars(
+        uint64[] memory _ids,
+        uint64 _datasetId,
+        uint16 _replicaCount
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
+        for (uint64 i; i < _ids.length; i++) {
+            __updateCar(_ids[i], _datasetId, _replicaCount);
+        }
+    }
+
     /// @notice Get the car information associated with a car.
     /// @param _id Car ID to check.
     /// @return hash datasetId size replicasCount matchingIds, The car information.

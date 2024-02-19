@@ -234,3 +234,76 @@ contract SubmitReplicaRequirementsTestCaseWithDuplicateCitys is
         );
     }
 }
+
+///@notice submit dataset replica requirement test case with timeout.
+contract SubmitReplicaRequirementsTestCaseWithTimeout is DatasetsTestBase {
+    constructor(
+        IDatasets _datasets,
+        IDatasetsRequirement _datasetsRequirement,
+        IDatasetsProof _datasetsProof,
+        IDatasetsChallenge _datasetsChallenge,
+        IDatasetsHelpers _datasetsHelpers,
+        IDatasetsAssertion _datasetsAssertion
+    )
+        DatasetsTestBase(
+            _datasets,
+            _datasetsRequirement,
+            _datasetsProof,
+            _datasetsChallenge,
+            _datasetsHelpers,
+            _datasetsAssertion
+        ) // solhint-disable-next-line
+    {}
+
+    function before() internal virtual override returns (uint64) {
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return setup.replicaRequirementTestSetup(datasetsHelpers);
+    }
+
+    function action(uint64 _datasetId) internal virtual override {
+        address[][] memory dps = datasetsHelpers.generateReplicasActors(
+            5,
+            3,
+            0,
+            0,
+            address(99)
+        );
+        address[][] memory sps = datasetsHelpers.generateReplicasActors(
+            5,
+            3,
+            0,
+            0,
+            address(199)
+        );
+        uint16[] memory regions = datasetsHelpers.generateReplicasPositions(
+            5,
+            0
+        );
+        uint16[] memory countrys = datasetsHelpers.generateReplicasPositions(
+            5,
+            0
+        );
+        uint32[][] memory citys = datasetsHelpers.generateReplicasCitys(
+            5,
+            3,
+            0,
+            0
+        );
+        vm.roll(1000000);
+        vm.prank(address(9));
+        datasetsRequirement.submitDatasetReplicaRequirements(
+            _datasetId,
+            dps,
+            sps,
+            regions,
+            countrys,
+            citys,
+            0
+        );
+
+        datasetsAssertion.getDatasetStateAssertion(
+            _datasetId,
+            DatasetType.State.Rejected
+        );
+    }
+}

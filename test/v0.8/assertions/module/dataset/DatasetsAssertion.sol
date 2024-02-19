@@ -177,8 +177,7 @@ contract DatasetsAssertion is
             params.accessMethod,
             params.sizeInBytes,
             params.isPublic,
-            params.version,
-            params.associatedDatasetId
+            params.version
         );
     }
 
@@ -218,7 +217,9 @@ contract DatasetsAssertion is
         // Before the action, capture the initial state.
         uint64 oldDatasetsCount = datasets.datasetsCount();
         getDatasetStateAssertion(oldDatasetsCount + 1, DatasetType.State.None);
-        hasDatasetMetadataAssertion(_accessMethod, false);
+        if (_associatedDatasetId == 0) {
+            hasDatasetMetadataAssertion(_accessMethod, false);
+        }
         _submitDatasetMetadataStatisticsAssertion(
             DatasetType.Metadata({
                 title: "a",
@@ -244,6 +245,11 @@ contract DatasetsAssertion is
             oldDatasetsCount + 1,
             DatasetType.State.MetadataSubmitted
         );
+        getAssociatedDatasetIdAssertion(
+            oldDatasetsCount + 1,
+            _associatedDatasetId
+        );
+
         uint64 newDatasetsCount = datasets.datasetsCount();
         datasetsCountAssertion(oldDatasetsCount + 1);
         getDatasetMetadataAssertion(
@@ -755,6 +761,20 @@ contract DatasetsAssertion is
             uint8(datasets.getDatasetState(_datasetId)),
             uint8(_expectState),
             "state not matched"
+        );
+    }
+
+    /// @notice Retrieves the associated dataset ID assertion.
+    /// @param _datasetId The ID of the dataset for which to retrieve the assertion.
+    /// @param _expectAssociatedDatasetId The expected associated dataset ID.
+    function getAssociatedDatasetIdAssertion(
+        uint64 _datasetId,
+        uint64 _expectAssociatedDatasetId
+    ) public {
+        assertEq(
+            datasets.getAssociatedDatasetId(_datasetId),
+            _expectAssociatedDatasetId,
+            "associated datasetId not matched"
         );
     }
 

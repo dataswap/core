@@ -128,3 +128,113 @@ contract SubmittChallengeProofsTestCaseWithFail is DatasetsTestBase {
         );
     }
 }
+
+///@notice submit dataset challenge proofs test case with timeout.
+contract SubmittChallengeProofsTestCaseWithTimeout is DatasetsTestBase {
+    constructor(
+        IDatasets _datasets,
+        IDatasetsRequirement _datasetsRequirement,
+        IDatasetsProof _datasetsProof,
+        IDatasetsChallenge _datasetsChallenge,
+        IDatasetsHelpers _datasetsHelpers,
+        IDatasetsAssertion _datasetsAssertion
+    )
+        DatasetsTestBase(
+            _datasets,
+            _datasetsRequirement,
+            _datasetsProof,
+            _datasetsChallenge,
+            _datasetsHelpers,
+            _datasetsAssertion
+        ) // solhint-disable-next-line
+    {}
+
+    function before() internal virtual override returns (uint64 id) {
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return setup.verificationTestSetup(datasetsHelpers, datasets);
+    }
+
+    function action(uint64 _id) internal virtual override {
+        uint64 pointCount = 1;
+        bytes32[] memory leaves = new bytes32[](pointCount);
+        bytes32[][] memory siblings = new bytes32[][](pointCount);
+        uint32[] memory paths = new uint32[](pointCount);
+        uint64 randomSeed;
+        (randomSeed, leaves, siblings, paths) = datasetsHelpers
+            .generateVerification(pointCount);
+
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(199));
+        vm.stopPrank();
+
+        vm.roll(1000000);
+        vm.prank(address(199));
+        datasetsChallenge.submitDatasetChallengeProofs(
+            _id,
+            randomSeed,
+            leaves,
+            siblings,
+            paths
+        );
+
+        datasetsAssertion.getDatasetStateAssertion(
+            _id,
+            DatasetType.State.Rejected
+        );
+    }
+}
+
+///@notice submit dataset challenge proofs test case with success.
+contract ResubmittDatasetChallengeProofsTestCaseWithSuccess is DatasetsTestBase {
+    constructor(
+        IDatasets _datasets,
+        IDatasetsRequirement _datasetsRequirement,
+        IDatasetsProof _datasetsProof,
+        IDatasetsChallenge _datasetsChallenge,
+        IDatasetsHelpers _datasetsHelpers,
+        IDatasetsAssertion _datasetsAssertion
+    )
+        DatasetsTestBase(
+            _datasets,
+            _datasetsRequirement,
+            _datasetsProof,
+            _datasetsChallenge,
+            _datasetsHelpers,
+            _datasetsAssertion
+        ) // solhint-disable-next-line
+    {}
+
+    function before() internal virtual override returns (uint64 id) {
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return
+            setup.challengeTestForResubmitDatasetSetup(
+                datasetsHelpers,
+                datasets,
+                datasetsAssertion
+            );
+    }
+
+    function action(uint64 _id) internal virtual override {
+        uint64 pointCount = 1;
+        bytes32[] memory leaves = new bytes32[](pointCount);
+        bytes32[][] memory siblings = new bytes32[][](pointCount);
+        uint32[] memory paths = new uint32[](pointCount);
+        uint64 randomSeed;
+        (randomSeed, leaves, siblings, paths) = datasetsHelpers
+            .generateVerification(pointCount);
+
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(199));
+        vm.stopPrank();
+        datasetsAssertion.submitDatasetChallengeProofsAssertion(
+            address(199),
+            _id,
+            randomSeed,
+            leaves,
+            siblings,
+            paths
+        );
+    }
+}

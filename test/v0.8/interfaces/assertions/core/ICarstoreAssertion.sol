@@ -109,6 +109,30 @@ interface ICarstoreAssertion {
         uint64 _claimId
     ) external;
 
+    /// @notice Updates the assertion of a car by a caller.
+    /// @param _caller The address of the caller updating the assertion.
+    /// @param _id The ID of the car to update.
+    /// @param _datasetId The ID of the dataset associated with the car.
+    /// @param _replicaCount The number of replicas associated with the car.
+    function updateCarAssertion(
+        address _caller,
+        uint64 _id,
+        uint64 _datasetId,
+        uint16 _replicaCount
+    ) external;
+
+    /// @notice Updates the assertion of multiple cars by a caller.
+    /// @param _caller The address of the caller updating the assertion.
+    /// @param _ids The IDs of the cars to update.
+    /// @param _datasetId The ID of the dataset associated with the cars.
+    /// @param _replicaCount The number of replicas associated with each car.
+    function updateCarsAssertion(
+        address _caller,
+        uint64[] memory _ids,
+        uint64 _datasetId,
+        uint16 _replicaCount
+    ) external;
+
     /// @dev Asserts getting the size of a car.
     /// @param _inputId The ID (Content Identifier) of the car.
     /// @param _expectSize The expected size of the car in bytes.

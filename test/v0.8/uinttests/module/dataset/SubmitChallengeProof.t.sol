@@ -48,4 +48,32 @@ contract ChallengeProofsTest is Test, DatasetTestSetup {
             );
         testCase.run();
     }
+
+    /// @notice test case with success
+    function testSubmitDatasetChallengeProofsWithTimeout() public {
+        setup();
+        SubmittChallengeProofsTestCaseWithTimeout testCase = new SubmittChallengeProofsTestCaseWithTimeout(
+                datasets(),
+                datasetsRequirement(),
+                datasetsProof(),
+                datasetsChallenge(),
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
+
+    /// @notice test case with resubmit success
+    function testResubmitDatasetChallengeProofsWithSuccess() public {
+        setup();
+        ResubmittDatasetChallengeProofsTestCaseWithSuccess testCase = new ResubmittDatasetChallengeProofsTestCaseWithSuccess(
+                datasets(),
+                datasetsRequirement(),
+                datasetsProof(),
+                datasetsChallenge(),
+                helpers,
+                assertion
+            );
+        testCase.run();
+    }
 }

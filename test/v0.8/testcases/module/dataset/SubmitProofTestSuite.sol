@@ -395,3 +395,99 @@ contract SubmitProofTestCaseWithInvalidProportion is DatasetsTestBase {
         );
     }
 }
+
+///@notice submit dataset proof test case with timeout.
+contract SubmitProofTestCaseWithTimeout is DatasetsTestBase {
+    constructor(
+        IDatasets _datasets,
+        IDatasetsRequirement _datasetsRequirement,
+        IDatasetsProof _datasetsProof,
+        IDatasetsChallenge _datasetsChallenge,
+        IDatasetsHelpers _datasetsHelpers,
+        IDatasetsAssertion _datasetsAssertion
+    )
+        DatasetsTestBase(
+            _datasets,
+            _datasetsRequirement,
+            _datasetsProof,
+            _datasetsChallenge,
+            _datasetsHelpers,
+            _datasetsAssertion
+        ) // solhint-disable-next-line
+    {}
+
+    function before() internal virtual override returns (uint64) {
+        DatasetsTestSetup setup = new DatasetsTestSetup();
+        return setup.proofTestSetup(datasetsHelpers, datasets);
+    }
+
+    function action(uint64 _datasetId) internal virtual override {
+        bytes32 sourceRoot = datasetsHelpers.generateRoot();
+        uint64 sourceLeavesCount = 100;
+        bytes32[] memory sourceLeavesHashes = new bytes32[](sourceLeavesCount);
+        uint64[] memory sourceLeavesIndexs = new uint64[](sourceLeavesCount);
+        uint64[] memory sourceLeavesSizes = new uint64[](sourceLeavesCount);
+        // firset submit
+        (
+            sourceLeavesHashes,
+            sourceLeavesIndexs,
+            sourceLeavesSizes,
+
+        ) = datasetsHelpers.generateProof(
+            sourceLeavesCount,
+            DatasetType.DataType.Source,
+            0
+        );
+        // vm.prank();
+        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
+        vm.stopPrank();
+        datasetsAssertion.submitDatasetProofRootAssertion(
+            address(99),
+            _datasetId,
+            DatasetType.DataType.Source,
+            "",
+            sourceRoot
+        );
+        datasetsAssertion.submitDatasetProofAssertion(
+            address(99),
+            _datasetId,
+            DatasetType.DataType.Source,
+            sourceLeavesHashes,
+            sourceLeavesIndexs[0],
+            sourceLeavesSizes,
+            false
+        );
+
+        uint64 count = datasetsProof.getDatasetProofCount(
+            _datasetId,
+            DatasetType.DataType.Source
+        );
+        // second submit
+        (
+            sourceLeavesHashes,
+            sourceLeavesIndexs,
+            sourceLeavesSizes,
+
+        ) = datasetsHelpers.generateProof(
+            sourceLeavesCount,
+            DatasetType.DataType.Source,
+            count
+        );
+        vm.roll(1000000);
+        vm.prank(address(99));
+        datasetsProof.submitDatasetProof(
+            _datasetId,
+            DatasetType.DataType.Source,
+            sourceLeavesHashes,
+            sourceLeavesIndexs[0],
+            sourceLeavesSizes,
+            true
+        );
+        datasetsAssertion.getDatasetStateAssertion(
+            _datasetId,
+            DatasetType.State.Rejected
+        );
+    }
+}

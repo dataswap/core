@@ -82,7 +82,6 @@ library DatasetMetadataLIB {
     /// @param _sizeInBytes Size of the dataset in bytes.
     /// @param _isPublic Boolean indicating if the dataset is public.
     /// @param _version Version number of the dataset.
-    /// @param _associatedDatasetId The ID of the associated dataset with the same access method.
     function submitDatasetMetadata(
         DatasetType.Dataset storage self,
         uint64 _client,
@@ -94,8 +93,7 @@ library DatasetMetadataLIB {
         string memory _accessMethod,
         uint64 _sizeInBytes,
         bool _isPublic,
-        uint64 _version,
-        uint64 _associatedDatasetId
+        uint64 _version
     ) internal {
         _requireValidDatasetMetadata(
             _title,
@@ -119,7 +117,37 @@ library DatasetMetadataLIB {
         self.metadata.sizeInBytes = _sizeInBytes;
         self.metadata.isPublic = _isPublic;
         self.metadata.version = _version;
+    }
+
+    /// @notice Submits the runtime parameters for a dataset.
+    /// @dev This function updates the proof block count, audit block count, and associated dataset ID for the dataset.
+    /// @param self The storage reference to the dataset.
+    /// @param _proofBlockCount The number of blocks for proof.
+    /// @param _auditBlockCount The number of blocks for audit.
+    /// @param _associatedDatasetId The ID of the associated dataset.
+    function submitDatasetRuntimeParameters(
+        DatasetType.Dataset storage self,
+        uint64 _proofBlockCount,
+        uint64 _auditBlockCount,
+        uint64 _associatedDatasetId
+    ) internal {
+        // Update the proof block count
+        self.metadata.proofBlockCount = _proofBlockCount;
+        // Update the audit block count
+        self.metadata.auditBlockCount = _auditBlockCount;
+        // Update the associated dataset ID
         self.metadata.associatedDatasetId = _associatedDatasetId;
+    }
+
+    /// @notice Generates the access method key for a dataset.
+    /// @dev This function calculates the keccak256 hash of the access method string.
+    /// @param self The storage reference to the dataset.
+    /// @return The keccak256 hash of the access method.
+    function getDatasetAccessMethodKey(
+        DatasetType.Dataset storage self
+    ) internal view returns (bytes32) {
+        // Return the keccak256 hash of the access method string
+        return keccak256(abi.encodePacked(self.metadata.accessMethod));
     }
 
     /// @notice Gets the submitter  for a dataset.
@@ -148,18 +176,5 @@ library DatasetMetadataLIB {
         );
 
         return (self.metadata.client);
-    }
-
-    /// @notice Checks if an access method for a dataset has been submitted.
-    /// @param self The metadata object to check.
-    /// @param _accessMethod The access method to check.
-    /// @return True if the access method exists, false otherwise.
-    function hasDatasetMetadata(
-        DatasetType.Dataset storage self,
-        string memory _accessMethod
-    ) internal view returns (bool) {
-        return
-            keccak256(bytes(self.metadata.accessMethod)) ==
-            keccak256(bytes(_accessMethod));
     }
 }

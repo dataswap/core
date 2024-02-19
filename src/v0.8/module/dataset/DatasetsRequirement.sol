@@ -106,6 +106,11 @@ contract DatasetsRequirement is
         )
         onlyAddress(roles.datasets().getDatasetMetadataSubmitter(_datasetId))
     {
+        if (isDatasetRequirementTimeout(_datasetId)) {
+            roles.datasets().__reportDatasetWorkflowTimeout(_datasetId);
+            return;
+        }
+
         require(
             roles.filplus().isCompliantRuleTotalReplicasPerDataset(
                 _dataPreparers,
@@ -185,6 +190,43 @@ contract DatasetsRequirement is
                 _datasetId
             ];
         return datasetReplicasRequirement.getDatasetReplicaRequirement(_index);
+    }
+
+    /// @notice Retrieves the height at which the dataset requirement is considered complete.
+    /// @dev This function returns the height at which the dataset requirement is considered complete for the given dataset ID.
+    /// @param _datasetId The ID of the dataset.
+    /// @return The height at which the dataset requirement is considered complete.
+    function getDatasetRequirementCompleteHeight(
+        uint64 _datasetId
+    ) external view onlyNotZero(_datasetId) returns (uint64) {
+        DatasetType.DatasetReplicasRequirement
+            storage datasetReplicasRequirement = datasetReplicasRequirements[
+                _datasetId
+            ];
+        return datasetReplicasRequirement.completedHeight;
+    }
+
+    /// @notice Checks if the dataset requirement has timed out.
+    /// @param _datasetId The ID of the dataset.
+    /// @return Whether the dataset requirement has timed out.
+    function isDatasetRequirementTimeout(
+        uint64 _datasetId
+    ) public view returns (bool) {
+        DatasetType.State state = roles.datasets().getDatasetState(_datasetId);
+        if (state != DatasetType.State.MetadataSubmitted) {
+            return false;
+        }
+        (, , , , , , , uint64 createdBlockNumber, , , ) = roles
+            .datasets()
+            .getDatasetMetadata(_datasetId);
+
+        if (
+            uint64(block.number) >=
+            createdBlockNumber + roles.filplus().datasetRuleRequirementTimeout()
+        ) {
+            return true;
+        }
+        return false;
     }
 
     ///@notice Process finance

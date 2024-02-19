@@ -23,6 +23,7 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
+import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
 
 /// @title DatasetsTestSetup
 /// @dev Preset conditions for datasets testing.
@@ -184,6 +185,104 @@ contract DatasetsTestSetup is Test {
         _datasetsHelpers.getDatasetsProof().submitDatasetProofCompleted(
             datasetId
         );
+        return datasetId;
+    }
+
+    function challengeTestForResubmitDatasetSetup(
+        IDatasetsHelpers _datasetsHelpers,
+        IDatasets _datasets,
+        IDatasetsAssertion _datasetsAssertion
+    ) public returns (uint64 id) {
+        uint64 associatedDatasetId = _datasetsHelpers.submitDatasetMetadata(
+            address(9),
+            "TEST"
+        );
+        _datasetsHelpers.submitDatasetReplicaRequirements(
+            address(9),
+            associatedDatasetId,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0
+        );
+
+        address admin = _datasets.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        _datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
+        vm.stopPrank();
+        _datasetsHelpers.submitDatasetProof(
+            address(99),
+            associatedDatasetId,
+            DatasetType.DataType.Source,
+            "",
+            100,
+            true
+        );
+        _datasetsHelpers.submitDatasetProof(
+            address(99),
+            associatedDatasetId,
+            DatasetType.DataType.MappingFiles,
+            "accessmethod",
+            10,
+            false
+        );
+
+        vm.roll(10000000);
+        vm.prank(address(199));
+        _datasetsHelpers.getDatasetsProof().submitDatasetProofCompleted(
+            associatedDatasetId
+        );
+
+        (, , , , , string memory accessMethod, , , , , ) = _datasets
+            .getDatasetMetadata(associatedDatasetId);
+
+        _datasetsAssertion.submitDatasetMetadataAssertion(
+            address(9),
+            875,
+            accessMethod,
+            10000,
+            associatedDatasetId
+        );
+
+        uint64 datasetId = _datasets.datasetsCount();
+        _datasetsHelpers.submitDatasetReplicaRequirements(
+            address(9),
+            datasetId,
+            5,
+            0,
+            0,
+            0,
+            0,
+            0
+        );
+
+        _datasetsHelpers.submitDatasetProofWithCarIds(
+            address(99),
+            datasetId,
+            associatedDatasetId,
+            DatasetType.DataType.Source,
+            "accessmethod",
+            true
+        );
+        _datasetsHelpers.submitDatasetProof(
+            address(99),
+            datasetId,
+            DatasetType.DataType.MappingFiles,
+            "accessmethod",
+            10,
+            true
+        );
+
+        vm.deal(address(9), 1000 ether);
+        vm.startPrank(address(9));
+        _datasets.roles().datasetsProof().completeEscrow(datasetId);
+        vm.stopPrank();
+        _datasetsHelpers.getDatasetsProof().submitDatasetProofCompleted(
+            datasetId
+        );
+        _datasets.getDatasetState(datasetId);
         return datasetId;
     }
 }

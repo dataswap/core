@@ -68,6 +68,14 @@ interface IDatasetsChallenge {
         uint64 _randomSeed
     ) external view returns (bool);
 
+    /// @notice Checks if the dataset audit has timed out.
+    /// @dev This function determines if the dataset audit for the given dataset ID has timed out.
+    /// @param _datasetId The ID of the dataset.
+    /// @return True if the dataset audit has timed out, false otherwise.
+    function isDatasetAuditTimeout(
+        uint64 _datasetId
+    ) external view returns (bool);
+
     /// @notice Get a dataset challenge count
     function getChallengeSubmissionCount(
         uint64 _datasetId

@@ -64,7 +64,10 @@ library CarLIB {
         CarReplicaType.Car storage self,
         uint16 _replicaCount
     ) internal {
-        require(self.replicas.length == 0, "Replica is not empty");
+        if (self.replicas.length != 0) {
+            delete self.replicas;
+        }
+
         for (uint16 index = 0; index < _replicaCount; index++) {
             CarReplicaType.Replica memory newReplica;
             self.replicas.push(newReplica);
