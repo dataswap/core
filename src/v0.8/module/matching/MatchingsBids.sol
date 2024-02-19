@@ -123,7 +123,7 @@ contract MatchingsBids is
         //     datasetId,
         //     _matchingId,
         //     FinanceType.FIL,
-        //     FinanceType.Type.DataTradingFee
+        //     FinanceType.Type.EscrowDataTradingFee
         // );
 
         emit MatchingsEvents.MatchingBidPlaced(
@@ -323,7 +323,7 @@ contract MatchingsBids is
             //     _datasetId,
             //     _matchingId,
             //     FinanceType.FIL,
-            //     FinanceType.Type.DataTradingFee
+            //     FinanceType.Type.EscrowDataTradingFee
             // );
         } else {
             uint64 _size = _afterMatchingFailed(_matchingId);

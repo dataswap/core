@@ -78,4 +78,9 @@ library Errors {
         uint64 matchingId,
         address winner
     );
+
+    /// @notice finance errors
+    error ExceedValidAmount(uint256 valid, uint256 expectedAmount);
+    error ExceedValidEscrowAmount(uint256 valid, uint256 expectedAmount);
+    error NotSupportToken(address token);
 }

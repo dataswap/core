@@ -28,16 +28,16 @@ library FinanceType {
     /// @notice Escrow types.
     enum Type {
         //1,Commission
-        ChallengeCommission,
-        DataTradingCommission,
+        EscrowChallengeCommission,
+        EscrowDataTradingCommission,
         //2,TradingFee
-        DataTradingFee,
+        EscrowDataTradingFee,
         //3,Collateral
-        DatacapCollateral,
-        DatacapChunkLandCollateral,
-        ProofAuditCollateral,
-        ChallengeAuditCollateral,
-        DisputeAuditCollateral,
+        EscrowDatacapCollateral,
+        EscrowDatacapChunkLandCollateral,
+        EscrowProofAuditCollateral,
+        EscrowChallengeAuditCollateral,
+        EscrowDisputeAuditCollateral,
         // End for traverse
         End
     }

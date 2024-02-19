@@ -188,8 +188,8 @@ contract DatasetsRequirement is
     }
 
     ///@notice Process escrow
-    /// 1. Add DatacapCollateral escrow
-    /// 2. Add DataTradingFee escrow
+    /// 1. Add EscrowDatacapCollateral escrow
+    /// 2. Add EscrowDataTradingFee escrow
     function _processEscrow(
         uint64 _datasetId
     ) internal onlyNotZero(_datasetId) {
@@ -197,13 +197,13 @@ contract DatasetsRequirement is
         //     _datasetId,
         //     0,
         //     FinanceType.FIL,
-        //     FinanceType.Type.DatacapCollateral
+        //     FinanceType.Type.EscrowDatacapCollateral
         // );
         // roles.finance().escrow(
         //     _datasetId,
         //     0,
         //     FinanceType.FIL,
-        //     FinanceType.Type.DataTradingFee
+        //     FinanceType.Type.EscrowDataTradingFee
         // );
     }
 }

@@ -129,7 +129,12 @@ interface IFinance {
     )
         external
         view
-        returns (uint64 latestHeight, uint256 expenditure, uint256 total);
+        returns (
+            uint64 latestHeight,
+            uint256 expenditure,
+            uint256 current,
+            uint256 total
+        );
 
     /// @dev Retrieves the escrow requirement for a specific dataset, matching process, and token type.
     /// @param _datasetId The ID of the dataset.

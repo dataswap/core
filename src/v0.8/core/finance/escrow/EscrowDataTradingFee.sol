@@ -22,20 +22,18 @@ import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
-import {Base} from "src/v0.8/core/finance/base/Base.sol";
+import {EscrowBase} from "src/v0.8/core/finance/escrow/EscrowBase.sol";
 
-/// @title DataTradingFee
-/// @dev This contract provides functions for managing DataTradingFee-related operations.
-contract DataTradingFee is Base {
+/// @title EscrowDataTradingFee
+/// @dev This contract provides functions for managing EscrowDataTradingFee-related operations.
+contract EscrowDataTradingFee is EscrowBase {
     /// @dev Internal function to get bids refund information.
     /// @param _matchingId The ID of the matching process.
-    /// @param _roles The roles contract interface.
     /// @return refunds An array containing payment information for refund.
     function _getBidsRefundInfo(
         uint64 /*_datasetId*/,
         uint64 _matchingId,
-        address /*_token*/,
-        IRoles _roles
+        address /*_token*/
     )
         internal
         view
@@ -47,7 +45,7 @@ contract DataTradingFee is Base {
             uint256[] memory amounts,
             ,
             address winner
-        ) = _roles.matchingsBids().getMatchingBids(_matchingId);
+        ) = roles.matchingsBids().getMatchingBids(_matchingId);
 
         uint256 biddersLen = bidders.length;
         refunds = new FinanceType.PaymentInfo[](biddersLen - 1);
@@ -69,57 +67,60 @@ contract DataTradingFee is Base {
     /// @notice Get dataset pre-conditional collateral requirement.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
-    /// @param _roles The roles contract interface.
+    /// @param _owner An array containing the addresses of the dataset and matching process owners.
+    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return amount The collateral requirement amount.
     function getRequirement(
         uint64 _datasetId,
         uint64 _matchingId,
         address _owner,
-        address /*_token*/,
-        IRoles _roles
-    )
-        public
-        view
-        override
-        returns (
-            uint256 amount // solhint-disable-next-line
-        )
-    {
+        address _token
+    ) public view override returns (uint256 amount) {
+        (, , uint256 current, ) = roles.finance().getAccountEscrow(
+            _datasetId,
+            _matchingId,
+            _owner,
+            _token,
+            FinanceType.Type.EscrowDataTradingFee
+        );
+
         if (
-            _owner == _roles.datasets().getDatasetMetadataSubmitter(_datasetId)
+            _owner == roles.datasets().getDatasetMetadataSubmitter(_datasetId)
         ) {
-            /// TODO: Add dataTradingFee requirement get interface.
+            (, , , , , , amount) = roles.matchingsTarget().getMatchingTarget(
+                _matchingId
+            );
         } else if (
-            _owner == _roles.matchingsBids().getMatchingWinner(_matchingId)
+            _owner == roles.matchingsBids().getMatchingWinner(_matchingId)
         ) {
-            amount = _roles.matchingsBids().getMatchingBidAmount(
+            amount = roles.matchingsBids().getMatchingBidAmount(
                 _matchingId,
                 _owner
             );
         } else {
             require(false, "owner account does not exist");
         }
+
+        amount = current >= amount ? 0 : amount - current;
     }
 
     /// @dev Internal function to get owners associated with a dataset and matching process.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
-    /// @param _roles The roles contract interface.
     /// @return owners An array containing the addresses of the dataset and matching process owners.
     function _getOwners(
         uint64 _datasetId,
-        uint64 _matchingId,
-        IRoles _roles
+        uint64 _matchingId
     ) internal view override returns (address[] memory owners) {
         if (_matchingId != 0) {
             owners = new address[](2);
-            owners[0] = _roles.matchingsBids().getMatchingWinner(_matchingId);
-            owners[1] = _roles.datasets().getDatasetMetadataSubmitter(
+            owners[0] = roles.matchingsBids().getMatchingWinner(_matchingId);
+            owners[1] = roles.datasets().getDatasetMetadataSubmitter(
                 _datasetId
             );
         } else {
             owners = new address[](1);
-            owners[0] = _roles.datasets().getDatasetMetadataSubmitter(
+            owners[0] = roles.datasets().getDatasetMetadataSubmitter(
                 _datasetId
             );
         }
@@ -127,106 +128,86 @@ contract DataTradingFee is Base {
 
     /// @dev Internal function to get payees associated with a dataset and matching process.
     /// @param _matchingId The ID of the matching process.
-    /// @param _roles The roles contract interface.
     /// @return payees An array containing the address of the matching process initiator.
     function _getPayees(
         uint64 /*_datasetId*/,
-        uint64 _matchingId,
-        IRoles _roles
+        uint64 _matchingId
     ) internal view override returns (address[] memory payees) {
         payees = new address[](1);
-        payees[0] = _roles.matchings().getMatchingInitiator(_matchingId);
+        payees[0] = roles.matchings().getMatchingInitiator(_matchingId);
     }
 
     /// @dev Internal function to get refund amount.
     /// @param _matchingId The ID of the matching process.
     /// @param _owner An array containing the addresses of the dataset and matching process owners.
-    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
-    /// @param _roles The roles contract interface.
     /// @return amount The refund amount.
     function _getRefundAmount(
-        uint64 _datasetId,
+        uint64 /*_datasetId*/,
         uint64 _matchingId,
         address _owner,
-        address _token,
-        IRoles _roles
+        address /*_token*/
     ) internal view override returns (uint256 amount) {
-        (uint256 totalSize, uint256 storedSize, , , , , ) = _roles
+        (uint256 totalSize, uint256 storedSize, , , , , ) = roles
             .storages()
             .getMatchingStorageOverview(_matchingId);
 
-        address winner = _roles.matchingsBids().getMatchingWinner(_matchingId);
-        uint256 totalPayment = 0;
+        address winner = roles.matchingsBids().getMatchingWinner(_matchingId);
         if (winner == _owner) {
-            totalPayment = _roles.matchingsBids().getMatchingBidAmount(
+            amount = roles.matchingsBids().getMatchingBidAmount(
                 _matchingId,
                 winner
             );
         } else {
-            (, , totalPayment) = _roles.finance().getAccountEscrow(
-                _datasetId,
-                _matchingId,
-                _token,
-                _owner,
-                FinanceType.Type.DataTradingFee
+            (, , , , , , amount) = roles.matchingsTarget().getMatchingTarget(
+                _matchingId
             );
         }
 
-        amount = (totalPayment / totalSize) * (totalSize - storedSize);
+        amount = (amount / totalSize) * (totalSize - storedSize);
     }
 
     /// @dev Internal function to get payment amount.
     /// @param _matchingId The ID of the matching process.
     /// @param _owner An array containing the addresses of the dataset and matching process owners.
-    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
-    /// @param _roles The roles contract interface.
     /// @return amount The payment amount.
     function _getPaymentAmount(
-        uint64 _datasetId,
+        uint64 /*_datasetId*/,
         uint64 _matchingId,
         address _owner,
-        address _token,
-        IRoles _roles
+        address /*_token*/
     ) internal view override returns (uint256 amount) {
-        (uint256 totalSize, uint256 storedSize, , , , , ) = _roles
+        (uint256 totalSize, uint256 storedSize, , , , , ) = roles
             .storages()
             .getMatchingStorageOverview(_matchingId);
 
-        address winner = _roles.matchingsBids().getMatchingWinner(_matchingId);
-        uint256 totalPayment = 0;
+        address winner = roles.matchingsBids().getMatchingWinner(_matchingId);
         if (winner == _owner) {
-            totalPayment = _roles.matchingsBids().getMatchingBidAmount(
+            amount = roles.matchingsBids().getMatchingBidAmount(
                 _matchingId,
                 winner
             );
         } else {
-            (, , totalPayment) = _roles.finance().getAccountEscrow(
-                _datasetId,
-                _matchingId,
-                _owner,
-                _token,
-                FinanceType.Type.DataTradingFee
+            (, , , , , , amount) = roles.matchingsTarget().getMatchingTarget(
+                _matchingId
             );
         }
-        amount = (totalPayment / totalSize) * storedSize;
+        amount = (amount / totalSize) * storedSize;
     }
 
     /// @dev Internal function to check if a refund is applicable.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
-    /// @param _roles The roles contract interface.
     /// @return refund A boolean indicating whether a refund is applicable.
     function _isRefund(
         uint64 _datasetId,
-        uint64 _matchingId,
-        IRoles _roles
+        uint64 _matchingId
     ) internal view override returns (bool refund) {
         return (
             ((_matchingId != 0 &&
-                (_roles.storages().isStorageExpiration(_matchingId) ||
-                    _roles.matchings().getMatchingState(_matchingId) ==
+                (roles.storages().isStorageExpiration(_matchingId) ||
+                    roles.matchings().getMatchingState(_matchingId) ==
                     MatchingType.State.Closed)) ||
-                _roles.datasets().getDatasetState(_datasetId) ==
+                roles.datasets().getDatasetState(_datasetId) ==
                 DatasetType.State.Rejected)
         );
     }
@@ -234,31 +215,27 @@ contract DataTradingFee is Base {
     /// @dev Internal function to check if a bids refund is applicable.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
-    /// @param _roles The roles contract interface.
     /// @return refund A boolean indicating whether a refund is applicable.
     function _isBidsRefund(
         uint64 _datasetId,
-        uint64 _matchingId,
-        IRoles _roles
+        uint64 _matchingId
     ) internal view override returns (bool refund) {
         return (
             !((_matchingId != 0 &&
-                _roles.storages().isStorageExpiration(_matchingId)) ||
-                _roles.datasets().getDatasetState(_datasetId) ==
+                roles.storages().isStorageExpiration(_matchingId)) ||
+                roles.datasets().getDatasetState(_datasetId) ==
                 DatasetType.State.Rejected)
         );
     }
 
     /// @dev Internal function to check if a payment is applicable.
     /// @param _matchingId The ID of the matching process.
-    /// @param _roles The roles contract interface.
     /// @return payment A boolean indicating whether a payment is applicable.
     function _isPayment(
         uint64 /*_datasetId*/,
-        uint64 _matchingId,
-        IRoles _roles
+        uint64 _matchingId
     ) internal view override returns (bool payment) {
         return (_matchingId != 0 &&
-            _roles.storages().getStoredCarCount(_matchingId) > 0);
+            roles.storages().getStoredCarCount(_matchingId) > 0);
     }
 }

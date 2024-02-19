@@ -8,10 +8,10 @@ const deployFunction: DeployFunction = async function (
 ) {
   const { deployments } = hre;
   const roles = await deployments.get("Roles");
-  await deployAndSaveContract("ChallengeCommission", [roles.address], hre);
+  await deployAndSaveContract("EscrowDatacapCollateral", [roles.address], hre);
 };
 
 export default deployFunction;
 
 deployFunction.dependencies = ["Roles"];
-deployFunction.tags = ["ChallengeCommission"];
+deployFunction.tags = ["EscrowDatacapCollateral"];

@@ -29,14 +29,25 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 
 // type
 import {FinanceType} from "src/v0.8/types/FinanceType.sol";
-import {IFinance} from "src/v0.8/interfaces/core/IFinance.sol";
 
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {Base} from "src/v0.8/core/finance/base/Base.sol";
+import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
+import {IFinance} from "src/v0.8/interfaces/core/IFinance.sol";
+
+import {FinanceEvents} from "src/v0.8/shared/events/FinanceEvents.sol";
+import {FinanceAccountLIB} from "src/v0.8/core/finance/library/FinanceAccountLIB.sol";
+import {FinanceModifiers} from "src/v0.8/shared/modifiers/FinanceModifiers.sol";
 
 /// @title Finance
 /// @dev Base finance contract, holds funds designated for a payee until they withdraw them.
-contract Finance is Initializable, UUPSUpgradeable, RolesModifiers, IFinance {
+contract Finance is
+    Initializable,
+    UUPSUpgradeable,
+    RolesModifiers,
+    FinanceModifiers,
+    IFinance
+{
+    using FinanceAccountLIB for FinanceType.Account;
     mapping(uint256 => mapping(uint256 => mapping(address => mapping(address => FinanceType.Account))))
         private financeAccount; // mapping(datasetId => mapping(matchingId => mapping(sc/sp/da/dp => mapping(tokentype=>Account))));
 
@@ -75,7 +86,19 @@ contract Finance is Initializable, UUPSUpgradeable, RolesModifiers, IFinance {
         uint64 _matchingId,
         address _owner,
         address _token
-    ) external payable {}
+    ) external payable onlySupportToken(_token) {
+        financeAccount[_datasetId][_matchingId][_owner][_token]._deposit(
+            msg.value
+        );
+
+        emit FinanceEvents.Deposit(
+            _datasetId,
+            _matchingId,
+            _owner,
+            _token,
+            msg.value
+        );
+    }
 
     /// @dev Initiates a withdrawal of funds from the system.
     /// @param _datasetId The ID of the dataset.
@@ -88,7 +111,21 @@ contract Finance is Initializable, UUPSUpgradeable, RolesModifiers, IFinance {
         address payable _owner,
         address _token,
         uint256 _amount
-    ) external {}
+    ) external onlySupportToken(_token) {
+        financeAccount[_datasetId][_matchingId][_owner][_token]._withdraw(
+            _amount
+        );
+
+        SendAPI.send(FilAddresses.fromEthAddress(_owner), _amount);
+
+        emit FinanceEvents.Withdraw(
+            _datasetId,
+            _matchingId,
+            _owner,
+            _token,
+            _amount
+        );
+    }
 
     /// @dev Initiates an escrow of funds for a given dataset, matching ID, and escrow type.
     /// @param _datasetId The ID of the dataset.
@@ -100,7 +137,31 @@ contract Finance is Initializable, UUPSUpgradeable, RolesModifiers, IFinance {
         uint64 _matchingId,
         address _token,
         FinanceType.Type _type
-    ) external {}
+    ) external onlySupportToken(_token) {
+        uint256 requirement = getEscrowRequirement(
+            _datasetId,
+            _matchingId,
+            msg.sender,
+            _token,
+            _type
+        );
+
+        if (requirement > 0) {
+            financeAccount[_datasetId][_matchingId][msg.sender][_token]._escrow(
+                _type,
+                requirement
+            );
+
+            emit FinanceEvents.Escrow(
+                _datasetId,
+                _matchingId,
+                msg.sender,
+                _token,
+                _type,
+                requirement
+            );
+        }
+    }
 
     /// @dev Handles an escrow, such as claiming or processing it.
     /// @param _datasetId The ID of the dataset.
@@ -112,13 +173,12 @@ contract Finance is Initializable, UUPSUpgradeable, RolesModifiers, IFinance {
         uint64 _matchingId,
         address _token,
         FinanceType.Type _type
-    ) external view {
-        _getEscrowContract(_type).getPayeeInfo(
-            _datasetId,
-            _matchingId,
-            _token,
-            roles
-        );
+    ) external onlySupportToken(_token) {
+        FinanceType.PaymentInfo[] memory paymentsInfo = _getEscrowContract(
+            _type
+        ).getPayeeInfo(_datasetId, _matchingId, _token);
+
+        _paymentProcess(_datasetId, _matchingId, _token, _type, paymentsInfo);
     }
 
     /// @dev Retrieves an account's overview, including deposit, withdraw, burned, balance, lock, escrow.
@@ -134,6 +194,7 @@ contract Finance is Initializable, UUPSUpgradeable, RolesModifiers, IFinance {
     )
         external
         view
+        onlySupportToken(_token)
         returns (
             uint256 deposited,
             uint256 withdrawn,
@@ -143,7 +204,11 @@ contract Finance is Initializable, UUPSUpgradeable, RolesModifiers, IFinance {
             uint256 locks,
             uint256 escrows
         )
-    {}
+    {
+        return
+            financeAccount[_datasetId][_matchingId][_owner][_token]
+                ._getAccountOverview();
+    }
 
     /// @dev Retrieves trading income details for an account.
     /// @param _datasetId The ID of the dataset.
@@ -157,7 +222,16 @@ contract Finance is Initializable, UUPSUpgradeable, RolesModifiers, IFinance {
         address _owner,
         address _token,
         FinanceType.Type _type
-    ) external view returns (uint256 total, uint256 lock) {}
+    )
+        external
+        view
+        onlySupportToken(_token)
+        returns (uint256 total, uint256 lock)
+    {
+        return
+            financeAccount[_datasetId][_matchingId][_owner][_token]
+                ._getAccountIncome(_type);
+    }
 
     /// @dev Retrieves escrowed amount for an account.
     /// @param _datasetId The ID of the dataset.
@@ -174,8 +248,18 @@ contract Finance is Initializable, UUPSUpgradeable, RolesModifiers, IFinance {
     )
         external
         view
-        returns (uint64 latestHeight, uint256 expenditure, uint256 total)
-    {}
+        onlySupportToken(_token)
+        returns (
+            uint64 latestHeight,
+            uint256 expenditure,
+            uint256 current,
+            uint256 total
+        )
+    {
+        return
+            financeAccount[_datasetId][_matchingId][_owner][_token]
+                ._getAccountEscrow(_type);
+    }
 
     /// @dev Retrieves the escrow requirement for a specific dataset, matching process, and token type.
     /// @param _datasetId The ID of the dataset.
@@ -183,19 +267,20 @@ contract Finance is Initializable, UUPSUpgradeable, RolesModifiers, IFinance {
     /// @param _owner The address of the account owner.
     /// @param _token The type of token for the escrow requirement (e.g., FIL, ERC-20).
     /// @return amount The required escrow amount for the specified dataset, matching process, and token type.
-    /// Note: TypeX_EscrowLibrary needs to include the following methods.
-    /// .     function getRequirement(
-    ///         uint64 _datasetId,
-    ///         uint64 _matchingId,
-    ///         address _token
-    ///       ) public view returns (uint256 amount);
     function getEscrowRequirement(
         uint64 _datasetId,
         uint64 _matchingId,
         address _owner,
         address _token,
         FinanceType.Type _type
-    ) external view returns (uint256 amount) {}
+    ) public view onlySupportToken(_token) returns (uint256 amount) {
+        amount = _getEscrowContract(_type).getRequirement(
+            _datasetId,
+            _matchingId,
+            _owner,
+            _token
+        );
+    }
 
     /// @notice Checks if the escrowed funds are sufficient for a given dataset, matching, token, and finance type.
     /// @dev This function returns true if the escrowed funds are enough, otherwise, it returns false.
@@ -211,27 +296,74 @@ contract Finance is Initializable, UUPSUpgradeable, RolesModifiers, IFinance {
         address _owner,
         address _token,
         FinanceType.Type _type
-    ) external view returns (bool enough) {
-        enough = _getEscrowContract(_type).isEscrowEnough(
+    ) external view onlySupportToken(_token) returns (bool enough) {
+        uint256 requirement = getEscrowRequirement(
             _datasetId,
             _matchingId,
             _owner,
             _token,
-            roles
+            _type
         );
+
+        return (requirement == 0);
     }
 
+    /// @dev Gets the escrow contract address associated with the specified FinanceType.Type.
+    /// @param _type The FinanceType.Type specifying the escrow type.
+    /// @return base The Base contract representing the escrow contract for the specified type.
     function _getEscrowContract(
         FinanceType.Type _type
-    ) internal view returns (Base base) {
-        if (_type == FinanceType.Type.DataTradingFee) {
-            base = roles.dataTradingFee();
-        } else if (_type == FinanceType.Type.DatacapChunkLandCollateral) {
-            base = roles.datacapChunkLand();
-        } else if (_type == FinanceType.Type.ChallengeCommission) {
-            base = roles.challengeCommission();
-        } else if (_type == FinanceType.Type.DatacapCollateral) {
-            base = roles.datacapCollateral();
+    ) internal view returns (IEscrow base) {
+        if (_type == FinanceType.Type.EscrowDataTradingFee) {
+            base = roles.escrowDataTradingFee();
+        } else if (_type == FinanceType.Type.EscrowDatacapChunkLandCollateral) {
+            base = roles.escrowDatacapChunkLandCollateral();
+        } else if (_type == FinanceType.Type.EscrowChallengeCommission) {
+            base = roles.escrowChallengeCommission();
+        } else if (_type == FinanceType.Type.EscrowDatacapCollateral) {
+            base = roles.escrowDatacapCollateral();
+        }
+    }
+
+    /// @dev Internal function for processing payments.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _matchingId The ID of the matching.
+    /// @param _token The address of the token used for the payment.
+    /// @param _type The FinanceType.Type specifying the type of payment.
+    /// @param paymentsInfo An array of FinanceType.PaymentInfo containing payment details.
+    function _paymentProcess(
+        uint64 _datasetId,
+        uint64 _matchingId,
+        address _token,
+        FinanceType.Type _type,
+        FinanceType.PaymentInfo[] memory paymentsInfo
+    ) internal onlySupportToken(_token) {
+        for (uint256 i = 0; i < paymentsInfo.length; i++) {
+            financeAccount[_datasetId][_matchingId][paymentsInfo[i].payer][
+                _token
+            ]._payment(_type, paymentsInfo[i].amount);
+
+            for (uint256 j = 0; j < paymentsInfo[i].payees.length; j++) {
+                financeAccount[_datasetId][_matchingId][
+                    paymentsInfo[i].payees[j].payee
+                ][_token]._income(_type, paymentsInfo[i].payees[j].amount);
+
+                if (
+                    paymentsInfo[i].payees[j].payee ==
+                    roles.filplus().getBurnAddress()
+                ) {
+                    financeAccount[_datasetId][_matchingId][
+                        paymentsInfo[i].payer
+                    ][_token]._burn(paymentsInfo[i].payees[j].amount);
+
+                    SendAPI.send(
+                        FilAddresses.fromEthAddress(
+                            roles.filplus().getBurnAddress()
+                        ),
+                        paymentsInfo[i].payees[j].amount
+                    );
+                }
+            }
         }
     }
 }

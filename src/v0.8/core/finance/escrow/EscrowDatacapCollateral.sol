@@ -23,87 +23,86 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 
-import {Base} from "src/v0.8/core/finance/base/Base.sol";
+import {EscrowBase} from "src/v0.8/core/finance/escrow/EscrowBase.sol";
 
-/// @title DatacapCollateral
-/// @dev This contract provides functions for managing DatacapCollateral-related operations.
-contract DatacapCollateral is Base {
-    /// @notice Get dataset DatacapCollateral requirement.
+/// @title EscrowDatacapCollateral
+/// @dev This contract provides functions for managing EscrowDatacapCollateral-related operations.
+contract EscrowDatacapCollateral is EscrowBase {
+    /// @notice Get dataset EscrowDatacapCollateral requirement.
     /// @param _datasetId The ID of the dataset.
-    /// @param _roles The roles contract interface.
+    /// @param _matchingId The ID of the matching process.
+    /// @param _owner An array containing the addresses of the dataset and matching process owners.
+    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return amount The requirement amount.
     function getRequirement(
         uint64 _datasetId,
-        uint64 /*_matchingId*/,
-        address /*_owner*/,
-        address /*_token*/,
-        IRoles _roles
+        uint64 _matchingId,
+        address _owner,
+        address _token
     ) public view override returns (uint256 amount) {
-        (, , , , , , , , uint256 datasetSize, , ) = _roles
+        (, , uint256 current, ) = roles.finance().getAccountEscrow(
+            _datasetId,
+            _matchingId,
+            _owner,
+            _token,
+            FinanceType.Type.EscrowDatacapCollateral
+        );
+
+        (, , , , , , , , uint256 datasetSize, , ) = roles
             .datasets()
             .getDatasetMetadata(_datasetId);
 
         if (
-            _roles.datasetsProof().isDatasetProofallCompleted(
+            roles.datasetsProof().isDatasetProofallCompleted(
                 _datasetId,
                 DatasetType.DataType.Source
             )
         ) {
-            datasetSize = _roles.datasetsProof().getDatasetSize(
+            datasetSize = roles.datasetsProof().getDatasetSize(
                 _datasetId,
                 DatasetType.DataType.Source
             );
         }
         amount =
             datasetSize *
-            _roles.datasetsRequirement().getDatasetReplicasCount(_datasetId) *
-            _roles.filplus().getDatacapPricePreByte();
+            roles.datasetsRequirement().getDatasetReplicasCount(_datasetId) *
+            roles.filplus().getDatacapPricePreByte();
+
+        amount = current >= amount ? 0 : amount - current;
     }
 
     /// @dev Internal function to get owners associated with a dataset and matching process.
     /// @param _datasetId The ID of the dataset.
-    /// @param _roles The roles contract interface.
     /// @return owners An array containing the addresses of the dataset and matching process owners.
     function _getOwners(
         uint64 _datasetId,
-        uint64 /*_matchingId*/,
-        IRoles _roles
+        uint64 /*_matchingId*/
     ) internal view override returns (address[] memory owners) {
         owners = new address[](1);
-        owners[0] = _roles.datasets().getDatasetMetadataSubmitter(_datasetId);
+        owners[0] = roles.datasets().getDatasetMetadataSubmitter(_datasetId);
     }
 
     /// @dev Internal function to get refund amount.
     /// @param _matchingId The ID of the matching process.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
-    /// @param _roles The roles contract interface.
     /// @return amount The refund amount.
     function _getRefundAmount(
         uint64 _datasetId,
         uint64 _matchingId,
         address _owner,
-        address _token,
-        IRoles _roles
+        address _token
     ) internal view override returns (uint256 amount) {
-        amount = getRequirement(
-            _datasetId,
-            _matchingId,
-            _owner,
-            _token,
-            _roles
-        );
+        amount = getRequirement(_datasetId, _matchingId, _owner, _token);
     }
 
     /// @dev Internal function to check if a refund is applicable.
     /// @param _datasetId The ID of the dataset.
-    /// @param _roles The roles contract interface.
     /// @return refund A boolean indicating whether a refund is applicable.
     function _isRefund(
         uint64 _datasetId,
-        uint64 /*_matchingId*/,
-        IRoles _roles
+        uint64 /*_matchingId*/
     ) internal view override returns (bool refund) {
-        DatasetType.State state = _roles.datasets().getDatasetState(_datasetId);
+        DatasetType.State state = roles.datasets().getDatasetState(_datasetId);
 
         return state == DatasetType.State.Rejected ? true : false;
         // TODO: Expiration refund.

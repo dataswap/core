@@ -28,14 +28,20 @@ import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 
+import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {ArraysPaymentInfoLIB} from "src/v0.8/shared/utils/array/ArrayLIB.sol";
 
-/// @title Base
-/// @dev This Base provides functions for managing Escrow-related operations.
-contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
+/// @title EscrowBase
+/// @dev This EscrowBase provides functions for managing Escrow-related operations.
+abstract contract EscrowBase is
+    Initializable,
+    UUPSUpgradeable,
+    RolesModifiers,
+    IEscrow
+{
     using ArraysPaymentInfoLIB for FinanceType.PaymentInfo[];
 
-    IRoles private roles;
+    IRoles public roles;
 
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
@@ -61,17 +67,15 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
         return _getImplementation();
     }
 
-    /// @dev Retrieves payee information for DataTradingFee.
+    /// @dev Retrieves payee information for EscrowDataTradingFee.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
-    /// @param _roles The roles contract interface.
     /// @return paymentsInfo An array containing the payees's address.
     function getPayeeInfo(
         uint64 _datasetId,
         uint64 _matchingId,
-        address _token,
-        IRoles _roles
+        address _token
     )
         external
         view
@@ -79,18 +83,17 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
         returns (FinanceType.PaymentInfo[] memory paymentsInfo)
     {
         // 1. Get owners
-        address[] memory owners = _getOwners(_datasetId, _matchingId, _roles);
+        address[] memory owners = _getOwners(_datasetId, _matchingId);
         paymentsInfo = new FinanceType.PaymentInfo[](0);
 
-        if (_isRefund(_datasetId, _matchingId, _roles)) {
+        if (_isRefund(_datasetId, _matchingId)) {
             // 2.1 Get refund info
-            if (_isBidsRefund(_datasetId, _matchingId, _roles)) {
+            if (_isBidsRefund(_datasetId, _matchingId)) {
                 FinanceType.PaymentInfo[]
                     memory refundInfo = _getBidsRefundInfo(
                         _datasetId,
                         _matchingId,
-                        _token,
-                        _roles
+                        _token
                     );
                 paymentsInfo = paymentsInfo.appendArrays(refundInfo);
             } else {
@@ -98,79 +101,36 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
                     _datasetId,
                     _matchingId,
                     owners,
-                    _token,
-                    _roles
+                    _token
                 );
                 paymentsInfo = paymentsInfo.appendArrays(refundInfo);
             }
         }
 
-        if (_isBurn(_datasetId, _matchingId, _roles)) {
+        if (_isBurn(_datasetId, _matchingId)) {
             // 2.2 Get burn info
             FinanceType.PaymentInfo[] memory burnInfo = _getBurnInfo(
                 _datasetId,
                 _matchingId,
                 owners,
-                _token,
-                _roles
+                _token
             );
             paymentsInfo = paymentsInfo.appendArrays(burnInfo);
         }
 
-        if (_isPayment(_datasetId, _matchingId, _roles)) {
+        if (_isPayment(_datasetId, _matchingId)) {
             // 2.3 Get payment payees
-            address[] memory payees = _getPayees(
-                _datasetId,
-                _matchingId,
-                _roles
-            );
+            address[] memory payees = _getPayees(_datasetId, _matchingId);
             // 2.4 Get payment info
             FinanceType.PaymentInfo[] memory paymentInfo = _getPaymentInfo(
                 _datasetId,
                 _matchingId,
                 owners,
                 payees,
-                _token,
-                _roles
+                _token
             );
             paymentsInfo = paymentsInfo.appendArrays(paymentInfo);
         }
-    }
-
-    /// @notice Checks if the escrowed funds are sufficient for a given dataset, matching, token, and finance type.
-    /// @dev This function returns true if the escrowed funds are enough, otherwise, it returns false.
-    /// @param _datasetId The ID of the dataset.
-    /// @param _matchingId The ID of the matching associated with the dataset.
-    /// @param _owner An array containing the addresses of the dataset and matching process owners.
-    /// @param _token The address of the token used for escrow.
-    /// @param _roles The roles contract interface.
-    /// @return A boolean indicating whether the escrowed funds are enough.
-    function isEscrowEnough(
-        uint64 _datasetId,
-        uint64 _matchingId,
-        address _owner,
-        address _token,
-        IRoles _roles
-    ) external view virtual returns (bool) {
-        (, uint256 expenditure, uint256 total) = _roles
-            .finance()
-            .getAccountEscrow(
-                _datasetId,
-                _matchingId,
-                _owner,
-                _token,
-                FinanceType.Type.DataTradingFee
-            );
-
-        uint256 requirement = getRequirement(
-            _datasetId,
-            _matchingId,
-            _owner,
-            _token,
-            _roles
-        );
-
-        return (total - expenditure >= requirement);
     }
 
     /// @notice Get dataset pre-conditional collateral requirement.
@@ -179,8 +139,7 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
         uint64 /*_datasetId*/,
         uint64 /*_matchingId*/,
         address /*_owner*/,
-        address /*_token*/,
-        IRoles /*_roles*/
+        address /*_token*/
     )
         public
         view
@@ -195,14 +154,12 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
     /// @param _matchingId The ID of the matching process.
     /// @param _owners An array containing the addresses of the dataset and matching process owners.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
-    /// @param _roles The roles contract interface.
     /// @return refunds An array containing payment information for refund.
     function _getRefundInfo(
         uint64 _datasetId,
         uint64 _matchingId,
         address[] memory _owners,
-        address _token,
-        IRoles _roles
+        address _token
     ) internal view virtual returns (FinanceType.PaymentInfo[] memory refunds) {
         uint256 ownersLen = _owners.length;
         refunds = new FinanceType.PaymentInfo[](ownersLen);
@@ -211,8 +168,7 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
                 _datasetId,
                 _matchingId,
                 _owners[i],
-                _token,
-                _roles
+                _token
             );
             FinanceType.PayeeInfo[] memory payees = new FinanceType.PayeeInfo[](
                 1
@@ -227,14 +183,12 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
     /// @param _matchingId The ID of the matching process.
     /// @param _owners An array containing the addresses of the dataset and matching process owners.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
-    /// @param _roles The roles contract interface.
     /// @return burns An array containing payment information for burn.
     function _getBurnInfo(
         uint64 _datasetId,
         uint64 _matchingId,
         address[] memory _owners,
-        address _token,
-        IRoles _roles
+        address _token
     ) internal view virtual returns (FinanceType.PaymentInfo[] memory burns) {
         uint256 ownersLen = _owners.length;
         burns = new FinanceType.PaymentInfo[](ownersLen);
@@ -243,14 +197,13 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
                 _datasetId,
                 _matchingId,
                 _owners[i],
-                _token,
-                _roles
+                _token
             );
             FinanceType.PayeeInfo[] memory payees = new FinanceType.PayeeInfo[](
                 1
             );
             payees[0] = FinanceType.PayeeInfo(
-                _roles.filplus().getBurnAddress(),
+                roles.filplus().getBurnAddress(),
                 amount
             );
             burns[i] = FinanceType.PaymentInfo(_owners[i], amount, payees);
@@ -263,15 +216,13 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
     /// @param _owners An array containing the addresses of the dataset and matching process owners.
     /// @param _payees An array containing the address of the matching process initiator.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
-    /// @param _roles The roles contract interface.
     /// @return payments An array containing payment information.
     function _getPaymentInfo(
         uint64 _datasetId,
         uint64 _matchingId,
         address[] memory _owners,
         address[] memory _payees,
-        address _token,
-        IRoles _roles
+        address _token
     )
         internal
         view
@@ -286,8 +237,7 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
                 _datasetId,
                 _matchingId,
                 _owners[i],
-                _token,
-                _roles
+                _token
             );
             FinanceType.PayeeInfo[] memory payees = new FinanceType.PayeeInfo[](
                 payeesLen
@@ -308,8 +258,7 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
     function _getBidsRefundInfo(
         uint64 /*_datasetId*/,
         uint64 /*_matchingId*/,
-        address /*_token*/,
-        IRoles /*_roles*/
+        address /*_token*/
     )
         internal
         view
@@ -323,8 +272,7 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
     /// @return owners An array containing the addresses of the dataset and matching process owners.
     function _getOwners(
         uint64 /*_datasetId*/,
-        uint64 /*_matchingId*/,
-        IRoles /*_roles*/
+        uint64 /*_matchingId*/
     )
         internal
         view
@@ -338,8 +286,7 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
     /// @return payees An array containing the address of the matching process initiator.
     function _getPayees(
         uint64 /*_datasetId*/,
-        uint64 /*_matchingId*/,
-        IRoles /*_roles*/
+        uint64 /*_matchingId*/
     )
         internal
         view
@@ -355,8 +302,7 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
         uint64 /*_datasetId*/,
         uint64 /*_matchingId*/,
         address /*_owner*/,
-        address /*_token*/,
-        IRoles /*_roles*/
+        address /*_token*/
     )
         internal
         view
@@ -372,8 +318,7 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
         uint64 /*_datasetId*/,
         uint64 /*_matchingId*/,
         address /*_owner*/,
-        address /*_token*/,
-        IRoles /*_roles*/
+        address /*_token*/
     )
         internal
         view
@@ -389,8 +334,7 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
         uint64 /*_datasetId*/,
         uint64 /*_matchingId*/,
         address /*_owner*/,
-        address /*_token*/,
-        IRoles /*_roles*/
+        address /*_token*/
     )
         internal
         view
@@ -404,8 +348,7 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
     /// @return refund A boolean indicating whether a refund is applicable.
     function _isRefund(
         uint64 /*_datasetId*/,
-        uint64 /*_matchingId*/,
-        IRoles /*_roles*/
+        uint64 /*_matchingId*/
     ) internal view virtual returns (bool refund) {
         return false;
     }
@@ -414,8 +357,7 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
     /// @return refund A boolean indicating whether a refund is applicable.
     function _isBidsRefund(
         uint64 /*_datasetId*/,
-        uint64 /*_matchingId*/,
-        IRoles /*_roles*/
+        uint64 /*_matchingId*/
     ) internal view virtual returns (bool refund) {
         return false;
     }
@@ -424,8 +366,7 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
     /// @return burn A boolean indicating whether a burn is applicable.
     function _isBurn(
         uint64 /*_datasetId*/,
-        uint64 /*_matchingId*/,
-        IRoles /*_roles*/
+        uint64 /*_matchingId*/
     ) internal view virtual returns (bool burn) {
         return false;
     }
@@ -434,8 +375,7 @@ contract Base is Initializable, UUPSUpgradeable, RolesModifiers {
     /// @return payment A boolean indicating whether a payment is applicable.
     function _isPayment(
         uint64 /*_datasetId*/,
-        uint64 /*_matchingId*/,
-        IRoles /*_roles*/
+        uint64 /*_matchingId*/
     ) internal view virtual returns (bool payment) {
         return false;
     }

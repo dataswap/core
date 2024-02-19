@@ -222,8 +222,8 @@ contract DatasetsProof is
     }
 
     ///@notice _isEscrowEnough
-    /// 1. Is DatacapCollateral escrow enough?
-    /// 2. Is ChallengeCommission escrow enough?
+    /// 1. Is EscrowDatacapCollateral escrow enough?
+    /// 2. Is EscrowChallengeCommission escrow enough?
     function _isEscrowEnough(
         uint64 /*_datasetId*/,
         address /*_owner*/ /*onlyNotZero(_datasetId)*/
@@ -234,14 +234,14 @@ contract DatasetsProof is
         //         0,
         //         _owner,
         //         FinanceType.FIL,
-        //         FinanceType.Type.DatacapCollateral
+        //         FinanceType.Type.EscrowDatacapCollateral
         //     ) &&
         //     roles.finance().isEscrowEnough(
         //         _datasetId,
         //         0,
         //         _owner,
         //         FinanceType.FIL,
-        //         FinanceType.Type.ChallengeCommission
+        //         FinanceType.Type.EscrowChallengeCommission
         //     )
         // ) {
         return true;
@@ -320,7 +320,7 @@ contract DatasetsProof is
             _datasetId,
             0,
             address(0),
-            FinanceType.Type.DatacapCollateral
+            FinanceType.Type.EscrowDatacapCollateral
         );
 
         //TODO:Fix calling parameters when finance completes
@@ -328,7 +328,7 @@ contract DatasetsProof is
             _datasetId,
             0,
             address(0),
-            FinanceType.Type.ChallengeCommission
+            FinanceType.Type.EscrowChallengeCommission
         );
 
         roles.datasets().__reportDatasetEscrowCompleted(_datasetId);

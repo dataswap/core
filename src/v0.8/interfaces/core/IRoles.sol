@@ -39,6 +39,7 @@ import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
+import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
@@ -46,10 +47,6 @@ import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirem
 import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
-import {DataTradingFee} from "src/v0.8/core/finance/base/DataTradingFee.sol";
-import {DatacapChunkLand} from "src/v0.8/core/finance/base/DatacapChunkLand.sol";
-import {ChallengeCommission} from "src/v0.8/core/finance/base/ChallengeCommission.sol";
-import {DatacapCollateral} from "src/v0.8/core/finance/base/DatacapCollateral.sol";
 
 /// @title IRoles Interface
 /// @notice This interface defines the role-based access control for various roles within the system.
@@ -156,19 +153,19 @@ interface IRoles is IAccessControlEnumerableUpgradeable {
     /// @return MatchingsTarget contract address.
     function matchingsTarget() external view returns (IMatchingsTarget);
 
-    /// @notice Get the DataTradingFee contract.
-    /// @return DataTradingFee contract address.
-    function dataTradingFee() external view returns (DataTradingFee);
+    /// @notice Get the EscrowDataTradingFee contract.
+    /// @return EscrowDataTradingFee contract address.
+    function escrowDataTradingFee() external view returns (IEscrow);
 
-    /// @notice Get the DatacapChunkLand contract.
-    /// @return DatacapChunkLand contract address.
-    function datacapChunkLand() external view returns (DatacapChunkLand);
+    /// @notice Get the EscrowDatacapChunkLandCollateral contract.
+    /// @return EscrowDatacapChunkLandCollateral contract address.
+    function escrowDatacapChunkLandCollateral() external view returns (IEscrow);
 
-    /// @notice Get the ChallengeCommission contract.
-    /// @return ChallengeCommission contract address.
-    function challengeCommission() external view returns (ChallengeCommission);
+    /// @notice Get the EscrowChallengeCommission contract.
+    /// @return EscrowChallengeCommission contract address.
+    function escrowChallengeCommission() external view returns (IEscrow);
 
-    /// @notice Get the DatacapCollateral contract.
-    /// @return DatacapCollateral contract address.
-    function datacapCollateral() external view returns (DatacapCollateral);
+    /// @notice Get the EscrowDatacapCollateral contract.
+    /// @return EscrowDatacapCollateral contract address.
+    function escrowDatacapCollateral() external view returns (IEscrow);
 }
