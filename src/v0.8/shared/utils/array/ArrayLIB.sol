@@ -175,6 +175,50 @@ library ArrayUint16LIB {
         ret[_elements.length] = _element;
         return ret;
     }
+
+    /// @notice Merges sequential arrays based on start and end ranges, supporting uint16 arrays.
+    /// @dev This function takes arrays of start and end values, and merges them into a single sequential array containing all the numbers within the specified ranges.
+    /// @param _starts An array containing the start values for each range.
+    /// @param _ends An array containing the end values for each range.
+    /// @return An array containing all the sequential numbers within the specified ranges, merged into a single array.
+    function mergeSequentialArray(
+        uint16[] memory _starts,
+        uint16[] memory _ends
+    ) public pure returns (uint16[] memory) {
+        // Check if the number of start values matches the number of end values
+        require(_starts.length == _ends.length, "start and end not match");
+
+        // Initialize total to keep track of the total number of elements in the resulting array
+        uint16 total;
+
+        // Iterate through the start and end arrays to calculate the total number of elements
+        for (uint16 i = 0; i < _starts.length; i++) {
+            // Check if the start value is less than or equal to the end value
+            require(_starts[i] <= _ends[i], "start must be greater than end");
+
+            // Update the total by adding the count of elements in the current range
+            total += _ends[i] - _starts[i] + 1;
+        }
+
+        // Initialize cnt to keep track of the current index in the resulting array
+        uint16 cnt;
+
+        // Initialize an array to store the merged sequential numbers
+        uint16[] memory _array = new uint16[](total);
+
+        // Iterate through the start and end arrays to merge the sequential arrays
+        for (uint16 i = 0; i < _starts.length; i++) {
+            for (uint16 j = _starts[i]; j <= _ends[i]; j++) {
+                // Add the current number to the merged sequential array
+                _array[cnt] = j;
+                // Increment the index counter
+                cnt++;
+            }
+        }
+
+        // Return the merged sequential array
+        return _array;
+    }
 }
 
 library ArrayUint32LIB {
@@ -333,6 +377,50 @@ library ArrayUint32LIB {
         ret[_elements.length] = _element;
         return ret;
     }
+
+    /// @notice Merges sequential arrays based on start and end ranges, supporting uint32 arrays.
+    /// @dev This function takes arrays of start and end values, and merges them into a single sequential array containing all the numbers within the specified ranges.
+    /// @param _starts An array containing the start values for each range.
+    /// @param _ends An array containing the end values for each range.
+    /// @return An array containing all the sequential numbers within the specified ranges, merged into a single array.
+    function mergeSequentialArray(
+        uint32[] memory _starts,
+        uint32[] memory _ends
+    ) public pure returns (uint32[] memory) {
+        // Check if the number of start values matches the number of end values
+        require(_starts.length == _ends.length, "start and end not match");
+
+        // Initialize total to keep track of the total number of elements in the resulting array
+        uint32 total;
+
+        // Iterate through the start and end arrays to calculate the total number of elements
+        for (uint32 i = 0; i < _starts.length; i++) {
+            // Check if the start value is less than or equal to the end value
+            require(_starts[i] <= _ends[i], "start must be greater than end");
+
+            // Update the total by adding the count of elements in the current range
+            total += _ends[i] - _starts[i] + 1;
+        }
+
+        // Initialize cnt to keep track of the current index in the resulting array
+        uint32 cnt;
+
+        // Initialize an array to store the merged sequential numbers
+        uint32[] memory _array = new uint32[](total);
+
+        // Iterate through the start and end arrays to merge the sequential arrays
+        for (uint32 i = 0; i < _starts.length; i++) {
+            for (uint32 j = _starts[i]; j <= _ends[i]; j++) {
+                // Add the current number to the merged sequential array
+                _array[cnt] = j;
+                // Increment the index counter
+                cnt++;
+            }
+        }
+
+        // Return the merged sequential array
+        return _array;
+    }
 }
 
 library ArrayUint64LIB {
@@ -490,6 +578,50 @@ library ArrayUint64LIB {
         }
         ret[_elements.length] = _element;
         return ret;
+    }
+
+    /// @notice Merges sequential arrays based on start and end ranges.
+    /// @dev This function takes arrays of start and end values, and merges them into a single sequential array containing all the numbers within the specified ranges.
+    /// @param _starts An array containing the start values for each range.
+    /// @param _ends An array containing the end values for each range.
+    /// @return An array containing all the sequential numbers within the specified ranges, merged into a single array.
+    function mergeSequentialArray(
+        uint64[] memory _starts,
+        uint64[] memory _ends
+    ) public pure returns (uint64[] memory) {
+        // Check if the number of start values matches the number of end values
+        require(_starts.length == _ends.length, "start and end not match");
+
+        // Initialize total to keep track of the total number of elements in the resulting array
+        uint64 total;
+
+        // Iterate through the start and end arrays to calculate the total number of elements
+        for (uint64 i = 0; i < _starts.length; i++) {
+            // Check if the start value is less than or equal to the end value
+            require(_starts[i] <= _ends[i], "start must be greater than end");
+
+            // Update the total by adding the count of elements in the current range
+            total += _ends[i] - _starts[i] + 1;
+        }
+
+        // Initialize cnt to keep track of the current index in the resulting array
+        uint64 cnt;
+
+        // Initialize an array to store the merged sequential numbers
+        uint64[] memory _array = new uint64[](total);
+
+        // Iterate through the start and end arrays to merge the sequential arrays
+        for (uint64 i = 0; i < _starts.length; i++) {
+            for (uint64 j = _starts[i]; j <= _ends[i]; j++) {
+                // Add the current number to the merged sequential array
+                _array[cnt] = j;
+                // Increment the index counter
+                cnt++;
+            }
+        }
+
+        // Return the merged sequential array
+        return _array;
     }
 }
 

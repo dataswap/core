@@ -72,16 +72,6 @@ interface IMatchingsAssertion is IStatisticsBaseAssertion {
         uint16 _replicaIndex
     ) external;
 
-    /// @notice  Function for parse cars from indexes.
-    /// @param _starts The starts of cars to publish.
-    /// @param _ends The ends of cars to publish.
-    /// @param _expectCars The expected cars of the parsed.
-    function parseCarsAssertion(
-        uint64[] memory _starts,
-        uint64[] memory _ends,
-        uint64[] memory _expectCars
-    ) external;
-
     /// @notice Assertion function to test the 'publishMatching' function of IMatchings contract.
     /// @param caller The address of the caller.
     /// @param _matchingId The matching id to publish cars.
