@@ -29,6 +29,9 @@ library FilplusEvents {
     // Event emitted when the minimum challenge timeout is set
     event SetDatasetRuleMinAuditTimeout(uint64 _newValue);
 
+    // Event emitted when the requirement timeout is set
+    event SetDatasetRuleRequirementTimeout(uint64 _newValue);
+
     // Event emitted when the minimum regions per dataset rule is set
     event SetDatasetRuleMinRegionsPerDataset(uint32 _newValue);
 
