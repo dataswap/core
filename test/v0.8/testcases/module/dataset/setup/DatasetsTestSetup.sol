@@ -53,8 +53,7 @@ contract DatasetsTestSetup is Test {
 
     ///@notice Setup source dataset conditions for dataset test caset.
     function datasetTestSetup(
-        IDatasetsHelpers _datasetsHelpers,
-        IDatasets _datasets
+        IDatasetsHelpers _datasetsHelpers
     ) public returns (uint64 id) {
         uint64 datasetId = _datasetsHelpers.submitDatasetMetadata(
             address(9),
@@ -71,11 +70,6 @@ contract DatasetsTestSetup is Test {
             0
         );
 
-        address admin = _datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        _datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
-        _datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(99));
-        vm.stopPrank();
         _datasetsHelpers.submitDatasetProof(
             address(99),
             datasetId,
@@ -94,7 +88,7 @@ contract DatasetsTestSetup is Test {
         );
         vm.deal(address(9), 1000 ether);
         vm.startPrank(address(9));
-        _datasets.roles().datasetsProof().completeEscrow(datasetId);
+        _datasetsHelpers.getDatasetsProof().completeEscrow(datasetId);
         vm.stopPrank();
         _datasetsHelpers.getDatasetsProof().submitDatasetProofCompleted(
             datasetId
@@ -139,8 +133,7 @@ contract DatasetsTestSetup is Test {
 
     ///@notice Setup verification conditions for dataset test caset.
     function verificationTestSetup(
-        IDatasetsHelpers _datasetsHelpers,
-        IDatasets _datasets
+        IDatasetsHelpers _datasetsHelpers
     ) public returns (uint64 id) {
         uint64 datasetId = _datasetsHelpers.submitDatasetMetadata(
             address(9),
@@ -157,10 +150,6 @@ contract DatasetsTestSetup is Test {
             0
         );
 
-        address admin = _datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        _datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.stopPrank();
         _datasetsHelpers.submitDatasetProof(
             address(99),
             datasetId,
@@ -180,7 +169,7 @@ contract DatasetsTestSetup is Test {
 
         vm.deal(address(9), 1000 ether);
         vm.startPrank(address(9));
-        _datasets.roles().datasetsProof().completeEscrow(datasetId);
+        _datasetsHelpers.getDatasetsProof().completeEscrow(datasetId);
         vm.stopPrank();
         _datasetsHelpers.getDatasetsProof().submitDatasetProofCompleted(
             datasetId
@@ -208,10 +197,6 @@ contract DatasetsTestSetup is Test {
             0
         );
 
-        address admin = _datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        _datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.stopPrank();
         _datasetsHelpers.submitDatasetProof(
             address(99),
             associatedDatasetId,

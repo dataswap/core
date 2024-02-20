@@ -50,7 +50,7 @@ contract SubmittChallengeProofsTestCaseWithSuccess is DatasetsTestBase {
 
     function before() internal virtual override returns (uint64 id) {
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return setup.verificationTestSetup(datasetsHelpers, datasets);
+        return setup.verificationTestSetup(datasetsHelpers);
     }
 
     function action(uint64 _id) internal virtual override {
@@ -62,10 +62,6 @@ contract SubmittChallengeProofsTestCaseWithSuccess is DatasetsTestBase {
         (randomSeed, leaves, siblings, paths) = datasetsHelpers
             .generateVerification(pointCount);
 
-        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(199));
-        vm.stopPrank();
         datasetsAssertion.submitDatasetChallengeProofsAssertion(
             address(199),
             _id,
@@ -99,7 +95,7 @@ contract SubmittChallengeProofsTestCaseWithFail is DatasetsTestBase {
 
     function before() internal virtual override returns (uint64 id) {
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return setup.verificationTestSetup(datasetsHelpers, datasets);
+        return setup.verificationTestSetup(datasetsHelpers);
     }
 
     function action(uint64 _id) internal virtual override {
@@ -113,10 +109,6 @@ contract SubmittChallengeProofsTestCaseWithFail is DatasetsTestBase {
         (randomSeed, leaves, siblings, paths) = datasetsHelpers
             .generateVerification(pointCount);
 
-        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(200));
-        vm.stopPrank();
         vm.expectRevert(bytes("mockValidState must is true"));
         datasetsAssertion.submitDatasetChallengeProofsAssertion(
             address(200),
@@ -151,7 +143,7 @@ contract SubmittChallengeProofsTestCaseWithTimeout is DatasetsTestBase {
 
     function before() internal virtual override returns (uint64 id) {
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return setup.verificationTestSetup(datasetsHelpers, datasets);
+        return setup.verificationTestSetup(datasetsHelpers);
     }
 
     function action(uint64 _id) internal virtual override {
@@ -162,11 +154,6 @@ contract SubmittChallengeProofsTestCaseWithTimeout is DatasetsTestBase {
         uint64 randomSeed;
         (randomSeed, leaves, siblings, paths) = datasetsHelpers
             .generateVerification(pointCount);
-
-        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(199));
-        vm.stopPrank();
 
         vm.roll(1000000);
         vm.prank(address(199));
@@ -186,7 +173,9 @@ contract SubmittChallengeProofsTestCaseWithTimeout is DatasetsTestBase {
 }
 
 ///@notice submit dataset challenge proofs test case with success.
-contract ResubmittDatasetChallengeProofsTestCaseWithSuccess is DatasetsTestBase {
+contract ResubmittDatasetChallengeProofsTestCaseWithSuccess is
+    DatasetsTestBase
+{
     constructor(
         IDatasets _datasets,
         IDatasetsRequirement _datasetsRequirement,
@@ -224,10 +213,6 @@ contract ResubmittDatasetChallengeProofsTestCaseWithSuccess is DatasetsTestBase 
         (randomSeed, leaves, siblings, paths) = datasetsHelpers
             .generateVerification(pointCount);
 
-        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(199));
-        vm.stopPrank();
         datasetsAssertion.submitDatasetChallengeProofsAssertion(
             address(199),
             _id,

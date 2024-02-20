@@ -399,10 +399,6 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         uint64 _mappingFilesLeavesCount
     ) external returns (uint64 datasetId) {
         // 1: Submit metadata
-        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(9));
-        vm.stopPrank();
         datasetId = submitDatasetMetadata(address(9), _accessMethod);
 
         submitDatasetReplicaRequirements(
@@ -417,9 +413,6 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         );
 
         // 2: Submit proof
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.stopPrank();
         submitDatasetProof(
             address(99),
             datasetId,
@@ -441,9 +434,6 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         datasetsProof.completeEscrow(datasetId);
 
         datasetsProof.submitDatasetProofCompleted(datasetId);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(299));
-        vm.stopPrank();
         // 3: Submit verification
         submitDatasetVerification(address(299), datasetId);
         assertion.getDatasetStateAssertion(

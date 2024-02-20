@@ -59,16 +59,6 @@ contract BiddingTestCaseWithSuccess is ControlTestSuiteBase {
         uint64 _matchingId,
         uint64 _amount
     ) internal virtual override {
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.STORAGE_PROVIDER,
-            address(199)
-        );
-        vm.stopPrank();
         vm.roll(101);
 
         vm.expectEmit(true, true, true, true);
@@ -119,16 +109,6 @@ contract BiddingTestCaseWithInvlalidAmount is ControlTestSuiteBase {
         uint64 _matchingId,
         uint64 _amount
     ) internal virtual override {
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.STORAGE_PROVIDER,
-            address(199)
-        );
-        vm.stopPrank();
         vm.roll(101);
         vm.expectRevert(bytes("Invalid amount"));
         matchingsAssertion.biddingAssertion(address(199), _matchingId, _amount);
@@ -165,16 +145,6 @@ contract BiddingTestCaseWithInvlalidDuplicateBid is ControlTestSuiteBase {
         uint64 _matchingId,
         uint64 _amount
     ) internal virtual override {
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.STORAGE_PROVIDER,
-            address(199)
-        );
-        vm.stopPrank();
         vm.roll(101);
         matchingsAssertion.biddingAssertion(address(199), _matchingId, _amount);
         vm.prank(address(199));
@@ -208,16 +178,6 @@ contract BiddingTestCaseWithInvlalidState is ControlTestSuiteBase {
     ) internal virtual override returns (uint64) {
         vm.assume(_amount >= 100);
         uint64 datasetId = matchingsHelpers.setup("testAccessMethod", 100, 10);
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.DATASET_PROVIDER,
-            address(99)
-        );
-        vm.stopPrank();
 
         matchingsAssertion.createMatchingAssertion(
             address(99),
@@ -249,16 +209,6 @@ contract BiddingTestCaseWithInvlalidState is ControlTestSuiteBase {
         uint64 _matchingId,
         uint64 _amount
     ) internal virtual override {
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.STORAGE_PROVIDER,
-            address(199)
-        );
-        vm.stopPrank();
         vm.roll(101);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -302,16 +252,6 @@ contract BiddingTestCaseWithNotStart is ControlTestSuiteBase {
         uint64 _matchingId,
         uint64 _amount
     ) internal virtual override {
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.STORAGE_PROVIDER,
-            address(199)
-        );
-        vm.stopPrank();
         vm.roll(80);
         vm.expectRevert(bytes("Matching: Bidding is not start"));
         matchingsAssertion.biddingAssertion(address(199), _matchingId, _amount);
@@ -348,16 +288,6 @@ contract BiddingTestCaseWithBidIsEnd is ControlTestSuiteBase {
         uint64 _matchingId,
         uint64 _amount
     ) internal virtual override {
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.STORAGE_PROVIDER,
-            address(199)
-        );
-        vm.stopPrank();
         vm.roll(300);
         vm.expectRevert(bytes("Matching: Bidding is end"));
         matchingsAssertion.biddingAssertion(address(199), _matchingId, _amount);
@@ -394,16 +324,6 @@ contract BiddingTestCaseWithInvalidStorageProvider is ControlTestSuiteBase {
         uint64 _matchingId,
         uint64 _amount
     ) internal virtual override {
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.STORAGE_PROVIDER,
-            address(200)
-        );
-        vm.stopPrank();
         vm.roll(101);
         vm.expectRevert(bytes("Invalid SP submitter"));
         matchingsAssertion.biddingAssertion(address(200), _matchingId, _amount);

@@ -24,36 +24,6 @@ library RolesType {
     /// @notice Default admin role
     bytes32 public constant DEFAULT_ADMIN_ROLE = 0x00;
 
-    /// @notice Bytes32 constant representing the role of a storage client.
-    bytes32 public constant STORAGE_CLIENT = keccak256("SC");
-
-    /// @notice Bytes32 constant representing the role of a storage provider.
-    bytes32 public constant STORAGE_PROVIDER = keccak256("SP");
-
-    /// @notice Bytes32 constant representing the role of a retrieve provider.
-    bytes32 public constant RETRIEVE_PROVIDER = keccak256("RP");
-
-    /// @notice Bytes32 constant representing the role of a compute provider.
-    bytes32 public constant COMPUTE_PROVIDER = keccak256("CP");
-
-    /// @notice Bytes32 constant representing the role of a metadata dataset provider.
-    bytes32 public constant METADATA_DATASET_PROVIDER = keccak256("MDP");
-
-    /// @notice Bytes32 constant representing the role of a dataset provider.
-    bytes32 public constant DATASET_PROVIDER = keccak256("DP");
-
-    /// @notice Bytes32 constant representing the role of a metadata dataset auditor.
-    bytes32 public constant METADATA_DATASET_AUDITOR = keccak256("MDA");
-
-    /// @notice Bytes32 constant representing the role of a dataset auditor.
-    bytes32 public constant DATASET_AUDITOR = keccak256("DA");
-
-    /// @notice Bytes32 constant representing the role of a reviewer client.
-    bytes32 public constant REVIEWER_CLIENT = keccak256("RC");
-
-    /// @notice Bytes32 constant representing the role of a compute client.
-    bytes32 public constant COMPUTE_CLIENT = keccak256("CC");
-
     /// @notice Bytes32 constant representing the role of a dataswap contract.
     bytes32 public constant DATASWAP_CONTRACT = keccak256("DATASWAP");
 

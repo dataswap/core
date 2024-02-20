@@ -154,26 +154,6 @@ contract Roles is
         }
     }
 
-    /// @dev Grants the dataswap role to a specified account.
-    /// @param _role The role to grant.
-    /// @param _account The address of the account to grant the role to.
-    function grantDataswapRole(
-        bytes32 _role,
-        address _account
-    ) public onlyRole(RolesType.DATASWAP_CONTRACT) {
-        if (
-            _role != RolesType.STORAGE_CLIENT &&
-            _role != RolesType.STORAGE_PROVIDER &&
-            _role != RolesType.DATASET_PROVIDER &&
-            _role != RolesType.DATASET_AUDITOR
-        ) {
-            revert Errors.InvalidGrantRole(_role, _account);
-        }
-        if (!hasRole(_role, _account)) {
-            _grantRole(_role, _account);
-        }
-    }
-
     ///@dev The new owner accepts the ownership transfer.
     function acceptOwnership()
         public

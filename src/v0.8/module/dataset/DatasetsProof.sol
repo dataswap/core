@@ -131,8 +131,6 @@ contract DatasetsProof is
             "Invalid Dataset submitter"
         );
         datasetProof.addDatasetProofRoot(_dataType, _rootHash);
-
-        roles.grantDataswapRole(RolesType.DATASET_PROVIDER, msg.sender);
     }
 
     /// @notice Submits data to the carstore along with corresponding hashes.

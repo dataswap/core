@@ -108,17 +108,6 @@ contract CancelTestCaseWithInvalidState is MatchingsTestBase {
 
     function before() internal virtual override returns (uint64) {
         uint64 datasetId = matchingsHelpers.setup("testAccessMethod", 100, 10);
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.DATASET_PROVIDER,
-            address(99)
-        );
-        vm.stopPrank();
-
         matchingsAssertion.createMatchingAssertion(
             address(99),
             datasetId,

@@ -51,17 +51,6 @@ contract CloseTestCaseWithSuccess is ControlTestSuiteBase {
         uint64 _amount
     ) internal virtual override returns (uint64) {
         uint64 matchingId = super.before(_bidRule, _amount);
-
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.STORAGE_PROVIDER,
-            address(199)
-        );
-        vm.stopPrank();
         vm.roll(101);
         vm.prank(address(199));
         vm.deal(address(199), 200 ether);
@@ -103,17 +92,6 @@ contract CloseTestCaseWithInvalidState is MatchingsTestBase {
 
     function before() internal virtual override returns (uint64) {
         uint64 datasetId = matchingsHelpers.setup("testAccessMethod", 100, 10);
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.DATASET_PROVIDER,
-            address(99)
-        );
-        vm.stopPrank();
-
         matchingsAssertion.createMatchingAssertion(
             address(99),
             datasetId,
@@ -167,25 +145,6 @@ contract CloseTestCaseWithAtInvalidBlock is ControlTestSuiteBase {
             _matchingsAssertion
         ) // solhint-disable-next-line
     {}
-
-    function before(
-        MatchingType.BidSelectionRule _bidRule,
-        uint64 _amount
-    ) internal virtual override returns (uint64) {
-        uint64 matchingId = super.before(_bidRule, _amount);
-
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.STORAGE_PROVIDER,
-            address(199)
-        );
-        vm.stopPrank();
-        return matchingId;
-    }
 
     function action(
         uint64 _matchingId,

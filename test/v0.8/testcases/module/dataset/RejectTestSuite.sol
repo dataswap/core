@@ -58,7 +58,7 @@ contract RejectTestCaseWithSuccess is DatasetsTestBase {
         );
         vm.stopPrank();
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return setup.verificationTestSetup(datasetsHelpers, datasets);
+        return setup.verificationTestSetup(datasetsHelpers);
     }
 
     function action(uint64 _id) internal virtual override {
@@ -91,7 +91,7 @@ contract RejectTestCaseWithInvalidAddress is DatasetsTestBase {
 
     function before() internal virtual override returns (uint64 id) {
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return setup.verificationTestSetup(datasetsHelpers, datasets);
+        return setup.verificationTestSetup(datasetsHelpers);
     }
 
     function action(uint64 _id) internal virtual override {
@@ -168,7 +168,7 @@ contract RejectTestCaseWithInvalidState is DatasetsTestBase {
         );
         vm.stopPrank();
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return setup.verificationTestSetup(datasetsHelpers, datasets);
+        return setup.verificationTestSetup(datasetsHelpers);
     }
 
     function action(uint64 _id) internal virtual override {

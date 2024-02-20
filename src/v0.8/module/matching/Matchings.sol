@@ -109,7 +109,7 @@ contract Matchings is
         uint256 _biddingThreshold,
         uint16 _replicaIndex,
         string memory _additionalInfo
-    ) external onlyRole(roles, RolesType.DATASET_PROVIDER) returns (uint64) {
+    ) external returns (uint64) {
         _addCountTotal(1);
         MatchingType.Matching storage matching = matchings[matchingsCount()];
         require(
