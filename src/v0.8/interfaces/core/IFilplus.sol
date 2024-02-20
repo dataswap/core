@@ -33,6 +33,9 @@ interface IFilplus {
     /// @notice Set the minimum audit timeout for the dataset rule.
     function setDatasetRuleMinAuditTimeout(uint64 _blocks) external;
 
+    /// @notice Set the requirement timout for the dataset rule.
+    function setDatasetRuleRequirementTimeout(uint64 _blocks) external;
+
     // Set functions for public variables
     function setDatasetRuleMinRegionsPerDataset(uint16 _newValue) external;
 
@@ -84,6 +87,18 @@ interface IFilplus {
         uint64 _durationBlocks
     ) external;
 
+    /// @notice Set the datacap price pre byte complies with filplus rules.
+    function setDatacapPricePreByte(uint256 _newValue) external;
+
+    /// @notice Set the datacap chunk land price pre byte complies with filplus rules.
+    function setDatacapChunkLandPricePreByte(uint256 _newValue) external;
+
+    /// @notice Set the challenge proofs submiter Count complies with filplus rules.
+    function setChallengeProofsSubmiterCount(uint16 _newValue) external;
+
+    /// @notice Set the challenge proofs price pre point complies with filplus rules.
+    function setChallengeProofsPricePrePoint(uint256 _newValue) external;
+
     function getIncomeReleaseRule(
         FinanceType.Type _type
     )
@@ -108,18 +123,6 @@ interface IFilplus {
 
     /// @notice Returns the burn address
     function getBurnAddress() external view returns (address);
-
-    /// @notice Set the datacap price pre byte complies with filplus rules.
-    function setDatacapPricePreByte(uint256 _newValue) external;
-
-    /// @notice Set the datacap chunk land price pre byte complies with filplus rules.
-    function setDatacapChunkLandPricePreByte(uint256 _newValue) external;
-
-    /// @notice Set the challenge proofs submiter Count complies with filplus rules.
-    function setChallengeProofsSubmiterCount(uint16 _newValue) external;
-
-    /// @notice Set the challenge proofs price pre point complies with filplus rules.
-    function setChallengeProofsPricePrePoint(uint256 _newValue) external;
 
     /// @notice Get the challenge proofs price pre point complies with filplus rules.
     function getChallengeProofsPricePrePoint()
@@ -148,40 +151,52 @@ interface IFilplus {
     /// @notice Returns the minimum audit timeout for the dataset rule.
     function datasetRuleMinAuditTimeout() external view returns (uint64);
 
+    /// @notice Returns the requirement timeout for the dataset rule.
+    function datasetRuleRequirementTimeout() external view returns (uint64);
+
     // Default getter functions for public variables
     function datasetRuleMinRegionsPerDataset() external view returns (uint16);
 
+    /// @notice Returns the default maximum number of replicas per country.
     function datasetRuleDefaultMaxReplicasPerCountry()
         external
         view
         returns (uint16);
 
+    /// @notice Returns the maximum number of replicas per city.
     function datasetRuleMaxReplicasPerCity() external view returns (uint16);
 
+    /// @notice Returns the maximum proportion of mapping files allowed per dataset.
     function datasetRuleMaxProportionOfMappingFilesToDataset()
         external
         view
         returns (uint8);
 
+    /// @notice Returns the minimum number of storage providers required per dataset.
     function datasetRuleMinSPsPerDataset() external view returns (uint16);
 
+    /// @notice Returns the maximum number of replicas per storage provider.
     function datasetRuleMaxReplicasPerSP() external view returns (uint16);
 
+    /// @notice Returns the minimum total number of replicas required per dataset.
     function datasetRuleMinTotalReplicasPerDataset()
         external
         view
         returns (uint16);
 
+    /// @notice Returns the maximum total number of replicas allowed per dataset.
     function datasetRuleMaxTotalReplicasPerDataset()
         external
         view
         returns (uint16);
 
+    /// @notice Returns the maximum size that can be allocated per time for datacap rules.
     function datacapRulesMaxAllocatedSizePerTime()
         external
         view
         returns (uint64);
 
+    /// @notice Returns the maximum remaining percentage allowed for the next datacap rule.
     function datacapRulesMaxRemainingPercentageForNext()
         external
         view

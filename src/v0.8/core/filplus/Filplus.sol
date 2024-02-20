@@ -27,6 +27,7 @@ import "src/v0.8/shared/utils/array/ArrayLIB.sol";
 ///type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {RolesModifiers} from "src/v0.8/shared/modifiers/RolesModifiers.sol";
+import {FilplusType} from "src/v0.8/types/FilplusType.sol";
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
@@ -47,35 +48,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     address payable public constant BURN_ADDRESS =
         payable(0xff00000000000000000000000000000000000063); // Filecoin burn address.
 
-    ///@notice dataset region rules
-    uint16 public datasetRuleMinRegionsPerDataset; // Minimum required number of regions (e.g., 3).
-
-    uint16 public datasetRuleDefaultMaxReplicasPerCountry; // Default maximum replicas allowed per country.
-
-    mapping(uint16 => uint16) private datasetRuleMaxReplicasInCountries; // Maximum replicas allowed per country.
-
-    uint16 public datasetRuleMaxReplicasPerCity; // Maximum replicas allowed per city (e.g., 1).
-
-    uint8 public datasetRuleMaxProportionOfMappingFilesToDataset; //Maximum proportion of dataset mapping files,measured in ten-thousandths.(e.g.,40)
-
-    ///@notice dataset sp rules
-    uint16 public datasetRuleMinSPsPerDataset; // Minimum required number of storage providers (e.g., 5).
-
-    uint16 public datasetRuleMaxReplicasPerSP; // Maximum replicas allowed per storage provider (e.g., 1).
-
-    uint16 public datasetRuleMinTotalReplicasPerDataset; // Minimum required total replicas (e.g., 5).
-
-    uint16 public datasetRuleMaxTotalReplicasPerDataset; // Maximum allowed total replicas (e.g., 10).
-
-    ///@notice datacap rules
-    uint64 public datacapRulesMaxAllocatedSizePerTime; // Maximum allocate datacap size per time.
-
-    uint8 public datacapRulesMaxRemainingPercentageForNext; // Minimum completion percentage for the next allocation.
-
-    uint256 public datacapPricePreByte; // The datacap price pre byte.
-    uint256 public datacapChunkLandPricePreByte; // The datacap chunk land price pre byte.
-    uint256 public challengeProofsPricePrePoint; // The challenge proofs price pre point.
-    uint16 public challengeProofsSubmiterCount; // The challenge proofs submiter count.
+    FilplusType.Rules private rules;
 
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
@@ -90,25 +63,35 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         GOVERNANCE_ADDRESS = _governanceAddress;
 
         //defalut dataset region rules
-        datasetRuleMinRegionsPerDataset = 3;
-        datasetRuleDefaultMaxReplicasPerCountry = 1;
-        datasetRuleMaxReplicasPerCity = 1;
-        datasetRuleMaxProportionOfMappingFilesToDataset = 40; // 40/10000
+        rules.datasetRuleMinRegionsPerDataset = 3;
+        rules.datasetRuleDefaultMaxReplicasPerCountry = 1;
+        rules.datasetRuleMaxReplicasPerCity = 1;
+        rules.datasetRuleMaxProportionOfMappingFilesToDataset = 40; // 40/10000
 
         //defalut dataset sp rules
-        datasetRuleMinSPsPerDataset = 5;
-        datasetRuleMaxReplicasPerSP = 1;
-        datasetRuleMinTotalReplicasPerDataset = 5;
-        datasetRuleMaxTotalReplicasPerDataset = 10;
+        rules.datasetRuleMinSPsPerDataset = 5;
+        rules.datasetRuleMaxReplicasPerSP = 1;
+        rules.datasetRuleMinTotalReplicasPerDataset = 5;
+        rules.datasetRuleMaxTotalReplicasPerDataset = 10;
+
+        // default dataset runtime rules
+        rules.datasetRuleMinProofTimeout = 2880 * 60;
+        rules.datasetRuleMinAuditTimeout = 2880 * 10;
+        rules.datasetRuleRequirementTimeout = 2880 * 2;
 
         //defalut datacap rules
-        datacapRulesMaxAllocatedSizePerTime = 50 * 1024 * 1024 * 1024 * 1024; //50TB
-        datacapRulesMaxRemainingPercentageForNext = 20; //20%
-
-        datacapChunkLandPricePreByte = (1000000000000000000 / PER_TIB_BYTE); // 1/1T
-        challengeProofsPricePrePoint = (1000000000000000000 / 1000); // 0.0001/POINT
-        challengeProofsSubmiterCount = 10; // 10
-        datacapPricePreByte = datacapChunkLandPricePreByte; // 1/1T
+        rules.datacapRulesMaxAllocatedSizePerTime =
+            50 *
+            1024 *
+            1024 *
+            1024 *
+            1024; //50TB
+        rules.datacapRulesMaxRemainingPercentageForNext = 20; //20%
+        rules.datacapChunkLandPricePreByte = (1000000000000000000 /
+            PER_TIB_BYTE); // 1/1T
+        rules.challengeProofsPricePrePoint = (1000000000000000000 / 1000); // 0.0001/POINT
+        rules.challengeProofsSubmiterCount = 10; // 10
+        rules.datacapPricePreByte = rules.datacapChunkLandPricePreByte; // 1/1T
 
         __UUPSUpgradeable_init();
     }
@@ -128,40 +111,35 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         return _getImplementation();
     }
 
-    // Public getter function to access datasetRuleMaxReplicasInCountries
-    function getDatasetRuleMaxReplicasInCountry(
-        uint16 _countryCode
-    ) public view returns (uint16) {
-        if (datasetRuleMaxReplicasInCountries[_countryCode] == 0) {
-            return datasetRuleDefaultMaxReplicasPerCountry;
-        } else {
-            return datasetRuleMaxReplicasInCountries[_countryCode];
-        }
-    }
-
     /// @notice Set the minimum proof submission timeout for the dataset rule.
     function setDatasetRuleMinProofTimeout(uint64 _blocks) external {
-        //TODO: impl
+        rules.datasetRuleMinProofTimeout = _blocks;
         emit FilplusEvents.SetDatasetRuleMinProofTimeout(_blocks);
     }
 
     /// @notice Set the minimum audit timeout for the dataset rule.
     function setDatasetRuleMinAuditTimeout(uint64 _blocks) external {
-        //TODO: impl
+        rules.datasetRuleMinAuditTimeout = _blocks;
         emit FilplusEvents.SetDatasetRuleMinAuditTimeout(_blocks);
+    }
+
+    /// @notice Set the requirement timout for the dataset rule.
+    function setDatasetRuleRequirementTimeout(uint64 _blocks) external {
+        rules.datasetRuleRequirementTimeout = _blocks;
+        emit FilplusEvents.SetDatasetRuleRequirementTimeout(_blocks);
     }
 
     function setDatasetRuleMinRegionsPerDataset(
         uint16 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        datasetRuleMinRegionsPerDataset = _newValue;
+        rules.datasetRuleMinRegionsPerDataset = _newValue;
         emit FilplusEvents.SetDatasetRuleMinRegionsPerDataset(_newValue);
     }
 
     function setDatasetRuleDefaultMaxReplicasPerCountry(
         uint16 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        datasetRuleDefaultMaxReplicasPerCountry = _newValue;
+        rules.datasetRuleDefaultMaxReplicasPerCountry = _newValue;
         emit FilplusEvents.SetDatasetRuleDefaultMaxReplicasPerCountry(
             _newValue
         );
@@ -171,7 +149,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         uint16 _countryCode,
         uint16 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) onlyNotZero(_newValue) {
-        datasetRuleMaxReplicasInCountries[_countryCode] = _newValue;
+        rules.datasetRuleMaxReplicasInCountries[_countryCode] = _newValue;
         emit FilplusEvents.SetDatasetRuleMaxReplicasInCountry(
             _countryCode,
             _newValue
@@ -181,7 +159,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     function setDatasetRuleMaxReplicasPerCity(
         uint16 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        datasetRuleMaxReplicasPerCity = _newValue;
+        rules.datasetRuleMaxReplicasPerCity = _newValue;
         emit FilplusEvents.SetDatasetRuleMaxReplicasPerCity(_newValue);
     }
 
@@ -189,7 +167,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     function setDatasetRuleMaxProportionOfMappingFilesToDataset(
         uint8 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        datasetRuleMaxProportionOfMappingFilesToDataset = _newValue;
+        rules.datasetRuleMaxProportionOfMappingFilesToDataset = _newValue;
         emit FilplusEvents.SetDatasetRuleMaxProportionOfMappingFilesToDataset(
             _newValue
         );
@@ -198,42 +176,42 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     function setDatasetRuleMinSPsPerDataset(
         uint16 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        datasetRuleMinSPsPerDataset = _newValue;
+        rules.datasetRuleMinSPsPerDataset = _newValue;
         emit FilplusEvents.SetDatasetRuleMinSPsPerDataset(_newValue);
     }
 
     function setDatasetRuleMaxReplicasPerSP(
         uint16 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        datasetRuleMaxReplicasPerSP = _newValue;
+        rules.datasetRuleMaxReplicasPerSP = _newValue;
         emit FilplusEvents.SetDatasetRuleMaxReplicasPerSP(_newValue);
     }
 
     function setDatasetRuleMinTotalReplicasPerDataset(
         uint16 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        datasetRuleMinTotalReplicasPerDataset = _newValue;
+        rules.datasetRuleMinTotalReplicasPerDataset = _newValue;
         emit FilplusEvents.SetDatasetRuleMinTotalReplicasPerDataset(_newValue);
     }
 
     function setDatasetRuleMaxTotalReplicasPerDataset(
         uint16 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        datasetRuleMaxTotalReplicasPerDataset = _newValue;
+        rules.datasetRuleMaxTotalReplicasPerDataset = _newValue;
         emit FilplusEvents.SetDatasetRuleMaxTotalReplicasPerDataset(_newValue);
     }
 
     function setDatacapRulesMaxAllocatedSizePerTime(
         uint64 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        datacapRulesMaxAllocatedSizePerTime = _newValue;
+        rules.datacapRulesMaxAllocatedSizePerTime = _newValue;
         emit FilplusEvents.SetDatacapRulesMaxAllocatedSizePerTime(_newValue);
     }
 
     function setDatacapRulesMaxRemainingPercentageForNext(
         uint8 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        datacapRulesMaxRemainingPercentageForNext = _newValue;
+        rules.datacapRulesMaxRemainingPercentageForNext = _newValue;
         emit FilplusEvents.SetDatacapRulesMaxRemainingPercentageForNext(
             _newValue
         );
@@ -254,6 +232,49 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         uint64 _delayBlocks,
         uint64 _durationBlocks // solhint-disable-next-line
     ) external {}
+
+    /// @notice Set the datacap price pre byte complies with filplus rules.
+    function setDatacapPricePreByte(
+        uint256 _newValue
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
+        rules.datacapPricePreByte = _newValue;
+        emit FilplusEvents.SetDatacapPricePreByte(_newValue);
+    }
+
+    /// @notice Set the datacap chunk land price pre byte complies with filplus rules.
+    function setDatacapChunkLandPricePreByte(
+        uint256 _newValue
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
+        rules.datacapChunkLandPricePreByte = _newValue;
+        emit FilplusEvents.SetDatacapChunkLandPricePreByte(_newValue);
+    }
+
+    /// @notice Set the challenge proofs submiter Count complies with filplus rules.
+    function setChallengeProofsSubmiterCount(
+        uint16 _newValue
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
+        rules.challengeProofsSubmiterCount = _newValue;
+        emit FilplusEvents.SetChallengeProofsSubmiterCount(_newValue);
+    }
+
+    /// @notice Set the challenge proofs price pre point complies with filplus rules.
+    function setChallengeProofsPricePrePoint(
+        uint256 _newValue
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
+        rules.challengeProofsPricePrePoint = _newValue;
+        emit FilplusEvents.SetChallengeProofsPricePrePoint(_newValue);
+    }
+
+    // Public getter function to access datasetRuleMaxReplicasInCountries
+    function getDatasetRuleMaxReplicasInCountry(
+        uint16 _countryCode
+    ) public view returns (uint16) {
+        if (rules.datasetRuleMaxReplicasInCountries[_countryCode] == 0) {
+            return rules.datasetRuleDefaultMaxReplicasPerCountry;
+        } else {
+            return rules.datasetRuleMaxReplicasInCountries[_countryCode];
+        }
+    }
 
     ///TODO:impl
     function getIncomeReleaseRule(
@@ -286,47 +307,9 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     {
 
     }
-
-    /// @notice Set the datacap price pre byte complies with filplus rules.
-    function setDatacapPricePreByte(
-        uint256 _newValue
-    ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        datacapPricePreByte = _newValue;
-        emit FilplusEvents.SetDatacapPricePreByte(_newValue);
-    }
-
-    /// @notice Set the datacap chunk land price pre byte complies with filplus rules.
-    function setDatacapChunkLandPricePreByte(
-        uint256 _newValue
-    ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        datacapChunkLandPricePreByte = _newValue;
-        emit FilplusEvents.SetDatacapChunkLandPricePreByte(_newValue);
-    }
-
-    /// @notice Set the challenge proofs submiter Count complies with filplus rules.
-    function setChallengeProofsSubmiterCount(
-        uint16 _newValue
-    ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        challengeProofsSubmiterCount = _newValue;
-        emit FilplusEvents.SetChallengeProofsSubmiterCount(_newValue);
-    }
-
-    /// @notice Set the challenge proofs price pre point complies with filplus rules.
-    function setChallengeProofsPricePrePoint(
-        uint256 _newValue
-    ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        challengeProofsPricePrePoint = _newValue;
-        emit FilplusEvents.SetChallengeProofsPricePrePoint(_newValue);
-    }
-
-    /// @notice The default minimum dataset proof submission timeout
-    function datasetRuleMinProofTimeout() external view returns (uint64) {
-        //TODO: impl
-    }
-
-    /// @notice The default minimum dataset challenge submission timeout
-    function datasetRuleMinAuditTimeout() external view returns (uint64) {
-        //TODO: impl
+    /// @notice Returns the burn address
+    function getBurnAddress() external pure returns (address) {
+        return BURN_ADDRESS;
     }
 
     /// @notice Get the challenge proofs price pre point complies with filplus rules.
@@ -335,7 +318,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         view
         returns (uint256 price)
     {
-        price = challengeProofsPricePrePoint;
+        price = rules.challengeProofsPricePrePoint;
     }
 
     /// @notice Get the challenge proofs submiter count complies with filplus rules.
@@ -344,12 +327,12 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         view
         returns (uint16 count)
     {
-        count = challengeProofsSubmiterCount;
+        count = rules.challengeProofsSubmiterCount;
     }
 
     /// @notice Get the datacap price pre byte complies with filplus rules.
     function getDatacapPricePreByte() external view returns (uint256 price) {
-        price = datacapPricePreByte;
+        price = rules.datacapPricePreByte;
     }
 
     /// @notice Get the datacap chunk land price pre byte complies with filplus rules.
@@ -358,12 +341,96 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         view
         returns (uint256 price)
     {
-        price = datacapChunkLandPricePreByte;
+        price = rules.datacapChunkLandPricePreByte;
     }
 
-    /// @notice Returns the burn address
-    function getBurnAddress() external pure returns (address) {
-        return BURN_ADDRESS;
+    /// @notice The default minimum dataset proof submission timeout
+    function datasetRuleMinProofTimeout() external view returns (uint64) {
+        return rules.datasetRuleMinProofTimeout;
+    }
+
+    /// @notice The default minimum dataset challenge submission timeout
+    function datasetRuleMinAuditTimeout() external view returns (uint64) {
+        return rules.datasetRuleMinAuditTimeout;
+    }
+
+    /// @notice Returns the requirement timeout for the dataset rule.
+    function datasetRuleRequirementTimeout() external view returns (uint64) {
+        return rules.datasetRuleRequirementTimeout;
+    }
+
+    // Default getter functions for public variables
+    function datasetRuleMinRegionsPerDataset() external view returns (uint16) {
+        return rules.datasetRuleMinRegionsPerDataset;
+    }
+
+    /// @notice Returns the default maximum number of replicas per country.
+    function datasetRuleDefaultMaxReplicasPerCountry()
+        external
+        view
+        returns (uint16)
+    {
+        return rules.datasetRuleDefaultMaxReplicasPerCountry;
+    }
+
+    /// @notice Returns the maximum number of replicas per city.
+    function datasetRuleMaxReplicasPerCity() external view returns (uint16) {
+        return rules.datasetRuleMaxReplicasPerCity;
+    }
+
+    /// @notice Returns the maximum proportion of mapping files allowed per dataset.
+    function datasetRuleMaxProportionOfMappingFilesToDataset()
+        external
+        view
+        returns (uint8)
+    {
+        return rules.datasetRuleMaxProportionOfMappingFilesToDataset;
+    }
+
+    /// @notice Returns the minimum number of storage providers required per dataset.
+    function datasetRuleMinSPsPerDataset() external view returns (uint16) {
+        return rules.datasetRuleMinSPsPerDataset;
+    }
+
+    /// @notice Returns the maximum number of replicas per storage provider.
+    function datasetRuleMaxReplicasPerSP() external view returns (uint16) {
+        return rules.datasetRuleMaxReplicasPerSP;
+    }
+
+    /// @notice Returns the minimum total number of replicas required per dataset.
+    function datasetRuleMinTotalReplicasPerDataset()
+        external
+        view
+        returns (uint16)
+    {
+        return rules.datasetRuleMinTotalReplicasPerDataset;
+    }
+
+    /// @notice Returns the maximum total number of replicas allowed per dataset.
+    function datasetRuleMaxTotalReplicasPerDataset()
+        external
+        view
+        returns (uint16)
+    {
+        return rules.datasetRuleMaxTotalReplicasPerDataset;
+    }
+
+    /// @notice Returns the maximum size that can be allocated per time for datacap rules.
+    function datacapRulesMaxAllocatedSizePerTime()
+        external
+        view
+        returns (uint64)
+    {
+        return rules.datacapRulesMaxAllocatedSizePerTime;
+    }
+
+    /// @notice Returns the maximum remaining percentage allowed for the next datacap rule.
+    function datacapRulesMaxRemainingPercentageForNext()
+        external
+        view
+        returns (uint8)
+    {
+        return rules.datacapRulesMaxRemainingPercentageForNext;
     }
 
     /// @notice Check if the storage regions complies with filplus rules.
@@ -371,7 +438,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         uint16[] memory _regions
     ) internal view returns (bool) {
         uint256 count = _regions.countUniqueElements();
-        if (count < datasetRuleMinRegionsPerDataset) {
+        if (count < rules.datasetRuleMinRegionsPerDataset) {
             return false;
         }
         return true;
@@ -428,7 +495,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
 
         for (uint256 i = 0; i < count; i++) {
             uint256 _value = totalCitys.countOccurrences(uniqueCitys[i]);
-            if (_value > datasetRuleMaxReplicasPerCity) {
+            if (_value > rules.datasetRuleMaxReplicasPerCity) {
                 return false;
             }
         }
@@ -462,7 +529,9 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         uint64 _sourceSize
     ) external view returns (bool) {
         uint64 proportion = (_mappingFilesSize * 10000) / _sourceSize;
-        if (proportion > datasetRuleMaxProportionOfMappingFilesToDataset) {
+        if (
+            proportion > rules.datasetRuleMaxProportionOfMappingFilesToDataset
+        ) {
             return false;
         }
         return true;
@@ -486,9 +555,9 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         }
 
         if (
-            _regions.length > datasetRuleMaxTotalReplicasPerDataset ||
-            _regions.length < datasetRuleMinTotalReplicasPerDataset ||
-            _regions.length < datasetRuleMinSPsPerDataset
+            _regions.length > rules.datasetRuleMaxTotalReplicasPerDataset ||
+            _regions.length < rules.datasetRuleMinTotalReplicasPerDataset ||
+            _regions.length < rules.datasetRuleMinSPsPerDataset
         ) {
             return false;
         }
@@ -502,7 +571,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         uint16 _totalExists,
         uint16 _uniqueExists
     ) external view returns (bool) {
-        if (_uniqueExists >= datasetRuleMinSPsPerDataset) {
+        if (_uniqueExists >= rules.datasetRuleMinSPsPerDataset) {
             return true;
         }
 
@@ -515,7 +584,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
 
         if (
             (_requirementValue - _totalExists + _uniqueExists) >=
-            datasetRuleMinSPsPerDataset
+            rules.datasetRuleMinSPsPerDataset
         ) {
             return true;
         }
@@ -527,7 +596,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     function isCompliantRuleMaxReplicasPerSP(
         uint16 _value
     ) external view returns (bool) {
-        if (_value > datasetRuleMaxReplicasPerSP) {
+        if (_value > rules.datasetRuleMaxReplicasPerSP) {
             return false;
         }
         return true;
