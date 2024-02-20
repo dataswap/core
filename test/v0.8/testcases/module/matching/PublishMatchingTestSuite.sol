@@ -49,17 +49,6 @@ contract PublishMatchingTestCaseWithSuccess is MatchingsTestBase {
 
     function before() internal virtual override returns (uint64) {
         uint64 datasetId = matchingsHelpers.setup("testAccessMethod", 100, 10);
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.DATASET_PROVIDER,
-            address(99)
-        );
-        vm.stopPrank();
-
         matchingsAssertion.createMatchingAssertion(
             address(99),
             datasetId,
@@ -105,92 +94,6 @@ contract PublishMatchingTestCaseWithSuccess is MatchingsTestBase {
     }
 }
 
-///@notice publish matching test case with invalid role
-contract PublishMatchingTestCaseWithInvalidRole is MatchingsTestBase {
-    constructor(
-        IMatchings _matchings,
-        IMatchingsTarget _matchingsTarget,
-        IMatchingsBids _matchingsBids,
-        IMatchingsHelpers _matchingsHelpers,
-        IMatchingsAssertion _matchingsAssertion
-    )
-        MatchingsTestBase(
-            _matchings,
-            _matchingsTarget,
-            _matchingsBids,
-            _matchingsHelpers,
-            _matchingsAssertion
-        ) // solhint-disable-next-line
-    {}
-
-    function before() internal virtual override returns (uint64) {
-        uint64 datasetId = matchingsHelpers.setup("testAccessMethod", 100, 10);
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.DATASET_PROVIDER,
-            address(99)
-        );
-        vm.stopPrank();
-
-        matchingsAssertion.createMatchingAssertion(
-            address(99),
-            datasetId,
-            MatchingType.BidSelectionRule.HighestBid,
-            100,
-            100,
-            1000,
-            100,
-            0,
-            "TEST"
-        );
-        uint64 matchingId = matchings.matchingsCount();
-
-        matchingsAssertion.createTargetAssertion(
-            address(99),
-            matchingId,
-            datasetId,
-            DatasetType.DataType.MappingFiles,
-            0,
-            0
-        );
-        return datasetId;
-    }
-
-    function action(uint64 _datasetId) internal virtual override {
-        (uint64[] memory cars, ) = matchingsHelpers.getDatasetCarsAndCarsCount(
-            _datasetId,
-            DatasetType.DataType.MappingFiles
-        );
-
-        uint64 matchingId = matchings.matchingsCount();
-
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().revokeRole(
-            RolesType.DATASET_PROVIDER,
-            address(99)
-        );
-        vm.stopPrank();
-
-        vm.expectRevert(bytes("Only allowed role can call"));
-        matchingsAssertion.publishMatchingAssertion(
-            address(99),
-            matchingId,
-            _datasetId,
-            cars,
-            cars,
-            true
-        );
-    }
-}
-
 ///@notice publish matching test case with invalid sender
 contract PublishMatchingTestCaseWithInvalidSender is MatchingsTestBase {
     constructor(
@@ -211,16 +114,6 @@ contract PublishMatchingTestCaseWithInvalidSender is MatchingsTestBase {
 
     function before() internal virtual override returns (uint64) {
         uint64 datasetId = matchingsHelpers.setup("testAccessMethod", 100, 10);
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.DATASET_PROVIDER,
-            address(99)
-        );
-        vm.stopPrank();
 
         matchingsAssertion.createMatchingAssertion(
             address(99),
@@ -252,17 +145,6 @@ contract PublishMatchingTestCaseWithInvalidSender is MatchingsTestBase {
             DatasetType.DataType.MappingFiles
         );
         uint64 matchingId = matchings.matchingsCount();
-
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.DATASET_PROVIDER,
-            address(98)
-        );
-        vm.stopPrank();
 
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -303,16 +185,6 @@ contract PublishMatchingTestCaseWithInvalidDataset is MatchingsTestBase {
 
     function before() internal virtual override returns (uint64) {
         uint64 datasetId = matchingsHelpers.setup("testAccessMethod", 100, 10);
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.DATASET_PROVIDER,
-            address(99)
-        );
-        vm.stopPrank();
 
         matchingsAssertion.createMatchingAssertion(
             address(99),
@@ -376,19 +248,7 @@ contract PublishMatchingTestCaseWithInvalidDataPreparer is MatchingsTestBase {
     {}
 
     function before() internal virtual override returns (uint64) {
-        uint64 datasetId = matchingsHelpers.setup("testAccessMethod", 100, 10);
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.DATASET_PROVIDER,
-            address(100)
-        );
-        vm.stopPrank();
-
-        return datasetId;
+        return matchingsHelpers.setup("testAccessMethod", 100, 10);
     }
 
     function action(uint64 _datasetId) internal virtual override {
@@ -426,19 +286,7 @@ contract PublishMatchingTestCaseWithInvalidReplica is MatchingsTestBase {
     {}
 
     function before() internal virtual override returns (uint64) {
-        uint64 datasetId = matchingsHelpers.setup("testAccessMethod", 100, 10);
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.DATASET_PROVIDER,
-            address(100)
-        );
-        vm.stopPrank();
-
-        return datasetId;
+        return matchingsHelpers.setup("testAccessMethod", 100, 10);
     }
 
     function action(uint64 _datasetId) internal virtual override {

@@ -193,9 +193,6 @@ contract Datasets is
         _updateDatasetIdForAccessMethod(datasetsCount());
 
         dataset._emitDatasetEvent(DatasetType.Event.SubmitMetadata);
-
-        roles.grantDataswapRole(RolesType.STORAGE_CLIENT, msg.sender);
-
         emit DatasetsEvents.DatasetMetadataSubmitted(
             datasetsCount(),
             msg.sender

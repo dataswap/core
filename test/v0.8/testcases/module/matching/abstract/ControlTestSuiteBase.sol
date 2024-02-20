@@ -66,18 +66,6 @@ abstract contract ControlTestSuiteBase is Test {
     ) internal virtual returns (uint64) {
         // Set up a dataset with specific parameters
         uint64 datasetId = matchingsHelpers.setup("testAccessMethod", 100, 10);
-        // Get the admin address for dataset roles
-        address admin = matchingsHelpers.datasets().roles().getRoleMember(
-            bytes32(0x00),
-            0
-        );
-        // Start a prank, perform administrative actions, and stop the prank
-        vm.startPrank(admin);
-        matchingsHelpers.datasets().roles().grantRole(
-            RolesType.DATASET_PROVIDER,
-            address(99)
-        );
-        vm.stopPrank();
 
         // Get dataset cars and their count
         (uint64[] memory cars, ) = matchingsHelpers.getDatasetCarsAndCarsCount(

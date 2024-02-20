@@ -114,11 +114,6 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
     {
         datasetId = setup("testAccessMethod", 100, 10);
 
-        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.stopPrank();
-
         (uint64[] memory cars, ) = getDatasetCarsAndCarsCount(
             datasetId,
             DatasetType.DataType.MappingFiles
@@ -155,9 +150,6 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
             true
         );
 
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.STORAGE_PROVIDER, address(199));
-        vm.stopPrank();
         vm.roll(101);
         vm.prank(address(199));
         vm.deal(address(199), 200 ether);

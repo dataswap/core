@@ -113,7 +113,6 @@ contract MatchingsTarget is
         uint16 _replicaIndex
     )
         external
-        onlyRole(roles, RolesType.DATASET_PROVIDER)
         //onlyMatchingState(matchings, _matchingId, MatchingType.State.None)
         onlyMatchingInitiator(roles.matchings(), _matchingId)
     {
@@ -150,11 +149,7 @@ contract MatchingsTarget is
         uint64[] memory _carsStarts,
         uint64[] memory _carsEnds,
         bool complete
-    )
-        external
-        onlyRole(roles, RolesType.DATASET_PROVIDER)
-        onlyMatchingInitiator(roles.matchings(), _matchingId)
-    {
+    ) external onlyMatchingInitiator(roles.matchings(), _matchingId) {
         MatchingType.MatchingTarget storage target = targets[_matchingId];
         uint64[] memory _cars = _carsStarts.mergeSequentialArray(_carsEnds);
         uint64 _size;

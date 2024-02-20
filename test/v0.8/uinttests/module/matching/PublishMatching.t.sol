@@ -34,19 +34,6 @@ contract PublishMatchingTest is Test, MatchingTestSetup {
         testCase.run();
     }
 
-    ///@notice publish matching test case with invalid role
-    function testPublishMatchingWithInvalidRole() public {
-        setup();
-        PublishMatchingTestCaseWithInvalidRole testCase = new PublishMatchingTestCaseWithInvalidRole(
-                matchings(),
-                matchingsTarget(),
-                matchingsBids(),
-                helpers,
-                assertion
-            );
-        testCase.run();
-    }
-
     ///@notice publish matching test case with invalid sender
     function testPublishMatchingWithInvalidSender() public {
         setup();

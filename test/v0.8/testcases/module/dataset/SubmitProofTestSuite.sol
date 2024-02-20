@@ -71,10 +71,6 @@ contract SubmitProofTestCaseWithSuccess is DatasetsTestBase {
             0
         );
         // vm.prank();
-        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.stopPrank();
         datasetsAssertion.submitDatasetProofRootAssertion(
             address(99),
             _datasetId,
@@ -163,10 +159,6 @@ contract SubmitProofTestCaseWithInvalidSubmitter is DatasetsTestBase {
             0
         );
         // vm.prank();
-        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.stopPrank();
         datasetsAssertion.submitDatasetProofRootAssertion(
             address(99),
             _datasetId,
@@ -257,10 +249,6 @@ contract SubmitProofTestCaseWithInvalidIndex is DatasetsTestBase {
             0
         );
         // vm.prank();
-        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.stopPrank();
         datasetsAssertion.submitDatasetProofRootAssertion(
             address(99),
             _datasetId,
@@ -351,10 +339,6 @@ contract SubmitProofTestCaseWithInvalidProportion is DatasetsTestBase {
             0
         );
         // vm.prank();
-        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.stopPrank();
         datasetsAssertion.submitDatasetProofRootAssertion(
             address(99),
             _datasetId,
@@ -439,10 +423,6 @@ contract SubmitProofTestCaseWithTimeout is DatasetsTestBase {
             0
         );
         // vm.prank();
-        address admin = datasets.roles().getRoleMember(bytes32(0x00), 0);
-        vm.startPrank(admin);
-        datasets.roles().grantRole(RolesType.DATASET_PROVIDER, address(99));
-        vm.stopPrank();
         datasetsAssertion.submitDatasetProofRootAssertion(
             address(99),
             _datasetId,

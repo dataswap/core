@@ -88,11 +88,6 @@ interface IRoles is IAccessControlEnumerableUpgradeable {
     /// @notice grantDataswapContractRole function to grant the dataswap contract role for dataswap contract. TODO: Move to governance
     function grantDataswapContractRole(address[] calldata _contracts) external;
 
-    /// @dev Grants the dataswap role to a specified account.
-    /// @param _role The role to grant.
-    /// @param _account The address of the account to grant the role to.
-    function grantDataswapRole(bytes32 _role, address _account) external;
-
     /// @notice Register contract function to manage the dataswap contract.
     /// @param _type The contract type.
     /// @param _contract The register contract address.

@@ -117,7 +117,6 @@ contract MatchingsBids is
             require(sp.isContains(msg.sender), "Invalid SP submitter");
         }
 
-        roles.grantDataswapRole(RolesType.STORAGE_PROVIDER, msg.sender);
         // Add bidding escrow
         _processFinance(datasetId, _matchingId, msg.sender, msg.value, _amount);
 

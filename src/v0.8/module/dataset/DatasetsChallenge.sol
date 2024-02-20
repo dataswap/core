@@ -134,8 +134,6 @@ contract DatasetsChallenge is
             roles.datasets().__reportDatasetChallengeCompleted(_datasetId);
         }
 
-        roles.grantDataswapRole(RolesType.DATASET_AUDITOR, msg.sender);
-
         emit DatasetsEvents.DatasetChallengeProofsSubmitted(
             _datasetId,
             msg.sender
