@@ -19,8 +19,6 @@ pragma solidity ^0.8.21;
 
 /// interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
-import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
-import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
 import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
 ///shared
 import {CarstoreModifiers} from "../../../shared/modifiers/CarstoreModifiers.sol";
@@ -43,20 +41,14 @@ abstract contract CarstoreBase is Initializable, ICarstore, CarstoreModifiers {
     mapping(uint64 => bytes32) internal carsIndexes;
 
     IRoles public roles;
-    IFilplus public filplus;
-    IFilecoin public filecoin;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
     /// @notice carstoreBaseInitialize function to initialize the contract and grant the default admin role to the deployer.
     function carstoreBaseInitialize(
-        address _roles,
-        address _filplus,
-        address _filecoin
+        address _roles
     ) public virtual onlyInitializing {
         roles = IRoles(_roles);
-        filplus = IFilplus(_filplus);
-        filecoin = IFilecoin(_filecoin);
     }
 
     /// @notice Post an event for a car's replica based on the matching ID, triggering state transitions.

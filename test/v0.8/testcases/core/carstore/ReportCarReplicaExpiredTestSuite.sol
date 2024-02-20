@@ -53,7 +53,9 @@ contract ReportCarReplicaExpiredTestCaseWithSuccess is
         carstore.__registCarReplica(_id, _matchingId, 0);
         carstore.__reportCarReplicaMatchingState(_id, _matchingId, true);
         carstore.__setCarReplicaFilecoinClaimId(_id, _matchingId, _claimId);
-        carstore.filecoin().setMockDealState(FilecoinType.DealState.Expired);
+        carstore.roles().filecoin().setMockDealState(
+            FilecoinType.DealState.Expired
+        );
         return _id;
     }
 }
@@ -87,7 +89,9 @@ contract ReportCarReplicaExpiredTestCaseWithInvalidDealState is
         carstore.__registCarReplica(_id, _matchingId, 0);
         carstore.__reportCarReplicaMatchingState(_id, _matchingId, true);
         carstore.__setCarReplicaFilecoinClaimId(_id, _matchingId, _claimId);
-        carstore.filecoin().setMockDealState(FilecoinType.DealState.Stored);
+        carstore.roles().filecoin().setMockDealState(
+            FilecoinType.DealState.Stored
+        );
         return _id;
     }
 

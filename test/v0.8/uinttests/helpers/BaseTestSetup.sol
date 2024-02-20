@@ -71,7 +71,7 @@ contract BaseTestSetup {
         merkleUtils.initialize(address(role));
 
         carstore = new Carstore();
-        carstore.initialize(address(role), address(filplus), address(filecoin));
+        carstore.initialize(address(role));
 
         datasets = new Datasets();
         datasets.initialize(governanceContractAddresss, address(role));
