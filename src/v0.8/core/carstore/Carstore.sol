@@ -39,12 +39,8 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     using CarLIB for CarReplicaType.Car;
 
     /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
-    function initialize(
-        address _roles,
-        address _filplus,
-        address _filecoin
-    ) public initializer {
-        CarstoreBase.carstoreBaseInitialize(_roles, _filplus, _filecoin);
+    function initialize(address _roles) public initializer {
+        CarstoreBase.carstoreBaseInitialize(_roles);
         __UUPSUpgradeable_init();
     }
 
@@ -198,7 +194,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     ) internal {
         if (
             _dealState !=
-            filecoin.getReplicaDealState(getCarHash(_id), _claimId)
+            roles.filecoin().getReplicaDealState(getCarHash(_id), _claimId)
         ) {
             revert Errors.InvalidReplicaFilecoinDealState(_id, _claimId);
         }
@@ -293,7 +289,12 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         _checkCarReplicaState(_id, _matchingId, CarReplicaType.State.Matched);
         bytes32 _hash = _getHash(_id);
         CarReplicaType.Car storage car = _getCar(_id);
-        car._setReplicaFilecoinClaimId(_hash, _matchingId, _claimId, filecoin);
+        car._setReplicaFilecoinClaimId(
+            _hash,
+            _matchingId,
+            _claimId,
+            roles.filecoin()
+        );
 
         emit CarstoreEvents.CarReplicaFilecoinClaimIdSet(
             _id,

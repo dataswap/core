@@ -36,7 +36,9 @@ contract SetCarReplicaFilecoinClaimIdTest is Test, CarstoreTestSetup {
                 assertion
             );
         // set filecoin store is ok
-        carstore.filecoin().setMockDealState(FilecoinType.DealState.Stored);
+        carstore.roles().filecoin().setMockDealState(
+            FilecoinType.DealState.Stored
+        );
         // run testcase
         testCase.run(_cid, _datasetId, _size, _matchingId, _claimId);
     }
@@ -55,7 +57,7 @@ contract SetCarReplicaFilecoinClaimIdTest is Test, CarstoreTestSetup {
                 assertion
             );
         // set filecoin store is ok
-        carstore.filecoin().setMockDealState(
+        carstore.roles().filecoin().setMockDealState(
             FilecoinType.DealState.StorageFailed
         );
         // run testcase
@@ -76,7 +78,7 @@ contract SetCarReplicaFilecoinClaimIdTest is Test, CarstoreTestSetup {
                 assertion
             );
         // set filecoin store is ok
-        carstore.filecoin().setMockDealState(
+        carstore.roles().filecoin().setMockDealState(
             FilecoinType.DealState.StorageFailed
         );
         // run testcase
@@ -97,7 +99,7 @@ contract SetCarReplicaFilecoinClaimIdTest is Test, CarstoreTestSetup {
                 assertion
             );
         // set filecoin store is ok
-        carstore.filecoin().setMockDealState(
+        carstore.roles().filecoin().setMockDealState(
             FilecoinType.DealState.StorageFailed
         );
         // run testcase
@@ -118,7 +120,7 @@ contract SetCarReplicaFilecoinClaimIdTest is Test, CarstoreTestSetup {
                 assertion
             );
         // set filecoin store is ok
-        carstore.filecoin().setMockDealState(
+        carstore.roles().filecoin().setMockDealState(
             FilecoinType.DealState.StorageFailed
         );
         // run testcase

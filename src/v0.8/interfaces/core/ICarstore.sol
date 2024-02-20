@@ -157,12 +157,6 @@ interface ICarstoreReadOnly {
 
     /// @notice get roles object
     function roles() external view returns (IRoles);
-
-    /// @notice get filecoin object
-    function filecoin() external view returns (IFilecoin);
-
-    /// @notice get filplus object
-    function filplus() external view returns (IFilplus);
 }
 
 /// @title ICarStore
