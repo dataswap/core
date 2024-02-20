@@ -87,15 +87,9 @@ contract MatchingsTarget is
 
     ///@dev update cars info  to carStore before bidding
     function _beforeBidding(uint64 _matchingId) internal {
-        (
-            ,
-            uint64[] memory cars,
-            ,
-            ,
-            ,
-            uint16 replicaIndex,
-
-        ) = getMatchingTarget(_matchingId);
+        (, uint64[] memory cars, , , , uint16 replicaIndex) = getMatchingTarget(
+            _matchingId
+        );
         for (uint64 i; i < cars.length; i++) {
             roles.carstore().__registCarReplica(
                 cars[i],
@@ -198,7 +192,6 @@ contract MatchingsTarget is
     /// @return dataType The data type of the matching.
     /// @return associatedMappingFilesMatchingID The ID of the associated mapping files matching.
     /// @return replicaIndex The index of dataset's replica
-    /// @return subsidy The subsidy amount
     function getMatchingTarget(
         uint64 _matchingId
     )
@@ -210,8 +203,7 @@ contract MatchingsTarget is
             uint64 size,
             DatasetType.DataType dataType,
             uint64 associatedMappingFilesMatchingID,
-            uint16 replicaIndex,
-            uint256 subsidy
+            uint16 replicaIndex
         )
     {
         // Access the matching with the specified ID and retrieve the target information
@@ -222,8 +214,7 @@ contract MatchingsTarget is
             target.size,
             target.dataType,
             target.associatedMappingFilesMatchingID,
-            target.replicaIndex,
-            target.subsidy
+            target.replicaIndex
         );
     }
 
@@ -283,7 +274,6 @@ contract MatchingsTarget is
                 uint64[] memory mappingsCars,
                 ,
                 DatasetType.DataType dataType,
-                ,
                 ,
 
             ) = getMatchingTarget(_associatedMappingFilesMatchingID);

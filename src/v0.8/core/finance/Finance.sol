@@ -103,6 +103,7 @@ contract Finance is
     /// @dev Initiates a withdrawal of funds from the system.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
+    /// @param _owner The address of the account owner.
     /// @param _token The type of token for withdrawal (e.g., FIL, ERC-20).
     /// @param _amount The amount to be withdrawn.
     function withdraw(
@@ -147,6 +148,7 @@ contract Finance is
         );
 
         if (requirement > 0) {
+            // Need to add escrow
             financeAccount[_datasetId][_matchingId][msg.sender][_token]._escrow(
                 _type,
                 requirement
@@ -163,9 +165,43 @@ contract Finance is
         }
     }
 
-    /// @dev Handles an escrow, such as claiming or processing it.
+    /// @dev Initiates an escrow of funds for a given dataset, matching ID, and escrow type.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
+    /// @param _owner The address of the account owner.
+    /// @param _token The type of token for escrow (e.g., FIL, ERC-20).
+    /// @param _type The type of escrow (e.g., deposit, payment).
+    /// @param _amount The escrow amount for the specified dataset, matching process, and token type.
+    function __escrow(
+        uint64 _datasetId,
+        uint64 _matchingId,
+        address _owner,
+        address _token,
+        FinanceType.Type _type,
+        uint256 _amount
+    )
+        external
+        onlySupportToken(_token)
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
+    {
+        financeAccount[_datasetId][_matchingId][_owner][_token]._escrow(
+            _type,
+            _amount
+        );
+
+        emit FinanceEvents.Escrow(
+            _datasetId,
+            _matchingId,
+            _owner,
+            _token,
+            _type,
+            _amount
+        );
+    }
+
+    /// @dev Handles an escrow, such as claiming or processing it.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _matchingId The ID of the matching.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @param _type The type of escrow (e.g., deposit, payment).
     function claimEscrow(
@@ -179,6 +215,33 @@ contract Finance is
         ).getPayeeInfo(_datasetId, _matchingId, _token);
 
         _paymentProcess(_datasetId, _matchingId, _token, _type, paymentsInfo);
+    }
+
+    /// @dev Handles an escrow, such as claiming or processing it.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _subAccountMatchingId The ID of the matching.
+    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
+    /// @param _type The type of escrow (e.g., deposit, payment).
+    function __claimSubAccountEscrow(
+        uint64 _datasetId,
+        uint64 _subAccountMatchingId,
+        address _token,
+        FinanceType.Type _type
+    )
+        external
+        onlySupportToken(_token)
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
+    {
+        FinanceType.PaymentInfo[] memory paymentsInfo = _getEscrowContract(
+            _type
+        ).getMoveSourceAccountPayeeInfo(_datasetId, _subAccountMatchingId, _token);
+        _moveEscrowFundsProcess(
+            _datasetId,
+            _subAccountMatchingId,
+            _token,
+            _type,
+            paymentsInfo
+        );
     }
 
     /// @dev Retrieves an account's overview, including deposit, withdraw, burned, balance, lock, escrow.
@@ -339,29 +402,68 @@ contract Finance is
         FinanceType.PaymentInfo[] memory paymentsInfo
     ) internal onlySupportToken(_token) {
         for (uint256 i = 0; i < paymentsInfo.length; i++) {
-            financeAccount[_datasetId][_matchingId][paymentsInfo[i].payer][
-                _token
-            ]._payment(_type, paymentsInfo[i].amount);
+            if (paymentsInfo[i].amount != 0) {
+                // Payer account payment.
+                financeAccount[_datasetId][_matchingId][paymentsInfo[i].payer][
+                    _token
+                ]._payment(_type, paymentsInfo[i].amount);
 
-            for (uint256 j = 0; j < paymentsInfo[i].payees.length; j++) {
-                financeAccount[_datasetId][_matchingId][
-                    paymentsInfo[i].payees[j].payee
-                ][_token]._income(_type, paymentsInfo[i].payees[j].amount);
-
-                if (
-                    paymentsInfo[i].payees[j].payee ==
-                    roles.filplus().getBurnAddress()
-                ) {
+                for (uint256 j = 0; j < paymentsInfo[i].payees.length; j++) {
+                    // Payee account income.
                     financeAccount[_datasetId][_matchingId][
-                        paymentsInfo[i].payer
-                    ][_token]._burn(paymentsInfo[i].payees[j].amount);
+                        paymentsInfo[i].payees[j].payee
+                    ][_token]._income(_type, paymentsInfo[i].payees[j].amount);
 
-                    SendAPI.send(
-                        FilAddresses.fromEthAddress(
-                            roles.filplus().getBurnAddress()
-                        ),
-                        paymentsInfo[i].payees[j].amount
-                    );
+                    // Payee account is burnAddress, burn process.
+                    if (
+                        paymentsInfo[i].payees[j].payee ==
+                        roles.filplus().getBurnAddress()
+                    ) {
+                        financeAccount[_datasetId][_matchingId][
+                            paymentsInfo[i].payer
+                        ][_token]._burn(paymentsInfo[i].payees[j].amount);
+
+                        SendAPI.send(
+                            FilAddresses.fromEthAddress(
+                                roles.filplus().getBurnAddress()
+                            ),
+                            paymentsInfo[i].payees[j].amount
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    /// @dev Internal function for processing sub account escrow.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _subAccountMatchingId The ID of the matching.
+    /// @param _token The address of the token used for the payment.
+    /// @param _type The FinanceType.Type specifying the type of payment.
+    /// @param paymentsInfo An array of FinanceType.PaymentInfo containing payment details.
+    function _moveEscrowFundsProcess(
+        uint64 _datasetId,
+        uint64 _subAccountMatchingId,
+        address _token,
+        FinanceType.Type _type,
+        FinanceType.PaymentInfo[] memory paymentsInfo
+    ) internal onlySupportToken(_token) {
+        for (uint256 i = 0; i < paymentsInfo.length; i++) {
+            if (paymentsInfo[i].amount != 0) {
+                // Parent account payment.
+                financeAccount[_datasetId][0][paymentsInfo[i].payer][_token]
+                    ._payment(_type, paymentsInfo[i].amount);
+
+                for (uint256 j = 0; j < paymentsInfo[i].payees.length; j++) {
+                    // Sub account income.
+                    financeAccount[_datasetId][_subAccountMatchingId][
+                        paymentsInfo[i].payees[j].payee
+                    ][_token]._income(_type, paymentsInfo[i].payees[j].amount);
+
+                    // Sub account escrow.
+                    financeAccount[_datasetId][_subAccountMatchingId][
+                        paymentsInfo[i].payees[j].payee
+                    ][_token]._escrow(_type, paymentsInfo[i].payees[j].amount);
                 }
             }
         }

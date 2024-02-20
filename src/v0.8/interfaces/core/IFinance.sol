@@ -32,6 +32,7 @@ interface IFinance {
     /// @dev Records the deposited amount for a given dataset and matching ID.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
+    /// @param _owner The address of the account owner.
     /// @param _token The type of token used for the deposit (e.g., FIL, ERC-20).
     function deposit(
         uint64 _datasetId,
@@ -43,6 +44,7 @@ interface IFinance {
     /// @dev Initiates a withdrawal of funds from the system.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
+    /// @param _owner The address of the account owner.
     /// @param _token The type of token for withdrawal (e.g., FIL, ERC-20).
     /// @param _amount The amount to be withdrawn.
     function withdraw(
@@ -65,6 +67,22 @@ interface IFinance {
         FinanceType.Type _type
     ) external;
 
+    /// @dev Initiates an escrow of funds for a given dataset, matching ID, and escrow type.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _matchingId The ID of the matching process.
+    /// @param _owner The address of the account owner.
+    /// @param _token The type of token for escrow (e.g., FIL, ERC-20).
+    /// @param _type The type of escrow (e.g., deposit, payment).
+    /// @param _amount The amount to be escrow.
+    function __escrow(
+        uint64 _datasetId,
+        uint64 _matchingId,
+        address _owner,
+        address _token,
+        FinanceType.Type _type,
+        uint256 _amount
+    ) external;
+
     /// @dev Handles an escrow, such as claiming or processing it.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
@@ -73,6 +91,18 @@ interface IFinance {
     function claimEscrow(
         uint64 _datasetId,
         uint64 _matchingId,
+        address _token,
+        FinanceType.Type _type
+    ) external;
+
+    /// @dev Handles an escrow, such as claiming or processing it.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _subAccountMatchingId The ID of the matching.
+    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
+    /// @param _type The type of escrow (e.g., deposit, payment).
+    function __claimSubAccountEscrow(
+        uint64 _datasetId,
+        uint64 _subAccountMatchingId,
         address _token,
         FinanceType.Type _type
     ) external;
@@ -142,12 +172,6 @@ interface IFinance {
     /// @param _owner The address of the account owner.
     /// @param _token The type of token for the escrow requirement (e.g., FIL, ERC-20).
     /// @return amount The required escrow amount for the specified dataset, matching process, and token type.
-    /// Note: TypeX_EscrowLibrary needs to include the following methods.
-    /// .     function getRequirement(
-    ///         uint64 _datasetId,
-    ///         uint64 _matchingId,
-    ///         address _token
-    ///       ) public view returns (uint256 amount);
     function getEscrowRequirement(
         uint64 _datasetId,
         uint64 _matchingId,

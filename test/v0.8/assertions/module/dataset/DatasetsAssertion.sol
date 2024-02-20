@@ -275,7 +275,8 @@ contract DatasetsAssertion is
     ) external {
         // Perform the action.
         vm.prank(caller);
-        datasetsRequirement.submitDatasetReplicaRequirements(
+        vm.deal(caller, 1000 ether);
+        datasetsRequirement.submitDatasetReplicaRequirements{value: 100 ether}(
             _datasetId,
             _dataPreparers,
             _storageProviders,

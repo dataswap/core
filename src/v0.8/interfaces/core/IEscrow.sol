@@ -22,7 +22,7 @@ import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 /// @title IEscrow
 /// @dev This IEscrow provides Escrow-related interface.
 interface IEscrow {
-    /// @dev Retrieves payee information for EscrowDataTradingFee.
+    /// @dev Retrieves payee information.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
@@ -30,6 +30,17 @@ interface IEscrow {
     function getPayeeInfo(
         uint64 _datasetId,
         uint64 _matchingId,
+        address _token
+    ) external view returns (FinanceType.PaymentInfo[] memory paymentsInfo);
+
+    /// @dev Retrieves sub account payee information.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _subAccountMatchingId The ID of the matching process.
+    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
+    /// @return paymentsInfo An array containing the payees's address.
+    function getMoveSourceAccountPayeeInfo(
+        uint64 _datasetId,
+        uint64 _subAccountMatchingId,
         address _token
     ) external view returns (FinanceType.PaymentInfo[] memory paymentsInfo);
 

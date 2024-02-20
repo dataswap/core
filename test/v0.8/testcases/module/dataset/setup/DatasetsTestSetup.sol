@@ -35,6 +35,7 @@ contract DatasetsTestSetup is Test {
             address(9),
             "TEST"
         );
+
         _datasetsHelpers.submitDatasetReplicaRequirements(
             address(9),
             datasetId,
@@ -90,16 +91,13 @@ contract DatasetsTestSetup is Test {
             10,
             true
         );
-        // TODO: reopen when finance completed
-        //vm.deal(address(9), 1000 ether);
-        //vm.prank(address(9));
-        //_datasets.roles().datasetsProof().completeEscrow{value: 1000 ether}(
-        //    datasetId
-        //);
-
-        //_datasetsHelpers.getDatasetsProof().submitDatasetProofCompleted(
-        //    datasetId
-        //);
+        vm.deal(address(9), 1000 ether);
+        vm.startPrank(address(9));
+        _datasets.roles().datasetsProof().completeEscrow(datasetId);
+        vm.stopPrank();
+        _datasetsHelpers.getDatasetsProof().submitDatasetProofCompleted(
+            datasetId
+        );
         _datasetsHelpers.submitDatasetVerification(address(99), datasetId);
 
         return datasetId;
@@ -179,16 +177,13 @@ contract DatasetsTestSetup is Test {
             true
         );
 
-        // TODO: reopen when finance completed
-        //vm.deal(address(9), 1000 ether);
-        //vm.prank(address(9));
-        //_datasets.roles().datasetsProof().completeEscrow{value: 1000 ether}(
-        //    datasetId
-        //);
-
-        //_datasetsHelpers.getDatasetsProof().submitDatasetProofCompleted(
-        //    datasetId
-        //);
+        vm.deal(address(9), 1000 ether);
+        vm.startPrank(address(9));
+        _datasets.roles().datasetsProof().completeEscrow(datasetId);
+        vm.stopPrank();
+        _datasetsHelpers.getDatasetsProof().submitDatasetProofCompleted(
+            datasetId
+        );
         return datasetId;
     }
 }

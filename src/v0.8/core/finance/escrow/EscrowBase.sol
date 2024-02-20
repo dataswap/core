@@ -27,7 +27,6 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
-
 import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
 import {ArraysPaymentInfoLIB} from "src/v0.8/shared/utils/array/ArrayLIB.sol";
 
@@ -67,7 +66,7 @@ abstract contract EscrowBase is
         return _getImplementation();
     }
 
-    /// @dev Retrieves payee information for EscrowDataTradingFee.
+    /// @dev Retrieves payee information.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
@@ -82,29 +81,19 @@ abstract contract EscrowBase is
         virtual
         returns (FinanceType.PaymentInfo[] memory paymentsInfo)
     {
-        // 1. Get owners
-        address[] memory owners = _getOwners(_datasetId, _matchingId);
+        // 1. Get payers
+        address[] memory payers = _getPayers(_datasetId, _matchingId);
         paymentsInfo = new FinanceType.PaymentInfo[](0);
 
         if (_isRefund(_datasetId, _matchingId)) {
             // 2.1 Get refund info
-            if (_isBidsRefund(_datasetId, _matchingId)) {
-                FinanceType.PaymentInfo[]
-                    memory refundInfo = _getBidsRefundInfo(
-                        _datasetId,
-                        _matchingId,
-                        _token
-                    );
-                paymentsInfo = paymentsInfo.appendArrays(refundInfo);
-            } else {
-                FinanceType.PaymentInfo[] memory refundInfo = _getRefundInfo(
-                    _datasetId,
-                    _matchingId,
-                    owners,
-                    _token
-                );
-                paymentsInfo = paymentsInfo.appendArrays(refundInfo);
-            }
+            FinanceType.PaymentInfo[] memory refundInfo = _getRefundInfo(
+                _datasetId,
+                _matchingId,
+                payers,
+                _token
+            );
+            paymentsInfo = paymentsInfo.appendArrays(refundInfo);
         }
 
         if (_isBurn(_datasetId, _matchingId)) {
@@ -112,7 +101,7 @@ abstract contract EscrowBase is
             FinanceType.PaymentInfo[] memory burnInfo = _getBurnInfo(
                 _datasetId,
                 _matchingId,
-                owners,
+                payers,
                 _token
             );
             paymentsInfo = paymentsInfo.appendArrays(burnInfo);
@@ -125,7 +114,7 @@ abstract contract EscrowBase is
             FinanceType.PaymentInfo[] memory paymentInfo = _getPaymentInfo(
                 _datasetId,
                 _matchingId,
-                owners,
+                payers,
                 payees,
                 _token
             );
@@ -133,12 +122,34 @@ abstract contract EscrowBase is
         }
     }
 
+    /// @dev Retrieves payee information for EscrowDataTradingFee.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _subAccountMatchingId The ID of the matching process.
+    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
+    /// @return paymentsInfo An array containing the payees's address.
+    function getMoveSourceAccountPayeeInfo(
+        uint64 _datasetId,
+        uint64 _subAccountMatchingId,
+        address _token
+    )
+        external
+        view
+        virtual
+        returns (FinanceType.PaymentInfo[] memory paymentsInfo)
+    {
+        paymentsInfo = _getMoveSourceAccountInfo(
+            _datasetId,
+            _subAccountMatchingId,
+            _token
+        );
+    }
+
     /// @notice Get dataset pre-conditional collateral requirement.
     /// @return amount The collateral requirement amount.
     function getRequirement(
         uint64 /*_datasetId*/,
         uint64 /*_matchingId*/,
-        address /*_owner*/,
+        address /*_payer*/,
         address /*_token*/
     )
         public
@@ -152,75 +163,81 @@ abstract contract EscrowBase is
     /// @dev Internal function to get refund information.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
-    /// @param _owners An array containing the addresses of the dataset and matching process owners.
+    /// @param _payers An array containing the addresses of the dataset and matching process payers.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return refunds An array containing payment information for refund.
     function _getRefundInfo(
         uint64 _datasetId,
         uint64 _matchingId,
-        address[] memory _owners,
+        address[] memory _payers,
         address _token
     ) internal view virtual returns (FinanceType.PaymentInfo[] memory refunds) {
-        uint256 ownersLen = _owners.length;
-        refunds = new FinanceType.PaymentInfo[](ownersLen);
-        for (uint256 i = 0; i < ownersLen; i++) {
+        uint256 payersLen = _payers.length;
+        refunds = new FinanceType.PaymentInfo[](payersLen);
+        for (uint256 i = 0; i < payersLen; i++) {
             uint256 amount = _getRefundAmount(
                 _datasetId,
                 _matchingId,
-                _owners[i],
+                _payers[i],
                 _token
             );
-            FinanceType.PayeeInfo[] memory payees = new FinanceType.PayeeInfo[](
-                1
-            );
-            payees[0] = FinanceType.PayeeInfo(_owners[i], amount);
-            refunds[i] = FinanceType.PaymentInfo(_owners[i], amount, payees);
+            if (amount != 0) {
+                FinanceType.PayeeInfo[]
+                    memory payees = new FinanceType.PayeeInfo[](1);
+                payees[0] = FinanceType.PayeeInfo(_payers[i], amount);
+                refunds[i] = FinanceType.PaymentInfo(
+                    _payers[i],
+                    amount,
+                    payees
+                );
+            }
         }
     }
 
     /// @dev Internal function to get burn information.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
-    /// @param _owners An array containing the addresses of the dataset and matching process owners.
+    /// @param _payers An array containing the addresses of the dataset and matching process payers.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return burns An array containing payment information for burn.
     function _getBurnInfo(
         uint64 _datasetId,
         uint64 _matchingId,
-        address[] memory _owners,
+        address[] memory _payers,
         address _token
     ) internal view virtual returns (FinanceType.PaymentInfo[] memory burns) {
-        uint256 ownersLen = _owners.length;
-        burns = new FinanceType.PaymentInfo[](ownersLen);
-        for (uint256 i = 0; i < ownersLen; i++) {
+        uint256 payersLen = _payers.length;
+        burns = new FinanceType.PaymentInfo[](payersLen);
+        for (uint256 i = 0; i < payersLen; i++) {
             uint256 amount = _getBurnAmount(
                 _datasetId,
                 _matchingId,
-                _owners[i],
+                _payers[i],
                 _token
             );
-            FinanceType.PayeeInfo[] memory payees = new FinanceType.PayeeInfo[](
-                1
-            );
-            payees[0] = FinanceType.PayeeInfo(
-                roles.filplus().getBurnAddress(),
-                amount
-            );
-            burns[i] = FinanceType.PaymentInfo(_owners[i], amount, payees);
+            if (amount != 0) {
+                FinanceType.PayeeInfo[]
+                    memory payees = new FinanceType.PayeeInfo[](1);
+                payees[0] = FinanceType.PayeeInfo(
+                    roles.filplus().getBurnAddress(),
+                    amount
+                );
+                burns[i] = FinanceType.PaymentInfo(_payers[i], amount, payees);
+            }
         }
     }
 
     /// @dev Internal function to get payment information.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
-    /// @param _owners An array containing the addresses of the dataset and matching process owners.
+    /// @param _payers An array containing the addresses of the dataset and matching process payers.
     /// @param _payees An array containing the address of the matching process initiator.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return payments An array containing payment information.
     function _getPaymentInfo(
         uint64 _datasetId,
         uint64 _matchingId,
-        address[] memory _owners,
+        address[] memory _payers,
         address[] memory _payees,
         address _token
     )
@@ -229,48 +246,53 @@ abstract contract EscrowBase is
         virtual
         returns (FinanceType.PaymentInfo[] memory payments)
     {
-        uint256 ownersLen = _owners.length;
+        uint256 payersLen = _payers.length;
         uint256 payeesLen = _payees.length;
-        payments = new FinanceType.PaymentInfo[](ownersLen);
-        for (uint256 i = 0; i < ownersLen; i++) {
+        payments = new FinanceType.PaymentInfo[](payersLen);
+        for (uint256 i = 0; i < payersLen; i++) {
             uint256 amount = _getPaymentAmount(
                 _datasetId,
                 _matchingId,
-                _owners[i],
+                _payers[i],
                 _token
             );
-            FinanceType.PayeeInfo[] memory payees = new FinanceType.PayeeInfo[](
-                payeesLen
-            );
-            for (uint256 j = 0; j < payeesLen; j++) {
-                payees[j] = FinanceType.PayeeInfo(
-                    _payees[j],
-                    amount / payeesLen
+            if (amount != 0) {
+                FinanceType.PayeeInfo[]
+                    memory payees = new FinanceType.PayeeInfo[](payeesLen);
+                for (uint256 j = 0; j < payeesLen; j++) {
+                    payees[j] = FinanceType.PayeeInfo(
+                        _payees[j],
+                        amount / payeesLen
+                    );
+                }
+
+                payments[i] = FinanceType.PaymentInfo(
+                    _payers[i],
+                    amount,
+                    payees
                 );
             }
-
-            payments[i] = FinanceType.PaymentInfo(_owners[i], amount, payees);
         }
     }
 
     /// @dev Internal function to get bids refund information.
     /// @return refunds An array containing payment information for refund.
-    function _getBidsRefundInfo(
+    function _getMoveSourceAccountInfo(
         uint64 /*_datasetId*/,
-        uint64 /*_matchingId*/,
+        uint64 /*_subAccountMatchingId*/,
         address /*_token*/
     )
         internal
         view
         virtual
         returns (
-            FinanceType.PaymentInfo[] memory refunds // solhint-disable-next-line
+            FinanceType.PaymentInfo[] memory // solhint-disable-next-line
         )
     {}
 
-    /// @dev Internal function to get owners associated with a dataset and matching process.
-    /// @return owners An array containing the addresses of the dataset and matching process owners.
-    function _getOwners(
+    /// @dev Internal function to get payers associated with a dataset and matching process.
+    /// @return payers An array containing the addresses of the dataset and matching process payers.
+    function _getPayers(
         uint64 /*_datasetId*/,
         uint64 /*_matchingId*/
     )
@@ -278,7 +300,7 @@ abstract contract EscrowBase is
         view
         virtual
         returns (
-            address[] memory owners // solhint-disable-next-line
+            address[] memory payers // solhint-disable-next-line
         )
     {}
 
@@ -301,7 +323,7 @@ abstract contract EscrowBase is
     function _getRefundAmount(
         uint64 /*_datasetId*/,
         uint64 /*_matchingId*/,
-        address /*_owner*/,
+        address /*_payer*/,
         address /*_token*/
     )
         internal
@@ -317,7 +339,7 @@ abstract contract EscrowBase is
     function _getBurnAmount(
         uint64 /*_datasetId*/,
         uint64 /*_matchingId*/,
-        address /*_owner*/,
+        address /*_payer*/,
         address /*_token*/
     )
         internal
@@ -333,7 +355,7 @@ abstract contract EscrowBase is
     function _getPaymentAmount(
         uint64 /*_datasetId*/,
         uint64 /*_matchingId*/,
-        address /*_owner*/,
+        address /*_payer*/,
         address /*_token*/
     )
         internal
@@ -347,15 +369,6 @@ abstract contract EscrowBase is
     /// @dev Internal function to check if a refund is applicable.
     /// @return refund A boolean indicating whether a refund is applicable.
     function _isRefund(
-        uint64 /*_datasetId*/,
-        uint64 /*_matchingId*/
-    ) internal view virtual returns (bool refund) {
-        return false;
-    }
-
-    /// @dev Internal function to check if a bids refund is applicable.
-    /// @return refund A boolean indicating whether a refund is applicable.
-    function _isBidsRefund(
         uint64 /*_datasetId*/,
         uint64 /*_matchingId*/
     ) internal view virtual returns (bool refund) {

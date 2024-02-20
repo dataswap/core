@@ -40,16 +40,6 @@ library MatchingTargetLIB {
         return self.datasetId;
     }
 
-    /// @notice Get the subsidy amount in the matching.
-    /// @dev This function retrieves the subsidy amount of a bidder.
-    /// @param self The MatchingTarget in the matching.
-    /// @return The subsidy amount.
-    function _getMatchingSubsidy(
-        MatchingType.MatchingTarget storage self
-    ) internal view returns (uint256) {
-        return self.subsidy;
-    }
-
     /// @notice Get replica index of matching.
     /// @dev This function is used to get dataset's replica index of matching.
     function _getDatasetReplicaIndex(
@@ -78,14 +68,5 @@ library MatchingTargetLIB {
             _pushCar(self, _cars[i]);
         }
         self.size += _size;
-    }
-
-    /// @notice Update subsidy of a matching  target.
-    /// @dev This function is used to Update subsidy of a matching  target.
-    function _updateSubsidy(
-        MatchingType.MatchingTarget storage self,
-        uint256 _amount
-    ) internal {
-        self.subsidy = _amount;
     }
 }

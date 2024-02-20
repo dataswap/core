@@ -31,19 +31,19 @@ contract EscrowDatacapCollateral is EscrowBase {
     /// @notice Get dataset EscrowDatacapCollateral requirement.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
-    /// @param _owner An array containing the addresses of the dataset and matching process owners.
+    /// @param _payer An array containing the addresses of the dataset and matching process owners.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return amount The requirement amount.
     function getRequirement(
         uint64 _datasetId,
         uint64 _matchingId,
-        address _owner,
+        address _payer,
         address _token
     ) public view override returns (uint256 amount) {
         (, , uint256 current, ) = roles.finance().getAccountEscrow(
             _datasetId,
             _matchingId,
-            _owner,
+            _payer,
             _token,
             FinanceType.Type.EscrowDatacapCollateral
         );
@@ -74,7 +74,7 @@ contract EscrowDatacapCollateral is EscrowBase {
     /// @dev Internal function to get owners associated with a dataset and matching process.
     /// @param _datasetId The ID of the dataset.
     /// @return owners An array containing the addresses of the dataset and matching process owners.
-    function _getOwners(
+    function _getPayers(
         uint64 _datasetId,
         uint64 /*_matchingId*/
     ) internal view override returns (address[] memory owners) {
@@ -89,10 +89,16 @@ contract EscrowDatacapCollateral is EscrowBase {
     function _getRefundAmount(
         uint64 _datasetId,
         uint64 _matchingId,
-        address _owner,
+        address _payer,
         address _token
     ) internal view override returns (uint256 amount) {
-        amount = getRequirement(_datasetId, _matchingId, _owner, _token);
+        (, , amount, ) = roles.finance().getAccountEscrow(
+            _datasetId,
+            _matchingId,
+            _payer,
+            _token,
+            FinanceType.Type.EscrowDatacapCollateral
+        );
     }
 
     /// @dev Internal function to check if a refund is applicable.
