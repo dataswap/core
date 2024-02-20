@@ -38,15 +38,6 @@ interface IMatchingsTarget {
         uint16 _replicaIndex
     ) external;
 
-    /// @notice  Function for parse cars from indexes.
-    /// @param _starts The starts of cars to publish.
-    /// @param _ends The ends of cars to publish.
-    /// @return The cars of the indexes.
-    function parseCars(
-        uint64[] memory _starts,
-        uint64[] memory _ends
-    ) external pure returns (uint64[] memory);
-
     /// @notice  Function for publishing a matching
     /// @param _matchingId The matching id to publish cars.
     /// @param _datasetId The dataset id of matching.

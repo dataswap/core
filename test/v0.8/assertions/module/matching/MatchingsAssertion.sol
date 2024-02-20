@@ -26,6 +26,7 @@ import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
 import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
 import {IMatchingsAssertion} from "test/v0.8/interfaces/assertions/module/IMatchingsAssertion.sol";
 import {StatisticsBaseAssertion} from "test/v0.8/assertions/core/statistics/StatisticsBaseAssertion.sol";
+import {ArrayUint64LIB} from "src/v0.8/shared/utils/array/ArrayLIB.sol";
 
 /// @title MatchingsAssertion Contract
 /// @notice This contract provides assertion functions to test the functionality of the IMatchings contract.
@@ -39,6 +40,7 @@ contract MatchingsAssertion is
     IMatchingsTarget public matchingsTarget;
     IMatchingsBids public matchingsBids;
     ICarstore public carstore;
+    using ArrayUint64LIB for uint64[];
 
     /// @notice Constructor to set the IMatchings contract address.
     /// @param _matchings The address of the IMatchings contract to test.
@@ -235,22 +237,6 @@ contract MatchingsAssertion is
         );
     }
 
-    /// @notice  Function for parse cars from indexes.
-    /// @param _starts The starts of cars to publish.
-    /// @param _ends The ends of cars to publish.
-    /// @param _expectCars The expected cars of the parsed.
-    function parseCarsAssertion(
-        uint64[] memory _starts,
-        uint64[] memory _ends,
-        uint64[] memory _expectCars
-    ) public {
-        uint64[] memory cars = matchingsTarget.parseCars(_starts, _ends);
-        assertEq(cars.length, _expectCars.length);
-        for (uint64 i = 0; i < cars.length; i++) {
-            assertEq(cars[i], _expectCars[i]);
-        }
-    }
-
     /// @notice Internal function to publish matching statistics assertion.
     /// @dev This function is responsible for publishing statistics assertions related to a matching.
     /// @param caller Address of the caller initiating the publication.
@@ -311,10 +297,7 @@ contract MatchingsAssertion is
         uint64[] memory _carsEnds,
         bool complete
     ) public {
-        uint64[] memory _cars = matchingsTarget.parseCars(
-            _carsStarts,
-            _carsEnds
-        );
+        uint64[] memory _cars = _carsStarts.mergeSequentialArray(_carsEnds);
         uint64 _size = carstore.getCarsSize(_cars);
 
         (

@@ -27,7 +27,7 @@ import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 
 /// library
 import {MatchingTargetLIB} from "src/v0.8/module/matching/library/MatchingTargetLIB.sol";
-import {ArrayAddressLIB} from "src/v0.8/shared/utils/array/ArrayLIB.sol";
+import {ArrayAddressLIB, ArrayUint64LIB} from "src/v0.8/shared/utils/array/ArrayLIB.sol";
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
@@ -49,6 +49,7 @@ contract MatchingsTarget is
     /// @notice  Use libraries for different matching functionalities
     using MatchingTargetLIB for MatchingType.MatchingTarget;
     using ArrayAddressLIB for address[];
+    using ArrayUint64LIB for uint64[];
 
     /// @notice  Declare private variables
     mapping(uint64 => MatchingType.MatchingTarget) private targets;
@@ -132,31 +133,6 @@ contract MatchingsTarget is
         target.replicaIndex = _replicaIndex;
     }
 
-    /// @notice  Function for parse cars from indexes.
-    /// @param _starts The starts of cars to publish.
-    /// @param _ends The ends of cars to publish.
-    /// @return The cars of the indexes.
-    function parseCars(
-        uint64[] memory _starts,
-        uint64[] memory _ends
-    ) public pure returns (uint64[] memory) {
-        require(_starts.length == _ends.length, "start and end not match");
-        uint64 total;
-        for (uint64 i = 0; i < _starts.length; i++) {
-            require(_starts[i] <= _ends[i], "start must be greater than end");
-            total += _ends[i] - _starts[i] + 1;
-        }
-        uint64 cnt;
-        uint64[] memory _cars = new uint64[](total);
-        for (uint64 i = 0; i < _starts.length; i++) {
-            for (uint64 j = _starts[i]; j <= _ends[i]; j++) {
-                _cars[cnt] = j;
-                cnt++;
-            }
-        }
-        return _cars;
-    }
-
     /// @notice  Internal function for after publishing a matching
     /// @param _matchingId The matching id to publish cars.
     /// @param _target The matching target object contract.
@@ -190,7 +166,7 @@ contract MatchingsTarget is
         onlyMatchingInitiator(roles.matchings(), _matchingId)
     {
         MatchingType.MatchingTarget storage target = targets[_matchingId];
-        uint64[] memory _cars = parseCars(_carsStarts, _carsEnds);
+        uint64[] memory _cars = _carsStarts.mergeSequentialArray(_carsEnds);
         uint64 _size;
         try roles.carstore().getCarsSize(_cars) returns (uint64 carSize) {
             _size = carSize;
