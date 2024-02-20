@@ -46,4 +46,37 @@ library StatisticsType {
         uint64[] storageProviders; // Array of storage providers
         mapping(uint64 => uint256) storageProviderInfos; // Mapping of sizes associated with storage providers (storageProviderId => size)
     }
+
+    /// @title Enum defining types of business finance statistics.
+    enum BusinessFinanceStatisticsType {
+        // Dataset TVL
+        StorageClientDatacapCollateralTVL,
+        StorageClientDataTradingFeeTVL,
+        StorageClientChallengeCommissionTVL,
+        DatasetPreparerProofAuditCollateralTVL,
+        DatasetAuditorChallengeAuditCollateralTVL,
+        DatasetAuditorDisputeAuditCollateralTVL,
+        // Dataset Penalty
+        DatasetPrepareProofDisputePenalty,
+        DatasetAuditorChallengeDisputePenalty,
+        DatasetAuditorFailureDisputePenalty,
+        // Dataset Payment
+        StorageClientPaidChallengeCommission,
+        // Matching TVL
+        StorageProviderBidAmountTVL,
+        // Matching Matched Amount
+        MatchedAmount,
+        // Storages TVL
+        StorageProviderDatacapChunkLandTVL,
+        // Storage Data Trading Fee
+        StorageProviderPaidDataTradingFee,
+        StorageClientPaidDataTradingFee
+    }
+
+    /// @title Structure representing member finance statistics.
+    struct FinanceStatistics {
+        uint256 total; // Total amount
+        uint256 escrow; // Amount in escrow
+        uint256 locked; // Amount locked
+    }
 }
