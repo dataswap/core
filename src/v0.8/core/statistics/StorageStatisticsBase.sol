@@ -30,7 +30,7 @@ import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {RolesModifiers} from "src/v0.8/shared/modifiers/RolesModifiers.sol";
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 
-abstract contract StorageStatisticsBase is
+contract StorageStatisticsBase is
     Initializable,
     StatisticsBase,
     IStorageStatistics,

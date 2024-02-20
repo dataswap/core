@@ -24,9 +24,8 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {IStatistics} from "src/v0.8/interfaces/core/statistics/IStatistics.sol";
 import {StatisticsType} from "src/v0.8/types/StatisticsType.sol";
 import {StatisticsLIB} from "src/v0.8/core/statistics/library/StatisticsLIB.sol";
-import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 
-abstract contract StatisticsBase is Initializable, IStatistics {
+contract StatisticsBase is Initializable, IStatistics {
     using StatisticsLIB for StatisticsType.Statistics;
     StatisticsType.Statistics internal count;
     StatisticsType.Statistics internal size;
