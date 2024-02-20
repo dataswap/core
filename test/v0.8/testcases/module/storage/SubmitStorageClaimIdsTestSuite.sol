@@ -55,7 +55,7 @@ contract SubmitStorageClaimIdsTestCaseWithSuccess is StoragesTestBase {
     }
 
     function action(uint64 _matchingId) internal virtual override {
-        (, uint64[] memory cars, , , , , ) = storages
+        (, uint64[] memory cars, , , , ) = storages
             .roles()
             .matchingsTarget()
             .getMatchingTarget(_matchingId);

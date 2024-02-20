@@ -112,15 +112,16 @@ contract Datasets is
         _addCountSuccess(1);
         _addSizeSuccess(mappingSize + sourceSize);
 
-        // roles.finance().claimEscrow(/// TODO: https://github.com/dataswap/core/issues/245
-        //     _datasetId,
-        //     0,
-        //     FinanceType.FIL,
-        //     FinanceType.Type.EscrowChallengeCommission
-        // );
-
         dataset._emitDatasetEvent(DatasetType.Event.Approved);
         emit DatasetsEvents.DatasetApproved(_datasetId);
+
+        // Payment challenge commission
+        roles.finance().claimEscrow(
+            _datasetId,
+            0,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowChallengeCommission
+        );
     }
 
     ///@notice Reject a dataset.

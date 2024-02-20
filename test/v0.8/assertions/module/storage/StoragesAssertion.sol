@@ -18,6 +18,7 @@ pragma solidity ^0.8.21;
 
 import {DSTest} from "ds-test/test.sol";
 import {Test} from "forge-std/Test.sol";
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
 
@@ -120,7 +121,7 @@ contract StoragesAssertion is
         uint64[] memory _cids,
         uint64[] memory _claimIds
     ) internal {
-        (uint64 datasetId, , , , , uint16 replicaIndex, ) = storages
+        (uint64 datasetId, , , , , uint16 replicaIndex) = storages
             .roles()
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
@@ -167,7 +168,7 @@ contract StoragesAssertion is
         uint64[] memory _cids,
         uint64[] memory _claimIds
     ) internal {
-        (uint64 datasetId, , , , , , ) = storages
+        (uint64 datasetId, , , , , ) = storages
             .roles()
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
@@ -353,6 +354,12 @@ contract StoragesAssertion is
             uint256 unallocatedDatacap,
             uint64[] memory storageProviders
         ) = storages.getMatchingStorageOverview(_matchingId);
+
+        // Add escrow
+        _addEscrowDatacapChunkLandCollateral(
+            storages.roles().matchingsBids().getMatchingWinner(_matchingId),
+            _matchingId
+        );
         // Perform the action.
         vm.prank(caller);
         uint64 addDatacap = storages.requestAllocateDatacap(_matchingId);
@@ -369,6 +376,48 @@ contract StoragesAssertion is
         return addDatacap;
     }
 
+    /// @dev Internal function to add escrow for DatacapChunkLandCollateral.
+    /// @param _caller The address initiating the escrow request.
+    /// @param _matchingId The unique identifier of the matching process.
+    function _addEscrowDatacapChunkLandCollateral(
+        address _caller,
+        uint64 _matchingId
+    ) internal {
+        address[] memory sender = new address[](1);
+        sender[0] = address(this);
+        vm.deal(sender[0], 200 ether);
+        (uint64 datasetId, , , , , ) = storages
+            .roles()
+            .matchingsTarget()
+            .getMatchingTarget(_matchingId);
+        uint256 amount = storages.roles().finance().getEscrowRequirement(
+            datasetId,
+            _matchingId,
+            _caller,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowDatacapChunkLandCollateral
+        );
+        storages.roles().finance().deposit{value: 200 ether}(
+            datasetId,
+            _matchingId,
+            _caller,
+            FinanceType.FIL
+        );
+        address admin = storages.roles().getRoleMember(bytes32(0x00), 0);
+        vm.startPrank(admin);
+        storages.roles().grantDataswapContractRole(sender);
+        vm.stopPrank();
+
+        storages.roles().finance().__escrow(
+            datasetId,
+            _matchingId,
+            _caller,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowDatacapChunkLandCollateral,
+            amount
+        );
+    }
+
     /// @notice Requests an overview of allocated datacap replica statistics for a specific matching process.
     /// @dev This internal function is used to request and retrieve an overview of allocated datacap replica statistics.
     /// @param caller The address initiating the request.
@@ -378,7 +427,7 @@ contract StoragesAssertion is
         address caller,
         uint64 _matchingId
     ) internal returns (uint64) {
-        (uint64 datasetId, , , , , uint16 replicaIndex, ) = storages
+        (uint64 datasetId, , , , , uint16 replicaIndex) = storages
             .roles()
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
@@ -417,7 +466,7 @@ contract StoragesAssertion is
         address caller,
         uint64 _matchingId
     ) internal returns (uint64) {
-        (uint64 datasetId, , , , , , ) = storages
+        (uint64 datasetId, , , , , ) = storages
             .roles()
             .matchingsTarget()
             .getMatchingTarget(_matchingId);

@@ -55,7 +55,7 @@ contract SubmitStorageClaimIdTestCaseWithSuccess is StoragesTestBase {
     }
 
     function action(uint64 _matchingId) internal virtual override {
-        (, uint64[] memory cars, , , , , ) = storages
+        (, uint64[] memory cars, , , , ) = storages
             .roles()
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
@@ -105,7 +105,7 @@ contract SubmitStorageClaimIdTestCaseWithInvalidAddress is StoragesTestBase {
     }
 
     function action(uint64 _matchingId) internal virtual override {
-        (, uint64[] memory cars, , , , , ) = storages
+        (, uint64[] memory cars, , , , ) = storages
             .roles()
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
@@ -199,7 +199,7 @@ contract SubmitStorageClaimIdTestCaseWithDuplicateCid is StoragesTestBase {
     }
 
     function action(uint64 _matchingId) internal virtual override {
-        (, uint64[] memory cars, , , , , ) = storages
+        (, uint64[] memory cars, , , , ) = storages
             .roles()
             .matchingsTarget()
             .getMatchingTarget(_matchingId);

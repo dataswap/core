@@ -270,7 +270,7 @@ contract MatchingsAssertion is
         );
         MatchingType.State state = matchings.getMatchingState(_matchingId);
         if (state == MatchingType.State.InProgress) {
-            (, , uint64 _size, , , , ) = matchingsTarget.getMatchingTarget(
+            (, , uint64 _size, , , ) = matchingsTarget.getMatchingTarget(
                 _matchingId
             );
             getSizeOverviewAssersion(
@@ -306,7 +306,6 @@ contract MatchingsAssertion is
             ,
             DatasetType.DataType _dataType,
             uint64 _associatedMappingFilesMatchingID,
-            ,
 
         ) = matchingsTarget.getMatchingTarget(_matchingId);
 
@@ -411,7 +410,7 @@ contract MatchingsAssertion is
         vm.prank(caller);
         matchingsBids.cancelMatching(_matchingId);
 
-        (, , uint64 _size, , , , ) = matchingsTarget.getMatchingTarget(
+        (, , uint64 _size, , , ) = matchingsTarget.getMatchingTarget(
             _matchingId
         );
         getSizeOverviewAssersion(
@@ -457,7 +456,7 @@ contract MatchingsAssertion is
         // Perform the action
         vm.prank(caller);
         matchingsBids.closeMatching(_matchingId);
-        (, , uint64 _size, , , , ) = matchingsTarget.getMatchingTarget(
+        (, , uint64 _size, , , ) = matchingsTarget.getMatchingTarget(
             _matchingId
         );
         // After the action, check the state and winner of the matching.
@@ -556,7 +555,7 @@ contract MatchingsAssertion is
         uint64 _matchingId,
         uint64[] memory _expectCars
     ) public {
-        (, uint64[] memory cars, , , , , ) = matchingsTarget.getMatchingTarget(
+        (, uint64[] memory cars, , , , ) = matchingsTarget.getMatchingTarget(
             _matchingId
         );
         assertEq(cars.length, _expectCars.length);
@@ -572,7 +571,7 @@ contract MatchingsAssertion is
         uint64 _matchingId,
         uint16 _expectIndex
     ) public {
-        (, , , , , uint16 replicaIndex, ) = matchingsTarget.getMatchingTarget(
+        (, , , , , uint16 replicaIndex) = matchingsTarget.getMatchingTarget(
             _matchingId
         );
 
@@ -586,7 +585,7 @@ contract MatchingsAssertion is
         uint64 _matchingId,
         uint64 _expectSize
     ) public {
-        (, , uint64 matchingSize, , , , ) = matchingsTarget.getMatchingTarget(
+        (, , uint64 matchingSize, , , ) = matchingsTarget.getMatchingTarget(
             _matchingId
         );
         assertEq(matchingSize, _expectSize);
@@ -636,7 +635,6 @@ contract MatchingsAssertion is
             uint64 size,
             DatasetType.DataType dataType,
             uint64 associatedMappingFilesMatchingID,
-            ,
 
         ) = matchingsTarget.getMatchingTarget(_matchingId);
         assertEq(datasetID, _expectDatasetID);

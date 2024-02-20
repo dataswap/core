@@ -29,7 +29,7 @@ library FinanceType {
     enum Type {
         //1,Commission
         EscrowChallengeCommission,
-        EscrowDataTradingCommission,
+        EscrowDataTradingCommission, // Platform fee
         //2,TradingFee
         EscrowDataTradingFee,
         //3,Collateral

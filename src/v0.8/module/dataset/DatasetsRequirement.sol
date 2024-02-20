@@ -95,7 +95,7 @@ contract DatasetsRequirement is
         uint16[] memory _regions,
         uint16[] memory _countrys,
         uint32[][] memory _citys,
-        uint256 /*_amount*/
+        uint256 _amount
     )
         external
         payable
@@ -144,7 +144,7 @@ contract DatasetsRequirement is
             _citys
         );
 
-        _processEscrow(_datasetId);
+        _processFinance(_datasetId, msg.sender, msg.value, _amount);
 
         roles.datasets().__reportDatasetReplicaRequirementSubmitted(_datasetId);
         emit DatasetsEvents.DatasetReplicaRequirementSubmitted(
@@ -187,23 +187,48 @@ contract DatasetsRequirement is
         return datasetReplicasRequirement.getDatasetReplicaRequirement(_index);
     }
 
-    ///@notice Process escrow
+    ///@notice Process finance
+    /// 0. Add deposit
     /// 1. Add EscrowDatacapCollateral escrow
     /// 2. Add EscrowDataTradingFee escrow
-    function _processEscrow(
-        uint64 _datasetId
+    function _processFinance(
+        uint64 _datasetId,
+        address _owner,
+        uint256 _deposit,
+        uint256 _amount
     ) internal onlyNotZero(_datasetId) {
-        // roles.finance().escrow(/// TODO: https://github.com/dataswap/core/issues/245
-        //     _datasetId,
-        //     0,
-        //     FinanceType.FIL,
-        //     FinanceType.Type.EscrowDatacapCollateral
-        // );
-        // roles.finance().escrow(
-        //     _datasetId,
-        //     0,
-        //     FinanceType.FIL,
-        //     FinanceType.Type.EscrowDataTradingFee
-        // );
+        if (_deposit > 0) {
+            roles.finance().deposit{value: _deposit}(
+                _datasetId,
+                0,
+                _owner,
+                FinanceType.FIL
+            );
+        }
+
+        uint256 amount = roles.finance().getEscrowRequirement(
+            _datasetId,
+            0,
+            _owner,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowDatacapCollateral
+        );
+        roles.finance().__escrow(
+            _datasetId,
+            0,
+            _owner,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowDatacapCollateral,
+            amount
+        );
+
+        roles.finance().__escrow(
+            _datasetId,
+            0,
+            _owner,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowDataTradingFee,
+            _amount
+        );
     }
 }

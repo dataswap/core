@@ -235,7 +235,8 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         uint16 _duplicateCitys
     ) public {
         vm.startPrank(caller);
-        datasetsRequirement.submitDatasetReplicaRequirements(
+        vm.deal(caller, 1000 ether);
+        datasetsRequirement.submitDatasetReplicaRequirements{value: 100 ether}(
             _datasetId,
             generator.generateGeolocationActors(
                 _replicasCount,
@@ -383,11 +384,11 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             _mappingFilesLeavesCount,
             true
         );
-        //vm.deal(address(9), 100 ether);
-        //vm.prank(address(9));
-        //datasetsProof.completeEscrow{value: 100 ether}(datasetId);
+        vm.deal(address(9), 100 ether);
+        vm.prank(address(9));
+        datasetsProof.completeEscrow(datasetId);
 
-        //datasetsProof.submitDatasetProofCompleted(datasetId);
+        datasetsProof.submitDatasetProofCompleted(datasetId);
         vm.startPrank(admin);
         datasets.roles().grantRole(RolesType.DATASET_AUDITOR, address(299));
         vm.stopPrank();

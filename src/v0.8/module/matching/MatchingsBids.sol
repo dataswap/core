@@ -105,7 +105,7 @@ contract MatchingsBids is
             _amount
         );
 
-        (uint64 datasetId, , , , , uint16 replicaIndex, ) = roles
+        (uint64 datasetId, , , , , uint16 replicaIndex) = roles
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
 
@@ -119,12 +119,7 @@ contract MatchingsBids is
 
         roles.grantDataswapRole(RolesType.STORAGE_PROVIDER, msg.sender);
         // Add bidding escrow
-        // roles.finance().escrow(/// TODO: https://github.com/dataswap/core/issues/245
-        //     datasetId,
-        //     _matchingId,
-        //     FinanceType.FIL,
-        //     FinanceType.Type.EscrowDataTradingFee
-        // );
+        _processFinance(datasetId, _matchingId, msg.sender, msg.value, _amount);
 
         emit MatchingsEvents.MatchingBidPlaced(
             _matchingId,
@@ -138,6 +133,45 @@ contract MatchingsBids is
         ) {
             closeMatching(_matchingId);
         }
+    }
+
+    ///@notice Process finance
+    /// 0. Add deposit
+    /// 1. Add EscrowDataTradingFee escrow
+    function _processFinance(
+        uint64 _datasetId,
+        uint64 _matchingId,
+        address _owner,
+        uint256 _deposit,
+        uint256 _amount
+    ) internal {
+        if (_deposit > 0) {
+            roles.finance().deposit{value: _deposit}(
+                _datasetId,
+                _matchingId,
+                _owner,
+                FinanceType.FIL
+            );
+        }
+
+        (, , uint256 current, ) = roles.finance().getAccountEscrow(
+            _datasetId,
+            _matchingId,
+            _owner,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowDataTradingFee
+        );
+
+        _amount = current > _amount ? 0 : _amount - current; // Append escrow amount
+
+        roles.finance().__escrow(
+            _datasetId,
+            _matchingId,
+            _owner,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowDataTradingFee,
+            _amount
+        );
     }
 
     /// @notice Internal Function for bidding on a matching
@@ -175,7 +209,7 @@ contract MatchingsBids is
     function _afterMatchingFailed(
         uint64 _matchingId
     ) internal returns (uint64) {
-        (, uint64[] memory cars, uint64 _size, , , , ) = roles
+        (, uint64[] memory cars, uint64 _size, , , ) = roles
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
         for (uint64 i; i < cars.length; i++) {
@@ -205,8 +239,7 @@ contract MatchingsBids is
             uint64 _size,
             ,
             ,
-            uint16 _replicaIndex,
-
+            uint16 _replicaIndex
         ) = roles.matchingsTarget().getMatchingTarget(_matchingId);
         for (uint64 i; i < cars.length; i++) {
             roles.carstore().__reportCarReplicaMatchingState(
@@ -318,13 +351,20 @@ contract MatchingsBids is
                 _size,
                 winner
             );
-            // Refund bidding escrow for no winner
-            // roles.finance().claimEscrow(/// TODO: https://github.com/dataswap/core/issues/245
-            //     _datasetId,
-            //     _matchingId,
-            //     FinanceType.FIL,
-            //     FinanceType.Type.EscrowDataTradingFee
-            // );
+            // Refund bidding escrow for not winners
+            roles.finance().claimEscrow(
+                _datasetId,
+                _matchingId,
+                FinanceType.FIL,
+                FinanceType.Type.EscrowDataTradingFee
+            );
+            // Transfer parent account escrow to sub-account escrow
+            roles.finance().__claimSubAccountEscrow(
+                _datasetId,
+                _matchingId,
+                FinanceType.FIL,
+                FinanceType.Type.EscrowDataTradingFee
+            );
         } else {
             uint64 _size = _afterMatchingFailed(_matchingId);
             roles.matchings().__reportMatchingNoWinner(_matchingId, _size);

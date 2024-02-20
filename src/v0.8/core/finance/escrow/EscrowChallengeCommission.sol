@@ -29,19 +29,19 @@ contract EscrowChallengeCommission is EscrowBase {
     /// @notice Get dataset EscrowChallengeCommission requirement.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
-    /// @param _owner An array containing the addresses of the dataset and matching process owners.
+    /// @param _payer An array containing the addresses of the dataset and matching process owners.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return amount The requirement amount.
     function getRequirement(
         uint64 _datasetId,
         uint64 _matchingId,
-        address _owner,
+        address _payer,
         address _token
     ) public view override returns (uint256 amount) {
         (, , uint256 current, ) = roles.finance().getAccountEscrow(
             _datasetId,
             _matchingId,
-            _owner,
+            _payer,
             _token,
             FinanceType.Type.EscrowChallengeCommission
         );
@@ -57,7 +57,7 @@ contract EscrowChallengeCommission is EscrowBase {
     /// @dev Internal function to get owners associated with a dataset and matching process.
     /// @param _datasetId The ID of the dataset.
     /// @return owners An array containing the addresses of the dataset and matching process owners.
-    function _getOwners(
+    function _getPayers(
         uint64 _datasetId,
         uint64 /*_matchingId*/
     ) internal view override returns (address[] memory owners) {
@@ -80,19 +80,19 @@ contract EscrowChallengeCommission is EscrowBase {
     /// @dev Internal function to get refund amount.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
-    /// @param _owner An array containing the addresses of the dataset and matching process owners.
+    /// @param _payer An array containing the addresses of the dataset and matching process owners.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return amount The refund amount.
     function _getRefundAmount(
         uint64 _datasetId,
         uint64 _matchingId,
-        address _owner,
+        address _payer,
         address _token
     ) internal view override returns (uint256 amount) {
-        (, , , amount) = roles.finance().getAccountEscrow(
+        (, , amount, ) = roles.finance().getAccountEscrow(
             _datasetId,
             _matchingId,
-            _owner,
+            _payer,
             _token,
             FinanceType.Type.EscrowChallengeCommission
         );
@@ -101,19 +101,19 @@ contract EscrowChallengeCommission is EscrowBase {
     /// @dev Internal function to get payment amount.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
-    /// @param _owner An array containing the addresses of the dataset and matching process owners.
+    /// @param _payer An array containing the addresses of the dataset and matching process owners.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return amount The payment amount.
     function _getPaymentAmount(
         uint64 _datasetId,
         uint64 _matchingId,
-        address _owner,
+        address _payer,
         address _token
     ) internal view override returns (uint256 amount) {
         (, , , uint256 totalPayment) = roles.finance().getAccountEscrow(
             _datasetId,
             _matchingId,
-            _owner,
+            _payer,
             _token,
             FinanceType.Type.EscrowChallengeCommission
         );

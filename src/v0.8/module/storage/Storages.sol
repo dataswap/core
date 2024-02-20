@@ -145,19 +145,20 @@ contract Storages is
             );
         }
 
-        (uint64 datasetId, , , , , uint16 replicaIndex, ) = roles
+        (uint64 datasetId, , , , , uint16 replicaIndex) = roles
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
 
         uint64 _size = roles.carstore().getCarsSize(_ids);
         _addStoraged(datasetId, replicaIndex, _matchingId, _provider, _size);
 
-        // roles.finance().claimEscrow(/// TODO: https://github.com/dataswap/core/issues/245
-        //     datasetId,
-        //     _matchingId,
-        //     FinanceType.FIL,
-        //     FinanceType.Type.EscrowDataTradingFee
-        // );
+        // Payment data trading fee
+        roles.finance().claimEscrow(
+            datasetId,
+            _matchingId,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowDataTradingFee
+        );
     }
 
     /// @dev Gets the list of done cars in the matchedstore.
@@ -218,7 +219,7 @@ contract Storages is
         uint64 _matchingId,
         uint64 _size // solhint-disable-next-line
     ) internal {
-        (uint64 datasetId, , , , , , ) = roles
+        (uint64 datasetId, , , , , ) = roles
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
         uint64 client = roles.datasets().getDatasetMetadataClient(datasetId);
@@ -239,7 +240,7 @@ contract Storages is
         view
         returns (uint64 datasetId, uint64 client, uint16 replicaIndex)
     {
-        (datasetId, , , , , replicaIndex, ) = roles
+        (datasetId, , , , , replicaIndex) = roles
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
         client = roles.datasets().getDatasetMetadataClient(datasetId);
@@ -273,16 +274,16 @@ contract Storages is
             _matchingId
         );
 
-        // require( /// TODO: https://github.com/dataswap/core/issues/245
-        //     roles.finance().isEscrowEnough(
-        //         datasetId,
-        //         _matchingId,
-        //         roles.matchingsBids().getMatchingWinner(_matchingId),
-        //         FinanceType.FIL,
-        //         FinanceType.Type.DatacapChunkLandCollateral
-        //     ),
-        //     "DatacapChunkLandCollateral escrow not enough"
-        // );
+        require(
+            roles.finance().isEscrowEnough(
+                datasetId,
+                _matchingId,
+                roles.matchingsBids().getMatchingWinner(_matchingId),
+                FinanceType.FIL,
+                FinanceType.Type.EscrowDatacapChunkLandCollateral
+            ),
+            "EscrowDatacapChunkLandCollateral escrow not enough"
+        );
 
         if (remainingUnallocatedDatacap <= maxAllocateCapacityPreTime) {
             _allocateDatacap(_matchingId, uint64(remainingUnallocatedDatacap));

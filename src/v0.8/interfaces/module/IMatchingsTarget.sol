@@ -60,7 +60,6 @@ interface IMatchingsTarget {
     /// @return dataType The data type of the matching.
     /// @return associatedMappingFilesMatchingID The ID of the associated mapping files matching.
     /// @return replicaIndex The index of dataset's replica
-    /// @return subsidy The subsidy amount
     function getMatchingTarget(
         uint64 _matchingId
     )
@@ -72,8 +71,7 @@ interface IMatchingsTarget {
             uint64 size,
             DatasetType.DataType dataType,
             uint64 associatedMappingFilesMatchingID,
-            uint16 replicaIndex,
-            uint256 subsidy
+            uint16 replicaIndex
         );
 
     /// @notice Check if a matching with the given matching ID contains a specific CID.

@@ -241,6 +241,26 @@ contract BaseTestSetup {
             RolesType.ContractType.EscrowDatacapChunkLandCollateral,
             address(base.escrowDatacapChunkLandCollateral)
         );
+        base.role.registerContract(
+            RolesType.ContractType.Finance,
+            address(base.finance)
+        );
+        base.role.registerContract(
+            RolesType.ContractType.EscrowDataTradingFee,
+            address(base.escrowDataTradingFee)
+        );
+        base.role.registerContract(
+            RolesType.ContractType.EscrowDatacapCollateral,
+            address(base.escrowDatacapCollateral)
+        );
+        base.role.registerContract(
+            RolesType.ContractType.EscrowChallengeCommission,
+            address(base.escrowChallengeCommission)
+        );
+        base.role.registerContract(
+            RolesType.ContractType.EscrowDatacapChunkLandCollateral,
+            address(base.escrowDatacapChunkLandCollateral)
+        );
     }
 
     /// @dev Get the governanceContractAddresss contract.

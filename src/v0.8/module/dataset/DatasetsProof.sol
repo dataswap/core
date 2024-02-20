@@ -225,29 +225,29 @@ contract DatasetsProof is
     /// 1. Is EscrowDatacapCollateral escrow enough?
     /// 2. Is EscrowChallengeCommission escrow enough?
     function _isEscrowEnough(
-        uint64 /*_datasetId*/,
-        address /*_owner*/ /*onlyNotZero(_datasetId)*/
-    ) internal pure returns (bool) {
-        // if ( /// TODO: https://github.com/dataswap/core/issues/245
-        //     roles.finance().isEscrowEnough(
-        //         _datasetId,
-        //         0,
-        //         _owner,
-        //         FinanceType.FIL,
-        //         FinanceType.Type.EscrowDatacapCollateral
-        //     ) &&
-        //     roles.finance().isEscrowEnough(
-        //         _datasetId,
-        //         0,
-        //         _owner,
-        //         FinanceType.FIL,
-        //         FinanceType.Type.EscrowChallengeCommission
-        //     )
-        // ) {
-        return true;
-        // } else {
-        //     return false;
-        // }
+        uint64 _datasetId,
+        address _owner
+    ) internal view onlyNotZero(_datasetId) returns (bool) {
+        if (
+            roles.finance().isEscrowEnough(
+                _datasetId,
+                0,
+                _owner,
+                FinanceType.FIL,
+                FinanceType.Type.EscrowDatacapCollateral
+            ) &&
+            roles.finance().isEscrowEnough(
+                _datasetId,
+                0,
+                _owner,
+                FinanceType.FIL,
+                FinanceType.Type.EscrowChallengeCommission
+            )
+        ) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     ///@notice Submit proof completed for a dataset
@@ -315,20 +315,36 @@ contract DatasetsProof is
         external
         onlyAddress(roles.datasets().getDatasetMetadataSubmitter(_datasetId))
     {
-        //TODO:Fix calling parameters when finance completes
-        roles.finance().escrow(
+        uint256 amount = roles.finance().getEscrowRequirement(
             _datasetId,
             0,
-            address(0),
+            msg.sender,
+            FinanceType.FIL,
             FinanceType.Type.EscrowDatacapCollateral
         );
-
-        //TODO:Fix calling parameters when finance completes
-        roles.finance().escrow(
+        roles.finance().__escrow(
             _datasetId,
             0,
-            address(0),
+            msg.sender,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowDatacapCollateral,
+            amount
+        );
+
+        amount = roles.finance().getEscrowRequirement(
+            _datasetId,
+            0,
+            msg.sender,
+            FinanceType.FIL,
             FinanceType.Type.EscrowChallengeCommission
+        );
+        roles.finance().__escrow(
+            _datasetId,
+            0,
+            msg.sender,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowChallengeCommission,
+            amount
         );
 
         roles.datasets().__reportDatasetEscrowCompleted(_datasetId);
