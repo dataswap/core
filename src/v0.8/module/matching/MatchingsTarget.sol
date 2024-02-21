@@ -166,10 +166,6 @@ contract MatchingsTarget is
     ) internal {
         _beforeBidding(_matchingId);
         roles.matchings().__reportPublishMatching(_matchingId, _target.size);
-
-        (, , uint64 datasize, , , , ) = getMatchingTarget(_matchingId);
-        // update dataset used size
-        roles.datasets().addDatasetUsedSize(_matchingId, datasize);
     }
 
     /// @notice  Function for publishing a matching

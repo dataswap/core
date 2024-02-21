@@ -73,7 +73,6 @@ library DatasetType {
 
     struct Dataset {
         Metadata metadata;
-        uint64 usedSizeInBytes; // Already matching size.
         State state; // Current state of the dataset.
     }
 

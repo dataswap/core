@@ -59,14 +59,6 @@ interface IDatasets is IStatistics {
         uint64 _auditBlockCount
     ) external;
 
-    /// @notice Update dataset usedSizeInBytes. only called by matching contract. TODO: Need to add permission control
-    function addDatasetUsedSize(uint64 _datasetId, uint64 _size) external;
-
-    /// @notice Get dataset usedSizeInBytes.
-    function getDatasetUsedSize(
-        uint64 _datasetId
-    ) external view returns (uint64);
-
     ///@notice Get dataset metadata
     function getDatasetMetadata(
         uint64 _datasetId

@@ -214,23 +214,6 @@ contract Datasets is
         //TODO:impl
     }
 
-    /// @notice Update dataset usedSizeInBytes. only called by matching contract. TODO: Need to add permission control
-    function addDatasetUsedSize(
-        uint64 _datasetId,
-        uint64 _size
-    ) public onlyNotZero(_datasetId) {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        dataset.usedSizeInBytes += _size;
-    }
-
-    /// @notice Get dataset usedSizeInBytes.
-    function getDatasetUsedSize(
-        uint64 _datasetId
-    ) public view onlyNotZero(_datasetId) returns (uint64) {
-        DatasetType.Dataset storage dataset = datasets[_datasetId];
-        return dataset.usedSizeInBytes;
-    }
-
     ///@notice Get dataset metadata
     function getDatasetMetadata(
         uint64 _datasetId
