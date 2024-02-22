@@ -70,13 +70,26 @@ library StatisticsType {
         StorageProviderDatacapChunkLandTVL,
         // Storage Data Trading Fee
         StorageProviderPaidDataTradingFee,
-        StorageClientPaidDataTradingFee
+        StorageClientPaidDataTradingFee,
+        None
     }
 
-    /// @title Structure representing member finance statistics.
+    /// @notice Struct representing the PaymentType details.
+    enum PaymentType {
+        Refund, // Retund funds
+        Burn, // Burn funds
+        Payment // payment funds
+    }
+
+    struct MemberFinanceStatistics {
+        uint64 datasetId;
+        uint64 matchingId;
+        address token;
+    }
+
     struct FinanceStatistics {
-        uint256 total; // Total amount
-        uint256 escrow; // Amount in escrow
-        uint256 locked; // Amount locked
+        // mapping(member => mapping(datasetId => mapping(matchingId => mapping(tokentype=>exist))));
+        mapping(uint64 => mapping(uint64 => mapping(address => bool))) records;
+        MemberFinanceStatistics[] statistics;
     }
 }

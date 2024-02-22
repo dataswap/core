@@ -38,6 +38,9 @@ import {FinanceEvents} from "src/v0.8/shared/events/FinanceEvents.sol";
 import {FinanceAccountLIB} from "src/v0.8/core/finance/library/FinanceAccountLIB.sol";
 import {FinanceModifiers} from "src/v0.8/shared/modifiers/FinanceModifiers.sol";
 
+import {BusinessFinanceStatistics} from "src/v0.8/core/statistics/BusinessFinanceStatistics.sol";
+import {MemberFinanceStatistics} from "src/v0.8/core/statistics/MemberFinanceStatistics.sol";
+
 /// @title Finance
 /// @dev Base finance contract, holds funds designated for a payee until they withdraw them.
 contract Finance is
@@ -45,20 +48,21 @@ contract Finance is
     UUPSUpgradeable,
     RolesModifiers,
     FinanceModifiers,
+    BusinessFinanceStatistics,
+    MemberFinanceStatistics,
     IFinance
 {
     using FinanceAccountLIB for FinanceType.Account;
     mapping(uint256 => mapping(uint256 => mapping(address => mapping(address => FinanceType.Account))))
         private financeAccount; // mapping(datasetId => mapping(matchingId => mapping(sc/sp/da/dp => mapping(tokentype=>Account))));
 
-    IRoles private roles;
-
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
     /// @notice Initialize function to initialize the contract and grant the default admin role to the deployer.
     function initialize(address _roles) public initializer {
-        roles = IRoles(_roles);
+        businessFinanceStatisticsInitialize();
+        memberFinanceStatisticsInitialize(_roles);
         __UUPSUpgradeable_init();
     }
 
@@ -154,6 +158,12 @@ contract Finance is
                 requirement
             );
 
+            _add(
+                _getEscrowStatisticsType(_matchingId, _type),
+                _token,
+                requirement
+            );
+
             emit FinanceEvents.Escrow(
                 _datasetId,
                 _matchingId,
@@ -189,6 +199,8 @@ contract Finance is
             _amount
         );
 
+        _add(_getEscrowStatisticsType(_matchingId, _type), _token, _amount);
+
         emit FinanceEvents.Escrow(
             _datasetId,
             _matchingId,
@@ -215,6 +227,14 @@ contract Finance is
         ).getPayeeInfo(_datasetId, _matchingId, _token);
 
         _paymentProcess(_datasetId, _matchingId, _token, _type, paymentsInfo);
+
+        _executeStatisticsMatchedAmount(
+            _datasetId,
+            _matchingId,
+            _type,
+            _token,
+            roles
+        );
     }
 
     /// @dev Handles an escrow, such as claiming or processing it.
@@ -234,7 +254,11 @@ contract Finance is
     {
         FinanceType.PaymentInfo[] memory paymentsInfo = _getEscrowContract(
             _type
-        ).getMoveSourceAccountPayeeInfo(_datasetId, _subAccountMatchingId, _token);
+        ).getMoveSourceAccountPayeeInfo(
+                _datasetId,
+                _subAccountMatchingId,
+                _token
+            );
         _moveEscrowFundsProcess(
             _datasetId,
             _subAccountMatchingId,
@@ -413,6 +437,29 @@ contract Finance is
                     financeAccount[_datasetId][_matchingId][
                         paymentsInfo[i].payees[j].payee
                     ][_token]._income(_type, paymentsInfo[i].payees[j].amount);
+
+                    _sub(
+                        _getPayerStatisticsType(
+                            _datasetId,
+                            _type,
+                            paymentsInfo[i].payer,
+                            roles
+                        ),
+                        _token,
+                        paymentsInfo[i].payees[j].amount
+                    );
+
+                    _add(
+                        _getPayeeStatisticsType(
+                            _datasetId,
+                            paymentsInfo[i].payer,
+                            paymentsInfo[i].payees[j].payee,
+                            _type,
+                            roles
+                        ),
+                        _token,
+                        paymentsInfo[i].payees[j].amount
+                    );
 
                     // Payee account is burnAddress, burn process.
                     if (

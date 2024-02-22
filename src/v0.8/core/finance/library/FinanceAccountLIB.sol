@@ -44,6 +44,7 @@ library FinanceAccountLIB {
     ) internal notExceedValidAmount(self, _amount) {
         self.statistics.withdrawn += _amount;
         self.total -= _amount;
+        //TODO: Implement the recording of incomes.
     }
 
     /// @dev Escrows funds in the account.

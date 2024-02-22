@@ -24,23 +24,8 @@ pragma solidity ^0.8.21;
 import {StatisticsType} from "src/v0.8/types/StatisticsType.sol";
 
 interface IBusinessFinanceStatistics {
-    /// @notice Adds funds of a specific type to the balance.
-    /// @param _type The type of finance statistics to add funds to.
-    /// @param _size The amount of funds to add.
-    function add(
-        StatisticsType.BusinessFinanceStatisticsType _type,
-        uint256 _size
-    ) external;
-
-    /// @notice Subtracts funds of a specific type from the balance.
-    /// @param _type The type of finance statistics to subtract funds from.
-    /// @param _size The amount of funds to subtract.
-    function sub(
-        StatisticsType.BusinessFinanceStatisticsType _type,
-        uint256 _size
-    ) external;
-
     /// @notice Retrieves an overview of dataset-related finance statistics.
+    /// @param _token The type of token used for the deposit (e.g., FIL, ERC-20).
     /// @return storageClientDatacapCollateralTVL The total value locked (TVL) of storage client datacap collateral.
     /// @return storageClientDataTradingFeeTVL The TVL of storage client data trading fees.
     /// @return storageClientChallengeCommissionTVL The TVL of storage client challenge commissions.
@@ -51,7 +36,9 @@ interface IBusinessFinanceStatistics {
     /// @return datasetAuditorChallengeDisputePenalty The penalty for dataset auditor challenge disputes.
     /// @return datasetAuditorFailureDisputePenalty The penalty for dataset auditor failure disputes.
     /// @return storageClientPaidChallengeCommission The amount of challenge commission paid by storage clients.
-    function datasetOverview()
+    function datasetOverview(
+        address _token
+    )
         external
         view
         returns (
@@ -68,18 +55,24 @@ interface IBusinessFinanceStatistics {
         );
 
     /// @notice Retrieves an overview of matching-related finance statistics.
+    /// @param _token The type of token used for the deposit (e.g., FIL, ERC-20).
     /// @return storageProviderBidAmountTVL The TVL of storage provider bid amounts.
     /// @return matchedAmount The total amount matched.
-    function matchingOverview()
+    function matchingOverview(
+        address _token
+    )
         external
         view
         returns (uint256 storageProviderBidAmountTVL, uint256 matchedAmount);
 
     /// @notice Retrieves an overview of storage-related finance statistics.
+    /// @param _token The type of token used for the deposit (e.g., FIL, ERC-20).
     /// @return storageProviderDatacapChunkLandTVL The TVL of storage provider datacap chunk land.
     /// @return storageProviderPaidDataTradingFee The amount of data trading fee paid by storage providers.
     /// @return storageClientPaidDataTradingFee The amount of data trading fee paid by storage clients.
-    function storageOverview()
+    function storageOverview(
+        address _token
+    )
         external
         view
         returns (
