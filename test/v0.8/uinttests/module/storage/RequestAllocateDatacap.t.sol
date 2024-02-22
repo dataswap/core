@@ -25,7 +25,7 @@ contract RequestAllocateDatacapTest is Test, DatacapTestSetup {
     function testRequestAllocateDatacapWithSuccess() public {
         setup();
         RequestAllocateTestCaseWithSuccess testCase = new RequestAllocateTestCaseWithSuccess(
-                storages,
+                storages(),
                 helpers,
                 assertion
             );
@@ -36,7 +36,7 @@ contract RequestAllocateDatacapTest is Test, DatacapTestSetup {
     function testRequestAllocateTestSuiteWithInvalidMatchingId() public {
         setup();
         RequestAllocateTestSuiteWithInvalidMatchingId testCase = new RequestAllocateTestSuiteWithInvalidMatchingId(
-                storages,
+                storages(),
                 helpers,
                 assertion
             );
@@ -47,7 +47,7 @@ contract RequestAllocateDatacapTest is Test, DatacapTestSetup {
     function testRequestAllocateTestSuiteWithInvalidCaller() public {
         setup();
         RequestAllocateTestSuiteWithInvalidCaller testCase = new RequestAllocateTestSuiteWithInvalidCaller(
-                storages,
+                storages(),
                 helpers,
                 assertion
             );
@@ -58,7 +58,7 @@ contract RequestAllocateDatacapTest is Test, DatacapTestSetup {
     function testRequestAllocateTestSuiteWithInvalidNextRequest() public {
         setup();
         RequestAllocateTestSuiteWithInvalidNextRequest testCase = new RequestAllocateTestSuiteWithInvalidNextRequest(
-                storages,
+                storages(),
                 helpers,
                 assertion
             );

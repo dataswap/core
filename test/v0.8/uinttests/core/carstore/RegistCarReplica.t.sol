@@ -29,7 +29,7 @@ contract RegistCarReplicaTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         RegistCarReplicaTestCaseWithSuccess testCase = new RegistCarReplicaTestCaseWithSuccess(
-                carstore,
+                carstore(),
                 assertion
             );
         // run testcase
@@ -44,7 +44,7 @@ contract RegistCarReplicaTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         RegistCarReplicaTestCaseWithInvalidId testCase = new RegistCarReplicaTestCaseWithInvalidId(
-                carstore,
+                carstore(),
                 assertion
             );
         // run testcase
@@ -59,7 +59,7 @@ contract RegistCarReplicaTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         RegistCarReplicaTestCaseWithCarNotExist testCase = new RegistCarReplicaTestCaseWithCarNotExist(
-                carstore,
+                carstore(),
                 assertion
             );
         // run testcase
@@ -74,7 +74,7 @@ contract RegistCarReplicaTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         RegistCarReplicaTestCaseWithReplicaAlreadyExists testCase = new RegistCarReplicaTestCaseWithReplicaAlreadyExists(
-                carstore,
+                carstore(),
                 assertion
             );
         // run testcase

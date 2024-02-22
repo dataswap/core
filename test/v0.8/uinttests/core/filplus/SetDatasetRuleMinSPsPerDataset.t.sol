@@ -27,10 +27,10 @@ contract SetDatasetRuleMinSPsPerDatasetTest is Test, FilplusTestSetup {
     ) public {
         setup();
         SetDatasetRuleMinSPsPerDatasetTestCaseWithSuccess testCase = new SetDatasetRuleMinSPsPerDatasetTestCaseWithSuccess(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }
@@ -41,10 +41,10 @@ contract SetDatasetRuleMinSPsPerDatasetTest is Test, FilplusTestSetup {
     ) public {
         setup();
         SetDatasetRuleMinSPsPerDatasetTestCaseWithInvalidGovernancer testCase = new SetDatasetRuleMinSPsPerDatasetTestCaseWithInvalidGovernancer(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }

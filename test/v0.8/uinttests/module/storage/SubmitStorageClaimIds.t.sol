@@ -25,12 +25,12 @@ contract SubmitStorageClaimIdsTest is Test, StorageTestSetup {
     function testSubmitStorageClaimIdsWithSuccess() public {
         setup();
         SubmitStorageClaimIdsTestCaseWithSuccess testCase = new SubmitStorageClaimIdsTestCaseWithSuccess(
-                carstore,
-                storages,
-                generator,
+                carstore(),
+                storages(),
+                generator(),
                 helpers,
                 assertion,
-                filecoin
+                filecoin()
             );
         testCase.run();
     }

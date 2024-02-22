@@ -32,11 +32,11 @@ contract SetCarReplicaFilecoinClaimIdTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         SetCarReplicaFilecoinClaimIdTestCaseWithSuccess testCase = new SetCarReplicaFilecoinClaimIdTestCaseWithSuccess(
-                carstore,
+                carstore(),
                 assertion
             );
         // set filecoin store is ok
-        carstore.roles().filecoin().setMockDealState(
+        carstore().roles().filecoin().setMockDealState(
             FilecoinType.DealState.Stored
         );
         // run testcase
@@ -53,11 +53,11 @@ contract SetCarReplicaFilecoinClaimIdTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         SetCarReplicaFilecoinClaimIdTestCaseWithSuccess testCase = new SetCarReplicaFilecoinClaimIdTestCaseWithSuccess(
-                carstore,
+                carstore(),
                 assertion
             );
         // set filecoin store is ok
-        carstore.roles().filecoin().setMockDealState(
+        carstore().roles().filecoin().setMockDealState(
             FilecoinType.DealState.StorageFailed
         );
         // run testcase
@@ -74,11 +74,11 @@ contract SetCarReplicaFilecoinClaimIdTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         SetCarReplicaFilecoinClaimIdTestCaseWithInvalidId testCase = new SetCarReplicaFilecoinClaimIdTestCaseWithInvalidId(
-                carstore,
+                carstore(),
                 assertion
             );
         // set filecoin store is ok
-        carstore.roles().filecoin().setMockDealState(
+        carstore().roles().filecoin().setMockDealState(
             FilecoinType.DealState.StorageFailed
         );
         // run testcase
@@ -95,11 +95,11 @@ contract SetCarReplicaFilecoinClaimIdTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         SetCarReplicaFilecoinClaimIdTestCaseWithReplicaNotExist testCase = new SetCarReplicaFilecoinClaimIdTestCaseWithReplicaNotExist(
-                carstore,
+                carstore(),
                 assertion
             );
         // set filecoin store is ok
-        carstore.roles().filecoin().setMockDealState(
+        carstore().roles().filecoin().setMockDealState(
             FilecoinType.DealState.StorageFailed
         );
         // run testcase
@@ -116,11 +116,11 @@ contract SetCarReplicaFilecoinClaimIdTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         SetCarReplicaFilecoinClaimIdTestCaseWithReplicaFilecoinClaimIdExists testCase = new SetCarReplicaFilecoinClaimIdTestCaseWithReplicaFilecoinClaimIdExists(
-                carstore,
+                carstore(),
                 assertion
             );
         // set filecoin store is ok
-        carstore.roles().filecoin().setMockDealState(
+        carstore().roles().filecoin().setMockDealState(
             FilecoinType.DealState.StorageFailed
         );
         // run testcase

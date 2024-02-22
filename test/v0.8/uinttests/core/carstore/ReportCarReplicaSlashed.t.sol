@@ -31,7 +31,7 @@ contract ReportCarReplicaSlashedTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         ReportCarReplicaSlashedTestCaseWithSuccess testCase = new ReportCarReplicaSlashedTestCaseWithSuccess(
-                carstore,
+                carstore(),
                 assertion
             );
         // run testcase
@@ -48,7 +48,7 @@ contract ReportCarReplicaSlashedTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         ReportCarReplicaSlashedTestCaseWithInvalidDealState testCase = new ReportCarReplicaSlashedTestCaseWithInvalidDealState(
-                carstore,
+                carstore(),
                 assertion
             );
         // run testcase
@@ -65,7 +65,7 @@ contract ReportCarReplicaSlashedTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         ReportCarReplicaSlashedTestCaseWithInvalidId testCase = new ReportCarReplicaSlashedTestCaseWithInvalidId(
-                carstore,
+                carstore(),
                 assertion
             );
         // run testcase

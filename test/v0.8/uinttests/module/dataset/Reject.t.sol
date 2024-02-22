@@ -25,10 +25,10 @@ contract RejectTest is Test, DatasetTestSetup {
     function testRejectWithSuccess() public {
         setup();
         RejectTestCaseWithSuccess testCase = new RejectTestCaseWithSuccess(
-            datasets,
-            datasetsRequirement,
-            datasetsProof,
-            datasetsChallenge,
+            datasets(),
+            datasetsRequirement(),
+            datasetsProof(),
+            datasetsChallenge(),
             helpers,
             assertion
         );
@@ -39,10 +39,10 @@ contract RejectTest is Test, DatasetTestSetup {
     function testRejectWithInvalidAddress() public {
         setup();
         RejectTestCaseWithInvalidAddress testCase = new RejectTestCaseWithInvalidAddress(
-                datasets,
-                datasetsRequirement,
-                datasetsProof,
-                datasetsChallenge,
+                datasets(),
+                datasetsRequirement(),
+                datasetsProof(),
+                datasetsChallenge(),
                 helpers,
                 assertion
             );
@@ -53,10 +53,10 @@ contract RejectTest is Test, DatasetTestSetup {
     function testRejectWithZeroID() public {
         setup();
         RejectTestCaseWithZeroID testCase = new RejectTestCaseWithZeroID(
-            datasets,
-            datasetsRequirement,
-            datasetsProof,
-            datasetsChallenge,
+            datasets(),
+            datasetsRequirement(),
+            datasetsProof(),
+            datasetsChallenge(),
             helpers,
             assertion
         );
@@ -67,10 +67,10 @@ contract RejectTest is Test, DatasetTestSetup {
     function testRejectWithInvalidState() public {
         setup();
         RejectTestCaseWithInvalidState testCase = new RejectTestCaseWithInvalidState(
-                datasets,
-                datasetsRequirement,
-                datasetsProof,
-                datasetsChallenge,
+                datasets(),
+                datasetsRequirement(),
+                datasetsProof(),
+                datasetsChallenge(),
                 helpers,
                 assertion
             );

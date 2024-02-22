@@ -32,7 +32,7 @@ contract ReportCarReplicaMatchingStateTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         ReportCarReplicaMatchingStateTestCaseWithSuccess testCase = new ReportCarReplicaMatchingStateTestCaseWithSuccess(
-                carstore,
+                carstore(),
                 assertion
             );
         // run testcase

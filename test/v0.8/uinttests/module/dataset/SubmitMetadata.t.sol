@@ -25,10 +25,10 @@ contract SubmitMetadataTest is Test, DatasetTestSetup {
     function testSubmitMetadataWithSuccess() public {
         setup();
         SubmitMetadataTestCaseWithSuccess testCase = new SubmitMetadataTestCaseWithSuccess(
-                datasets,
-                datasetsRequirement,
-                datasetsProof,
-                datasetsChallenge,
+                datasets(),
+                datasetsRequirement(),
+                datasetsProof(),
+                datasetsChallenge(),
                 helpers,
                 assertion
             );
@@ -39,10 +39,10 @@ contract SubmitMetadataTest is Test, DatasetTestSetup {
     function testSubmitMetadataWithDuplicate() public {
         setup();
         SubmitMetadataTestCaseWithDuplicate testCase = new SubmitMetadataTestCaseWithDuplicate(
-                datasets,
-                datasetsRequirement,
-                datasetsProof,
-                datasetsChallenge,
+                datasets(),
+                datasetsRequirement(),
+                datasetsProof(),
+                datasetsChallenge(),
                 helpers,
                 assertion
             );

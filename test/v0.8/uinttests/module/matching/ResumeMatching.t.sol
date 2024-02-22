@@ -26,9 +26,9 @@ contract ResumeMatchingTest is Test, MatchingTestSetup {
     function testResumeMatchingWithSuccess(uint64 _amount) public {
         setup();
         ResumeTestCaseWithSuccess testCase = new ResumeTestCaseWithSuccess(
-            matchings,
-            matchingsTarget,
-            matchingsBids,
+            matchings(),
+            matchingsTarget(),
+            matchingsBids(),
             helpers,
             assertion
         );
@@ -39,9 +39,9 @@ contract ResumeMatchingTest is Test, MatchingTestSetup {
     function testResumeMatchingWithInvalidState(uint64 _amount) public {
         setup();
         ResumeTestCaseWithInvalidState testCase = new ResumeTestCaseWithInvalidState(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );
@@ -52,9 +52,9 @@ contract ResumeMatchingTest is Test, MatchingTestSetup {
     function testResumeMatchingWithInvalidSender(uint64 _amount) public {
         setup();
         ResumeTestCaseWithInvalidSender testCase = new ResumeTestCaseWithInvalidSender(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );

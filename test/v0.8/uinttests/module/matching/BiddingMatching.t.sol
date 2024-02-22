@@ -26,9 +26,9 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
     function testBiddingMatchingWithSuccess(uint64 _amount) public {
         setup();
         BiddingTestCaseWithSuccess testCase = new BiddingTestCaseWithSuccess(
-            matchings,
-            matchingsTarget,
-            matchingsBids,
+            matchings(),
+            matchingsTarget(),
+            matchingsBids(),
             helpers,
             assertion
         );
@@ -39,9 +39,9 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
     function testBiddingMatchingWithInvalidAmount(uint64 _amount) public {
         setup();
         BiddingTestCaseWithInvlalidAmount testCase = new BiddingTestCaseWithInvlalidAmount(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );
@@ -49,9 +49,9 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
 
         setup();
         testCase = new BiddingTestCaseWithInvlalidAmount(
-            matchings,
-            matchingsTarget,
-            matchingsBids,
+            matchings(),
+            matchingsTarget(),
+            matchingsBids(),
             helpers,
             assertion
         );
@@ -62,9 +62,9 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
     function testBiddingMatchingWithDuplicateBid(uint64 _amount) public {
         setup();
         BiddingTestCaseWithInvlalidDuplicateBid testCase = new BiddingTestCaseWithInvlalidDuplicateBid(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );
@@ -75,9 +75,9 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
     function testBiddingMatchingWithInvalidState(uint64 _amount) public {
         setup();
         BiddingTestCaseWithInvlalidState testCase = new BiddingTestCaseWithInvlalidState(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );
@@ -88,9 +88,9 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
     function testBiddingMatchingWithNotStart(uint64 _amount) public {
         setup();
         BiddingTestCaseWithNotStart testCase = new BiddingTestCaseWithNotStart(
-            matchings,
-            matchingsTarget,
-            matchingsBids,
+            matchings(),
+            matchingsTarget(),
+            matchingsBids(),
             helpers,
             assertion
         );
@@ -101,9 +101,9 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
     function testBiddingMatchingWithBidIsEnd(uint64 _amount) public {
         setup();
         BiddingTestCaseWithBidIsEnd testCase = new BiddingTestCaseWithBidIsEnd(
-            matchings,
-            matchingsTarget,
-            matchingsBids,
+            matchings(),
+            matchingsTarget(),
+            matchingsBids(),
             helpers,
             assertion
         );
@@ -114,9 +114,9 @@ contract BiddingMatchingTest is Test, MatchingTestSetup {
     function testBiddingWithInvalidStorageProvider(uint64 _amount) public {
         setup();
         BiddingTestCaseWithInvalidStorageProvider testCase = new BiddingTestCaseWithInvalidStorageProvider(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );

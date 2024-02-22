@@ -35,42 +35,42 @@ contract DatacapTestSetup is BaseTestSetup {
     function setup() internal {
         enhanceSetup();
         MatchingsAssertion machingsAssertion = new MatchingsAssertion(
-            matchings,
-            matchingsTarget,
-            matchingsBids,
-            carstore
+            matchings(),
+            matchingsTarget(),
+            matchingsBids(),
+            carstore()
         );
 
         DatasetsAssertion datasetAssertion = new DatasetsAssertion(
-            carstore,
-            datasets,
-            datasetsRequirement,
-            datasetsProof,
-            datasetsChallenge
+            carstore(),
+            datasets(),
+            datasetsRequirement(),
+            datasetsProof(),
+            datasetsChallenge()
         );
         DatasetsHelpers datasetsHelpers = new DatasetsHelpers(
-            datasets,
-            datasetsRequirement,
-            datasetsProof,
-            datasetsChallenge,
-            generator,
+            datasets(),
+            datasetsRequirement(),
+            datasetsProof(),
+            datasetsChallenge(),
+            generator(),
             datasetAssertion
         );
 
         MatchingsHelpers matchingsHelpers = new MatchingsHelpers(
-            carstore,
-            datasets,
-            datasetsProof,
-            matchings,
-            matchingsTarget,
-            matchingsBids,
+            carstore(),
+            datasets(),
+            datasetsProof(),
+            matchings(),
+            matchingsTarget(),
+            matchingsBids(),
             datasetsHelpers,
             machingsAssertion
         );
 
-        helpers = new DatacapsHelpers(storages, matchingsHelpers);
-        assertion = new StoragesAssertion(storages);
-        role.grantRole(RolesType.DEFAULT_ADMIN_ROLE, address(5));
+        helpers = new DatacapsHelpers(storages(), matchingsHelpers);
+        assertion = new StoragesAssertion(storages());
+        role().grantRole(RolesType.DEFAULT_ADMIN_ROLE, address(5));
         assertion.registDataswapDatacapAssertion(address(5), 555555);
     }
 }

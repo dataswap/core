@@ -29,7 +29,7 @@ contract AddCarsTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         AddCarsTestCaseWithSuccess testCase = new AddCarsTestCaseWithSuccess(
-            carstore,
+            carstore(),
             assertion
         );
         // make sure the cids is different
@@ -53,7 +53,7 @@ contract AddCarsTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         AddCarsTestCaseWithInvalidPrams testCase = new AddCarsTestCaseWithInvalidPrams(
-                carstore,
+                carstore(),
                 assertion
             );
         // run testcase

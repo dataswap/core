@@ -27,6 +27,6 @@ contract FilplusTestSetup is BaseTestSetup {
     /// @dev Initialize the filplus and assertion contracts.
     function setup() internal {
         enhanceSetup();
-        assertion = new FilplusAssertion(filplus);
+        assertion = new FilplusAssertion(filplus());
     }
 }

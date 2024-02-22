@@ -25,10 +25,10 @@ contract ChallengeProofsTest is Test, DatasetTestSetup {
     function testSubmitDatasetChallengeProofsWithSuccess() public {
         setup();
         SubmittChallengeProofsTestCaseWithSuccess testCase = new SubmittChallengeProofsTestCaseWithSuccess(
-                datasets,
-                datasetsRequirement,
-                datasetsProof,
-                datasetsChallenge,
+                datasets(),
+                datasetsRequirement(),
+                datasetsProof(),
+                datasetsChallenge(),
                 helpers,
                 assertion
             );
@@ -39,10 +39,10 @@ contract ChallengeProofsTest is Test, DatasetTestSetup {
     function testSubmitDatasetChallengeProofsWithFail() public {
         setup();
         SubmittChallengeProofsTestCaseWithFail testCase = new SubmittChallengeProofsTestCaseWithFail(
-                datasets,
-                datasetsRequirement,
-                datasetsProof,
-                datasetsChallenge,
+                datasets(),
+                datasetsRequirement(),
+                datasetsProof(),
+                datasetsChallenge(),
                 helpers,
                 assertion
             );

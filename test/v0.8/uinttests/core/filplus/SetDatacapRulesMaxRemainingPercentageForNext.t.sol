@@ -30,10 +30,10 @@ contract SetDatacapRulesMaxRemainingPercentageForNextTest is
     ) public {
         setup();
         SetDatacapRulesMaxRemainingPercentageForNextTestCaseWithSuccess testCase = new SetDatacapRulesMaxRemainingPercentageForNextTestCaseWithSuccess(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }
@@ -44,10 +44,10 @@ contract SetDatacapRulesMaxRemainingPercentageForNextTest is
     ) public {
         setup();
         SetDatacapRulesMaxRemainingPercentageForNextTestCaseWithInvalidGovernancer testCase = new SetDatacapRulesMaxRemainingPercentageForNextTestCaseWithInvalidGovernancer(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }

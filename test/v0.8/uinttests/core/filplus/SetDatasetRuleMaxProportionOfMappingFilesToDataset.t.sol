@@ -30,10 +30,10 @@ contract SetDatasetRuleMaxProportionOfMappingFilesToDatasetTest is
     ) public {
         setup();
         SetDatasetRuleMaxProportionOfMappingFilesToDatasetTestCaseWithSuccess testCase = new SetDatasetRuleMaxProportionOfMappingFilesToDatasetTestCaseWithSuccess(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }
@@ -44,10 +44,10 @@ contract SetDatasetRuleMaxProportionOfMappingFilesToDatasetTest is
     ) public {
         setup();
         SetDatasetRuleMaxProportionOfMappingFilesToDatasetTestCaseWithInvalidGovernancer testCase = new SetDatasetRuleMaxProportionOfMappingFilesToDatasetTestCaseWithInvalidGovernancer(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }

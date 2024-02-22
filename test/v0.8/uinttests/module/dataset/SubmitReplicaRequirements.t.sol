@@ -25,10 +25,10 @@ contract ReplicaRequirementsTest is Test, DatasetTestSetup {
     function testSubmitReplicaRequirementsWithSuccess() public {
         setup();
         SubmitReplicaRequirementsTestCaseWithSuccess testCase = new SubmitReplicaRequirementsTestCaseWithSuccess(
-                datasets,
-                datasetsRequirement,
-                datasetsProof,
-                datasetsChallenge,
+                datasets(),
+                datasetsRequirement(),
+                datasetsProof(),
+                datasetsChallenge(),
                 helpers,
                 assertion
             );
@@ -39,10 +39,10 @@ contract ReplicaRequirementsTest is Test, DatasetTestSetup {
     function testSubmitReplicaRequirementsWithInvalidReplicas() public {
         setup();
         SubmitReplicaRequirementsTestCaseWithInvalidReplicas testCase = new SubmitReplicaRequirementsTestCaseWithInvalidReplicas(
-                datasets,
-                datasetsRequirement,
-                datasetsProof,
-                datasetsChallenge,
+                datasets(),
+                datasetsRequirement(),
+                datasetsProof(),
+                datasetsChallenge(),
                 helpers,
                 assertion
             );
@@ -53,10 +53,10 @@ contract ReplicaRequirementsTest is Test, DatasetTestSetup {
     function testSubmitReplicaRequirementsWithDuplicateCitys() public {
         setup();
         SubmitReplicaRequirementsTestCaseWithDuplicateCitys testCase = new SubmitReplicaRequirementsTestCaseWithDuplicateCitys(
-                datasets,
-                datasetsRequirement,
-                datasetsProof,
-                datasetsChallenge,
+                datasets(),
+                datasetsRequirement(),
+                datasetsProof(),
+                datasetsChallenge(),
                 helpers,
                 assertion
             );

@@ -30,10 +30,10 @@ contract SetDatasetRuleMinTotalReplicasPerDatasetTest is
     ) public {
         setup();
         SetDatasetRuleMinTotalReplicasPerDatasetTestCaseWithSuccess testCase = new SetDatasetRuleMinTotalReplicasPerDatasetTestCaseWithSuccess(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }
@@ -44,10 +44,10 @@ contract SetDatasetRuleMinTotalReplicasPerDatasetTest is
     ) public {
         setup();
         SetDatasetRuleMinTotalReplicasPerDatasetTestCaseWithInvalidGovernancer testCase = new SetDatasetRuleMinTotalReplicasPerDatasetTestCaseWithInvalidGovernancer(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }

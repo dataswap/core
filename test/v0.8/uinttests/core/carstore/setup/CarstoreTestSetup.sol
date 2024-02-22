@@ -28,6 +28,6 @@ contract CarstoreTestSetup is BaseTestSetup {
     function setup() internal {
         enhanceSetup();
 
-        assertion = new CarstoreAssertion(carstore);
+        assertion = new CarstoreAssertion(carstore());
     }
 }
