@@ -24,24 +24,20 @@ pragma solidity ^0.8.21;
 import {StatisticsType} from "src/v0.8/types/StatisticsType.sol";
 
 interface IMemberFinanceStatistics {
-    /// @notice Adds funds to the total balance of an account.
-    function addAccountTotal(address _account, uint256 size) external;
+    /// @notice Retrieves all members registered in the system.
+    /// @return _members An array containing the addresses of all registered members.
+    function getAllAccounts() external view returns (address[] memory _members);
 
-    /// @notice Subtracts funds from the total balance of an account.
-    function subAccountTotal(address _account, uint256 size) external;
-
-    /// @notice Sets the escrow balance of an account.
-    function setAccountEscrow(address _account, uint256 size) external;
-
-    /// @notice Sets the locked balance of an account.
-    function setAccountLocked(address _account, uint256 size) external;
-
-    /// @notice Retrieves all accounts.
-    function getAllAccounts() external returns (address[] memory _accounts);
-
-    /// @notice Retrieves an overview of the finance statistics for a specific account.
+    /// @notice Retrieves the overview of an member's financial state.
+    /// @param _member The address of the member to retrieve the overview for.
+    /// @param _token The type of token used for the deposit (e.g., FIL, ERC-20).
+    /// @return total The total balance of the member.
+    /// @return available The available balance of the member.
+    /// @return escrow The escrow balance of the member.
+    /// @return locked The locked balance of the member.
     function getAccountOverview(
-        address _account
+        address _member,
+        address _token
     )
         external
         view

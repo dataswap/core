@@ -344,13 +344,6 @@ contract MatchingsBids is
             ) = _beforeMatchingCompleted(_matchingId);
             bids.winner = winner;
 
-            roles.matchings().__reportMatchingHasWinner(
-                _matchingId,
-                _datasetId,
-                _replicaIndex,
-                _size,
-                winner
-            );
             // Refund bidding escrow for not winners
             roles.finance().claimEscrow(
                 _datasetId,
@@ -358,6 +351,15 @@ contract MatchingsBids is
                 FinanceType.FIL,
                 FinanceType.Type.EscrowDataTradingFee
             );
+
+            roles.matchings().__reportMatchingHasWinner(
+                _matchingId,
+                _datasetId,
+                _replicaIndex,
+                _size,
+                winner
+            );
+
             // Transfer parent account escrow to sub-account escrow
             roles.finance().__claimSubAccountEscrow(
                 _datasetId,
