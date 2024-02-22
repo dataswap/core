@@ -96,6 +96,16 @@ interface IFilplus {
     /// @notice Set the challenge proofs submiter Count complies with filplus rules.
     function setChallengeProofsSubmiterCount(uint16 _newValue) external;
 
+    /// @notice Set the datacap collateral lock days when dataset approved complies with filplus rules.
+    function setDatacapdatasetApprovedLockDays(
+        uint64 _newValue
+    ) external;
+
+    /// @notice Set the datacap collateral lock max days complies with filplus rules.
+    function setDatacapCollateralMaxLockDays(
+        uint64 _newValue
+    ) external;
+
     /// @notice Set the challenge proofs price pre point complies with filplus rules.
     function setChallengeProofsPricePrePoint(uint256 _newValue) external;
 
@@ -123,6 +133,15 @@ interface IFilplus {
 
     /// @notice Returns the burn address
     function getBurnAddress() external view returns (address);
+
+    /// @notice Returns the block number per day
+    function getPerDayBlocknumber() external view returns (uint64);
+
+    /// @notice Returns the datacap collateral days when dataset approved
+    function getDatacapdatasetApprovedLockDays() external view returns (uint64);
+
+        /// @notice Returns the datacap collateral max lock days
+    function getDatacapCollateralMaxLockDays() external view returns (uint64);
 
     /// @notice Get the challenge proofs price pre point complies with filplus rules.
     function getChallengeProofsPricePrePoint()

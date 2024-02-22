@@ -106,11 +106,32 @@ contract EscrowDatacapCollateral is EscrowBase {
     /// @return refund A boolean indicating whether a refund is applicable.
     function _isRefund(
         uint64 _datasetId,
-        uint64 /*_matchingId*/
+        uint64 _matchingId
     ) internal view override returns (bool refund) {
         DatasetType.State state = roles.datasets().getDatasetState(_datasetId);
 
-        return state == DatasetType.State.Rejected ? true : false;
-        // TODO: Expiration refund.
+        (uint64 latestHeight, , , ) = roles.finance().getAccountEscrow(
+            _datasetId,
+            _matchingId,
+            roles.datasets().getDatasetMetadataSubmitter(_datasetId),
+            FinanceType.FIL,
+            FinanceType.Type.EscrowDatacapCollateral
+        );
+
+        if (state == DatasetType.State.Rejected) {
+            return true;
+        }
+
+        if (
+            (state == DatasetType.State.Approved &&
+                block.number >
+                (latestHeight + roles.filplus().getDatacapdatasetApprovedLockDays())) ||
+            block.number >
+            (latestHeight + roles.filplus().getDatacapCollateralMaxLockDays())
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }

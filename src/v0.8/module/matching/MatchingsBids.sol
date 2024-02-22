@@ -360,7 +360,7 @@ contract MatchingsBids is
             );
 
             // Transfer parent account escrow to sub-account escrow
-            roles.finance().__claimSubAccountEscrow(
+            roles.finance().__claimMoveEscrow(
                 _datasetId,
                 _matchingId,
                 FinanceType.FIL,

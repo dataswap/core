@@ -92,6 +92,8 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         rules.challengeProofsPricePrePoint = (1000000000000000000 / 1000); // 0.0001/POINT
         rules.challengeProofsSubmiterCount = 10; // 10
         rules.datacapPricePreByte = rules.datacapChunkLandPricePreByte; // 1/1T
+        rules.datacapCollateralMaxLockDays = 365 * PER_DAY_BLOCKNUMBER; // 1 year
+        rules.datacapdatasetApprovedLockDays = 180 * PER_DAY_BLOCKNUMBER; // 180 days
 
         __UUPSUpgradeable_init();
     }
@@ -265,6 +267,22 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         emit FilplusEvents.SetChallengeProofsPricePrePoint(_newValue);
     }
 
+    /// @notice Set the datacap collateral lock days when dataset approved complies with filplus rules.
+    function setDatacapdatasetApprovedLockDays(
+        uint64 _newValue
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
+        rules.datacapdatasetApprovedLockDays = _newValue;
+        emit FilplusEvents.SetDatacapdatasetApprovedLockDays(_newValue);
+    }
+
+    /// @notice Set the datacap collateral lock max days complies with filplus rules.
+    function setDatacapCollateralMaxLockDays(
+        uint64 _newValue
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
+        rules.datacapCollateralMaxLockDays = _newValue;
+        emit FilplusEvents.SetDatacapCollateralMaxLockDays(_newValue);
+    }
+
     // Public getter function to access datasetRuleMaxReplicasInCountries
     function getDatasetRuleMaxReplicasInCountry(
         uint16 _countryCode
@@ -311,6 +329,22 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     function getBurnAddress() external pure returns (address) {
         return BURN_ADDRESS;
     }
+
+    /// @notice Returns the block number per day
+    function getPerDayBlocknumber() external pure returns (uint64) {
+        return PER_DAY_BLOCKNUMBER;
+    }
+
+    /// @notice Returns the datacap collateral days when dataset approved
+    function getDatacapdatasetApprovedLockDays() external view returns (uint64) {
+        return rules.datacapdatasetApprovedLockDays;
+    }
+
+        /// @notice Returns the datacap collateral max lock days
+    function getDatacapCollateralMaxLockDays() external view returns (uint64) {
+        return rules.datacapCollateralMaxLockDays;
+    }
+
 
     /// @notice Get the challenge proofs price pre point complies with filplus rules.
     function getChallengeProofsPricePrePoint()

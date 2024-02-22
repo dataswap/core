@@ -122,14 +122,14 @@ abstract contract EscrowBase is
         }
     }
 
-    /// @dev Retrieves payee information for EscrowDataTradingFee.
+    /// @dev Retrieves move source account payee information.
     /// @param _datasetId The ID of the dataset.
-    /// @param _subAccountMatchingId The ID of the matching process.
+    /// @param _destMatchingId The ID of the matching process.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return paymentsInfo An array containing the payees's address.
     function getMoveSourceAccountPayeeInfo(
         uint64 _datasetId,
-        uint64 _subAccountMatchingId,
+        uint64 _destMatchingId,
         address _token
     )
         external
@@ -139,7 +139,7 @@ abstract contract EscrowBase is
     {
         paymentsInfo = _getMoveSourceAccountInfo(
             _datasetId,
-            _subAccountMatchingId,
+            _destMatchingId,
             _token
         );
     }
@@ -275,11 +275,11 @@ abstract contract EscrowBase is
         }
     }
 
-    /// @dev Internal function to get bids refund information.
-    /// @return refunds An array containing payment information for refund.
+    /// @dev Internal function to get move source account information.
+    /// @return refunds An array containing payment information.
     function _getMoveSourceAccountInfo(
         uint64 /*_datasetId*/,
-        uint64 /*_subAccountMatchingId*/,
+        uint64 /*_destMatchingId*/,
         address /*_token*/
     )
         internal

@@ -237,14 +237,14 @@ contract Finance is
         );
     }
 
-    /// @dev Handles an escrow, such as claiming or processing it.
+    /// @dev Handles an escrow, move escrow to owner's destination account.
     /// @param _datasetId The ID of the dataset.
-    /// @param _subAccountMatchingId The ID of the matching.
+    /// @param _destMatchingId The ID of the matching.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @param _type The type of escrow (e.g., deposit, payment).
-    function __claimSubAccountEscrow(
+    function __claimMoveEscrow(
         uint64 _datasetId,
-        uint64 _subAccountMatchingId,
+        uint64 _destMatchingId,
         address _token,
         FinanceType.Type _type
     )
@@ -254,14 +254,10 @@ contract Finance is
     {
         FinanceType.PaymentInfo[] memory paymentsInfo = _getEscrowContract(
             _type
-        ).getMoveSourceAccountPayeeInfo(
-                _datasetId,
-                _subAccountMatchingId,
-                _token
-            );
+        ).getMoveSourceAccountPayeeInfo(_datasetId, _destMatchingId, _token);
         _moveEscrowFundsProcess(
             _datasetId,
-            _subAccountMatchingId,
+            _destMatchingId,
             _token,
             _type,
             paymentsInfo
@@ -482,33 +478,33 @@ contract Finance is
         }
     }
 
-    /// @dev Internal function for processing sub account escrow.
+    /// @dev Internal function for processing move account escrow.
     /// @param _datasetId The ID of the dataset.
-    /// @param _subAccountMatchingId The ID of the matching.
+    /// @param _destMatchingId The ID of the matching.
     /// @param _token The address of the token used for the payment.
     /// @param _type The FinanceType.Type specifying the type of payment.
     /// @param paymentsInfo An array of FinanceType.PaymentInfo containing payment details.
     function _moveEscrowFundsProcess(
         uint64 _datasetId,
-        uint64 _subAccountMatchingId,
+        uint64 _destMatchingId,
         address _token,
         FinanceType.Type _type,
         FinanceType.PaymentInfo[] memory paymentsInfo
     ) internal onlySupportToken(_token) {
         for (uint256 i = 0; i < paymentsInfo.length; i++) {
             if (paymentsInfo[i].amount != 0) {
-                // Parent account payment.
+                // Source account payment.
                 financeAccount[_datasetId][0][paymentsInfo[i].payer][_token]
                     ._payment(_type, paymentsInfo[i].amount);
 
                 for (uint256 j = 0; j < paymentsInfo[i].payees.length; j++) {
-                    // Sub account income.
-                    financeAccount[_datasetId][_subAccountMatchingId][
+                    // Destination account income.
+                    financeAccount[_datasetId][_destMatchingId][
                         paymentsInfo[i].payees[j].payee
                     ][_token]._income(_type, paymentsInfo[i].payees[j].amount);
 
-                    // Sub account escrow.
-                    financeAccount[_datasetId][_subAccountMatchingId][
+                    // Destination account escrow.
+                    financeAccount[_datasetId][_destMatchingId][
                         paymentsInfo[i].payees[j].payee
                     ][_token]._escrow(_type, paymentsInfo[i].payees[j].amount);
                 }

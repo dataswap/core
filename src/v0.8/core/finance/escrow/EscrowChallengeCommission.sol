@@ -122,12 +122,15 @@ contract EscrowChallengeCommission is EscrowBase {
     }
 
     /// @dev Internal function to check if a refund is applicable.
+    /// @param _datasetId The ID of the dataset.
     /// @return refund A boolean indicating whether a refund is applicable.
     function _isRefund(
-        uint64 /*_datasetId*/,
+        uint64 _datasetId,
         uint64 /*_matchingId*/
-    ) internal pure override returns (bool refund) {
-        return false; // TODO: Expiration refund.
+    ) internal view override returns (bool refund) {
+                return (
+            roles.datasets().getDatasetState(_datasetId) ==
+            DatasetType.State.Rejected);
     }
 
     /// @dev Internal function to check if a payment is applicable.
