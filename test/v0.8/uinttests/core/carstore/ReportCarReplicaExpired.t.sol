@@ -31,7 +31,7 @@ contract ReportCarReplicaExpiredTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         ReportCarReplicaExpiredTestCaseWithSuccess testCase = new ReportCarReplicaExpiredTestCaseWithSuccess(
-                carstore,
+                carstore(),
                 assertion
             );
         // run testcase
@@ -48,7 +48,7 @@ contract ReportCarReplicaExpiredTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         ReportCarReplicaExpiredTestCaseWithInvalidDealState testCase = new ReportCarReplicaExpiredTestCaseWithInvalidDealState(
-                carstore,
+                carstore(),
                 assertion
             );
         // run testcase
@@ -65,7 +65,7 @@ contract ReportCarReplicaExpiredTest is Test, CarstoreTestSetup {
     ) public {
         setup();
         ReportCarReplicaExpiredTestCaseWithInvalidId testCase = new ReportCarReplicaExpiredTestCaseWithInvalidId(
-                carstore,
+                carstore(),
                 assertion
             );
         // run testcase

@@ -30,10 +30,10 @@ contract SetDatasetRuleDefaultMaxReplicasPerCountryTest is
     ) public {
         setup();
         SetDatasetRuleDefaultMaxReplicasPerCountryTestCaseWithSuccess testCase = new SetDatasetRuleDefaultMaxReplicasPerCountryTestCaseWithSuccess(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }
@@ -44,10 +44,10 @@ contract SetDatasetRuleDefaultMaxReplicasPerCountryTest is
     ) public {
         setup();
         SetDatasetRuleDefaultMaxReplicasPerCountryTestCaseWithInvalidGovernancer testCase = new SetDatasetRuleDefaultMaxReplicasPerCountryTestCaseWithInvalidGovernancer(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }

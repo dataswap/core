@@ -27,10 +27,10 @@ contract SetDatasetRuleMaxReplicasPerSPTest is Test, FilplusTestSetup {
     ) public {
         setup();
         SetDatasetRuleMaxReplicasPerSPTestCaseWithSuccess testCase = new SetDatasetRuleMaxReplicasPerSPTestCaseWithSuccess(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }
@@ -41,10 +41,10 @@ contract SetDatasetRuleMaxReplicasPerSPTest is Test, FilplusTestSetup {
     ) public {
         setup();
         SetDatasetRuleMaxReplicasPerSPTestCaseWithInvalidGovernancer testCase = new SetDatasetRuleMaxReplicasPerSPTestCaseWithInvalidGovernancer(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }

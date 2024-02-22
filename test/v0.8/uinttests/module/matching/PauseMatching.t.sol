@@ -26,9 +26,9 @@ contract PauseMatchingTest is Test, MatchingTestSetup {
     function testPauseMatchingWithSuccess(uint64 _amount) public {
         setup();
         PauseTestCaseWithSuccess testCase = new PauseTestCaseWithSuccess(
-            matchings,
-            matchingsTarget,
-            matchingsBids,
+            matchings(),
+            matchingsTarget(),
+            matchingsBids(),
             helpers,
             assertion
         );
@@ -39,9 +39,9 @@ contract PauseMatchingTest is Test, MatchingTestSetup {
     function testPauseMatchingWithInvalidSender(uint64 _amount) public {
         setup();
         PauseTestCaseWithInvalidSender testCase = new PauseTestCaseWithInvalidSender(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );
@@ -52,9 +52,9 @@ contract PauseMatchingTest is Test, MatchingTestSetup {
     function testPauseMatchingWithInvalidState() public {
         setup();
         PauseTestCaseWithInvalidState testCase = new PauseTestCaseWithInvalidState(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );
@@ -65,9 +65,9 @@ contract PauseMatchingTest is Test, MatchingTestSetup {
     function testPauseMatchingWithAlreadyPaused(uint64 _amount) public {
         setup();
         PauseTestCaseWithAlreadyPaused testCase = new PauseTestCaseWithAlreadyPaused(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );
@@ -78,9 +78,9 @@ contract PauseMatchingTest is Test, MatchingTestSetup {
     function testPauseMatchingWithAlreadyBidding(uint64 _amount) public {
         setup();
         PauseTestCaseWithAlreadyBidding testCase = new PauseTestCaseWithAlreadyBidding(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );

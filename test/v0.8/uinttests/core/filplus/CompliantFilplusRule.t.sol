@@ -25,10 +25,10 @@ contract CompliantFilplusRuleTest is Test, FilplusTestSetup {
     function testCompliantFilplusRuleWithGeolocationSuccess() public {
         setup();
         CompliantFilplusRuleTestCaseWithGeolocationSuccess testCase = new CompliantFilplusRuleTestCaseWithGeolocationSuccess(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run();
     }
@@ -37,10 +37,10 @@ contract CompliantFilplusRuleTest is Test, FilplusTestSetup {
     function testCompliantFilplusRuleWithMinRegions() public {
         setup();
         CompliantFilplusRuleTestCaseWithMinRegions testCase = new CompliantFilplusRuleTestCaseWithMinRegions(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run();
     }
@@ -49,10 +49,10 @@ contract CompliantFilplusRuleTest is Test, FilplusTestSetup {
     function testCompliantFilplusRuleWithMaxReplicasPerCountry() public {
         setup();
         CompliantFilplusRuleTestCaseWithMaxReplicasPerCountry testCase = new CompliantFilplusRuleTestCaseWithMaxReplicasPerCountry(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run();
     }
@@ -61,10 +61,10 @@ contract CompliantFilplusRuleTest is Test, FilplusTestSetup {
     function testCompliantFilplusRuleWithInvalidNilCitys() public {
         setup();
         CompliantFilplusRuleTestCaseWithInvalidNilCitys testCase = new CompliantFilplusRuleTestCaseWithInvalidNilCitys(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run();
     }
@@ -73,10 +73,10 @@ contract CompliantFilplusRuleTest is Test, FilplusTestSetup {
     function testCompliantFilplusRuleWithInvalidDuplicateCity() public {
         setup();
         CompliantFilplusRuleTestCaseWithInvalidDuplicateCity testCase = new CompliantFilplusRuleTestCaseWithInvalidDuplicateCity(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run();
     }
@@ -85,10 +85,10 @@ contract CompliantFilplusRuleTest is Test, FilplusTestSetup {
     function testCompliantFilplusRuleWithMaxReplicasPerCity() public {
         setup();
         CompliantFilplusRuleTestCaseWithMaxReplicasPerCity testCase = new CompliantFilplusRuleTestCaseWithMaxReplicasPerCity(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run();
     }
@@ -97,10 +97,10 @@ contract CompliantFilplusRuleTest is Test, FilplusTestSetup {
     function testCompliantFilplusRuleWithProportionSuccess() public {
         setup();
         CompliantFilplusRuleTestCaseWithProportionSuccess testCase = new CompliantFilplusRuleTestCaseWithProportionSuccess(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run();
     }
@@ -109,10 +109,10 @@ contract CompliantFilplusRuleTest is Test, FilplusTestSetup {
     function testCompliantFilplusRuleWithProportionOverflow() public {
         setup();
         CompliantFilplusRuleTestCaseWithProportionOverflow testCase = new CompliantFilplusRuleTestCaseWithProportionOverflow(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run();
     }
@@ -121,10 +121,10 @@ contract CompliantFilplusRuleTest is Test, FilplusTestSetup {
     function testCompliantFilplusRuleWithTotalReplicasSuccess() public {
         setup();
         CompliantFilplusRuleTestCaseWithTotalReplicasSuccess testCase = new CompliantFilplusRuleTestCaseWithTotalReplicasSuccess(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run();
     }
@@ -133,10 +133,10 @@ contract CompliantFilplusRuleTest is Test, FilplusTestSetup {
     function testCompliantFilplusRuleWithInvalidCountrys() public {
         setup();
         CompliantFilplusRuleTestCaseWithInvalidCountrys testCase = new CompliantFilplusRuleTestCaseWithInvalidCountrys(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run();
     }
@@ -145,10 +145,10 @@ contract CompliantFilplusRuleTest is Test, FilplusTestSetup {
     function testCompliantFilplusRuleWithMaxReplicasOverflow() public {
         setup();
         CompliantFilplusRuleTestCaseWithMaxReplicasOverflow testCase = new CompliantFilplusRuleTestCaseWithMaxReplicasOverflow(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run();
     }
@@ -157,10 +157,10 @@ contract CompliantFilplusRuleTest is Test, FilplusTestSetup {
     function testCompliantFilplusRuleWithMinReplicasOverflow() public {
         setup();
         CompliantFilplusRuleTestCaseWithMinReplicasOverflow testCase = new CompliantFilplusRuleTestCaseWithMinReplicasOverflow(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run();
     }
@@ -169,10 +169,10 @@ contract CompliantFilplusRuleTest is Test, FilplusTestSetup {
     function testCompliantFilplusRuleWithSPsPerDatasetSuccess() public {
         setup();
         CompliantFilplusRuleTestCaseWithSPsPerDatasetSuccess testCase = new CompliantFilplusRuleTestCaseWithSPsPerDatasetSuccess(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run();
     }
@@ -181,10 +181,10 @@ contract CompliantFilplusRuleTest is Test, FilplusTestSetup {
     function testCompliantFilplusRuleWithSPsPerDatasetOverflow() public {
         setup();
         CompliantFilplusRuleTestCaseWithSPsPerDatasetOverflow testCase = new CompliantFilplusRuleTestCaseWithSPsPerDatasetOverflow(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run();
     }

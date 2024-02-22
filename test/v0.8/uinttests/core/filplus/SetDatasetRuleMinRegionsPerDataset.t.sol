@@ -27,10 +27,10 @@ contract SetDatasetRuleMinRegionsPerDatasetTest is Test, FilplusTestSetup {
     ) public {
         setup();
         SetDatasetRuleMinRegionsPerDatasetTestCaseWithSuccess testCase = new SetDatasetRuleMinRegionsPerDatasetTestCaseWithSuccess(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }
@@ -41,10 +41,10 @@ contract SetDatasetRuleMinRegionsPerDatasetTest is Test, FilplusTestSetup {
     ) public {
         setup();
         SetDatasetRuleMinRegionsPerDatasetTestCaseWithInvalidGovernancer testCase = new SetDatasetRuleMinRegionsPerDatasetTestCaseWithInvalidGovernancer(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }

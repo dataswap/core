@@ -31,19 +31,19 @@ contract DatasetTestSetup is BaseTestSetup {
         enhanceSetup();
 
         assertion = new DatasetsAssertion(
-            carstore,
-            datasets,
-            datasetsRequirement,
-            datasetsProof,
-            datasetsChallenge
+            carstore(),
+            datasets(),
+            datasetsRequirement(),
+            datasetsProof(),
+            datasetsChallenge()
         );
 
         helpers = new DatasetsHelpers(
-            datasets,
-            datasetsRequirement,
-            datasetsProof,
-            datasetsChallenge,
-            generator,
+            datasets(),
+            datasetsRequirement(),
+            datasetsProof(),
+            datasetsChallenge(),
+            generator(),
             assertion
         );
     }

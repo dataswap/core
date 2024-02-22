@@ -33,35 +33,35 @@ contract MatchingTestSetup is BaseTestSetup {
         enhanceSetup();
 
         assertion = new MatchingsAssertion(
-            matchings,
-            matchingsTarget,
-            matchingsBids,
-            carstore
+            matchings(),
+            matchingsTarget(),
+            matchingsBids(),
+            carstore()
         );
 
         DatasetsAssertion datasetAssertion = new DatasetsAssertion(
-            carstore,
-            datasets,
-            datasetsRequirement,
-            datasetsProof,
-            datasetsChallenge
+            carstore(),
+            datasets(),
+            datasetsRequirement(),
+            datasetsProof(),
+            datasetsChallenge()
         );
 
         DatasetsHelpers datasetsHelpers = new DatasetsHelpers(
-            datasets,
-            datasetsRequirement,
-            datasetsProof,
-            datasetsChallenge,
-            generator,
+            datasets(),
+            datasetsRequirement(),
+            datasetsProof(),
+            datasetsChallenge(),
+            generator(),
             datasetAssertion
         );
         helpers = new MatchingsHelpers(
-            carstore,
-            datasets,
-            datasetsProof,
-            matchings,
-            matchingsTarget,
-            matchingsBids,
+            carstore(),
+            datasets(),
+            datasetsProof(),
+            matchings(),
+            matchingsTarget(),
+            matchingsBids(),
             datasetsHelpers,
             assertion
         );

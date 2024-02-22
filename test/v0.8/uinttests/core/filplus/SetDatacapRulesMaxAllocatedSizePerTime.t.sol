@@ -27,10 +27,10 @@ contract SetDatacapRulesMaxAllocatedSizePerTimeTest is Test, FilplusTestSetup {
     ) public {
         setup();
         SetDatacapRulesMaxAllocatedSizePerTimeTestCaseWithSuccess testCase = new SetDatacapRulesMaxAllocatedSizePerTimeTestCaseWithSuccess(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }
@@ -41,10 +41,10 @@ contract SetDatacapRulesMaxAllocatedSizePerTimeTest is Test, FilplusTestSetup {
     ) public {
         setup();
         SetDatacapRulesMaxAllocatedSizePerTimeTestCaseWithInvalidGovernancer testCase = new SetDatacapRulesMaxAllocatedSizePerTimeTestCaseWithInvalidGovernancer(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }

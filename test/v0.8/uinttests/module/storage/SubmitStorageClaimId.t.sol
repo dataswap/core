@@ -25,12 +25,12 @@ contract SubmitStorageClaimIdTest is Test, StorageTestSetup {
     function testSubmitStorageClaimIdWithSuccess() public {
         setup();
         SubmitStorageClaimIdTestCaseWithSuccess testCase = new SubmitStorageClaimIdTestCaseWithSuccess(
-                carstore,
-                storages,
-                generator,
+                carstore(),
+                storages(),
+                generator(),
                 helpers,
                 assertion,
-                filecoin
+                filecoin()
             );
         testCase.run();
     }
@@ -39,12 +39,12 @@ contract SubmitStorageClaimIdTest is Test, StorageTestSetup {
     function testSubmitStorageClaimIdWithInvalidAddress() public {
         setup();
         SubmitStorageClaimIdTestCaseWithInvalidAddress testCase = new SubmitStorageClaimIdTestCaseWithInvalidAddress(
-                carstore,
-                storages,
-                generator,
+                carstore(),
+                storages(),
+                generator(),
                 helpers,
                 assertion,
-                filecoin
+                filecoin()
             );
         testCase.run();
     }
@@ -53,12 +53,12 @@ contract SubmitStorageClaimIdTest is Test, StorageTestSetup {
     function testSubmitStorageClaimIdWithInvalidCid() public {
         setup();
         SubmitStorageClaimIdTestCaseWithInvalidCid testCase = new SubmitStorageClaimIdTestCaseWithInvalidCid(
-                carstore,
-                storages,
-                generator,
+                carstore(),
+                storages(),
+                generator(),
                 helpers,
                 assertion,
-                filecoin
+                filecoin()
             );
         testCase.run();
     }
@@ -67,12 +67,12 @@ contract SubmitStorageClaimIdTest is Test, StorageTestSetup {
     function testSubmitStorageClaimIdWithDuplicateCid() public {
         setup();
         SubmitStorageClaimIdTestCaseWithDuplicateCid testCase = new SubmitStorageClaimIdTestCaseWithDuplicateCid(
-                carstore,
-                storages,
-                generator,
+                carstore(),
+                storages(),
+                generator(),
                 helpers,
                 assertion,
-                filecoin
+                filecoin()
             );
         testCase.run();
     }

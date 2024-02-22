@@ -25,9 +25,9 @@ contract PublishMatchingTest is Test, MatchingTestSetup {
     function testPublishMatchingWithSuccess() public {
         setup();
         PublishMatchingTestCaseWithSuccess testCase = new PublishMatchingTestCaseWithSuccess(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );
@@ -38,9 +38,9 @@ contract PublishMatchingTest is Test, MatchingTestSetup {
     function testPublishMatchingWithInvalidRole() public {
         setup();
         PublishMatchingTestCaseWithInvalidRole testCase = new PublishMatchingTestCaseWithInvalidRole(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );
@@ -51,9 +51,9 @@ contract PublishMatchingTest is Test, MatchingTestSetup {
     function testPublishMatchingWithInvalidSender() public {
         setup();
         PublishMatchingTestCaseWithInvalidSender testCase = new PublishMatchingTestCaseWithInvalidSender(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );
@@ -64,9 +64,9 @@ contract PublishMatchingTest is Test, MatchingTestSetup {
     function testPublishMatchingWithInvalidDataset() public {
         setup();
         PublishMatchingTestCaseWithInvalidDataset testCase = new PublishMatchingTestCaseWithInvalidDataset(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );
@@ -77,9 +77,9 @@ contract PublishMatchingTest is Test, MatchingTestSetup {
     function testPublishMatchingWithInvalidDataPreparer() public {
         setup();
         PublishMatchingTestCaseWithInvalidDataPreparer testCase = new PublishMatchingTestCaseWithInvalidDataPreparer(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );
@@ -90,9 +90,9 @@ contract PublishMatchingTest is Test, MatchingTestSetup {
     function testPublishMatchingWithInvalidReplica() public {
         setup();
         PublishMatchingTestCaseWithInvalidReplica testCase = new PublishMatchingTestCaseWithInvalidReplica(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );

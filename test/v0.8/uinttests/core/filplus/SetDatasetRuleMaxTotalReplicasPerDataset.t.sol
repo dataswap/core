@@ -30,10 +30,10 @@ contract SetDatasetRuleMaxTotalReplicasPerDatasetTestPerDatasetTest is
     ) public {
         setup();
         SetDatasetRuleMaxTotalReplicasPerDatasetTestCaseWithSuccess testCase = new SetDatasetRuleMaxTotalReplicasPerDatasetTestCaseWithSuccess(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }
@@ -44,10 +44,10 @@ contract SetDatasetRuleMaxTotalReplicasPerDatasetTestPerDatasetTest is
     ) public {
         setup();
         SetDatasetRuleMaxTotalReplicasPerDatasetTestCaseWithInvalidGovernancer testCase = new SetDatasetRuleMaxTotalReplicasPerDatasetTestCaseWithInvalidGovernancer(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_newValue);
     }

@@ -25,10 +25,10 @@ contract SubmitProofTest is Test, DatasetTestSetup {
     function testSubmitDatasetProofWithSuccess() public {
         setup();
         SubmitProofTestCaseWithSuccess testCase = new SubmitProofTestCaseWithSuccess(
-                datasets,
-                datasetsRequirement,
-                datasetsProof,
-                datasetsChallenge,
+                datasets(),
+                datasetsRequirement(),
+                datasetsProof(),
+                datasetsChallenge(),
                 helpers,
                 assertion
             );
@@ -39,10 +39,10 @@ contract SubmitProofTest is Test, DatasetTestSetup {
     function testSubmitDatasetProofWithInvalidSubmitter() public {
         setup();
         SubmitProofTestCaseWithInvalidSubmitter testCase = new SubmitProofTestCaseWithInvalidSubmitter(
-                datasets,
-                datasetsRequirement,
-                datasetsProof,
-                datasetsChallenge,
+                datasets(),
+                datasetsRequirement(),
+                datasetsProof(),
+                datasetsChallenge(),
                 helpers,
                 assertion
             );
@@ -53,10 +53,10 @@ contract SubmitProofTest is Test, DatasetTestSetup {
     function testSubmitDatasetProofWithInvalidIndex() public {
         setup();
         SubmitProofTestCaseWithInvalidIndex testCase = new SubmitProofTestCaseWithInvalidIndex(
-                datasets,
-                datasetsRequirement,
-                datasetsProof,
-                datasetsChallenge,
+                datasets(),
+                datasetsRequirement(),
+                datasetsProof(),
+                datasetsChallenge(),
                 helpers,
                 assertion
             );
@@ -67,10 +67,10 @@ contract SubmitProofTest is Test, DatasetTestSetup {
     function testSubmitDatasetProofWithInvalidProportion() public {
         setup();
         SubmitProofTestCaseWithInvalidProportion testCase = new SubmitProofTestCaseWithInvalidProportion(
-                datasets,
-                datasetsRequirement,
-                datasetsProof,
-                datasetsChallenge,
+                datasets(),
+                datasetsRequirement(),
+                datasetsProof(),
+                datasetsChallenge(),
                 helpers,
                 assertion
             );

@@ -28,10 +28,10 @@ contract SetDatasetRuleMaxReplicasInCountryTest is Test, FilplusTestSetup {
     ) public {
         setup();
         SetDatasetRuleMaxReplicasInCountryTestCaseWithSuccess testCase = new SetDatasetRuleMaxReplicasInCountryTestCaseWithSuccess(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_countryCode, _newValue);
     }
@@ -43,10 +43,10 @@ contract SetDatasetRuleMaxReplicasInCountryTest is Test, FilplusTestSetup {
     ) public {
         setup();
         SetDatasetRuleMaxReplicasInCountryTestCaseWithInvalidGovernancer testCase = new SetDatasetRuleMaxReplicasInCountryTestCaseWithInvalidGovernancer(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_countryCode, _newValue);
     }
@@ -58,10 +58,10 @@ contract SetDatasetRuleMaxReplicasInCountryTest is Test, FilplusTestSetup {
     ) public {
         setup();
         SetDatasetRuleMaxReplicasInCountryTestCaseWithZeroValue testCase = new SetDatasetRuleMaxReplicasInCountryTestCaseWithZeroValue(
-                filplus,
+                filplus(),
                 assertion,
-                generator,
-                governanceContractAddresss
+                generator(),
+                governanceContractAddresss()
             );
         testCase.run(_countryCode, _newValue);
     }

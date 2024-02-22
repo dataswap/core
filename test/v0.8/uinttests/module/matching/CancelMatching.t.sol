@@ -26,9 +26,9 @@ contract CancelMatchingTest is Test, MatchingTestSetup {
     function testCancelMatchingWithSuccess(uint64 _amount) public {
         setup();
         CancelTestCaseWithSuccess testCase = new CancelTestCaseWithSuccess(
-            matchings,
-            matchingsTarget,
-            matchingsBids,
+            matchings(),
+            matchingsTarget(),
+            matchingsBids(),
             helpers,
             assertion
         );
@@ -39,9 +39,9 @@ contract CancelMatchingTest is Test, MatchingTestSetup {
     function testCancelMatchingWithAfterStarted(uint64 _amount) public {
         setup();
         CancelTestCaseWithAfterStarted testCase = new CancelTestCaseWithAfterStarted(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );
@@ -52,9 +52,9 @@ contract CancelMatchingTest is Test, MatchingTestSetup {
     function testCancelMatchingWithInvalidState() public {
         setup();
         CancelTestCaseWithInvalidState testCase = new CancelTestCaseWithInvalidState(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );
@@ -65,9 +65,9 @@ contract CancelMatchingTest is Test, MatchingTestSetup {
     function testCancelMatchingWithInvalidSender(uint64 _amount) public {
         setup();
         CancelTestCaseWithAtInvalidSender testCase = new CancelTestCaseWithAtInvalidSender(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );

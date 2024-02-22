@@ -26,9 +26,9 @@ contract CloseMatchingTest is Test, MatchingTestSetup {
     function testCloseMatchingWithSuccess(uint64 _amount) public {
         setup();
         CloseTestCaseWithSuccess testCase = new CloseTestCaseWithSuccess(
-            matchings,
-            matchingsTarget,
-            matchingsBids,
+            matchings(),
+            matchingsTarget(),
+            matchingsBids(),
             helpers,
             assertion
         );
@@ -39,9 +39,9 @@ contract CloseMatchingTest is Test, MatchingTestSetup {
     function testCloseMatchingWithInvalidState() public {
         setup();
         CloseTestCaseWithInvalidState testCase = new CloseTestCaseWithInvalidState(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );
@@ -52,9 +52,9 @@ contract CloseMatchingTest is Test, MatchingTestSetup {
     function testCloseMatchingWithAtInvalidBlock(uint64 _amount) public {
         setup();
         CloseTestCaseWithAtInvalidBlock testCase = new CloseTestCaseWithAtInvalidBlock(
-                matchings,
-                matchingsTarget,
-                matchingsBids,
+                matchings(),
+                matchingsTarget(),
+                matchingsBids(),
                 helpers,
                 assertion
             );
@@ -62,9 +62,9 @@ contract CloseMatchingTest is Test, MatchingTestSetup {
 
         setup();
         testCase = new CloseTestCaseWithAtInvalidBlock(
-            matchings,
-            matchingsTarget,
-            matchingsBids,
+            matchings(),
+            matchingsTarget(),
+            matchingsBids(),
             helpers,
             assertion
         );
