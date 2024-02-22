@@ -33,14 +33,14 @@ interface IEscrow {
         address _token
     ) external view returns (FinanceType.PaymentInfo[] memory paymentsInfo);
 
-    /// @dev Retrieves sub account payee information.
+    /// @dev Retrieves move source account payee information.
     /// @param _datasetId The ID of the dataset.
-    /// @param _subAccountMatchingId The ID of the matching process.
+    /// @param _destMatchingId The ID of the matching process.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return paymentsInfo An array containing the payees's address.
     function getMoveSourceAccountPayeeInfo(
         uint64 _datasetId,
-        uint64 _subAccountMatchingId,
+        uint64 _destMatchingId,
         address _token
     ) external view returns (FinanceType.PaymentInfo[] memory paymentsInfo);
 

@@ -97,14 +97,14 @@ interface IFinance is IBusinessFinanceStatistics, IMemberFinanceStatistics {
         FinanceType.Type _type
     ) external;
 
-    /// @dev Handles an escrow, such as claiming or processing it.
+    /// @dev Handles an escrow, move escrow to owner's destination account.
     /// @param _datasetId The ID of the dataset.
-    /// @param _subAccountMatchingId The ID of the matching.
+    /// @param _destMatchingId The ID of the matching.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @param _type The type of escrow (e.g., deposit, payment).
-    function __claimSubAccountEscrow(
+    function __claimMoveEscrow(
         uint64 _datasetId,
-        uint64 _subAccountMatchingId,
+        uint64 _destMatchingId,
         address _token,
         FinanceType.Type _type
     ) external;

@@ -41,5 +41,7 @@ library FilplusType {
         uint256 datacapChunkLandPricePreByte; // The datacap chunk land price pre byte.
         uint256 challengeProofsPricePrePoint; // The challenge proofs price pre point.
         uint16 challengeProofsSubmiterCount; // The challenge proofs submiter count.
+        uint64 datacapdatasetApprovedLockDays; // The datacap collateral days when dataset approved. 
+        uint64 datacapCollateralMaxLockDays; // The datacap collateral max lock days.
     }
 }

@@ -79,4 +79,10 @@ library FilplusEvents {
 
     // Event emitted when the datacap price pre byte rule is set
     event SetDatacapPricePreByte(uint256 _newValue);
+
+    // Event emitted when datacap collateral lock days when dataset approved rule is set
+    event SetDatacapdatasetApprovedLockDays(uint64 _newValue);
+
+    // Event emitted when datacap collateral max lock days rule is set
+    event SetDatacapCollateralMaxLockDays(uint64 _newValue);
 }

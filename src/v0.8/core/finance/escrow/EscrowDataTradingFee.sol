@@ -79,7 +79,7 @@ contract EscrowDataTradingFee is EscrowBase {
         }
     }
 
-    /// @dev Internal function to get parent account refund information.
+    /// @dev Internal function to get source account refund information.
     /// @param _datasetId The ID of the dataset.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return refunds An array containing payment information for refund.
@@ -154,26 +154,26 @@ contract EscrowDataTradingFee is EscrowBase {
         }
     }
 
-    /// @dev Internal function to get sub account information.
+    /// @dev Internal function to get move source account information.
     /// @param _datasetId The ID of the dataset.
-    /// @param _subAccountMatchingId The ID of the matching process.
+    /// @param _destMatchingId The ID of the matching process.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
-    /// @return subAccountInfo An array containing payment information for sub account.
+    /// @return destAccountInfo An array containing payment information.
     function _getMoveSourceAccountInfo(
         uint64 _datasetId,
-        uint64 _subAccountMatchingId,
+        uint64 _destMatchingId,
         address _token
     )
         internal
         view
         override
-        returns (FinanceType.PaymentInfo[] memory subAccountInfo)
+        returns (FinanceType.PaymentInfo[] memory destAccountInfo)
     {
         address payer = roles.datasets().getDatasetMetadataSubmitter(
             _datasetId
         );
 
-        // Parent account balance
+        // Source account balance
         (, , uint256 current, ) = roles.finance().getAccountEscrow(
             _datasetId,
             0,
@@ -184,7 +184,7 @@ contract EscrowDataTradingFee is EscrowBase {
 
         (, , uint64 matchingSize, , , ) = roles
             .matchingsTarget()
-            .getMatchingTarget(_subAccountMatchingId);
+            .getMatchingTarget(_destMatchingId);
 
         (uint256 usedSize, , , , , ) = roles
             .storages()
@@ -202,8 +202,8 @@ contract EscrowDataTradingFee is EscrowBase {
         FinanceType.PayeeInfo[] memory payees = new FinanceType.PayeeInfo[](1);
         payees[0] = FinanceType.PayeeInfo(payer, amount);
 
-        subAccountInfo = new FinanceType.PaymentInfo[](1);
-        subAccountInfo[0] = FinanceType.PaymentInfo(payer, amount, payees);
+        destAccountInfo = new FinanceType.PaymentInfo[](1);
+        destAccountInfo[0] = FinanceType.PaymentInfo(payer, amount, payees);
     }
 
     /// @notice Get dataset pre-conditional collateral requirement.
