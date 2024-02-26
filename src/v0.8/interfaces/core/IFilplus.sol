@@ -106,6 +106,11 @@ interface IFilplus {
         uint64 _newValue
     ) external;
 
+    /// @notice Set the challenge audit fee complies with filplus rules.
+    function setChallengeAuditFee(
+        uint256 _newValue
+    ) external;
+
     /// @notice Set the proof audit fee complies with filplus rules.
     function setProofAuditFee(
         uint256 _newValue
@@ -147,6 +152,9 @@ interface IFilplus {
 
     /// @notice Returns the datacap collateral max lock days
     function getDatacapCollateralMaxLockDays() external view returns (uint64);
+
+    /// @notice Returns the challenge audit fee
+    function getChallengeAuditFee() external view returns (uint256);
 
     /// @notice Returns the proof audit fee
     function getProofAuditFee() external view returns (uint256);
