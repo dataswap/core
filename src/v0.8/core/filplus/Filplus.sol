@@ -94,6 +94,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         rules.datacapPricePreByte = rules.datacapChunkLandPricePreByte; // 1/1T
         rules.datacapCollateralMaxLockDays = 365 * PER_DAY_BLOCKNUMBER; // 1 year
         rules.datacapdatasetApprovedLockDays = 180 * PER_DAY_BLOCKNUMBER; // 180 days
+        rules.proofAuditFee = 1000000000000000000;
 
         __UUPSUpgradeable_init();
     }
@@ -275,6 +276,14 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         emit FilplusEvents.SetDatacapdatasetApprovedLockDays(_newValue);
     }
 
+    /// @notice Set the proof audit fee complies with filplus rules.
+    function setProofAuditFee(
+        uint256 _newValue
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
+        rules.proofAuditFee = _newValue;
+        emit FilplusEvents.SetProofAuditFee(_newValue);
+    }
+
     /// @notice Set the datacap collateral lock max days complies with filplus rules.
     function setDatacapCollateralMaxLockDays(
         uint64 _newValue
@@ -340,11 +349,15 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         return rules.datacapdatasetApprovedLockDays;
     }
 
-        /// @notice Returns the datacap collateral max lock days
+    /// @notice Returns the datacap collateral max lock days
     function getDatacapCollateralMaxLockDays() external view returns (uint64) {
         return rules.datacapCollateralMaxLockDays;
     }
 
+    /// @notice Returns the proof audit fee
+    function getProofAuditFee() external view returns (uint256) {
+        return rules.proofAuditFee;
+    }
 
     /// @notice Get the challenge proofs price pre point complies with filplus rules.
     function getChallengeProofsPricePrePoint()

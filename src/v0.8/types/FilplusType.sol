@@ -43,5 +43,6 @@ library FilplusType {
         uint16 challengeProofsSubmiterCount; // The challenge proofs submiter count.
         uint64 datacapdatasetApprovedLockDays; // The datacap collateral days when dataset approved. 
         uint64 datacapCollateralMaxLockDays; // The datacap collateral max lock days.
+        uint256 proofAuditFee; // The proof audit fee.
     }
 }
