@@ -146,7 +146,10 @@ MatchingsAddress=$(npx hardhat getProxyAddress --type localnet --name Matchings)
 MatchingsTargetAddress=$(npx hardhat getProxyAddress --type localnet --name MatchingsTarget)
 MatchingsBidsAddress=$(npx hardhat getProxyAddress --type localnet --name MatchingsBids)
 StoragesAddress=$(npx hardhat getProxyAddress --type localnet --name Storages)
-DatacapsAddress=$(npx hardhat getProxyAddress --type localnet --name Datacaps)
+EscrowChallengeCommissionAddress=$(npx hardhat getProxyAddress --type localnet --name EscrowChallengeCommission)
+EscrowDatacapChunkLandCollateralAddress=$(npx hardhat getProxyAddress --type localnet --name EscrowDatacapChunkLandCollateral)
+EscrowDatacapCollateralAddress=$(npx hardhat getProxyAddress --type localnet --name EscrowDatacapCollateral)
+EscrowDataTradingFeeAddress=$(npx hardhat getProxyAddress --type localnet --name EscrowDataTradingFee)
 
 cat >"${BASEDIR}/contract" <<EOF
 export RolesAddress=$RolesAddress
@@ -163,7 +166,10 @@ export MatchingsAddress=$MatchingsAddress
 export MatchingsTargetAddress=$MatchingsTargetAddress
 export MatchingsBidsAddress=$MatchingsBidsAddress
 export StoragesAddress=$StoragesAddress
-export DatacapsAddress=$DatacapsAddress
+export EscrowChallengeCommissionAddress=$EscrowChallengeCommissionAddress
+export EscrowDatacapChunkLandCollateralAddress=$EscrowDatacapChunkLandCollateralAddress
+export EscrowDatacapCollateralAddress=$EscrowDatacapCollateralAddress
+export EscrowDataTradingFeeAddress=$EscrowDataTradingFeeAddress
 EOF
 
 RootAddress=$(lotus msig inspect f080 | grep t0100 | awk '{print $2}')
