@@ -30,7 +30,7 @@ library StatisticsLIB {
     function addTotal(
         StatisticsType.Statistics storage self,
         uint256 size
-    ) external {
+    ) internal {
         self.total += size;
     }
 
@@ -38,7 +38,7 @@ library StatisticsLIB {
     function addSuccess(
         StatisticsType.Statistics storage self,
         uint256 size
-    ) external {
+    ) internal {
         uint256 ongoing = self.total - self.success - self.failed;
         require(size <= ongoing, "invalid size to addSuccess");
         self.success += size;
@@ -48,7 +48,7 @@ library StatisticsLIB {
     function addFailed(
         StatisticsType.Statistics storage self,
         uint256 size
-    ) external {
+    ) internal {
         uint256 ongoing = self.total - self.success - self.failed;
         require(size <= ongoing, "invalid size to addFailed");
         self.failed += size;
@@ -58,7 +58,7 @@ library StatisticsLIB {
     function getOverview(
         StatisticsType.Statistics storage self
     )
-        external
+        internal
         view
         returns (
             uint256 total,
