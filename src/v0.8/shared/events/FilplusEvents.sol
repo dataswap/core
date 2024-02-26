@@ -85,4 +85,7 @@ library FilplusEvents {
 
     // Event emitted when datacap collateral max lock days rule is set
     event SetDatacapCollateralMaxLockDays(uint64 _newValue);
+
+    // Event emitted when proof audit fee rule is set
+    event SetProofAuditFee(uint256 _newValue);
 }
