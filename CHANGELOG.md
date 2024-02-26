@@ -1,5 +1,13 @@
 
 
+## [0.3.1](https://github.com/dataswap/core/compare/v0.3.0...v0.3.1) (2024-02-26)
+
+
+### Bug Fixes
+
+* 🐛 Fix library function visibility issue ([82ae822](https://github.com/dataswap/core/commit/82ae8226e7e7acea69ae8de5ecba99db6578be4a)), closes [#300](https://github.com/dataswap/core/issues/300)
+* 🐛 getAccountEscrow interface Arguments in wrong order ([90eb215](https://github.com/dataswap/core/commit/90eb215efa7bfb8655689082c5b5261178d30188)), closes [#302](https://github.com/dataswap/core/issues/302)
+
 # [0.3.0](https://github.com/dataswap/core/compare/v0.2.0...v0.3.0) (2024-02-26)
 
 
