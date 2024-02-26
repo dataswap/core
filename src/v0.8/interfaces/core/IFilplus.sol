@@ -116,6 +116,11 @@ interface IFilplus {
         uint256 _newValue
     ) external;
 
+    /// @notice Set the dispute audit fee complies with filplus rules.
+    function setDisputeAuditFee(
+        uint256 _newValue
+    ) external;
+
     /// @notice Set the challenge proofs price pre point complies with filplus rules.
     function setChallengeProofsPricePrePoint(uint256 _newValue) external;
 
@@ -158,6 +163,9 @@ interface IFilplus {
 
     /// @notice Returns the proof audit fee
     function getProofAuditFee() external view returns (uint256);
+
+    /// @notice Returns the dispute audit fee
+    function getDisputeAuditFee() external view returns (uint256);
 
     /// @notice Get the challenge proofs price pre point complies with filplus rules.
     function getChallengeProofsPricePrePoint()

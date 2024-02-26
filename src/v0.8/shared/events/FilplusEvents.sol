@@ -92,4 +92,7 @@ library FilplusEvents {
     // Event emitted when challenge audit fee rule is set
     event SetChallengeAuditFee(uint256 _newValue);
 
+    // Event emitted when dispute audit fee rule is set
+    event SetDisputeAuditFee(uint256 _newValue);
+
 }
