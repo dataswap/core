@@ -10,7 +10,7 @@ const deployFunction: DeployFunction = async function (
   const { deployments } = hre;
   const roles = await deployments.get("Roles");
   await deployAndSaveContract(
-    "DatasetsProof",
+    "Storages",
     [
       governanceAddress,
       roles.address,
@@ -24,4 +24,4 @@ export default deployFunction;
 deployFunction.dependencies = [
   "Roles",
 ];
-deployFunction.tags = ["DatasetsProof"];
+deployFunction.tags = ["Storages"];
