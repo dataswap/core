@@ -149,14 +149,14 @@ interface IFinance is IBusinessFinanceStatistics, IMemberFinanceStatistics {
     /// @dev Retrieves escrowed amount for an account.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
+    /// @param _owner The address of the account owner.
     /// @param _token The type of token for the escrowed amount (e.g., FIL, ERC-20).
     /// @param _type The type of escrow (e.g., deposit, payment).
-    /// @param _owner The address of the account owner.
     function getAccountEscrow(
         uint64 _datasetId,
         uint64 _matchingId,
-        address _token,
         address _owner,
+        address _token,
         FinanceType.Type _type
     )
         external
