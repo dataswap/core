@@ -44,5 +44,6 @@ library FilplusType {
         uint64 datacapdatasetApprovedLockDays; // The datacap collateral days when dataset approved. 
         uint64 datacapCollateralMaxLockDays; // The datacap collateral max lock days.
         uint256 proofAuditFee; // The proof audit fee.
+        uint256 challengeAuditFee; // The challenge audit fee.
     }
 }
