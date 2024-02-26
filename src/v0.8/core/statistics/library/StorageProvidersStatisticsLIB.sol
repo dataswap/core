@@ -34,7 +34,7 @@ library StorageProvidersStatisticsLIB {
         StatisticsType.StorageProvidersStatistics storage self,
         uint64 storageProvider,
         uint256 size
-    ) external {
+    ) internal {
         require(size != 0, "invalid size to addStoraged");
 
         if (self.storageProviderInfos[storageProvider] == 0) {
@@ -50,7 +50,7 @@ library StorageProvidersStatisticsLIB {
     /// @return storageProviders Array of storage providers.
     function getOverview(
         StatisticsType.StorageProvidersStatistics storage self
-    ) external view returns (uint64[] memory storageProviders) {
+    ) internal view returns (uint64[] memory storageProviders) {
         return (self.storageProviders);
     }
 }

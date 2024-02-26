@@ -184,7 +184,7 @@ library ArrayUint16LIB {
     function mergeSequentialArray(
         uint16[] memory _starts,
         uint16[] memory _ends
-    ) public pure returns (uint16[] memory) {
+    ) internal pure returns (uint16[] memory) {
         // Check if the number of start values matches the number of end values
         require(_starts.length == _ends.length, "start and end not match");
 
@@ -386,7 +386,7 @@ library ArrayUint32LIB {
     function mergeSequentialArray(
         uint32[] memory _starts,
         uint32[] memory _ends
-    ) public pure returns (uint32[] memory) {
+    ) internal pure returns (uint32[] memory) {
         // Check if the number of start values matches the number of end values
         require(_starts.length == _ends.length, "start and end not match");
 
@@ -588,7 +588,7 @@ library ArrayUint64LIB {
     function mergeSequentialArray(
         uint64[] memory _starts,
         uint64[] memory _ends
-    ) public pure returns (uint64[] memory) {
+    ) internal pure returns (uint64[] memory) {
         // Check if the number of start values matches the number of end values
         require(_starts.length == _ends.length, "start and end not match");
 

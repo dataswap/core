@@ -30,7 +30,7 @@ library StorageStatisticsLIB {
     function addAllocated(
         StatisticsType.StorageStatistics storage self,
         uint256 size
-    ) external {
+    ) internal {
         uint256 unAllocated = self.total - self.allocatedDatacap;
         //solhint-disable-next-line
         require(unAllocated >= size, "invalid size to addAllocated");
@@ -41,7 +41,7 @@ library StorageStatisticsLIB {
     function addCanceled(
         StatisticsType.StorageStatistics storage self,
         uint256 size
-    ) external {
+    ) internal {
         uint256 available = self.allocatedDatacap -
             self.completed -
             self.canceled;
@@ -54,7 +54,7 @@ library StorageStatisticsLIB {
     function addStoraged(
         StatisticsType.StorageStatistics storage self,
         uint256 size
-    ) external {
+    ) internal {
         uint256 available = self.allocatedDatacap -
             self.completed -
             self.canceled;
@@ -72,7 +72,7 @@ library StorageStatisticsLIB {
     /// @return A boolean indicating whether the storage statistics represent a completed state.
     function isStorageCompleted(
         StatisticsType.StorageStatistics storage self
-    ) external view returns (bool) {
+    ) internal view returns (bool) {
         if ((self.completed + self.canceled) == self.total) {
             return true;
         }
@@ -85,7 +85,7 @@ library StorageStatisticsLIB {
     /// @return A boolean indicating whether the storage is considered successful.
     function isStorageSuccessful(
         StatisticsType.StorageStatistics storage self
-    ) external view returns (bool) {
+    ) internal view returns (bool) {
         if (self.completed == self.total) {
             return true;
         }
@@ -102,7 +102,7 @@ library StorageStatisticsLIB {
     function getOverview(
         StatisticsType.StorageStatistics storage self
     )
-        external
+        internal
         view
         returns (
             uint256 total,
