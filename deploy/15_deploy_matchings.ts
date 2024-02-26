@@ -7,11 +7,10 @@ import { governanceAddress } from "../scripts/constants";
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const { deployments } = hre;
     const roles = await deployments.get("Roles");
-    const datasetsRequirement = await deployments.get("DatasetsRequirement");
-    await deployAndSaveContract("Matchings", [governanceAddress, roles.address, datasetsRequirement.address], hre);
+    await deployAndSaveContract("Matchings", [governanceAddress, roles.address], hre);
 };
 
 export default deployFunction;
 
-deployFunction.dependencies = ["Roles", "DatasetsRequirement"];
+deployFunction.dependencies = ["Roles"];
 deployFunction.tags = ["Matchings"];

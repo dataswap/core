@@ -6,12 +6,10 @@ import { deployAndSaveContract } from "../scripts/utils";
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const { deployments } = hre;
     const roles = await deployments.get("Roles");
-    const filecoin = await deployments.get("Filecoin");
-    const filplus = await deployments.get("Filplus");
-    await deployAndSaveContract("Carstore", [roles.address, filplus.address, filecoin.address], hre);
+    await deployAndSaveContract("Carstore", [roles.address], hre);
 };
 
 export default deployFunction;
 
-deployFunction.dependencies = ["Roles", "Filecoin", "Filplus"];
+deployFunction.dependencies = ["Roles"];
 deployFunction.tags = ["Carstore"];

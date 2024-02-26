@@ -9,23 +9,11 @@ const deployFunction: DeployFunction = async function (
 ) {
   const { deployments } = hre;
   const roles = await deployments.get("Roles");
-  const filplus = await deployments.get("Filplus");
-  const carstore = await deployments.get("Carstore");
-  const datasets = await deployments.get("Datasets");
-  const datasetsRequirement = await deployments.get("DatasetsRequirement");
-  const datasetsProof = await deployments.get("DatasetsProof");
-  const finance = await deployments.get("Finance");
   await deployAndSaveContract(
     "MatchingsBids",
     [
       governanceAddress,
       roles.address,
-      filplus.address,
-      carstore.address,
-      datasets.address,
-      datasetsRequirement.address,
-      datasetsProof.address,
-      finance.address,
     ],
     hre
   );
@@ -35,11 +23,5 @@ export default deployFunction;
 
 deployFunction.dependencies = [
   "Roles",
-  "Filplus",
-  "Carstore",
-  "Datasets",
-  "DatasetsRequirement",
-  "DatasetsProof",
-  "Finance",
 ];
 deployFunction.tags = ["MatchingsBids"];

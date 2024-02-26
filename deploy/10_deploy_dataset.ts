@@ -9,15 +9,14 @@ const deployFunction: DeployFunction = async function (
 ) {
   const { deployments } = hre;
   const roles = await deployments.get("Roles");
-  const finance = await deployments.get("Finance");
   await deployAndSaveContract(
     "Datasets",
-    [governanceAddress, roles.address, finance.address],
+    [governanceAddress, roles.address],
     hre
   );
 };
 
 export default deployFunction;
 
-deployFunction.dependencies = ["Roles", "Finance"];
+deployFunction.dependencies = ["Roles"];
 deployFunction.tags = ["Datasets"];
