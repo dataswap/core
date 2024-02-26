@@ -10,10 +10,11 @@
     "abi/"
   ],
   "scripts": {
+    "build": "npx hardhat clean;npx hardhat compile",
     "test": "echo \"Error: no test specified\"",
     "readme": "npx readme-md-generator -p ./templates/readme.md",
     "commit": "git-cz",
-    "release": "npm run build; git branch --show-current | grep -q '^main$' && release-it",
+    "release": "npm run build; ./scripts/prepare_abi; git branch --show-current | grep -q '^main$' && release-it",
     "contrib:init": "all-contributors init",
     "contrib:add": "all-contributors add",
     "contrib:check": "all-contributors check",
@@ -29,10 +30,12 @@
   "dependencies": {
     "@openzeppelin/contracts": "4.9.3",
     "@openzeppelin/contracts-upgradeable": "4.9.3",
+    "@release-it/conventional-changelog": "^8.0.1",
     "@zondax/filecoin-solidity": "^4.0.3",
     "git-cz": "^4.9.0",
     "global": "^4.4.0",
-    "hardhat-abi-exporter": "2.10.1"
+    "hardhat-abi-exporter": "2.10.1",
+    "release-it": "^17.1.1"
   },
   "devDependencies": {
     "@glif/filecoin-address": "^2.0.43",

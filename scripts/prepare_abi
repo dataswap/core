@@ -23,8 +23,7 @@ CODEPATH=$(pwd -P)
 echo "Code path: $CODEPATH"
 rm -rf $CODEPATH/abi
 
-yarn hardhat compile
-yarn hardhat export-abi
+npx hardhat export-abi
 
 if [ -z "$CODEPATH/abi" ]; then
   echo "Error: Unable to determine the abi path."
@@ -48,8 +47,3 @@ rm -rf $CODEPATH/abi/src
 # Replace getReplicaDealState, getReplicaClaimData state to view.
 sed -i '' -e '/"name": "getReplicaDealState"/ ,/"stateMutability": "nonpayable"/ s/"stateMutability": "nonpayable"/"stateMutability": "view"/' $CODEPATH/abi/$version/Filecoin.json
 sed -i '' -e '/"name": "getReplicaClaimData"/ ,/"stateMutability": "nonpayable"/ s/"stateMutability": "nonpayable"/"stateMutability": "view"/' $CODEPATH/abi/$version/Filecoin.json
-
-PACKAGE_JSON_PATH=$CODEPATH/package.json
-NEW_VERSION=$(jq -r '.version' "$PACKAGE_JSON_PATH")
-
-npm publish --access=public
