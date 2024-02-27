@@ -23,14 +23,13 @@ pragma solidity ^0.8.21;
 
 import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {IBusinessFinanceStatistics} from "src/v0.8/interfaces/core/statistics/IBusinessFinanceStatistics.sol";
-import {IMemberFinanceStatistics} from "src/v0.8/interfaces/core/statistics/IMemberFinanceStatistics.sol";
 
 /// @title IPayment Interface
 /// @notice This interface defines the payment-related functions within the system.
 /// @notice instance example,type: mapping(uint256 => mapping(uint256 => mapping(address => mapping(address=>Account))));
 ///                       explain: mapping(datasetId => mapping(matchingId => mapping(sc/sp/da/dp => mapping(tokentype=>Account))));
 ///                       If matchingId is set to 0, it indicates the dataset phase.
-interface IFinance is IBusinessFinanceStatistics, IMemberFinanceStatistics {
+interface IFinance is IBusinessFinanceStatistics {
     /// @dev Records the deposited amount for a given dataset and matching ID.
     /// @param _datasetId The ID of the dataset.
     /// @param _matchingId The ID of the matching process.
