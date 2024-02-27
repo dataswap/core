@@ -1,5 +1,18 @@
 
 
+# [0.4.0](https://github.com/dataswap/core/compare/v0.3.1...v0.4.0) (2024-02-27)
+
+
+### Bug Fixes
+
+* 🐛 change tvl to escrow in statistics ([2f150bb](https://github.com/dataswap/core/commit/2f150bb4c223df86f26cbe86d2b8fab2907d330e)), closes [#304](https://github.com/dataswap/core/issues/304)
+* 🐛 remove member finance statistics ([b8dcc22](https://github.com/dataswap/core/commit/b8dcc2252b1704fc8269156f0e00ecd0fc37f541)), closes [#305](https://github.com/dataswap/core/issues/305)
+
+
+### Features
+
+* 🎸 Add StorageProviderDatacapChunkLandPenalty to statistic ([59d50b1](https://github.com/dataswap/core/commit/59d50b189292f41ed399e5ef6b880c786733abde)), closes [#308](https://github.com/dataswap/core/issues/308)
+
 ## [0.3.1](https://github.com/dataswap/core/compare/v0.3.0...v0.3.1) (2024-02-26)
 
 
