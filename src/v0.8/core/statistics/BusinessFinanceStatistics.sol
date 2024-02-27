@@ -93,21 +93,21 @@ contract BusinessFinanceStatistics is
         if (_type == FinanceType.Type.EscrowDatacapCollateral) {
             businessFinanceStatisticsType = StatisticsType
                 .BusinessFinanceStatisticsType
-                .StorageClientDatacapCollateralTVL;
+                .StorageClientEscrowDatacapCollateral;
         } else if (_type == FinanceType.Type.EscrowDataTradingFee) {
             if (_matchingId == 0) {
                 businessFinanceStatisticsType = StatisticsType
                     .BusinessFinanceStatisticsType
-                    .StorageClientDataTradingFeeTVL;
+                    .StorageClientEscrowDataTradingFee;
             } else {
                 businessFinanceStatisticsType = StatisticsType
                     .BusinessFinanceStatisticsType
-                    .StorageProviderBidAmountTVL;
+                    .StorageProviderEscrowDataTradingFee;
             }
         } else if (_type == FinanceType.Type.EscrowChallengeCommission) {
             businessFinanceStatisticsType = StatisticsType
                 .BusinessFinanceStatisticsType
-                .StorageClientChallengeCommissionTVL;
+                .StorageClientEscrowChallengeCommission;
         } else if (_type == FinanceType.Type.EscrowDataTradingCommission) {
             //TODO: platform commission
             businessFinanceStatisticsType = StatisticsType
@@ -116,19 +116,19 @@ contract BusinessFinanceStatistics is
         } else if (_type == FinanceType.Type.EscrowDatacapChunkLandCollateral) {
             businessFinanceStatisticsType = StatisticsType
                 .BusinessFinanceStatisticsType
-                .StorageProviderDatacapChunkLandTVL;
+                .StorageProviderEscrowDatacapChunkLand;
         } else if (_type == FinanceType.Type.EscrowProofAuditCollateral) {
             businessFinanceStatisticsType = StatisticsType
                 .BusinessFinanceStatisticsType
-                .DatasetPreparerProofAuditCollateralTVL;
+                .DatasetPreparerEscrowProofAuditCollateral;
         } else if (_type == FinanceType.Type.EscrowChallengeAuditCollateral) {
             businessFinanceStatisticsType = StatisticsType
                 .BusinessFinanceStatisticsType
-                .DatasetAuditorChallengeAuditCollateralTVL;
+                .DatasetAuditorEscrowChallengeAuditCollateral;
         } else if (_type == FinanceType.Type.EscrowDisputeAuditCollateral) {
             businessFinanceStatisticsType = StatisticsType
                 .BusinessFinanceStatisticsType
-                .DatasetAuditorDisputeAuditCollateralTVL;
+                .DatasetAuditorEscrowDisputeAuditCollateral;
         }
     }
 
@@ -153,7 +153,7 @@ contract BusinessFinanceStatistics is
         if (_type == FinanceType.Type.EscrowDatacapCollateral) {
             businessFinanceStatisticsType = StatisticsType
                 .BusinessFinanceStatisticsType
-                .StorageClientDatacapCollateralTVL;
+                .StorageClientEscrowDatacapCollateral;
         } else if (_type == FinanceType.Type.EscrowDataTradingFee) {
             address storageClient = _roles
                 .datasets()
@@ -162,16 +162,16 @@ contract BusinessFinanceStatistics is
             if (_payer == storageClient) {
                 businessFinanceStatisticsType = StatisticsType
                     .BusinessFinanceStatisticsType
-                    .StorageClientDataTradingFeeTVL;
+                    .StorageClientEscrowDataTradingFee;
             } else {
                 businessFinanceStatisticsType = StatisticsType
                     .BusinessFinanceStatisticsType
-                    .StorageProviderBidAmountTVL;
+                    .StorageProviderEscrowDataTradingFee;
             }
         } else if (_type == FinanceType.Type.EscrowChallengeCommission) {
             businessFinanceStatisticsType = StatisticsType
                 .BusinessFinanceStatisticsType
-                .StorageClientChallengeCommissionTVL;
+                .StorageClientEscrowChallengeCommission;
         } else if (_type == FinanceType.Type.EscrowDataTradingCommission) {
             //TODO: platform commission
             businessFinanceStatisticsType = StatisticsType
@@ -180,19 +180,19 @@ contract BusinessFinanceStatistics is
         } else if (_type == FinanceType.Type.EscrowDatacapChunkLandCollateral) {
             businessFinanceStatisticsType = StatisticsType
                 .BusinessFinanceStatisticsType
-                .StorageProviderDatacapChunkLandTVL;
+                .StorageProviderEscrowDatacapChunkLand;
         } else if (_type == FinanceType.Type.EscrowProofAuditCollateral) {
             businessFinanceStatisticsType = StatisticsType
                 .BusinessFinanceStatisticsType
-                .DatasetPreparerProofAuditCollateralTVL;
+                .DatasetPreparerEscrowProofAuditCollateral;
         } else if (_type == FinanceType.Type.EscrowChallengeAuditCollateral) {
             businessFinanceStatisticsType = StatisticsType
                 .BusinessFinanceStatisticsType
-                .DatasetAuditorChallengeAuditCollateralTVL;
+                .DatasetAuditorEscrowChallengeAuditCollateral;
         } else if (_type == FinanceType.Type.EscrowDisputeAuditCollateral) {
             businessFinanceStatisticsType = StatisticsType
                 .BusinessFinanceStatisticsType
-                .DatasetAuditorDisputeAuditCollateralTVL;
+                .DatasetAuditorEscrowDisputeAuditCollateral;
         }
     }
 
@@ -349,65 +349,65 @@ contract BusinessFinanceStatistics is
         }
     }
 
-    /// @notice Retrieves an overview of dataset-related finance statistics.
-    /// @param _token The type of token used for the deposit (e.g., FIL, ERC-20).
-    /// @return storageClientDatacapCollateralTVL The total value locked (TVL) of storage client datacap collateral.
-    /// @return storageClientDataTradingFeeTVL The TVL of storage client data trading fees.
-    /// @return storageClientChallengeCommissionTVL The TVL of storage client challenge commissions.
-    /// @return datasetPreparerProofAuditCollateralTVL The TVL of dataset preparer proof audit collateral.
-    /// @return datasetAuditorChallengeAuditCollateralTVL The TVL of dataset auditor challenge audit collateral.
-    /// @return datasetAuditorDisputeAuditCollateralTVL The TVL of dataset auditor dispute audit collateral.
-    /// @return datasetPrepareProofDisputePenalty The penalty for dataset preparer proof disputes.
-    /// @return datasetAuditorChallengeDisputePenalty The penalty for dataset auditor challenge disputes.
-    /// @return datasetAuditorFailureDisputePenalty The penalty for dataset auditor failure disputes.
-    /// @return storageClientPaidChallengeCommission The amount of challenge commission paid by storage clients.
+    /// @notice Provides an overview of escrow statistics related to a dataset.
+    /// @param _token The token address.
+    /// @return storageClientEscrowDatacapCollateral The total escrowed amount for storage client datacap collateral.
+    /// @return storageClientEscrowDataTradingFee The total escrowed amount for storage client data trading fee.
+    /// @return storageClientEscrowChallengeCommission The total escrowed amount for storage client challenge commission.
+    /// @return datasetPreparerEscrowProofAuditCollateral The total escrowed amount for dataset preparer proof audit collateral.
+    /// @return datasetAuditorEscrowChallengeAuditCollateral The total escrowed amount for dataset auditor challenge audit collateral.
+    /// @return datasetAuditorEscrowDisputeAuditCollateral The total escrowed amount for dataset auditor dispute audit collateral.
+    /// @return datasetPrepareProofDisputePenalty The total escrowed amount for dataset prepare proof dispute penalty.
+    /// @return datasetAuditorChallengeDisputePenalty The total escrowed amount for dataset auditor challenge dispute penalty.
+    /// @return datasetAuditorFailureDisputePenalty The total escrowed amount for dataset auditor failure dispute penalty.
+    /// @return storageClientPaidChallengeCommission The total paid commission for storage client challenge.
     function datasetOverview(
         address _token
     )
         external
         view
         returns (
-            uint256 storageClientDatacapCollateralTVL,
-            uint256 storageClientDataTradingFeeTVL,
-            uint256 storageClientChallengeCommissionTVL,
-            uint256 datasetPreparerProofAuditCollateralTVL,
-            uint256 datasetAuditorChallengeAuditCollateralTVL,
-            uint256 datasetAuditorDisputeAuditCollateralTVL,
+            uint256 storageClientEscrowDatacapCollateral,
+            uint256 storageClientEscrowDataTradingFee,
+            uint256 storageClientEscrowChallengeCommission,
+            uint256 datasetPreparerEscrowProofAuditCollateral,
+            uint256 datasetAuditorEscrowChallengeAuditCollateral,
+            uint256 datasetAuditorEscrowDisputeAuditCollateral,
             uint256 datasetPrepareProofDisputePenalty,
             uint256 datasetAuditorChallengeDisputePenalty,
             uint256 datasetAuditorFailureDisputePenalty,
             uint256 storageClientPaidChallengeCommission
         )
     {
-        storageClientDatacapCollateralTVL = amounts[
+        storageClientEscrowDatacapCollateral = amounts[
             StatisticsType
                 .BusinessFinanceStatisticsType
-                .StorageClientDatacapCollateralTVL
+                .StorageClientEscrowDatacapCollateral
         ][_token];
-        storageClientDataTradingFeeTVL = amounts[
+        storageClientEscrowDataTradingFee = amounts[
             StatisticsType
                 .BusinessFinanceStatisticsType
-                .StorageClientDataTradingFeeTVL
+                .StorageClientEscrowDataTradingFee
         ][_token];
-        storageClientChallengeCommissionTVL = amounts[
+        storageClientEscrowChallengeCommission = amounts[
             StatisticsType
                 .BusinessFinanceStatisticsType
-                .StorageClientChallengeCommissionTVL
+                .StorageClientEscrowChallengeCommission
         ][_token];
-        datasetPreparerProofAuditCollateralTVL = amounts[
+        datasetPreparerEscrowProofAuditCollateral = amounts[
             StatisticsType
                 .BusinessFinanceStatisticsType
-                .DatasetPreparerProofAuditCollateralTVL
+                .DatasetPreparerEscrowProofAuditCollateral
         ][_token];
-        datasetAuditorChallengeAuditCollateralTVL = amounts[
+        datasetAuditorEscrowChallengeAuditCollateral = amounts[
             StatisticsType
                 .BusinessFinanceStatisticsType
-                .DatasetAuditorChallengeAuditCollateralTVL
+                .DatasetAuditorEscrowChallengeAuditCollateral
         ][_token];
-        datasetAuditorDisputeAuditCollateralTVL = amounts[
+        datasetAuditorEscrowDisputeAuditCollateral = amounts[
             StatisticsType
                 .BusinessFinanceStatisticsType
-                .DatasetAuditorDisputeAuditCollateralTVL
+                .DatasetAuditorEscrowDisputeAuditCollateral
         ][_token];
         datasetPrepareProofDisputePenalty = amounts[
             StatisticsType
@@ -431,47 +431,50 @@ contract BusinessFinanceStatistics is
         ][_token];
     }
 
-    /// @notice Retrieves an overview of matching-related finance statistics.
-    /// @param _token The type of token used for the deposit (e.g., FIL, ERC-20).
-    /// @return storageProviderBidAmountTVL The TVL of storage provider bid amounts.
-    /// @return matchedAmount The total amount matched.
+    /// @notice Provides an overview of escrow statistics related to matching.
+    /// @param _token The token address.
+    /// @return storageProviderEscrowDataTradingFee The total escrowed amount for storage provider data trading fee.
+    /// @return matchedAmount The total matched amount.
     function matchingOverview(
         address _token
     )
         external
         view
-        returns (uint256 storageProviderBidAmountTVL, uint256 matchedAmount)
+        returns (
+            uint256 storageProviderEscrowDataTradingFee,
+            uint256 matchedAmount
+        )
     {
-        storageProviderBidAmountTVL = amounts[
+        storageProviderEscrowDataTradingFee = amounts[
             StatisticsType
                 .BusinessFinanceStatisticsType
-                .StorageProviderBidAmountTVL
+                .StorageProviderEscrowDataTradingFee
         ][_token];
         matchedAmount = amounts[
             StatisticsType.BusinessFinanceStatisticsType.MatchedAmount
         ][_token];
     }
 
-    /// @notice Retrieves an overview of storage-related finance statistics.
-    /// @param _token The type of token used for the deposit (e.g., FIL, ERC-20).
-    /// @return storageProviderDatacapChunkLandTVL The TVL of storage provider datacap chunk land.
-    /// @return storageProviderPaidDataTradingFee The amount of data trading fee paid by storage providers.
-    /// @return storageClientPaidDataTradingFee The amount of data trading fee paid by storage clients.
+    /// @notice Provides an overview of escrow statistics related to storage.
+    /// @param _token The token address.
+    /// @return storageProviderEscrowDatacapChunkLand The total escrowed amount for storage provider datacap chunk land.
+    /// @return storageProviderPaidDataTradingFee The total escrowed amount for storage provider data trading fee.
+    /// @return storageClientPaidDataTradingFee The total escrowed amount for storage client data trading fee.
     function storageOverview(
         address _token
     )
         external
         view
         returns (
-            uint256 storageProviderDatacapChunkLandTVL,
+            uint256 storageProviderEscrowDatacapChunkLand,
             uint256 storageProviderPaidDataTradingFee,
             uint256 storageClientPaidDataTradingFee
         )
     {
-        storageProviderDatacapChunkLandTVL = amounts[
+        storageProviderEscrowDatacapChunkLand = amounts[
             StatisticsType
                 .BusinessFinanceStatisticsType
-                .StorageProviderDatacapChunkLandTVL
+                .StorageProviderEscrowDatacapChunkLand
         ][_token];
         storageProviderPaidDataTradingFee = amounts[
             StatisticsType
