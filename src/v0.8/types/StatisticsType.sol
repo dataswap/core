@@ -49,25 +49,25 @@ library StatisticsType {
 
     /// @title Enum defining types of business finance statistics.
     enum BusinessFinanceStatisticsType {
-        // Dataset TVL
-        StorageClientDatacapCollateralTVL,
-        StorageClientDataTradingFeeTVL,
-        StorageClientChallengeCommissionTVL,
-        DatasetPreparerProofAuditCollateralTVL,
-        DatasetAuditorChallengeAuditCollateralTVL,
-        DatasetAuditorDisputeAuditCollateralTVL,
+        // Dataset Escrow
+        StorageClientEscrowDatacapCollateral,
+        StorageClientEscrowDataTradingFee,
+        StorageClientEscrowChallengeCommission,
+        DatasetPreparerEscrowProofAuditCollateral,
+        DatasetAuditorEscrowChallengeAuditCollateral,
+        DatasetAuditorEscrowDisputeAuditCollateral,
         // Dataset Penalty
         DatasetPrepareProofDisputePenalty,
         DatasetAuditorChallengeDisputePenalty,
         DatasetAuditorFailureDisputePenalty,
         // Dataset Payment
         StorageClientPaidChallengeCommission,
-        // Matching TVL
-        StorageProviderBidAmountTVL,
+        // Matching Escrow
+        StorageProviderEscrowDataTradingFee,
         // Matching Matched Amount
         MatchedAmount,
-        // Storages TVL
-        StorageProviderDatacapChunkLandTVL,
+        // Storages Escrow
+        StorageProviderEscrowDatacapChunkLand,
         // Storage Data Trading Fee
         StorageProviderPaidDataTradingFee,
         StorageClientPaidDataTradingFee,
