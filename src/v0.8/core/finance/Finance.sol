@@ -39,7 +39,6 @@ import {FinanceAccountLIB} from "src/v0.8/core/finance/library/FinanceAccountLIB
 import {FinanceModifiers} from "src/v0.8/shared/modifiers/FinanceModifiers.sol";
 
 import {BusinessFinanceStatistics} from "src/v0.8/core/statistics/BusinessFinanceStatistics.sol";
-import {MemberFinanceStatistics} from "src/v0.8/core/statistics/MemberFinanceStatistics.sol";
 
 /// @title Finance
 /// @dev Base finance contract, holds funds designated for a payee until they withdraw them.
@@ -49,20 +48,20 @@ contract Finance is
     RolesModifiers,
     FinanceModifiers,
     BusinessFinanceStatistics,
-    MemberFinanceStatistics,
     IFinance
 {
     using FinanceAccountLIB for FinanceType.Account;
     mapping(uint256 => mapping(uint256 => mapping(address => mapping(address => FinanceType.Account))))
         private financeAccount; // mapping(datasetId => mapping(matchingId => mapping(sc/sp/da/dp => mapping(tokentype=>Account))));
 
+    IRoles public roles;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
     /// @notice Initialize function to initialize the contract and grant the default admin role to the deployer.
     function initialize(address _roles) public initializer {
+        roles = IRoles(_roles);
         businessFinanceStatisticsInitialize();
-        memberFinanceStatisticsInitialize(_roles);
         __UUPSUpgradeable_init();
     }
 

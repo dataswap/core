@@ -80,16 +80,4 @@ library StatisticsType {
         Burn, // Burn funds
         Payment // payment funds
     }
-
-    struct MemberFinanceStatistics {
-        uint64 datasetId;
-        uint64 matchingId;
-        address token;
-    }
-
-    struct FinanceStatistics {
-        // mapping(member => mapping(datasetId => mapping(matchingId => mapping(tokentype=>exist))));
-        mapping(uint64 => mapping(uint64 => mapping(address => bool))) records;
-        MemberFinanceStatistics[] statistics;
-    }
 }
