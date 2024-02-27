@@ -71,6 +71,8 @@ library StatisticsType {
         // Storage Data Trading Fee
         StorageProviderPaidDataTradingFee,
         StorageClientPaidDataTradingFee,
+        // Storage Datacap chunk land penalty
+        StorageProviderDatacapChunkLandPenalty,
         None
     }
 

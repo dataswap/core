@@ -275,9 +275,11 @@ contract BusinessFinanceStatistics is
                 .BusinessFinanceStatisticsType
                 .None;
         } else if (_type == FinanceType.Type.EscrowDatacapChunkLandCollateral) {
-            businessFinanceStatisticsType = StatisticsType
-                .BusinessFinanceStatisticsType
-                .None;
+            if (_paymentType == StatisticsType.PaymentType.Burn) {
+                businessFinanceStatisticsType = StatisticsType
+                    .BusinessFinanceStatisticsType
+                    .StorageProviderDatacapChunkLandPenalty;
+            }
         } else if (_type == FinanceType.Type.EscrowProofAuditCollateral) {
             if (_paymentType == StatisticsType.PaymentType.Burn) {
                 businessFinanceStatisticsType = StatisticsType
@@ -460,6 +462,7 @@ contract BusinessFinanceStatistics is
     /// @return storageProviderEscrowDatacapChunkLand The total escrowed amount for storage provider datacap chunk land.
     /// @return storageProviderPaidDataTradingFee The total escrowed amount for storage provider data trading fee.
     /// @return storageClientPaidDataTradingFee The total escrowed amount for storage client data trading fee.
+    /// @return storageProviderDatacapChunkLandPenalty The total penalty amount for storage provider datacap chunk land.
     function storageOverview(
         address _token
     )
@@ -468,7 +471,8 @@ contract BusinessFinanceStatistics is
         returns (
             uint256 storageProviderEscrowDatacapChunkLand,
             uint256 storageProviderPaidDataTradingFee,
-            uint256 storageClientPaidDataTradingFee
+            uint256 storageClientPaidDataTradingFee,
+            uint256 storageProviderDatacapChunkLandPenalty
         )
     {
         storageProviderEscrowDatacapChunkLand = amounts[
@@ -485,6 +489,11 @@ contract BusinessFinanceStatistics is
             StatisticsType
                 .BusinessFinanceStatisticsType
                 .StorageClientPaidDataTradingFee
+        ][_token];
+        storageProviderDatacapChunkLandPenalty = amounts[
+            StatisticsType
+                .BusinessFinanceStatisticsType
+                .StorageProviderDatacapChunkLandPenalty
         ][_token];
     }
 }

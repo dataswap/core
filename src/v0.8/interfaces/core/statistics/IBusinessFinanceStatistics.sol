@@ -73,6 +73,7 @@ interface IBusinessFinanceStatistics {
     /// @return storageProviderEscrowDatacapChunkLand The total escrowed amount for storage provider datacap chunk land.
     /// @return storageProviderPaidDataTradingFee The total escrowed amount for storage provider data trading fee.
     /// @return storageClientPaidDataTradingFee The total escrowed amount for storage client data trading fee.
+    /// @return storageProviderDatacapChunkLandPenalty The total penalty amount for storage provider datacap chunk land.
     function storageOverview(
         address _token
     )
@@ -81,6 +82,7 @@ interface IBusinessFinanceStatistics {
         returns (
             uint256 storageProviderEscrowDatacapChunkLand,
             uint256 storageProviderPaidDataTradingFee,
-            uint256 storageClientPaidDataTradingFee
+            uint256 storageClientPaidDataTradingFee,
+            uint256 storageProviderDatacapChunkLandPenalty
         );
 }
