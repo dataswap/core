@@ -155,7 +155,7 @@ contract BaseTestSetup {
         );
         base.storages.registDataswapDatacap(100000000000000);
 
-        address[] memory _contracts = new address[](14);
+        address[] memory _contracts = new address[](15);
         _contracts[0] = address(0);
         _contracts[1] = address(base.role);
         _contracts[2] = address(base.filplus);
@@ -171,6 +171,7 @@ contract BaseTestSetup {
         _contracts[11] = address(base.matchingsBids);
         _contracts[12] = address(base.filecoin);
         _contracts[13] = address(base.merkleUtils);
+        _contracts[14] = address(base.finance);
         base.role.grantDataswapContractRole(_contracts);
 
         base.role.registerContract(
