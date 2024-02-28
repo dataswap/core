@@ -71,7 +71,7 @@ abstract contract EscrowBase is
     /// @param _matchingId The ID of the matching process.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return paymentsInfo An array containing the payees's address.
-    function getPayeeInfo(
+    function __getPayeeInfo(
         uint64 _datasetId,
         uint64 _matchingId,
         address _token
@@ -79,6 +79,7 @@ abstract contract EscrowBase is
         external
         view
         virtual
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
         returns (FinanceType.PaymentInfo[] memory paymentsInfo)
     {
         // 1. Get payers
@@ -127,7 +128,7 @@ abstract contract EscrowBase is
     /// @param _destMatchingId The ID of the matching process.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return paymentsInfo An array containing the payees's address.
-    function getMoveSourceAccountPayeeInfo(
+    function __getMoveSourceAccountPayeeInfo(
         uint64 _datasetId,
         uint64 _destMatchingId,
         address _token
@@ -135,6 +136,7 @@ abstract contract EscrowBase is
         external
         view
         virtual
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
         returns (FinanceType.PaymentInfo[] memory paymentsInfo)
     {
         paymentsInfo = _getMoveSourceAccountInfo(
@@ -146,7 +148,7 @@ abstract contract EscrowBase is
 
     /// @notice Get dataset pre-conditional collateral requirement.
     /// @return amount The collateral requirement amount.
-    function getRequirement(
+    function __getRequirement(
         uint64 /*_datasetId*/,
         uint64 /*_matchingId*/,
         address /*_payer*/,
@@ -155,6 +157,7 @@ abstract contract EscrowBase is
         public
         view
         virtual
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
         returns (
             uint256 amount // solhint-disable-next-line
         )

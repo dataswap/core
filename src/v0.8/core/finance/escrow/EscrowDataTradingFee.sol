@@ -17,6 +17,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
@@ -212,12 +213,12 @@ contract EscrowDataTradingFee is EscrowBase {
     /// @param _payer An array containing the addresses of the dataset and matching process payers.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return amount The collateral requirement amount.
-    function getRequirement(
+    function __getRequirement(
         uint64 _datasetId,
         uint64 _matchingId,
         address _payer,
         address _token
-    ) public view override returns (uint256 amount) {
+    ) public view override onlyRole(roles, RolesType.DATASWAP_CONTRACT) returns (uint256 amount) {
         if (_payer == roles.matchingsBids().getMatchingWinner(_matchingId)) {
             amount = roles.matchingsBids().getMatchingBidAmount(
                 _matchingId,

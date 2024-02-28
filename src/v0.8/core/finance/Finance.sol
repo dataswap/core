@@ -223,7 +223,7 @@ contract Finance is
     ) external onlySupportToken(_token) {
         FinanceType.PaymentInfo[] memory paymentsInfo = _getEscrowContract(
             _type
-        ).getPayeeInfo(_datasetId, _matchingId, _token);
+        ).__getPayeeInfo(_datasetId, _matchingId, _token);
 
         _paymentProcess(_datasetId, _matchingId, _token, _type, paymentsInfo);
 
@@ -253,7 +253,7 @@ contract Finance is
     {
         FinanceType.PaymentInfo[] memory paymentsInfo = _getEscrowContract(
             _type
-        ).getMoveSourceAccountPayeeInfo(_datasetId, _destMatchingId, _token);
+        ).__getMoveSourceAccountPayeeInfo(_datasetId, _destMatchingId, _token);
         _moveEscrowFundsProcess(
             _datasetId,
             _destMatchingId,
@@ -356,7 +356,7 @@ contract Finance is
         address _token,
         FinanceType.Type _type
     ) public view onlySupportToken(_token) returns (uint256 amount) {
-        amount = _getEscrowContract(_type).getRequirement(
+        amount = _getEscrowContract(_type).__getRequirement(
             _datasetId,
             _matchingId,
             _owner,

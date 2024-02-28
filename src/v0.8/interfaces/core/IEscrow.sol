@@ -27,7 +27,7 @@ interface IEscrow {
     /// @param _matchingId The ID of the matching process.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return paymentsInfo An array containing the payees's address.
-    function getPayeeInfo(
+    function __getPayeeInfo(
         uint64 _datasetId,
         uint64 _matchingId,
         address _token
@@ -38,7 +38,7 @@ interface IEscrow {
     /// @param _destMatchingId The ID of the matching process.
     /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
     /// @return paymentsInfo An array containing the payees's address.
-    function getMoveSourceAccountPayeeInfo(
+    function __getMoveSourceAccountPayeeInfo(
         uint64 _datasetId,
         uint64 _destMatchingId,
         address _token
@@ -50,7 +50,7 @@ interface IEscrow {
     /// @param _owner An array containing the addresses of the dataset and matching process owners.
     /// @param _token The address of the token used for escrow.
     /// @return amount The collateral requirement amount.
-    function getRequirement(
+    function __getRequirement(
         uint64 _datasetId,
         uint64 _matchingId,
         address _owner,
