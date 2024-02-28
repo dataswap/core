@@ -133,44 +133,88 @@ yarn hardhat compile
 yarn hardhat deploy
 
 RolesAddress=$(npx hardhat getProxyAddress --type localnet --name Roles)
-FilecoinAddress=$(npx hardhat getProxyAddress --type localnet --name Filecoin)
 FilplusAddress=$(npx hardhat getProxyAddress --type localnet --name Filplus)
-MerkleUtilsAddress=$(npx hardhat getProxyAddress --type localnet --name MerkleUtils)
-CarstoreAddress=$(npx hardhat getProxyAddress --type localnet --name Carstore)
 FinanceAddress=$(npx hardhat getProxyAddress --type localnet --name Finance)
+FilecoinAddress=$(npx hardhat getProxyAddress --type localnet --name Filecoin)
+CarstoreAddress=$(npx hardhat getProxyAddress --type localnet --name Carstore)
+StoragesAddress=$(npx hardhat getProxyAddress --type localnet --name Storages)
+MerkleUtilsAddress=$(npx hardhat getProxyAddress --type localnet --name MerkleUtils)
 DatasetsAddress=$(npx hardhat getProxyAddress --type localnet --name Datasets)
-DatasetsRequirementAddress=$(npx hardhat getProxyAddress --type localnet --name DatasetsRequirement)
 DatasetsProofAddress=$(npx hardhat getProxyAddress --type localnet --name DatasetsProof)
 DatasetsChallengeAddress=$(npx hardhat getProxyAddress --type localnet --name DatasetsChallenge)
+DatasetsRequirementAddress=$(npx hardhat getProxyAddress --type localnet --name DatasetsRequirement)
 MatchingsAddress=$(npx hardhat getProxyAddress --type localnet --name Matchings)
-MatchingsTargetAddress=$(npx hardhat getProxyAddress --type localnet --name MatchingsTarget)
 MatchingsBidsAddress=$(npx hardhat getProxyAddress --type localnet --name MatchingsBids)
-StoragesAddress=$(npx hardhat getProxyAddress --type localnet --name Storages)
-EscrowChallengeCommissionAddress=$(npx hardhat getProxyAddress --type localnet --name EscrowChallengeCommission)
+MatchingsTargetAddress=$(npx hardhat getProxyAddress --type localnet --name MatchingsTarget)
+EscrowDataTradingFeeAddress=$(npx hardhat getProxyAddress --type localnet --name EscrowDataTradingFee)
 EscrowDatacapChunkLandCollateralAddress=$(npx hardhat getProxyAddress --type localnet --name EscrowDatacapChunkLandCollateral)
 EscrowDatacapCollateralAddress=$(npx hardhat getProxyAddress --type localnet --name EscrowDatacapCollateral)
-EscrowDataTradingFeeAddress=$(npx hardhat getProxyAddress --type localnet --name EscrowDataTradingFee)
+EscrowChallengeCommissionAddress=$(npx hardhat getProxyAddress --type localnet --name EscrowChallengeCommission)
 
 cat >"${BASEDIR}/contract" <<EOF
 export RolesAddress=$RolesAddress
-export FilecoinAddress=$FilecoinAddress
 export FilplusAddress=$FilplusAddress
-export MerkleUtilsAddress=$MerkleUtilsAddress
-export CarstoreAddress=$CarstoreAddress
 export FinanceAddress=$FinanceAddress
+export FilecoinAddress=$FilecoinAddress
+export CarstoreAddress=$CarstoreAddress
+export StoragesAddress=$StoragesAddress
+export MerkleUtilsAddress=$MerkleUtilsAddress
 export DatasetsAddress=$DatasetsAddress
-export DatasetsRequirementAddress=$DatasetsRequirementAddress
 export DatasetsProofAddress=$DatasetsProofAddress
 export DatasetsChallengeAddress=$DatasetsChallengeAddress
+export DatasetsRequirementAddress=$DatasetsRequirementAddress
 export MatchingsAddress=$MatchingsAddress
-export MatchingsTargetAddress=$MatchingsTargetAddress
 export MatchingsBidsAddress=$MatchingsBidsAddress
-export StoragesAddress=$StoragesAddress
-export EscrowChallengeCommissionAddress=$EscrowChallengeCommissionAddress
+export MatchingsTargetAddress=$MatchingsTargetAddress
+export EscrowDataTradingFeeAddress=$EscrowDataTradingFeeAddress
 export EscrowDatacapChunkLandCollateralAddress=$EscrowDatacapChunkLandCollateralAddress
 export EscrowDatacapCollateralAddress=$EscrowDatacapCollateralAddress
-export EscrowDataTradingFeeAddress=$EscrowDataTradingFeeAddress
+export EscrowChallengeCommissionAddress=$EscrowChallengeCommissionAddress
 EOF
+
+# install foundry
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
+
+PRIVATE_KEY="0x0a3570f105ea5d06c355ea1a7a1fea441e90e44984896779b6c44c2ca5a8e16b"
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 0 $FilplusAddress 
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 1 $FinanceAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 2 $FilecoinAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 3 $CarstoreAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 4 $StoragesAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 5 $MerkleUtilsAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 6 $DatasetsAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 7 $DatasetsProofAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 8 $DatasetsChallengeAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 9 $DatasetsRequirementAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 10 $MatchingsAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 11 $MatchingsBidsAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 12 $MatchingsTargetAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 13 $EscrowDataTradingFeeAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 14 $EscrowDatacapChunkLandCollateralAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 15 $EscrowDatacapCollateralAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 16 $EscrowChallengeCommissionAddress
+
+DATASWAPROLE="0xd4c6f45e959193f4fa6251e76cc3d999512eb8b529a40dac0d5e892efe8ea48e"
+
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $RolesAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $FilplusAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $FinanceAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $FilecoinAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $CarstoreAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $StoragesAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $MerkleUtilsAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $DatasetsAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $DatasetsProofAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $DatasetsChallengeAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $DatasetsRequirementAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $MatchingsAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $MatchingsBidsAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $MatchingsTargetAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowDataTradingFeeAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowDatacapChunkLandCollateralAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowDatacapCollateralAddress
+cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowChallengeCommissionAddress
 
 RootAddress=$(lotus msig inspect f080 | grep t0100 | awk '{print $2}')
 NotariyAddress=$(lotus evm stat $FilecoinAddress | grep "ID address" | awk '{print $3}')
