@@ -199,12 +199,14 @@ interface IDatasetsAssertion is IStatisticsBaseAssertion {
     /// @param _auditor The auditor address for which verification is retrieved.
     /// @param _expectSiblings The expected Merkle proof siblings.
     /// @param _expectPaths The expected Merkle proof paths.
+    /// @param _expectRandomSeed The expected Merkle proof randomseed.
     function getDatasetChallengeProofsAssertion(
         uint64 _datasetId,
         address _auditor,
         bytes32[] memory _expectLeaves,
         bytes32[][] memory _expectSiblings,
-        uint32[] memory _expectPaths
+        uint32[] memory _expectPaths,
+        uint64 _expectRandomSeed
     ) external;
 
     /// @notice Asserts the retrieval of the count of dataset verifications.

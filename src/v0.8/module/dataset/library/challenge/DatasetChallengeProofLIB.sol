@@ -40,7 +40,7 @@ library DatasetChallengeProofLIB {
         uint32[] memory _paths,
         bytes32[] memory _roots,
         IMerkleUtils _merkle
-    ) internal returns (bool) {
+    ) internal {
         //For each challenge proofs submitted by an auditor, the random seed must be different.
         require(
             !isDatasetChallengeProofDuplicate(self, msg.sender, _randomSeed),
@@ -48,17 +48,15 @@ library DatasetChallengeProofLIB {
         );
         require(_randomSeed > 0, "Invalid random seed");
 
-        if (
-            !_requireValidChallengeProofs(
+       require(
+            _requireValidChallengeProofs(
                 _leaves,
                 _siblings,
                 _paths,
                 _roots,
                 _merkle
-            )
-        ) {
-            return false;
-        }
+            ),"Invalid challenge proofs"
+        );
 
         // Update the dataset state here
         self.challengesCount++;
@@ -70,10 +68,9 @@ library DatasetChallengeProofLIB {
             challenge.setChallengeProof(_leaves[i], _siblings[i], _paths[i]);
             challengeProof.challenges.push(challenge);
         }
+        challengeProof.randomSeed = _randomSeed;
         // Recording the auditor
         self.auditors.push(msg.sender);
-
-        return true;
     }
 
     /// @notice Validates the submitted challenge proofs.
@@ -123,27 +120,29 @@ library DatasetChallengeProofLIB {
         view
         returns (
             bytes32[] memory leaves,
-            bytes32[][] memory siblingss,
-            uint32[] memory paths
+            bytes32[][] memory siblings,
+            uint32[] memory paths,
+            uint64 randomSeed
         )
     {
         DatasetType.ChallengeProof storage challengeProof = self
             .challengeProofs[_auditor];
-        siblingss = new bytes32[][](challengeProof.challenges.length);
+        siblings = new bytes32[][](challengeProof.challenges.length);
         paths = new uint32[](challengeProof.challenges.length);
         leaves = new bytes32[](challengeProof.challenges.length);
+        randomSeed = challengeProof.randomSeed;
 
         for (uint256 i = 0; i < challengeProof.challenges.length; i++) {
             DatasetType.Challenge storage challenge = challengeProof.challenges[
                 i
             ];
-            (bytes32 leaf, bytes32[] memory siblings, uint32 path) = challenge
+            (bytes32 leaf, bytes32[] memory vsiblings, uint32 path) = challenge
                 .getChallengeProof();
             leaves[i] = leaf;
-            siblingss[i] = siblings;
+            siblings[i] = vsiblings;
             paths[i] = path;
         }
-        return (leaves, siblingss, paths);
+        return (leaves, siblings, paths ,randomSeed);
     }
 
     /// @notice Get the count of challenge proofs for a dataset.

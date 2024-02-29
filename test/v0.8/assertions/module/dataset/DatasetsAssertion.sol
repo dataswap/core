@@ -558,7 +558,8 @@ contract DatasetsAssertion is
             caller,
             _leaves,
             _siblings,
-            _paths
+            _paths,
+            _randomSeed
         );
         getDatasetChallengeProofsSubmittersAssertion(
             _datasetId,
@@ -794,7 +795,7 @@ contract DatasetsAssertion is
 
         for (uint64 i = 0; i < auditors.length; i++) {
             assertEq(auditors[i], _expectAuditors[i], "auditor not matched");
-            (bytes32[] memory leaves, , ) = datasetsChallenge
+            (bytes32[] memory leaves, ,, ) = datasetsChallenge
                 .getDatasetChallengeProofs(_datasetId, auditors[i]);
             assertEq(
                 leaves.length,
@@ -814,7 +815,8 @@ contract DatasetsAssertion is
         address _auditor,
         bytes32[] memory _expectLeaves,
         bytes32[][] memory _expectSiblings,
-        uint32[] memory _expectPaths
+        uint32[] memory _expectPaths,
+        uint64 _expectRandomSeed
     ) public {
         assertEq(
             _expectSiblings.length,
@@ -830,7 +832,8 @@ contract DatasetsAssertion is
         (
             bytes32[] memory leaves,
             bytes32[][] memory siblings,
-            uint32[] memory paths
+            uint32[] memory paths,
+            uint64 randomSeed
         ) = datasetsChallenge.getDatasetChallengeProofs(_datasetId, _auditor);
 
         assertEq(leaves.length, _expectLeaves.length, "length not matched");
@@ -853,6 +856,8 @@ contract DatasetsAssertion is
                 );
             }
         }
+
+        assertEq(randomSeed,_expectRandomSeed,"randomseed not matched");
     }
 
     /// @notice Assertion function for getting dataset verification count.
