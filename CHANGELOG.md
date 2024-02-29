@@ -1,5 +1,18 @@
 
 
+# [0.5.0](https://github.com/dataswap/core/compare/v0.4.0...v0.5.0) (2024-02-29)
+
+
+### Bug Fixes
+
+* 🐛 Fixed the issue with submitDatasetChallengeProofs ([2b9414e](https://github.com/dataswap/core/commit/2b9414e018396e74285c288a7a63473e7c9e4c54)), closes [#316](https://github.com/dataswap/core/issues/316)
+* 🐛 Initialization after contract deployment in the docker ([fe3b517](https://github.com/dataswap/core/commit/fe3b5176b56266928a11be963da4c31cd41d73e6)), closes [#313](https://github.com/dataswap/core/issues/313)
+
+
+### Features
+
+* 🎸 Modify the IEScrowBase extend interface as the internal ([315820c](https://github.com/dataswap/core/commit/315820c6708403293f05a47ad733d2b9cfdcd8e8)), closes [#312](https://github.com/dataswap/core/issues/312)
+
 # [0.4.0](https://github.com/dataswap/core/compare/v0.3.1...v0.4.0) (2024-02-27)
 
 
