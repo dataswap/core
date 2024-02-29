@@ -179,7 +179,8 @@ contract DatasetsChallenge is
         returns (
             bytes32[] memory leaves,
             bytes32[][] memory siblings,
-            uint32[] memory paths
+            uint32[] memory paths,
+            uint64 randomSeed
         )
     {
         DatasetType.DatasetChallengeProof

@@ -113,7 +113,6 @@ contract Datasets is
         _addSizeSuccess(mappingSize + sourceSize);
 
         dataset._emitDatasetEvent(DatasetType.Event.Approved);
-        emit DatasetsEvents.DatasetApproved(_datasetId);
 
         // Payment challenge commission
         roles.finance().claimEscrow(
@@ -122,6 +121,8 @@ contract Datasets is
             FinanceType.FIL,
             FinanceType.Type.EscrowChallengeCommission
         );
+
+        emit DatasetsEvents.DatasetApproved(_datasetId);
     }
 
     ///@notice Reject a dataset.
@@ -138,7 +139,13 @@ contract Datasets is
 
         dataset._emitDatasetEvent(DatasetType.Event.Rejected);
 
-        //TODO:finance.handleEscrow()
+        roles.finance().claimEscrow(
+            _datasetId,
+            0,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowChallengeCommission
+        );
+
         uint64 mappingSize = roles.datasetsProof().getDatasetSize(
             _datasetId,
             DatasetType.DataType.MappingFiles
@@ -431,7 +438,12 @@ contract Datasets is
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset._emitDatasetEvent(DatasetType.Event.WorkflowTimeout);
 
-        //TODO:finance.handleEscrow()
+        roles.finance().claimEscrow(
+            _datasetId,
+            0,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowChallengeCommission
+        );
 
         uint64 mappingSize = roles.datasetsProof().getDatasetSize(
             _datasetId,
