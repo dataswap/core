@@ -101,18 +101,18 @@ contract DatasetsChallenge is
             roles.datasets().__reportDatasetWorkflowTimeout(_datasetId);
             return;
         }
+        DatasetType.DatasetChallengeProof
+            storage datasetChallengeProof = datasetChallengeProofs[_datasetId];
         require(
-            getDatasetChallengeProofsCount(_datasetId) <=
+            datasetChallengeProof.auditors.length <=
                 roles.filplus().getChallengeProofsSubmiterCount(),
-            "exceeds maximum challenge proofs count of filplus"
+            "exceeds maximum challenge submitters count of filplus"
         );
         require(
             getDatasetChallengeProofsCount(_datasetId) <
                 getChallengeSubmissionCount(_datasetId),
             "exceeds maximum challenge proofs count of dataset"
         );
-        DatasetType.DatasetChallengeProof
-            storage datasetChallengeProof = datasetChallengeProofs[_datasetId];
         bytes32[] memory roots = _getChallengeRoots(
             _datasetId,
             _randomSeed,
