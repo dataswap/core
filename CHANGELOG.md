@@ -1,5 +1,13 @@
 
 
+## [0.5.1](https://github.com/dataswap/core/compare/v0.5.0...v0.5.1) (2024-03-01)
+
+
+### Bug Fixes
+
+* 🐛 fix docker scripts ([c672d73](https://github.com/dataswap/core/commit/c672d73eed728f55532465435058e5190143c66d)), closes [#320](https://github.com/dataswap/core/issues/320)
+* 🐛 fix submitDatasetChallengeProofs ([e4af9a3](https://github.com/dataswap/core/commit/e4af9a3ee2fbf37a1269b194855cdfa956969663)), closes [#318](https://github.com/dataswap/core/issues/318)
+
 # [0.5.0](https://github.com/dataswap/core/compare/v0.4.0...v0.5.0) (2024-02-29)
 
 
