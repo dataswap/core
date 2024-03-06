@@ -174,31 +174,7 @@ contract EscrowDataTradingFee is EscrowBase {
             _datasetId
         );
 
-        // Source account balance
-        (, , uint256 current, ) = roles.finance().getAccountEscrow(
-            _datasetId,
-            0,
-            payer,
-            _token,
-            FinanceType.Type.EscrowDataTradingFee
-        );
-
-        (, , uint64 matchingSize, , , ) = roles
-            .matchingsTarget()
-            .getMatchingTarget(_destMatchingId);
-
-        (uint256 usedSize, , , , , ) = roles
-            .storages()
-            .getDatasetStorageOverview(_datasetId);
-
-        uint256 unusedSize = roles.datasetsProof().getDatasetSize(
-            _datasetId,
-            DatasetType.DataType.Source
-        ) *
-            roles.datasetsRequirement().getDatasetReplicasCount(_datasetId) -
-            usedSize;
-
-        uint256 amount = (current / unusedSize) * matchingSize;
+        uint256 amount = __getRequirement(_datasetId,_destMatchingId,payer, _token);
 
         FinanceType.PayeeInfo[] memory payees = new FinanceType.PayeeInfo[](1);
         payees[0] = FinanceType.PayeeInfo(payer, amount);
@@ -224,6 +200,32 @@ contract EscrowDataTradingFee is EscrowBase {
                 _matchingId,
                 _payer
             );
+        } else if (_payer == roles.datasets().getDatasetMetadataSubmitter(_datasetId)) {
+            // Source account balance
+            (, , uint256 balance, ) = roles.finance().getAccountEscrow(
+                _datasetId,
+                0,
+                _payer,
+                _token,
+                FinanceType.Type.EscrowDataTradingFee
+            );
+
+            (, , uint64 matchingSize, , , ) = roles
+                .matchingsTarget()
+                .getMatchingTarget(_matchingId);
+
+            (uint256 usedSize, , , , , ) = roles
+                .storages()
+                .getDatasetStorageOverview(_datasetId);
+
+            uint256 unusedSize = roles.datasetsProof().getDatasetSize(
+                _datasetId,
+                DatasetType.DataType.Source
+            ) *
+                roles.datasetsRequirement().getDatasetReplicasCount(_datasetId) -
+                usedSize;
+
+            amount = (balance / unusedSize) * matchingSize;
         } else {
             require(false, "payer account does not exist");
         }
