@@ -17,8 +17,15 @@ task("upgrade", "Upgrade a contract")
   .addParam("name", "The new implementation contract name")
   .setAction(async (taskArgs, hre) => {
     const newImplementationContract = await hre.ethers.getContractFactory(taskArgs.name as string);
-    const upgradedProxy = await hre.upgrades.upgradeProxy(taskArgs.address, newImplementationContract);
-    console.log(`Contract upgraded to new implementation: ${taskArgs.name} address: ${upgradedProxy.address}`);
+
+    await hre.upgrades.forceImport(taskArgs.address, newImplementationContract);
+    const upgradedProxy = await hre.upgrades.upgradeProxy(taskArgs.address, newImplementationContract, {
+      unsafeAllow: ["delegatecall"],
+      kind: "uups",
+      redeployImplementation: "always",
+      timeout: 1000000,
+    });
+    console.log(`Contract upgraded to new implementation: proxy address: ${upgradedProxy.address}`);
   });
 
 task("getProxyAddress", "Get a contract proxy address")

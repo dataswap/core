@@ -31,7 +31,7 @@ export const deployAndSaveContract = async (name: string, args: unknown[], hre: 
 	});
 	await contract.deployed();
 
-	console.log(name + " Address---> " + contract.address);
+	console.log("export", name + "Address=" + contract.address);
 
 	const implAddr = await contract.getImplementation();
 	console.log("Implementation address for " + name + " is " + implAddr);
