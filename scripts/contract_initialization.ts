@@ -8,6 +8,7 @@ async function main(): Promise<void> {
     const { deployments, getNamedAccounts } = hre
     const { read, execute } = deployments
     const { deployer } = await getNamedAccounts()
+    const DATASWAP_CONTRACT = "0xd4c6f45e959193f4fa6251e76cc3d999512eb8b529a40dac0d5e892efe8ea48e" // keccak256("DATASWAP")
     const contracts = [
         // consistent with ContractType order! https://github.com/dataswap/core/blob/main/src/v0.8/types/RolesType.sol
         "Filplus",
@@ -27,6 +28,7 @@ async function main(): Promise<void> {
         "EscrowDatacapChunkLandCollateral",
         "EscrowDatacapCollateral",
         "EscrowChallengeCommission",
+        "Roles"
     ]
 
     for (let i = 0; i < contracts.length; i++) {
@@ -40,19 +42,37 @@ async function main(): Promise<void> {
             dynamicJson.default.address
         )
 
+        if (contracts[i] !== "Roles") {
+            await execute(
+                "Roles",
+                { from: deployer },
+                "registerContract",
+                i,
+                dynamicJson.default.address
+            )
+
+            const value = await read(
+                "Roles",
+                contracts[i].charAt(0).toLowerCase() + contracts[i].slice(1)
+            )
+            console.log("registerContract: ", contracts[i] + ": ", value.toString())
+        }
+
         await execute(
             "Roles",
             { from: deployer },
-            "registerContract",
-            i,
+            "grantRole",
+            DATASWAP_CONTRACT,
             dynamicJson.default.address
         )
 
         const value = await read(
             "Roles",
-            contracts[i].charAt(0).toLowerCase() + contracts[i].slice(1)
+            "hasRole",
+            DATASWAP_CONTRACT,
+            dynamicJson.default.address
         )
-        console.log("registerContract: ", contracts[i], ": ", value.toString())
+        console.log("grantRole: ", contracts[i], "result: ", value.toString())
     }
 
     console.log("End initialization contract...")
