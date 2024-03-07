@@ -1,5 +1,17 @@
 
 
+# [0.6.0](https://github.com/dataswap/core/compare/v0.5.1...v0.6.0) (2024-03-07)
+
+
+### Bug Fixes
+
+* 🐛 Add support for obtaining subsidy requirements ([97931e1](https://github.com/dataswap/core/commit/97931e17bcf007c37bf95df9ca33089a41d20eeb)), closes [#324](https://github.com/dataswap/core/issues/324)
+
+
+### Features
+
+* 🎸 Add initialization function after contract deployment ([62042e0](https://github.com/dataswap/core/commit/62042e0fcb05225c23dc1c27b58f0109bba524c1)), closes [#322](https://github.com/dataswap/core/issues/322)
+
 ## [0.5.1](https://github.com/dataswap/core/compare/v0.5.0...v0.5.1) (2024-03-01)
 
 
