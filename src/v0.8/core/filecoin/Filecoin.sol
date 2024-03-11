@@ -38,7 +38,7 @@ import {UUPSUpgradeable} from "@openzeppelin/contracts-upgradeable/proxy/utils/U
 /// @title Filecoin
 contract Filecoin is Initializable, UUPSUpgradeable, IFilecoin, RolesModifiers {
     FilecoinType.Network public network;
-    IRoles private roles;
+    IRoles public roles;
     /// @dev This empty reserved space is put in place to allow future versions to add new
     uint256[32] private __gap;
 
@@ -142,4 +142,9 @@ contract Filecoin is Initializable, UUPSUpgradeable, IFilecoin, RolesModifiers {
     /// @dev mock the filecoin claim data
     // solhint-disable-next-line
     function setMockClaimData(uint64 claimId, bytes memory _data) external {}
+
+    /// @notice Set the Roles contract.
+    function setRoles(address _roles) external onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
+         roles = IRoles(_roles);
+    }
 }
