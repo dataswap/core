@@ -100,7 +100,7 @@ contract StorageStatisticsBase is
                 matchingId
             ];
 
-        matchingStorageStatistics.total = size;
+        matchingStorageStatistics.total += size;
 
         bytes32 key = _getReplicaKey(datasetId, replicaIndex);
         StatisticsType.StorageStatistics
@@ -363,7 +363,7 @@ contract StorageStatisticsBase is
             availableDatacap,
             canceled,
             unallocatedDatacap
-        ) = datasetsStorageStatistics[matchingId].getOverview();
+        ) = matchingsStorageStatistics[matchingId].getOverview();
 
         storageProviders = matchingsStorageProvidersStatistics[matchingId]
             .getOverview();
