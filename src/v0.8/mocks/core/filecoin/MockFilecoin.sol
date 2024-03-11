@@ -32,7 +32,7 @@ contract MockFilecoin is
     IFilecoin,
     RolesModifiers
 {
-    IRoles private roles;
+    IRoles public roles;
     FilecoinType.DealState private mockDealState;
     //bytes private mockClaimData;
     mapping(uint64 => bytes) private mockClaimData; //matchingId=>Matchedstore
@@ -86,4 +86,7 @@ contract MockFilecoin is
     ) external view override returns (bytes memory) {
         return mockClaimData[claimId];
     }
+
+    /// @notice Set the Roles contract.
+    function setRoles(address _roles) external {}
 }

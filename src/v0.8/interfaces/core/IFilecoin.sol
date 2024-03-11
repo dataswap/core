@@ -19,6 +19,7 @@
 pragma solidity ^0.8.21;
 
 import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 
 /// @title IFilplus
 interface IFilecoin {
@@ -43,4 +44,11 @@ interface IFilecoin {
 
     /// @dev mock the filecoin claim data
     function setMockClaimData(uint64 claimId, bytes memory _data) external;
+
+    /// @notice Set the Roles contract.
+    function setRoles(address _roles) external ;
+
+    /// @notice Get the Roles contract.
+    /// @return Roles contract address.
+    function roles() external view returns (IRoles);
 }
