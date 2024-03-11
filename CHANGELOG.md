@@ -1,5 +1,18 @@
 
 
+# [0.7.0](https://github.com/dataswap/core/compare/v0.6.0...v0.7.0) (2024-03-11)
+
+
+### Bug Fixes
+
+* 🐛 Fix contract upgrade issue ([ddd03ce](https://github.com/dataswap/core/commit/ddd03ceebfe77755a0a44cd6d7a67069024a13fc)), closes [#327](https://github.com/dataswap/core/issues/327)
+* 🐛 fix matching storage statistics ([d79364b](https://github.com/dataswap/core/commit/d79364b5e276fb8d26c914d41190adbc578345e0)), closes [#331](https://github.com/dataswap/core/issues/331)
+
+
+### Features
+
+* 🎸 add setRoles to filecoin contract ([18a0f8c](https://github.com/dataswap/core/commit/18a0f8cd9f49f1cdaec8a7b25216362ceef323d0)), closes [#333](https://github.com/dataswap/core/issues/333)
+
 # [0.6.0](https://github.com/dataswap/core/compare/v0.5.1...v0.6.0) (2024-03-07)
 
 
