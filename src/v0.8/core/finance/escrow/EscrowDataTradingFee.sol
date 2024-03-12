@@ -195,42 +195,7 @@ contract EscrowDataTradingFee is EscrowBase {
         address _payer,
         address _token
     ) public view override onlyRole(roles, RolesType.DATASWAP_CONTRACT) returns (uint256 amount) {
-        if (_payer == roles.matchingsBids().getMatchingWinner(_matchingId)) {
-            amount = roles.matchingsBids().getMatchingBidAmount(
-                _matchingId,
-                _payer
-            );
-        } else if (_payer == roles.datasets().getDatasetMetadataSubmitter(_datasetId)) {
-            // Source account balance
-            (, , uint256 balance, ) = roles.finance().getAccountEscrow(
-                _datasetId,
-                0,
-                _payer,
-                _token,
-                FinanceType.Type.EscrowDataTradingFee
-            );
-
-            (, , uint64 matchingSize, , , ) = roles
-                .matchingsTarget()
-                .getMatchingTarget(_matchingId);
-
-            (uint256 usedSize, , , , , ) = roles
-                .storages()
-                .getDatasetStorageOverview(_datasetId);
-
-            uint256 unusedSize = roles.datasetsProof().getDatasetSize(
-                _datasetId,
-                DatasetType.DataType.Source
-            ) *
-                roles.datasetsRequirement().getDatasetReplicasCount(_datasetId) -
-                usedSize;
-
-            amount = (balance / unusedSize) * matchingSize;
-        } else {
-            require(false, "payer account does not exist");
-        }
-
-        (, , uint256 current, ) = roles.finance().getAccountEscrow(
+        (, , uint256 current, uint256 total ) = roles.finance().getAccountEscrow(
             _datasetId,
             _matchingId,
             _payer,
@@ -238,7 +203,61 @@ contract EscrowDataTradingFee is EscrowBase {
             FinanceType.Type.EscrowDataTradingFee
         );
 
+        if (_payer == roles.matchingsBids().getMatchingWinner(_matchingId)) {
+            amount = roles.matchingsBids().getMatchingBidAmount(
+                _matchingId,
+                _payer
+            );
+        } else if (_payer == roles.datasets().getDatasetMetadataSubmitter(_datasetId)) {
+            if (total <= 0) {
+                amount = _getSubsidyAmount(_datasetId, _matchingId, _payer, _token);
+            } else {
+                amount = total;
+            }
+        } else {
+            require(false, "payer account does not exist");
+        }
+
         amount = current >= amount ? 0 : amount - current;
+    }
+
+    /// @notice Get matching subsidy amount.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _matchingId The ID of the matching process.
+    /// @param _payer An array containing the addresses of the dataset and matching process payers.
+    /// @param _token The type of token for escrow handling (e.g., FIL, ERC-20).
+    /// @return subsidy The subsidy amount.
+    function _getSubsidyAmount(
+        uint64 _datasetId,
+        uint64 _matchingId,
+        address _payer,
+        address _token
+    ) internal view returns (uint256 subsidy) {
+        // Source account balance
+        (, , uint256 balance, ) = roles.finance().getAccountEscrow(
+            _datasetId,
+            0,
+            _payer,
+            _token,
+            FinanceType.Type.EscrowDataTradingFee
+        );
+
+        (, , uint64 matchingSize, , , ) = roles
+            .matchingsTarget()
+            .getMatchingTarget(_matchingId);
+
+        (uint256 usedSize, , , , , ) = roles
+            .storages()
+            .getDatasetStorageOverview(_datasetId);
+
+        uint256 unusedSize = roles.datasetsProof().getDatasetSize(
+            _datasetId,
+            DatasetType.DataType.Source
+        ) *
+            roles.datasetsRequirement().getDatasetReplicasCount(_datasetId) -
+            usedSize;
+
+        subsidy = (balance / unusedSize) * matchingSize;
     }
 
     /// @dev Internal function to get payers associated with a dataset and matching process.
