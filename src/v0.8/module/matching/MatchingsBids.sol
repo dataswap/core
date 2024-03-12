@@ -359,13 +359,18 @@ contract MatchingsBids is
                 winner
             );
 
-            // Transfer parent account escrow to sub-account escrow
-            roles.finance().__claimMoveEscrow(
-                _datasetId,
-                _matchingId,
-                FinanceType.FIL,
-                FinanceType.Type.EscrowDataTradingFee
-            );
+            (,,,DatasetType.DataType dataType,,) = roles.matchingsTarget().getMatchingTarget(_matchingId);
+
+            if (dataType == DatasetType.DataType.Source) {
+                // Transfer parent account escrow to sub-account escrow
+                roles.finance().__claimMoveEscrow(
+                    _datasetId,
+                    _matchingId,
+                    FinanceType.FIL,
+                    FinanceType.Type.EscrowDataTradingFee
+                );
+            }
+
         } else {
             uint64 _size = _afterMatchingFailed(_matchingId);
             roles.matchings().__reportMatchingNoWinner(_matchingId, _size);
