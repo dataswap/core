@@ -80,6 +80,12 @@ contract DatasetsChallenge is
         return _getImplementation();
     }
 
+    /// @notice Stake function for auditors.
+    /// @dev Allows auditors to stake tokens for a specific dataset.
+    /// @param _datasetId The ID of the dataset for which auditors are staking tokens.
+    /// @param _amount The amount of tokens to stake.
+    function auditorStake(uint64 _datasetId, uint256 _amount) external {}
+
     ///@notice Submit challenge proof for a dataset
     /// Based on merkle proof challenge.
     /// random challenge method is used to reduce the amount of data and calculation while ensuring algorithm security.
@@ -303,4 +309,20 @@ contract DatasetsChallenge is
                 1
             )[0];
     }
+
+    ///@notice Retrieves sorted auditor candidates for a specific dataset.
+    ///@dev Retrieves a list of auditor candidates sorted based on certain criteria.
+    ///@param _datasetId The ID of the dataset for which auditor candidates are retrieved.
+    ///@return candidates An array containing the addresses of the sorted auditor candidates.
+    function getSortedAuditorCandidates(
+        uint64 _datasetId
+    ) external returns (address[] memory candidates) {}
+
+    /// @notice Retrieves the end height of the auditor election for a specific dataset.
+    /// @dev Retrieves the block height at which the auditor election for the specified dataset ends.
+    /// @param _datasetId The ID of the dataset for which the end height of the auditor election is retrieved.
+    /// @return The end height of the auditor election.
+    function getAuditorElectionEndHeight(
+        uint64 _datasetId
+    ) public view returns (uint64) {}
 }

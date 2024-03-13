@@ -83,6 +83,9 @@ library FilplusEvents {
     // Event emitted when datacap collateral lock days when dataset approved rule is set
     event SetDatacapdatasetApprovedLockDays(uint64 _newValue);
 
+    // Event emitted when auditor elections time rule is set
+    event SetAuditorsElectionTime(uint64 _newValue);
+
     // Event emitted when datacap collateral max lock days rule is set
     event SetDatacapCollateralMaxLockDays(uint64 _newValue);
 
@@ -94,5 +97,4 @@ library FilplusEvents {
 
     // Event emitted when dispute audit fee rule is set
     event SetDisputeAuditFee(uint256 _newValue);
-
 }

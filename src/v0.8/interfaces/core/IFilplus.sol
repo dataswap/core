@@ -97,32 +97,26 @@ interface IFilplus {
     function setChallengeProofsSubmiterCount(uint16 _newValue) external;
 
     /// @notice Set the datacap collateral lock days when dataset approved complies with filplus rules.
-    function setDatacapdatasetApprovedLockDays(
-        uint64 _newValue
-    ) external;
+    function setDatacapdatasetApprovedLockDays(uint64 _newValue) external;
 
     /// @notice Set the datacap collateral lock max days complies with filplus rules.
-    function setDatacapCollateralMaxLockDays(
-        uint64 _newValue
-    ) external;
+    function setDatacapCollateralMaxLockDays(uint64 _newValue) external;
 
     /// @notice Set the challenge audit fee complies with filplus rules.
-    function setChallengeAuditFee(
-        uint256 _newValue
-    ) external;
+    function setChallengeAuditFee(uint256 _newValue) external;
 
     /// @notice Set the proof audit fee complies with filplus rules.
-    function setProofAuditFee(
-        uint256 _newValue
-    ) external;
+    function setProofAuditFee(uint256 _newValue) external;
 
     /// @notice Set the dispute audit fee complies with filplus rules.
-    function setDisputeAuditFee(
-        uint256 _newValue
-    ) external;
+    function setDisputeAuditFee(uint256 _newValue) external;
 
     /// @notice Set the challenge proofs price pre point complies with filplus rules.
     function setChallengeProofsPricePrePoint(uint256 _newValue) external;
+
+    ///@notice Sets the election time for auditors.
+    ///@param _blocks The number of blocks to set as the election time.
+    function setAuditorsElectionTime(uint64 _blocks) external;
 
     function getIncomeReleaseRule(
         FinanceType.Type _type
@@ -244,6 +238,9 @@ interface IFilplus {
         external
         view
         returns (uint8);
+
+    ///@notice Returns the election time for auditors.
+    function auditorsElectionTime() external view returns (uint64);
 
     /// @notice Check if the storage area complies with filplus rules.
     function isCompliantRuleGeolocation(

@@ -112,6 +112,7 @@ library DatasetType {
         uint16 challengesCount;
         mapping(address => ChallengeProof) challengeProofs; // Address of the auditor who submits challenges.
         address[] auditors; // Records of auditors submitting verifications.
+        address[] candidates; // Records of candidates of auditors.
     }
 
     /// @notice The struct describes the storage requirements specified by the client.
