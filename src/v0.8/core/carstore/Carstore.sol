@@ -155,13 +155,7 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         uint64 _id,
         uint64 _matchingId,
         bool _matchingState
-    )
-        external
-        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
-        onlyCarExist(this, _id)
-        onlyNotZero(_matchingId)
-        onlyCarReplicaExist(this, _id, _matchingId)
-    {
+    ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         if (_matchingState) {
             _emitRepicaEvent(
                 _id,
@@ -185,6 +179,24 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
                 "failed"
             );
         }
+    }
+    /// @dev Reports a failure in car replica storage.
+    /// @param _id The ID associated with the car replica.
+    /// @param _matchingId The ID of the matching process related to the storage failure.
+    function __reportCarReplicaStorageFailed(
+        uint64 _id,
+        uint64 _matchingId
+    )
+        external
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
+        onlyCarReplicaState(
+            this,
+            _id,
+            _matchingId,
+            CarReplicaType.State.Matched
+        )
+    {
+        _emitRepicaEvent(_id, _matchingId, CarReplicaType.Event.StorageFailed);
     }
 
     function _checkCarReplicaDealState(
@@ -211,9 +223,6 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     )
         external
         onlyRole(roles, RolesType.DATASWAP_CONTRACT)
-        onlyCarExist(this, _id)
-        onlyNotZero(_matchingId)
-        onlyCarReplicaExist(this, _id, _matchingId)
         onlyCarReplicaState(this, _id, _matchingId, CarReplicaType.State.Stored)
     {
         _checkCarReplicaDealState(
@@ -240,9 +249,6 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
     )
         external
         onlyRole(roles, RolesType.DATASWAP_CONTRACT)
-        onlyCarExist(this, _id)
-        onlyNotZero(_matchingId)
-        onlyCarReplicaExist(this, _id, _matchingId)
         onlyCarReplicaState(this, _id, _matchingId, CarReplicaType.State.Stored)
     {
         _checkCarReplicaDealState(

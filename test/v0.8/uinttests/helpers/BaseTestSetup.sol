@@ -275,6 +275,7 @@ contract BaseTestSetup {
             RolesType.ContractType.EscrowProofAuditCollateral,
             address(base.escrowProofAuditCollateral)
         );
+        base.role.grantRole(RolesType.DEFAULT_ADMIN_ROLE, address(0));
     }
 
     /// @dev Get the governanceContractAddresss contract.

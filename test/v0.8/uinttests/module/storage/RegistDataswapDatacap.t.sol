@@ -13,16 +13,21 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  ********************************************************************************/
-
 // SPDX-License-Identifier: GPL-3.0-or-later
-
 pragma solidity ^0.8.21;
 
-/// @notice This library defines enums and structs related to storage deals and their states.
-library StorageType {
-    /// @notice Struct representing a storage deal.
-    struct Storage {
-        uint64[] doneCars;
-        bool completed;
+import {Test} from "forge-std/Test.sol";
+import {DatacapTestSetup} from "test/v0.8/uinttests/module/storage/setup/DatacapTestSetup.sol";
+import "test/v0.8/testcases/module/storage/RegistDataswapDatacapTestSuite.sol";
+
+contract RegistDataswapDatacapTest is Test, DatacapTestSetup {
+    /// @dev test case with success
+    function testRegistDataswapDatacapSuccess() public {
+        setup();
+        RegistDataswapDatacapWithSuccess testCase = new RegistDataswapDatacapWithSuccess(
+                assertion
+            );
+
+        testCase.run();
     }
 }

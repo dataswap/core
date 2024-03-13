@@ -40,7 +40,13 @@ contract EscrowDatacapChunkLandCollateral is EscrowBase {
         uint64 _matchingId,
         address _payer,
         address _token
-    ) public view override onlyRole(roles, RolesType.DATASWAP_CONTRACT) returns (uint256 amount) {
+    )
+        public
+        view
+        override
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
+        returns (uint256 amount)
+    {
         (, , uint256 current, ) = roles.finance().getAccountEscrow(
             _datasetId,
             _matchingId,
@@ -141,7 +147,7 @@ contract EscrowDatacapChunkLandCollateral is EscrowBase {
         uint64 _matchingId
     ) internal view override returns (bool refund) {
         return ((_matchingId != 0 &&
-            roles.storages().isStorageExpiration(_matchingId)) ||
+            roles.storages().isStorageCompleted(_matchingId)) ||
             roles.datasets().getDatasetState(_datasetId) ==
             DatasetType.State.Rejected);
     }
@@ -154,6 +160,6 @@ contract EscrowDatacapChunkLandCollateral is EscrowBase {
         uint64 _matchingId
     ) internal view override returns (bool burn) {
         return (_matchingId != 0 &&
-            roles.storages().isStorageExpiration(_matchingId));
+            roles.storages().isStorageCompleted(_matchingId));
     }
 }

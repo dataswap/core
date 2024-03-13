@@ -50,6 +50,14 @@ interface IStoragesAssertion is IStorageStatisticsBaseAssertion {
         uint64[] memory _claimIds
     ) external;
 
+    /// @dev Completes the storage assertion process initiated by a specific caller for a given matching ID with multiple content identifiers.
+    /// @param _matchingId The ID of the matching process for which the storage assertion is completed.
+    /// @param _ids An array of content identifiers associated with the storage assertion process.
+    function completeStorageAssersion(
+        uint64 _matchingId,
+        uint64[] memory _ids
+    ) external;
+
     /// @notice Asserts the retrieval of stored car CIDs in a matching.
     /// @param _matchingId The ID of the matching.
     /// @param _expectCars The expected array of stored car CIDs.
