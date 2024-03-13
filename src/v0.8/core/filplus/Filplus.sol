@@ -97,6 +97,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         rules.proofAuditFee = 1000000000000000000;
         rules.challengeAuditFee = rules.proofAuditFee;
         rules.disputeAuditFee = rules.proofAuditFee;
+        rules.datasetRuleAuditorsElectionTime = 2880;
 
         __UUPSUpgradeable_init();
     }
@@ -310,6 +311,15 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         emit FilplusEvents.SetDatacapCollateralMaxLockDays(_newValue);
     }
 
+    ///@notice Sets the election time for auditors.
+    ///@param _blocks The number of blocks to set as the election time.
+    function setAuditorsElectionTime(
+        uint64 _blocks
+    ) external onlyAddress(GOVERNANCE_ADDRESS) {
+        rules.datasetRuleAuditorsElectionTime = _blocks;
+        emit FilplusEvents.SetAuditorsElectionTime(_blocks);
+    }
+
     // Public getter function to access datasetRuleMaxReplicasInCountries
     function getDatasetRuleMaxReplicasInCountry(
         uint16 _countryCode
@@ -363,7 +373,11 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     }
 
     /// @notice Returns the datacap collateral days when dataset approved
-    function getDatacapdatasetApprovedLockDays() external view returns (uint64) {
+    function getDatacapdatasetApprovedLockDays()
+        external
+        view
+        returns (uint64)
+    {
         return rules.datacapdatasetApprovedLockDays;
     }
 
@@ -506,6 +520,11 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         returns (uint8)
     {
         return rules.datacapRulesMaxRemainingPercentageForNext;
+    }
+
+    ///@notice Returns the election time for auditors.
+    function auditorsElectionTime() external view returns (uint64) {
+        return rules.datasetRuleAuditorsElectionTime;
     }
 
     /// @notice Check if the storage regions complies with filplus rules.

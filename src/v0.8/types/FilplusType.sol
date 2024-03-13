@@ -34,6 +34,7 @@ library FilplusType {
         uint64 datasetRuleMinProofTimeout;
         uint64 datasetRuleMinAuditTimeout;
         uint64 datasetRuleRequirementTimeout;
+        uint64 datasetRuleAuditorsElectionTime; // The election time for auditors.
         ///@notice datacap rules
         uint64 datacapRulesMaxAllocatedSizePerTime; // Maximum allocate datacap size per time.
         uint8 datacapRulesMaxRemainingPercentageForNext; // Minimum completion percentage for the next allocation.
@@ -41,7 +42,7 @@ library FilplusType {
         uint256 datacapChunkLandPricePreByte; // The datacap chunk land price pre byte.
         uint256 challengeProofsPricePrePoint; // The challenge proofs price pre point.
         uint16 challengeProofsSubmiterCount; // The challenge proofs submiter count.
-        uint64 datacapdatasetApprovedLockDays; // The datacap collateral days when dataset approved. 
+        uint64 datacapdatasetApprovedLockDays; // The datacap collateral days when dataset approved.
         uint64 datacapCollateralMaxLockDays; // The datacap collateral max lock days.
         uint256 proofAuditFee; // The proof audit fee.
         uint256 challengeAuditFee; // The challenge audit fee.
