@@ -213,6 +213,14 @@ interface ICarstore is ICarstoreReadOnly {
         bool _matchingState
     ) external;
 
+    /// @dev Reports a failure in car replica storage.
+    /// @param _id The ID associated with the car replica.
+    /// @param _matchingId The ID of the matching process related to the storage failure.
+    function __reportCarReplicaStorageFailed(
+        uint64 _id,
+        uint64 _matchingId
+    ) external;
+
     /// @notice Report that storage deal for a replica has expired.
     /// @dev This function allows reporting that the storage deal for a replica has expired.
     /// @param _id Car ID associated with the replica.
@@ -265,4 +273,7 @@ interface ICarstore is ICarstoreReadOnly {
         uint64 _datasetId,
         uint16 _replicaCount
     ) external;
+    /// @notice Get the Roles contract.
+    /// @return Roles contract address.
+    function roles() external view returns (IRoles);
 }

@@ -302,6 +302,53 @@ contract StoragesAssertion is
         getStoredCarsAssertion(_matchingId, _cids);
     }
 
+    /// @dev Completes the storage assertion process initiated by a specific caller for a given matching ID with multiple content identifiers.
+    /// @param _matchingId The ID of the matching process for which the storage assertion is completed.
+    /// @param _ids An array of content identifiers associated with the storage assertion process.
+    function completeStorageAssersion(
+        uint64 _matchingId,
+        uint64[] memory _ids
+    ) external {
+        (
+            ,
+            ,
+            ,
+            uint64 storageCompletionPeriodBlocks,
+            ,
+            uint64 createdBlockNumber,
+            ,
+            ,
+
+        ) = storages.roles().matchings().getMatchingMetadata(_matchingId);
+
+        vm.roll(storageCompletionPeriodBlocks + createdBlockNumber + 1000);
+
+        (
+            uint256 total,
+            uint256 completed,
+            uint256 usedDatacap,
+            uint256 availableDatacap,
+            uint256 canceled,
+            uint256 unallocatedDatacap,
+            uint64[] memory storageProviders
+        ) = storages.getMatchingStorageOverview(_matchingId);
+
+        storages.completeStorage(_matchingId, _ids);
+
+        uint64 _size = storages.roles().carstore().getCarsSize(_ids);
+
+        getMatchingStorageOverviewAssertion(
+            _matchingId,
+            total,
+            completed,
+            usedDatacap,
+            availableDatacap,
+            canceled + _size,
+            unallocatedDatacap,
+            storageProviders
+        );
+    }
+
     /// @notice Assertion function to get the stored cars for a matching.
     /// @param _matchingId The matching ID for which to retrieve stored cars.
     /// @param _expectCars An array of expected stored cars.

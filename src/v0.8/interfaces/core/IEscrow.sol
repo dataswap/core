@@ -18,6 +18,7 @@
 pragma solidity ^0.8.21;
 
 import {FinanceType} from "src/v0.8/types/FinanceType.sol";
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 
 /// @title IEscrow
 /// @dev This IEscrow provides Escrow-related interface.
@@ -56,4 +57,8 @@ interface IEscrow {
         address _owner,
         address _token
     ) external view returns (uint256 amount);
+
+    /// @notice Get the Roles contract.
+    /// @return Roles contract address.
+    function roles() external view returns (IRoles);
 }

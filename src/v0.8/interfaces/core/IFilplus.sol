@@ -19,7 +19,7 @@
 pragma solidity ^0.8.21;
 
 import {FinanceType} from "src/v0.8/types/FinanceType.sol";
-
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 /// @title IFilplus
 interface IFilplus {
     // Public getter function to access datasetRuleMaxReplicasInCountries
@@ -275,4 +275,8 @@ interface IFilplus {
     function isCompliantRuleMaxReplicasPerSP(
         uint16 _value
     ) external view returns (bool);
+
+    /// @notice Get the Roles contract.
+    /// @return Roles contract address.
+    function roles() external view returns (IRoles);
 }

@@ -38,7 +38,7 @@ import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     using ArrayUint16LIB for uint16[];
     using ArrayUint32LIB for uint32[];
-    IRoles private roles;
+    IRoles public roles;
     // solhint-disable-next-line
     address public GOVERNANCE_ADDRESS; //The address of the governance contract.
 

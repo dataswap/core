@@ -161,6 +161,62 @@ contract Storages is
         );
     }
 
+    /// @dev Completes the storage process for a given matching ID.
+    /// @param _matchingId The ID of the matching.
+    function completeStorage(uint64 _matchingId, uint64[] memory _ids) public {
+        StorageType.Storage storage storage_ = storages[_matchingId];
+        (
+            uint64 datasetId,
+            uint64[] memory cars,
+            ,
+            ,
+            ,
+            uint16 replicaIndex
+        ) = roles.matchingsTarget().getMatchingTarget(_matchingId);
+
+        if (storage_.doneCars.length < cars.length) {
+            require(isStorageExpiration(_matchingId), "Storage is in progress");
+            require(
+                storage_.doneCars.length + _ids.length == cars.length,
+                "invalid cars number"
+            );
+
+            for (uint256 i = 0; i < _ids.length; i++) {
+                require(
+                    CarReplicaType.State.Matched ==
+                        roles.carstore().getCarReplicaState(
+                            _ids[i],
+                            _matchingId
+                        ),
+                    "Invalid Replica State"
+                );
+                roles.carstore().__reportCarReplicaStorageFailed(
+                    _ids[i],
+                    _matchingId
+                );
+                uint64 carSize = roles.carstore().getCarSize(_ids[i]);
+                _addCanceled(datasetId, replicaIndex, _matchingId, carSize);
+            }
+        }
+
+        storage_.completed = true;
+
+        // Payment data trading fee
+        roles.finance().claimEscrow(
+            datasetId,
+            _matchingId,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowDatacapChunkLandCollateral
+        );
+
+        roles.finance().claimEscrow(
+            datasetId,
+            _matchingId,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowDataTradingFee
+        );
+    }
+
     /// @dev Gets the list of done cars in the matchedstore.
     function getStoredCars(
         uint64 _matchingId
@@ -211,6 +267,14 @@ contract Storages is
         } else {
             return false;
         }
+    }
+
+    /// @dev Checks if the storage process is completed for a given matching ID.
+    /// @param _matchingId The ID of the matching.
+    /// @return A boolean indicating whether the storage process is completed or not.
+    function isStorageCompleted(uint64 _matchingId) public view returns (bool) {
+        StorageType.Storage storage storage_ = storages[_matchingId];
+        return storage_.completed;
     }
 
     /// @dev Internal function to allocate matched datacap.

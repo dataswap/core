@@ -18,7 +18,6 @@
 
 pragma solidity ^0.8.21;
 
-import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IStorageStatistics} from "src/v0.8/interfaces/core/statistics/IStorageStatistics.sol";
 
 /// @title Interface for Matchedstores contract
@@ -34,6 +33,11 @@ interface IStorages is IStorageStatistics {
         uint64[] memory _ids,
         uint64[] memory _claimIds
     ) external;
+
+    /// @dev Completes the storage process for a given matching ID.
+    /// @param _matchingId The ID of the matching.
+    /// @param _ids An array of content identifiers of the matched data.
+    function completeStorage(uint64 _matchingId, uint64[] memory _ids) external;
 
     /// @dev Gets the list of done cars in the matchedstore.
     /// @param _matchingId The ID of the matching.
@@ -56,6 +60,13 @@ interface IStorages is IStorageStatistics {
 
     /// @dev Checks if store expiration in the matchedstore.
     function isStorageExpiration(
+        uint64 _matchingId
+    ) external view returns (bool);
+
+    /// @dev Checks if the storage process is completed for a given matching ID.
+    /// @param _matchingId The ID of the matching.
+    /// @return A boolean indicating whether the storage process is completed or not.
+    function isStorageCompleted(
         uint64 _matchingId
     ) external view returns (bool);
 

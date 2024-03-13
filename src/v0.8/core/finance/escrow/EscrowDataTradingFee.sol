@@ -174,7 +174,12 @@ contract EscrowDataTradingFee is EscrowBase {
             _datasetId
         );
 
-        uint256 amount = __getRequirement(_datasetId,_destMatchingId,payer, _token);
+        uint256 amount = __getRequirement(
+            _datasetId,
+            _destMatchingId,
+            payer,
+            _token
+        );
 
         FinanceType.PayeeInfo[] memory payees = new FinanceType.PayeeInfo[](1);
         payees[0] = FinanceType.PayeeInfo(payer, amount);
@@ -194,8 +199,14 @@ contract EscrowDataTradingFee is EscrowBase {
         uint64 _matchingId,
         address _payer,
         address _token
-    ) public view override onlyRole(roles, RolesType.DATASWAP_CONTRACT) returns (uint256 amount) {
-        (, , uint256 current, uint256 total ) = roles.finance().getAccountEscrow(
+    )
+        public
+        view
+        override
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
+        returns (uint256 amount)
+    {
+        (, , uint256 current, uint256 total) = roles.finance().getAccountEscrow(
             _datasetId,
             _matchingId,
             _payer,
@@ -208,9 +219,16 @@ contract EscrowDataTradingFee is EscrowBase {
                 _matchingId,
                 _payer
             );
-        } else if (_payer == roles.datasets().getDatasetMetadataSubmitter(_datasetId)) {
+        } else if (
+            _payer == roles.datasets().getDatasetMetadataSubmitter(_datasetId)
+        ) {
             if (total <= 0) {
-                amount = _getSubsidyAmount(_datasetId, _matchingId, _payer, _token);
+                amount = _getSubsidyAmount(
+                    _datasetId,
+                    _matchingId,
+                    _payer,
+                    _token
+                );
             } else {
                 amount = total;
             }
@@ -361,7 +379,7 @@ contract EscrowDataTradingFee is EscrowBase {
     function _isEscrowRefund(uint64 _matchingId) internal view returns (bool) {
         return
             _matchingId != 0 &&
-            roles.storages().isStorageExpiration(_matchingId);
+            roles.storages().isStorageCompleted(_matchingId);
     }
 
     /// @dev Internal function to check if a parent account refund is applicable.

@@ -23,7 +23,7 @@ pragma solidity ^0.8.21;
 
 import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {IBusinessFinanceStatistics} from "src/v0.8/interfaces/core/statistics/IBusinessFinanceStatistics.sol";
-
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 /// @title IPayment Interface
 /// @notice This interface defines the payment-related functions within the system.
 /// @notice instance example,type: mapping(uint256 => mapping(uint256 => mapping(address => mapping(address=>Account))));
@@ -196,4 +196,8 @@ interface IFinance is IBusinessFinanceStatistics {
         address _token,
         FinanceType.Type _type
     ) external view returns (bool);
+
+    /// @notice Get the Roles contract.
+    /// @return Roles contract address.
+    function roles() external view returns (IRoles);
 }
