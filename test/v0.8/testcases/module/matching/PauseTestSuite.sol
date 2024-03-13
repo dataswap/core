@@ -51,7 +51,18 @@ contract PauseTestCaseWithSuccess is ControlTestSuiteBase {
         uint64 _matchingId,
         uint64 /*_amount*/
     ) internal virtual override {
-        vm.roll(99);
+        (
+            ,
+            ,
+            ,
+            ,
+            ,
+            uint64 createdBlockNumber,
+            ,
+            ,
+            uint64 pausedBlockCount
+        ) = matchings.getMatchingMetadata(_matchingId);
+        vm.roll(createdBlockNumber + pausedBlockCount);
         address initiator = matchings.getMatchingInitiator(_matchingId);
         matchingsAssertion.pauseMatchingAssertion(initiator, _matchingId);
     }
@@ -80,7 +91,18 @@ contract PauseTestCaseWithInvalidSender is ControlTestSuiteBase {
         uint64 /*_amount*/
     ) internal virtual override {
         address initiator = matchings.getMatchingInitiator(_matchingId);
-        vm.roll(99);
+        (
+            ,
+            ,
+            ,
+            ,
+            ,
+            uint64 createdBlockNumber,
+            ,
+            ,
+            uint64 pausedBlockCount
+        ) = matchings.getMatchingMetadata(_matchingId);
+        vm.roll(createdBlockNumber + pausedBlockCount);
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.NotMatchingInitiator.selector,
@@ -134,12 +156,23 @@ contract PauseTestCaseWithInvalidState is MatchingsTestBase {
             0,
             0
         );
+        (
+            ,
+            ,
+            ,
+            ,
+            ,
+            uint64 createdBlockNumber,
+            ,
+            ,
+            uint64 pausedBlockCount
+        ) = matchings.getMatchingMetadata(matchingId);
+        vm.roll(createdBlockNumber + pausedBlockCount);
         return matchingId;
     }
 
     function action(uint64 _matchingId) internal virtual override {
         address initiator = matchings.getMatchingInitiator(_matchingId);
-        vm.roll(99);
         vm.expectRevert();
         matchingsAssertion.pauseMatchingAssertion(initiator, _matchingId);
     }
@@ -167,7 +200,18 @@ contract PauseTestCaseWithAlreadyPaused is ControlTestSuiteBase {
         uint64 _matchingId,
         uint64 /*_amount*/
     ) internal virtual override {
-        vm.roll(99);
+        (
+            ,
+            ,
+            ,
+            ,
+            ,
+            uint64 createdBlockNumber,
+            ,
+            ,
+            uint64 pausedBlockCount
+        ) = matchings.getMatchingMetadata(_matchingId);
+        vm.roll(createdBlockNumber + pausedBlockCount);
         address initiator = matchings.getMatchingInitiator(_matchingId);
         matchingsAssertion.pauseMatchingAssertion(initiator, _matchingId);
         vm.prank(initiator);
@@ -198,7 +242,6 @@ contract PauseTestCaseWithAlreadyBidding is ControlTestSuiteBase {
         uint64 _matchingId,
         uint64 /*_amount*/
     ) internal virtual override {
-        vm.roll(101);
         address initiator = matchings.getMatchingInitiator(_matchingId);
 
         vm.expectRevert(bytes("alreay bidding,can't pause."));

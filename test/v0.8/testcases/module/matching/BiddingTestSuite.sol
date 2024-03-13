@@ -59,8 +59,6 @@ contract BiddingTestCaseWithSuccess is ControlTestSuiteBase {
         uint64 _matchingId,
         uint64 _amount
     ) internal virtual override {
-        vm.roll(101);
-
         vm.expectEmit(true, true, true, true);
         emit MatchingsEvents.MatchingBidPlaced(
             _matchingId,
@@ -109,7 +107,6 @@ contract BiddingTestCaseWithInvlalidAmount is ControlTestSuiteBase {
         uint64 _matchingId,
         uint64 _amount
     ) internal virtual override {
-        vm.roll(101);
         vm.expectRevert(bytes("Invalid amount"));
         matchingsAssertion.biddingAssertion(address(199), _matchingId, _amount);
     }
@@ -145,7 +142,6 @@ contract BiddingTestCaseWithInvlalidDuplicateBid is ControlTestSuiteBase {
         uint64 _matchingId,
         uint64 _amount
     ) internal virtual override {
-        vm.roll(101);
         matchingsAssertion.biddingAssertion(address(199), _matchingId, _amount);
         vm.prank(address(199));
         vm.deal(address(199), 200 ether);
@@ -209,7 +205,6 @@ contract BiddingTestCaseWithInvlalidState is ControlTestSuiteBase {
         uint64 _matchingId,
         uint64 _amount
     ) internal virtual override {
-        vm.roll(101);
         vm.expectRevert(
             abi.encodeWithSelector(
                 Errors.InvalidMatchingState.selector,
@@ -288,7 +283,23 @@ contract BiddingTestCaseWithBidIsEnd is ControlTestSuiteBase {
         uint64 _matchingId,
         uint64 _amount
     ) internal virtual override {
-        vm.roll(300);
+        (
+            ,
+            uint64 biddingDelayBlockCount,
+            uint64 biddingPeriodBlockCount,
+            ,
+            ,
+            uint64 createdBlockNumber,
+            ,
+            ,
+            uint64 pausedBlockCount
+        ) = matchings.getMatchingMetadata(_matchingId);
+        vm.roll(
+            biddingDelayBlockCount +
+                biddingPeriodBlockCount +
+                createdBlockNumber +
+                pausedBlockCount
+        );
         vm.expectRevert(bytes("Matching: Bidding is end"));
         matchingsAssertion.biddingAssertion(address(199), _matchingId, _amount);
     }
@@ -324,7 +335,6 @@ contract BiddingTestCaseWithInvalidStorageProvider is ControlTestSuiteBase {
         uint64 _matchingId,
         uint64 _amount
     ) internal virtual override {
-        vm.roll(101);
         vm.expectRevert(bytes("Invalid SP submitter"));
         matchingsAssertion.biddingAssertion(address(200), _matchingId, _amount);
     }

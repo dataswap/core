@@ -22,34 +22,24 @@ import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHel
 
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
-import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
-import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
-import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
 import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
+import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 
 // Contract definition for test helper functions
 contract DatasetsHelpers is Test, IDatasetsHelpers {
-    IDatasets public datasets;
-    IDatasetsRequirement public datasetsRequirement;
-    IDatasetsProof public datasetsProof;
-    IDatasetsChallenge public datasetsChallenge;
+    IRoles public roles;
     Generator private generator;
     IDatasetsAssertion private assertion;
 
     constructor(
-        IDatasets _datasets,
-        IDatasetsRequirement _datasetsRequirement,
-        IDatasetsProof _datasetsProof,
-        IDatasetsChallenge _datasetsChallenge,
+        IRoles _roles,
         Generator _generator,
         IDatasetsAssertion _assertion
     ) {
-        datasets = _datasets;
-        datasetsRequirement = _datasetsRequirement;
-        datasetsProof = _datasetsProof;
-        datasetsChallenge = _datasetsChallenge;
+        roles = _roles;
         generator = _generator;
         assertion = _assertion;
     }
@@ -62,10 +52,10 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         address caller,
         string memory _accessMethod
     ) public returns (uint64 datasetId) {
-        uint64 datasetCount = datasets.datasetsCount();
-        vm.prank(caller);
+        uint64 datasetCount = roles.datasets().datasetsCount();
         vm.deal(caller, 10 ether);
-        datasets.submitDatasetMetadata(
+        vm.startPrank(caller);
+        roles.datasets().submitDatasetMetadata(
             875,
             "title",
             "industry",
@@ -77,6 +67,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             true,
             1
         );
+        vm.stopPrank();
         return datasetCount + 1;
     }
 
@@ -186,7 +177,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         bytes32[] memory leavesHashes = new bytes32[](_leavesCount);
         uint64[] memory leavesIndexs = new uint64[](_leavesCount);
         uint64[] memory leavesSizes = new uint64[](_leavesCount);
-        uint64 count = datasetsProof.getDatasetProofCount(
+        uint64 count = roles.datasetsProof().getDatasetProofCount(
             _datasetId,
             _dataType
         );
@@ -196,7 +187,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             count
         );
         vm.prank(caller);
-        datasetsProof.submitDatasetProofRoot(
+        roles.datasetsProof().submitDatasetProofRoot(
             _datasetId,
             _dataType,
             _accessMethod,
@@ -204,7 +195,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         );
 
         vm.prank(caller);
-        datasetsProof.submitDatasetProof(
+        roles.datasetsProof().submitDatasetProof(
             _datasetId,
             _dataType,
             leavesHashes,
@@ -231,33 +222,33 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
     ) public {
         bytes32 root = generateRoot();
         vm.prank(caller);
-        datasetsProof.submitDatasetProofRoot(
+        roles.datasetsProof().submitDatasetProofRoot(
             _datasetId,
             _dataType,
             _accessMethod,
             root
         );
 
-        uint64 count = datasets.roles().datasetsProof().getDatasetProofCount(
+        uint64 count = roles.datasetsProof().getDatasetProofCount(
             _associatedDatasetId,
             _dataType
         );
 
-        bytes32[] memory hashs = datasetsProof.getDatasetProof(
+        bytes32[] memory hashs = roles.datasetsProof().getDatasetProof(
             _associatedDatasetId,
             _dataType,
             0,
             count
         );
 
-        uint64[] memory ids = datasets.roles().carstore().getCarsIds(hashs);
+        uint64[] memory ids = roles.carstore().getCarsIds(hashs);
         uint64[] memory starts = new uint64[](1);
         uint64[] memory ends = new uint64[](1);
         starts[0] = ids[0];
         ends[0] = ids[count - 1];
 
         vm.prank(caller);
-        datasetsProof.submitDatasetProofWithCarIds(
+        roles.datasetsProof().submitDatasetProofWithCarIds(
             _datasetId,
             _dataType,
             starts,
@@ -286,9 +277,11 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         uint16 _duplicateCountrys,
         uint16 _duplicateCitys
     ) public {
-        vm.startPrank(caller);
         vm.deal(caller, 1000 ether);
-        datasetsRequirement.submitDatasetReplicaRequirements{value: 100 ether}(
+        vm.startPrank(caller);
+        roles.datasetsRequirement().submitDatasetReplicaRequirements{
+            value: 100 ether
+        }(
             _datasetId,
             generator.generateGeolocationActors(
                 _replicasCount,
@@ -361,9 +354,9 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         uint64 _datasetId
     ) public {
         uint64 randomSeed = generator.generateNonce();
-        uint64 challengeCount = datasetsChallenge.getChallengeSubmissionCount(
-            _datasetId
-        );
+        uint64 challengeCount = roles
+            .datasetsChallenge()
+            .getChallengeSubmissionCount(_datasetId);
         assertion.getChallengeSubmissionCountAssertion(
             _datasetId,
             challengeCount
@@ -378,14 +371,32 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             (siblings[i], ) = generator.generateLeaves(challengeCount, 0);
             paths[i] = i;
         }
-        vm.prank(caller);
-        datasetsChallenge.submitDatasetChallengeProofs(
+
+        vm.startPrank(caller);
+        vm.deal(caller, 1000 ether);
+        roles.finance().deposit{value: 1000 ether}(
+            _datasetId,
+            0,
+            caller,
+            FinanceType.FIL
+        );
+        uint256 amount = roles
+            .datasetsChallenge()
+            .getChallengeAuditCollateralRequirement();
+        roles.datasetsChallenge().auditorStake(_datasetId, amount);
+        uint64 delayBlocks = roles
+            .datasetsChallenge()
+            .getAuditorElectionEndHeight(_datasetId);
+        vm.roll(delayBlocks);
+
+        roles.datasetsChallenge().submitDatasetChallengeProofs(
             _datasetId,
             randomSeed,
             leaves,
             siblings,
             paths
         );
+        vm.stopPrank();
     }
 
     /// @notice Complete the dataset workflow.
@@ -430,10 +441,10 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             true
         );
         vm.deal(address(9), 100 ether);
-        vm.prank(address(9));
-        datasetsProof.completeEscrow(datasetId);
-
-        datasetsProof.submitDatasetProofCompleted(datasetId);
+        vm.startPrank(address(9));
+        roles.datasetsProof().completeEscrow(datasetId);
+        roles.datasetsProof().submitDatasetProofCompleted(datasetId);
+        vm.stopPrank();
         // 3: Submit verification
         submitDatasetVerification(address(299), datasetId);
         assertion.getDatasetStateAssertion(
@@ -442,8 +453,8 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         );
     }
 
-    /// @notice Get datasetsProof object
-    function getDatasetsProof() external view returns (IDatasetsProof) {
-        return datasetsProof;
+    /// @notice Get roles object
+    function getRoles() external view returns (IRoles) {
+        return roles;
     }
 }

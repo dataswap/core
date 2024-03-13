@@ -523,7 +523,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     }
 
     ///@notice Returns the election time for auditors.
-    function auditorsElectionTime() external view returns (uint64) {
+    function datasetRuleAuditorsElectionTime() external view returns (uint64) {
         return rules.datasetRuleAuditorsElectionTime;
     }
 

@@ -51,10 +51,7 @@ contract StorageTestSetup is BaseTestSetup {
             datasetsChallenge()
         );
         DatasetsHelpers datasetsHelpers = new DatasetsHelpers(
-            datasets(),
-            datasetsRequirement(),
-            datasetsProof(),
-            datasetsChallenge(),
+            role(),
             generator(),
             datasetAssertion
         );

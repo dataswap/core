@@ -52,6 +52,19 @@ contract CancelTestCaseWithSuccess is ControlTestSuiteBase {
         uint64 _matchingId,
         uint64 /*_amount*/
     ) internal virtual override {
+        (
+            ,
+            ,
+            ,
+            ,
+            ,
+            uint64 createdBlockNumber,
+            ,
+            ,
+            uint64 pausedBlockCount
+        ) = matchings.getMatchingMetadata(_matchingId);
+        vm.roll(createdBlockNumber + pausedBlockCount);
+
         address initiator = matchings.getMatchingInitiator(_matchingId);
         vm.expectEmit(true, false, false, true);
         emit MatchingsEvents.MatchingCancelled(_matchingId);
@@ -82,7 +95,6 @@ contract CancelTestCaseWithAfterStarted is ControlTestSuiteBase {
         uint64 /*_amount*/
     ) internal virtual override {
         address initiator = matchings.getMatchingInitiator(_matchingId);
-        vm.roll(150);
         vm.expectRevert(bytes("bid alreay start,can't cancel"));
         matchingsAssertion.cancelMatchingAssertion(initiator, _matchingId);
     }

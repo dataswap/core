@@ -105,6 +105,18 @@ abstract contract ControlTestSuiteBase is Test {
             cars,
             true
         );
+        (
+            ,
+            uint64 biddingDelayBlockCount,
+            ,
+            ,
+            ,
+            uint64 createdBlockNumber,
+            ,
+            ,
+            uint64 pausedBlockCount
+        ) = matchings.getMatchingMetadata(matchingId);
+        vm.roll(createdBlockNumber + biddingDelayBlockCount + pausedBlockCount);
         // Get the count of available matchings
         return matchingId;
     }

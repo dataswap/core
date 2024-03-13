@@ -240,7 +240,7 @@ interface IFilplus {
         returns (uint8);
 
     ///@notice Returns the election time for auditors.
-    function auditorsElectionTime() external view returns (uint64);
+    function datasetRuleAuditorsElectionTime() external view returns (uint64);
 
     /// @notice Check if the storage area complies with filplus rules.
     function isCompliantRuleGeolocation(

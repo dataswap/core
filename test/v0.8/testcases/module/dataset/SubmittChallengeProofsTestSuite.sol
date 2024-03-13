@@ -27,6 +27,7 @@ import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
+import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 
 ///@notice submit dataset challenge proofs test case with success.
 contract SubmittChallengeProofsTestCaseWithSuccess is DatasetsTestBase {
@@ -50,7 +51,11 @@ contract SubmittChallengeProofsTestCaseWithSuccess is DatasetsTestBase {
 
     function before() internal virtual override returns (uint64 id) {
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return setup.verificationTestSetup(datasetsHelpers);
+        return
+            setup.completeAuditorElectionTestSetup(
+                datasetsHelpers,
+                address(199)
+            );
     }
 
     function action(uint64 _id) internal virtual override {
@@ -59,6 +64,7 @@ contract SubmittChallengeProofsTestCaseWithSuccess is DatasetsTestBase {
         bytes32[][] memory siblings = new bytes32[][](pointCount);
         uint32[] memory paths = new uint32[](pointCount);
         uint64 randomSeed;
+
         (randomSeed, leaves, siblings, paths) = datasetsHelpers
             .generateVerification(pointCount);
 
@@ -95,7 +101,11 @@ contract SubmittChallengeProofsTestCaseWithFail is DatasetsTestBase {
 
     function before() internal virtual override returns (uint64 id) {
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return setup.verificationTestSetup(datasetsHelpers);
+        return
+            setup.completeAuditorElectionTestSetup(
+                datasetsHelpers,
+                address(200)
+            );
     }
 
     function action(uint64 _id) internal virtual override {
@@ -143,7 +153,11 @@ contract SubmittChallengeProofsTestCaseWithTimeout is DatasetsTestBase {
 
     function before() internal virtual override returns (uint64 id) {
         DatasetsTestSetup setup = new DatasetsTestSetup();
-        return setup.verificationTestSetup(datasetsHelpers);
+        return
+            setup.completeAuditorElectionTestSetup(
+                datasetsHelpers,
+                address(199)
+            );
     }
 
     function action(uint64 _id) internal virtual override {
@@ -199,7 +213,6 @@ contract ResubmittDatasetChallengeProofsTestCaseWithSuccess is
         return
             setup.challengeTestForResubmitDatasetSetup(
                 datasetsHelpers,
-                datasets,
                 datasetsAssertion
             );
     }
@@ -212,6 +225,21 @@ contract ResubmittDatasetChallengeProofsTestCaseWithSuccess is
         uint64 randomSeed;
         (randomSeed, leaves, siblings, paths) = datasetsHelpers
             .generateVerification(pointCount);
+
+        vm.startPrank(address(199));
+        vm.deal(address(199), 1000 ether);
+        datasets.roles().finance().deposit{value: 1000 ether}(
+            _id,
+            0,
+            address(199),
+            FinanceType.FIL
+        );
+        uint256 amount = datasetsChallenge
+            .getChallengeAuditCollateralRequirement();
+        datasetsChallenge.auditorStake(_id, amount);
+        vm.stopPrank();
+        uint64 delayBlocks = datasetsChallenge.getAuditorElectionEndHeight(_id);
+        vm.roll(delayBlocks);
 
         datasetsAssertion.submitDatasetChallengeProofsAssertion(
             address(199),

@@ -51,7 +51,6 @@ contract CloseTestCaseWithSuccess is ControlTestSuiteBase {
         uint64 _amount
     ) internal virtual override returns (uint64) {
         uint64 matchingId = super.before(_bidRule, _amount);
-        vm.roll(101);
         vm.prank(address(199));
         vm.deal(address(199), 200 ether);
         matchingsBids.bidding{value: 200}(matchingId, 200);
@@ -63,7 +62,23 @@ contract CloseTestCaseWithSuccess is ControlTestSuiteBase {
         uint64 /*_amount*/
     ) internal virtual override {
         address initiator = matchings.getMatchingInitiator(_matchingId);
-        vm.roll(201);
+        (
+            ,
+            uint64 biddingDelayBlockCount,
+            uint64 biddingPeriodBlockCount,
+            ,
+            ,
+            uint64 createdBlockNumber,
+            ,
+            ,
+            uint64 pausedBlockCount
+        ) = matchings.getMatchingMetadata(_matchingId);
+        vm.roll(
+            biddingDelayBlockCount +
+                biddingPeriodBlockCount +
+                createdBlockNumber +
+                pausedBlockCount
+        );
         matchingsAssertion.closeMatchingAssertion(
             initiator,
             _matchingId,
