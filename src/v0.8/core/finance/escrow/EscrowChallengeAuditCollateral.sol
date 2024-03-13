@@ -38,7 +38,13 @@ contract EscrowChallengeAuditCollateral is EscrowBase {
         uint64 _matchingId,
         address _payer,
         address _token
-    ) public view override onlyRole(roles, RolesType.DATASWAP_CONTRACT) returns (uint256 amount) {
+    )
+        public
+        view
+        override
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
+        returns (uint256 amount)
+    {
         (, , uint256 current, ) = roles.finance().getAccountEscrow(
             _datasetId,
             _matchingId,
@@ -93,7 +99,7 @@ contract EscrowChallengeAuditCollateral is EscrowBase {
             _payer,
             _token,
             FinanceType.Type.EscrowChallengeAuditCollateral
-        ); 
+        );
     }
 
     /// @dev Internal function to get payment amount.
@@ -114,7 +120,7 @@ contract EscrowChallengeAuditCollateral is EscrowBase {
             _payer,
             _token,
             FinanceType.Type.EscrowChallengeAuditCollateral
-        ); 
+        );
     }
 
     /// @dev Internal function to check if a refund is applicable.
@@ -124,9 +130,15 @@ contract EscrowChallengeAuditCollateral is EscrowBase {
         uint64 _datasetId,
         uint64 /*_matchingId*/
     ) internal view override returns (bool refund) {
-        //TODO: refund when reject without dispute
-        // return (roles.datasets().getDatasetState(_datasetId) ==
-        //     DatasetType.State.Approved);
+        DatasetType.State state = roles.datasets().getDatasetState(_datasetId);
+        if (
+            state == DatasetType.State.Approved ||
+            state == DatasetType.State.Rejected
+        ) {
+            return true;
+        } else {
+            //TODO: refund when reject without dispute
+        }
     }
 
     /// @dev Internal function to check if a payment is applicable.

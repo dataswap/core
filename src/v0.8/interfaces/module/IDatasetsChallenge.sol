@@ -88,13 +88,12 @@ interface IDatasetsChallenge {
         uint64 _datasetId
     ) external view returns (uint64);
 
-    ///@notice Retrieves sorted auditor candidates for a specific dataset.
-    ///@dev Retrieves a list of auditor candidates sorted based on certain criteria.
-    ///@param _datasetId The ID of the dataset for which auditor candidates are retrieved.
-    ///@return candidates An array containing the addresses of the sorted auditor candidates.
-    function getSortedAuditorCandidates(
+    /// @dev Retrieves auditor candidates for a given dataset ID.
+    /// @param _datasetId The ID of the dataset for which auditor candidates are requested.
+    /// @return candidates An array containing addresses of auditor candidates.
+    function getDatasetAuditorCandidates(
         uint64 _datasetId
-    ) external returns (address[] memory candidates);
+    ) external view returns (address[] memory candidates);
 
     /// @notice Retrieves the end height of the auditor election for a specific dataset.
     /// @dev Retrieves the block height at which the auditor election for the specified dataset ends.
@@ -103,6 +102,22 @@ interface IDatasetsChallenge {
     function getAuditorElectionEndHeight(
         uint64 _datasetId
     ) external view returns (uint64);
+
+    /// @notice Retrieves the required collateral for challenge audits.
+    /// @return The amount of collateral required for challenge audits.
+    function getChallengeAuditCollateralRequirement()
+        external
+        view
+        returns (uint256);
+
+    /// @dev Checks whether the given account is a winner for a specific dataset ID.
+    /// @param _datasetId The ID of the dataset being checked.
+    /// @param _account The address of the account being checked for winner status.
+    /// @return A boolean indicating whether the account is a winner for the dataset ID.
+    function isWinner(
+        uint64 _datasetId,
+        address _account
+    ) external returns (bool);
 
     /// @notice Get the Roles contract.
     /// @return Roles contract address.

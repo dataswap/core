@@ -27,10 +27,12 @@ import {DatasetsEvents} from "src/v0.8/shared/events/DatasetsEvents.sol";
 import {DatasetsModifiers} from "src/v0.8/shared/modifiers/DatasetsModifiers.sol";
 /// library
 import {DatasetChallengeProofLIB} from "src/v0.8/module/dataset/library/challenge/DatasetChallengeProofLIB.sol";
+import {DatasetAuditorElectionLIB} from "src/v0.8/module/dataset/library/challenge/DatasetAuditorElectionLIB.sol";
 
 /// type
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
+import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 import {GeolocationType} from "src/v0.8/types/GeolocationType.sol";
 
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
@@ -46,6 +48,8 @@ contract DatasetsChallenge is
     DatasetsModifiers
 {
     using DatasetChallengeProofLIB for DatasetType.DatasetChallengeProof;
+    using DatasetAuditorElectionLIB for DatasetType.DatasetAuditorElection;
+
     mapping(uint64 => DatasetType.DatasetChallengeProof)
         private datasetChallengeProofs; // Mapping of dataset ID to dataset details
 
@@ -84,7 +88,29 @@ contract DatasetsChallenge is
     /// @dev Allows auditors to stake tokens for a specific dataset.
     /// @param _datasetId The ID of the dataset for which auditors are staking tokens.
     /// @param _amount The amount of tokens to stake.
-    function auditorStake(uint64 _datasetId, uint256 _amount) external {}
+    function auditorStake(uint64 _datasetId, uint256 _amount) external {
+        require(
+            uint64(block.number) < getAuditorElectionEndHeight(_datasetId),
+            "auditors election timeout"
+        );
+
+        roles.finance().__escrow(
+            _datasetId,
+            0,
+            msg.sender,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowChallengeAuditCollateral,
+            _amount
+        );
+
+        DatasetType.DatasetChallengeProof
+            storage datasetChallengeProof = datasetChallengeProofs[_datasetId];
+        datasetChallengeProof.election._stake(
+            roles,
+            _datasetId,
+            FinanceType.FIL
+        );
+    }
 
     ///@notice Submit challenge proof for a dataset
     /// Based on merkle proof challenge.
@@ -107,6 +133,9 @@ contract DatasetsChallenge is
             roles.datasets().__reportDatasetWorkflowTimeout(_datasetId);
             return;
         }
+
+        require(isWinner(_datasetId, msg.sender), "Not an election winner");
+
         DatasetType.DatasetChallengeProof
             storage datasetChallengeProof = datasetChallengeProofs[_datasetId];
         require(
@@ -310,13 +339,17 @@ contract DatasetsChallenge is
             )[0];
     }
 
-    ///@notice Retrieves sorted auditor candidates for a specific dataset.
-    ///@dev Retrieves a list of auditor candidates sorted based on certain criteria.
-    ///@param _datasetId The ID of the dataset for which auditor candidates are retrieved.
-    ///@return candidates An array containing the addresses of the sorted auditor candidates.
-    function getSortedAuditorCandidates(
+    /// @dev Retrieves auditor candidates for a given dataset ID.
+    /// @param _datasetId The ID of the dataset for which auditor candidates are requested.
+    /// @return candidates An array containing addresses of auditor candidates.
+    function getDatasetAuditorCandidates(
         uint64 _datasetId
-    ) external returns (address[] memory candidates) {}
+    ) external view returns (address[] memory candidates) {
+        DatasetType.DatasetChallengeProof
+            storage datasetChallengeProof = datasetChallengeProofs[_datasetId];
+
+        candidates = datasetChallengeProof.election.candidates;
+    }
 
     /// @notice Retrieves the end height of the auditor election for a specific dataset.
     /// @dev Retrieves the block height at which the auditor election for the specified dataset ends.
@@ -324,5 +357,50 @@ contract DatasetsChallenge is
     /// @return The end height of the auditor election.
     function getAuditorElectionEndHeight(
         uint64 _datasetId
-    ) public view returns (uint64) {}
+    ) public view returns (uint64) {
+        uint64 proofCompleteHeight = roles
+            .datasetsProof()
+            .getDatasetProofCompleteHeight(_datasetId);
+
+        return
+            proofCompleteHeight +
+            roles.filplus().datasetRuleAuditorsElectionTime();
+    }
+
+    /// @dev Retrieves the required collateral for challenge audits.
+    /// @return The amount of collateral required for challenge audits.
+    function getChallengeAuditCollateralRequirement()
+        public
+        view
+        returns (uint256)
+    {
+        return
+            DatasetAuditorElectionLIB._getChallengeAuditCollateralRequirement(
+                roles
+            );
+    }
+
+    /// @dev Checks whether the given account is a winner for a specific dataset ID.
+    /// @param _datasetId The ID of the dataset being checked.
+    /// @param _account The address of the account being checked for winner status.
+    /// @return A boolean indicating whether the account is a winner for the dataset ID.
+    function isWinner(
+        uint64 _datasetId,
+        address _account
+    ) public returns (bool) {
+        require(
+            uint64(block.number) >= getAuditorElectionEndHeight(_datasetId),
+            "auditor election not completed"
+        );
+
+        DatasetType.DatasetChallengeProof
+            storage datasetChallengeProof = datasetChallengeProofs[_datasetId];
+
+        return
+            datasetChallengeProof.election._processTicketResult(
+                getAuditorElectionEndHeight(_datasetId),
+                _account,
+                getChallengeSubmissionCount(_datasetId)
+            );
+    }
 }

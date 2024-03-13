@@ -107,12 +107,17 @@ library DatasetType {
         Challenge[] challenges; // Merkle proof provided by the auditor to support their challenge.
     }
 
+    struct DatasetAuditorElection {
+        address[] candidates; // Records of candidates of auditors.
+        bytes32 seed;
+    }
+
     struct DatasetChallengeProof {
         // challenges
         uint16 challengesCount;
         mapping(address => ChallengeProof) challengeProofs; // Address of the auditor who submits challenges.
         address[] auditors; // Records of auditors submitting verifications.
-        address[] candidates; // Records of candidates of auditors.
+        DatasetAuditorElection election; // Records of election of auditors.
     }
 
     /// @notice The struct describes the storage requirements specified by the client.

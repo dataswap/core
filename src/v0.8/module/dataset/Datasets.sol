@@ -88,6 +88,23 @@ contract Datasets is
         return _getImplementation();
     }
 
+    /// @dev Claims the dataset escrow for a given dataset ID.
+    /// @param _datasetId The ID of the dataset for which the escrow is being claimed.
+    function _claimDatasetEscrow(uint64 _datasetId) internal {
+        roles.finance().claimEscrow(
+            _datasetId,
+            0,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowChallengeCommission
+        );
+        roles.finance().claimEscrow(
+            _datasetId,
+            0,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowChallengeAuditCollateral
+        );
+    }
+
     ///@notice Approve a dataset.
     ///@dev This function changes the state of the dataset to Approved and emits the DatasetApproved event.
     function __approveDataset(
@@ -114,13 +131,7 @@ contract Datasets is
 
         dataset._emitDatasetEvent(DatasetType.Event.Approved);
 
-        // Payment challenge commission
-        roles.finance().claimEscrow(
-            _datasetId,
-            0,
-            FinanceType.FIL,
-            FinanceType.Type.EscrowChallengeCommission
-        );
+        _claimDatasetEscrow(_datasetId);
 
         emit DatasetsEvents.DatasetApproved(_datasetId);
     }
@@ -139,12 +150,7 @@ contract Datasets is
 
         dataset._emitDatasetEvent(DatasetType.Event.Rejected);
 
-        roles.finance().claimEscrow(
-            _datasetId,
-            0,
-            FinanceType.FIL,
-            FinanceType.Type.EscrowChallengeCommission
-        );
+        _claimDatasetEscrow(_datasetId);
 
         uint64 mappingSize = roles.datasetsProof().getDatasetSize(
             _datasetId,
@@ -438,12 +444,7 @@ contract Datasets is
         DatasetType.Dataset storage dataset = datasets[_datasetId];
         dataset._emitDatasetEvent(DatasetType.Event.WorkflowTimeout);
 
-        roles.finance().claimEscrow(
-            _datasetId,
-            0,
-            FinanceType.FIL,
-            FinanceType.Type.EscrowChallengeCommission
-        );
+        _claimDatasetEscrow(_datasetId);
 
         uint64 mappingSize = roles.datasetsProof().getDatasetSize(
             _datasetId,

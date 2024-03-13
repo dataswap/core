@@ -150,13 +150,30 @@ contract MatchingsHelpers is Test, IMatchingsHelpers {
             true
         );
 
-        vm.roll(101);
+        (
+            ,
+            uint64 biddingDelayBlockCount,
+            uint64 biddingPeriodBlockCount,
+            ,
+            ,
+            uint64 createdBlockNumber,
+            ,
+            ,
+            uint64 pausedBlockCount
+        ) = matchings.getMatchingMetadata(matchingId);
+        vm.roll(biddingDelayBlockCount + createdBlockNumber + pausedBlockCount);
         vm.prank(address(199));
         vm.deal(address(199), 200 ether);
         matchingsBids.bidding{value: 200}(matchingId, 200);
 
         address initiator = matchings.getMatchingInitiator(matchingId);
-        vm.roll(201);
+        vm.roll(
+            biddingDelayBlockCount +
+                biddingPeriodBlockCount +
+                createdBlockNumber +
+                pausedBlockCount
+        );
+
         assertion.closeMatchingAssertion(initiator, matchingId, address(199));
 
         return (datasetId, matchingId);

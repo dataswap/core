@@ -24,6 +24,7 @@ import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
 import {IDatasetsHelpers} from "test/v0.8/interfaces/helpers/module/IDatasetsHelpers.sol";
 import {IDatasetsAssertion} from "test/v0.8/interfaces/assertions/module/IDatasetsAssertion.sol";
+import {FinanceType} from "src/v0.8/types/FinanceType.sol";
 
 /// @title DatasetsTestSetup
 /// @dev Preset conditions for datasets testing.
@@ -88,9 +89,9 @@ contract DatasetsTestSetup is Test {
         );
         vm.deal(address(9), 1000 ether);
         vm.startPrank(address(9));
-        _datasetsHelpers.getDatasetsProof().completeEscrow(datasetId);
+        _datasetsHelpers.getRoles().datasetsProof().completeEscrow(datasetId);
         vm.stopPrank();
-        _datasetsHelpers.getDatasetsProof().submitDatasetProofCompleted(
+        _datasetsHelpers.getRoles().datasetsProof().submitDatasetProofCompleted(
             datasetId
         );
         _datasetsHelpers.submitDatasetVerification(address(99), datasetId);
@@ -169,17 +170,46 @@ contract DatasetsTestSetup is Test {
 
         vm.deal(address(9), 1000 ether);
         vm.startPrank(address(9));
-        _datasetsHelpers.getDatasetsProof().completeEscrow(datasetId);
+        _datasetsHelpers.getRoles().datasetsProof().completeEscrow(datasetId);
         vm.stopPrank();
-        _datasetsHelpers.getDatasetsProof().submitDatasetProofCompleted(
+        _datasetsHelpers.getRoles().datasetsProof().submitDatasetProofCompleted(
             datasetId
         );
         return datasetId;
     }
 
+    function completeAuditorElectionTestSetup(
+        IDatasetsHelpers _datasetsHelpers,
+        address _caller
+    ) public returns (uint64 id) {
+        id = verificationTestSetup(_datasetsHelpers);
+        vm.startPrank(_caller);
+
+        vm.deal(_caller, 1000 ether);
+        _datasetsHelpers.getRoles().finance().deposit{value: 1000 ether}(
+            id,
+            0,
+            _caller,
+            FinanceType.FIL
+        );
+        uint256 amount = _datasetsHelpers
+            .getRoles()
+            .datasetsChallenge()
+            .getChallengeAuditCollateralRequirement();
+        _datasetsHelpers.getRoles().datasetsChallenge().auditorStake(
+            id,
+            amount
+        );
+        vm.stopPrank();
+        uint64 delayBlocks = _datasetsHelpers
+            .getRoles()
+            .datasetsChallenge()
+            .getAuditorElectionEndHeight(id);
+        vm.roll(delayBlocks);
+    }
+
     function challengeTestForResubmitDatasetSetup(
         IDatasetsHelpers _datasetsHelpers,
-        IDatasets _datasets,
         IDatasetsAssertion _datasetsAssertion
     ) public returns (uint64 id) {
         uint64 associatedDatasetId = _datasetsHelpers.submitDatasetMetadata(
@@ -216,11 +246,13 @@ contract DatasetsTestSetup is Test {
 
         vm.roll(10000000);
         vm.prank(address(199));
-        _datasetsHelpers.getDatasetsProof().submitDatasetProofCompleted(
+        _datasetsHelpers.getRoles().datasetsProof().submitDatasetProofCompleted(
             associatedDatasetId
         );
 
-        (, , , , , string memory accessMethod, , , , , ) = _datasets
+        (, , , , , string memory accessMethod, , , , , ) = _datasetsHelpers
+            .getRoles()
+            .datasets()
             .getDatasetMetadata(associatedDatasetId);
 
         _datasetsAssertion.submitDatasetMetadataAssertion(
@@ -231,7 +263,10 @@ contract DatasetsTestSetup is Test {
             associatedDatasetId
         );
 
-        uint64 datasetId = _datasets.datasetsCount();
+        uint64 datasetId = _datasetsHelpers
+            .getRoles()
+            .datasets()
+            .datasetsCount();
         _datasetsHelpers.submitDatasetReplicaRequirements(
             address(9),
             datasetId,
@@ -262,12 +297,11 @@ contract DatasetsTestSetup is Test {
 
         vm.deal(address(9), 1000 ether);
         vm.startPrank(address(9));
-        _datasets.roles().datasetsProof().completeEscrow(datasetId);
+        _datasetsHelpers.getRoles().datasetsProof().completeEscrow(datasetId);
         vm.stopPrank();
-        _datasetsHelpers.getDatasetsProof().submitDatasetProofCompleted(
+        _datasetsHelpers.getRoles().datasetsProof().submitDatasetProofCompleted(
             datasetId
         );
-        _datasets.getDatasetState(datasetId);
         return datasetId;
     }
 }

@@ -48,10 +48,7 @@ contract MatchingTestSetup is BaseTestSetup {
         );
 
         DatasetsHelpers datasetsHelpers = new DatasetsHelpers(
-            datasets(),
-            datasetsRequirement(),
-            datasetsProof(),
-            datasetsChallenge(),
+            role(),
             generator(),
             datasetAssertion
         );

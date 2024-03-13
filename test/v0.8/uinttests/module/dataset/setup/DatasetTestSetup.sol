@@ -38,13 +38,6 @@ contract DatasetTestSetup is BaseTestSetup {
             datasetsChallenge()
         );
 
-        helpers = new DatasetsHelpers(
-            datasets(),
-            datasetsRequirement(),
-            datasetsProof(),
-            datasetsChallenge(),
-            generator(),
-            assertion
-        );
+        helpers = new DatasetsHelpers(role(), generator(), assertion);
     }
 }
