@@ -53,26 +53,7 @@ contract Roles is
     Ownable2StepUpgradeable,
     AccessControlEnumerableUpgradeable
 {
-    IFilplus public filplus;
-    IFinance public finance;
-    IFilecoin public filecoin;
-    ICarstore public carstore;
-    IStorages public storages;
-    IMerkleUtils public merkleUtils;
-
-    IDatasets public datasets;
-    IDatasetsProof public datasetsProof;
-    IDatasetsChallenge public datasetsChallenge;
-    IDatasetsRequirement public datasetsRequirement;
-
-    IMatchings public matchings;
-    IMatchingsBids public matchingsBids;
-    IMatchingsTarget public matchingsTarget;
-
-    IEscrow public escrowDataTradingFee;
-    IEscrow public escrowDatacapCollateral;
-    IEscrow public escrowChallengeCommission;
-    IEscrow public escrowDatacapChunkLandCollateral;
+    RolesType.DataswapContracts private dataswapContracts;
 
     /// @notice initialize function to initialize the contract and grant the default admin role to the deployer.
     function initialize() public initializer {
@@ -104,41 +85,57 @@ contract Roles is
         address _contract
     ) public onlyOwner {
         if (_type == RolesType.ContractType.Filplus) {
-            filplus = IFilplus(_contract);
+            dataswapContracts.filplus = IFilplus(_contract);
         } else if (_type == RolesType.ContractType.Finance) {
-            finance = IFinance(_contract);
+            dataswapContracts.finance = IFinance(_contract);
         } else if (_type == RolesType.ContractType.Filecoin) {
-            filecoin = IFilecoin(_contract);
+            dataswapContracts.filecoin = IFilecoin(_contract);
         } else if (_type == RolesType.ContractType.Carstore) {
-            carstore = ICarstore(_contract);
+            dataswapContracts.carstore = ICarstore(_contract);
         } else if (_type == RolesType.ContractType.Storages) {
-            storages = IStorages(_contract);
+            dataswapContracts.storages = IStorages(_contract);
         } else if (_type == RolesType.ContractType.MerkleUtils) {
-            merkleUtils = IMerkleUtils(_contract);
+            dataswapContracts.merkleUtils = IMerkleUtils(_contract);
         } else if (_type == RolesType.ContractType.Datasets) {
-            datasets = IDatasets(_contract);
+            dataswapContracts.datasets = IDatasets(_contract);
         } else if (_type == RolesType.ContractType.DatasetsProof) {
-            datasetsProof = IDatasetsProof(_contract);
+            dataswapContracts.datasetsProof = IDatasetsProof(_contract);
         } else if (_type == RolesType.ContractType.DatasetsChallenge) {
-            datasetsChallenge = IDatasetsChallenge(_contract);
+            dataswapContracts.datasetsChallenge = IDatasetsChallenge(_contract);
         } else if (_type == RolesType.ContractType.DatasetsRequirement) {
-            datasetsRequirement = IDatasetsRequirement(_contract);
+            dataswapContracts.datasetsRequirement = IDatasetsRequirement(
+                _contract
+            );
         } else if (_type == RolesType.ContractType.Matchings) {
-            matchings = IMatchings(_contract);
+            dataswapContracts.matchings = IMatchings(_contract);
         } else if (_type == RolesType.ContractType.MatchingsBids) {
-            matchingsBids = IMatchingsBids(_contract);
+            dataswapContracts.matchingsBids = IMatchingsBids(_contract);
         } else if (_type == RolesType.ContractType.MatchingsTarget) {
-            matchingsTarget = IMatchingsTarget(_contract);
+            dataswapContracts.matchingsTarget = IMatchingsTarget(_contract);
         } else if (_type == RolesType.ContractType.EscrowDataTradingFee) {
-            escrowDataTradingFee = IEscrow(_contract);
+            dataswapContracts.escrowDataTradingFee = IEscrow(_contract);
         } else if (
             _type == RolesType.ContractType.EscrowDatacapChunkLandCollateral
         ) {
-            escrowDatacapChunkLandCollateral = IEscrow(_contract);
+            dataswapContracts.escrowDatacapChunkLandCollateral = IEscrow(
+                _contract
+            );
         } else if (_type == RolesType.ContractType.EscrowDatacapCollateral) {
-            escrowDatacapCollateral = IEscrow(_contract);
+            dataswapContracts.escrowDatacapCollateral = IEscrow(_contract);
         } else if (_type == RolesType.ContractType.EscrowChallengeCommission) {
-            escrowChallengeCommission = IEscrow(_contract);
+            dataswapContracts.escrowChallengeCommission = IEscrow(_contract);
+        } else if (
+            _type == RolesType.ContractType.EscrowChallengeAuditCollateral
+        ) {
+            dataswapContracts.escrowChallengeAuditCollateral = IEscrow(
+                _contract
+            );
+        } else if (
+            _type == RolesType.ContractType.EscrowDisputeAuditCollateral
+        ) {
+            dataswapContracts.escrowDisputeAuditCollateral = IEscrow(_contract);
+        } else if (_type == RolesType.ContractType.EscrowProofAuditCollateral) {
+            dataswapContracts.escrowProofAuditCollateral = IEscrow(_contract);
         } else {
             require(false, "Invalid RolesType.ContractType");
         }
@@ -213,5 +210,133 @@ contract Roles is
         address _newOwner
     ) internal override(OwnableUpgradeable, Ownable2StepUpgradeable) {
         super._transferOwnership(_newOwner);
+    }
+
+    /// @notice Get the Filplus contract.
+    /// @return Filplus contract address.
+    function filplus() external view returns (IFilplus) {
+        return dataswapContracts.filplus;
+    }
+
+    /// @notice Get the Finance contract.
+    /// @return Finance contract address.
+    function finance() external view returns (IFinance) {
+        return dataswapContracts.finance;
+    }
+
+    /// @notice Get the Filecoin contract.
+    /// @return Filecoin contract address.
+    function filecoin() external view returns (IFilecoin) {
+        return dataswapContracts.filecoin;
+    }
+
+    /// @notice Get the Carstore contract.
+    /// @return Carstore contract address.
+    function carstore() external view returns (ICarstore) {
+        return dataswapContracts.carstore;
+    }
+
+    /// @notice Get the Storages contract.
+    /// @return Storages contract address.
+    function storages() external view returns (IStorages) {
+        return dataswapContracts.storages;
+    }
+
+    /// @notice Get the MerkleUtils contract.
+    /// @return MerkleUtils contract address.
+    function merkleUtils() external view returns (IMerkleUtils) {
+        return dataswapContracts.merkleUtils;
+    }
+
+    /// @notice Get the Datasets contract.
+    /// @return Datasets contract address.
+    function datasets() external view returns (IDatasets) {
+        return dataswapContracts.datasets;
+    }
+
+    /// @notice Get the DatasetsProof contract.
+    /// @return DatasetsProof contract address.
+    function datasetsProof() external view returns (IDatasetsProof) {
+        return dataswapContracts.datasetsProof;
+    }
+
+    /// @notice Get the DatasetsChallenge contract.
+    /// @return DatasetsChallenge contract address.
+    function datasetsChallenge() external view returns (IDatasetsChallenge) {
+        return dataswapContracts.datasetsChallenge;
+    }
+
+    /// @notice Get the DatasetsRequirement contract.
+    /// @return DatasetsRequirement contract address.
+    function datasetsRequirement()
+        external
+        view
+        returns (IDatasetsRequirement)
+    {
+        return dataswapContracts.datasetsRequirement;
+    }
+
+    /// @notice Get the Matchings contract.
+    /// @return Matchings contract address.
+    function matchings() external view returns (IMatchings) {
+        return dataswapContracts.matchings;
+    }
+
+    /// @notice Get the MatchingsBids contract.
+    /// @return MatchingsBids contract address.
+    function matchingsBids() external view returns (IMatchingsBids) {
+        return dataswapContracts.matchingsBids;
+    }
+
+    /// @notice Get the MatchingsTarget contract.
+    /// @return MatchingsTarget contract address.
+    function matchingsTarget() external view returns (IMatchingsTarget) {
+        return dataswapContracts.matchingsTarget;
+    }
+
+    /// @notice Get the EscrowDataTradingFee contract.
+    /// @return EscrowDataTradingFee contract address.
+    function escrowDataTradingFee() external view returns (IEscrow) {
+        return dataswapContracts.escrowDataTradingFee;
+    }
+
+    /// @notice Get the EscrowDatacapChunkLandCollateral contract.
+    /// @return EscrowDatacapChunkLandCollateral contract address.
+    function escrowDatacapChunkLandCollateral()
+        external
+        view
+        returns (IEscrow)
+    {
+        return dataswapContracts.escrowDatacapChunkLandCollateral;
+    }
+
+    /// @notice Get the EscrowChallengeCommission contract.
+    /// @return EscrowChallengeCommission contract address.
+    function escrowChallengeCommission() external view returns (IEscrow) {
+        return dataswapContracts.escrowChallengeCommission;
+    }
+
+    /// @notice Get the EscrowDatacapCollateral contract.
+    /// @return EscrowDatacapCollateral contract address.
+    function escrowDatacapCollateral() external view returns (IEscrow) {
+        return dataswapContracts.escrowDatacapCollateral;
+    }
+
+    /// @notice Get the EscrowChallengeAuditCollateral contract.
+    /// @return EscrowChallengeAuditCollateral contract address.
+    function escrowChallengeAuditCollateral() external view returns (IEscrow) {
+        return dataswapContracts.escrowChallengeAuditCollateral;
+    }
+
+    /// @notice Get the EscrowDisputeAuditCollateral contract.
+    /// @return EscrowDisputeAuditCollateral contract address.
+    function escrowDisputeAuditCollateral() external view returns (IEscrow) {
+        return dataswapContracts.escrowDisputeAuditCollateral;
+    }
+
+    /// @notice Get the EscrowProofAuditCollateral contract.
+    /// @return EscrowProofAuditCollateral contract address.
+    function escrowProofAuditCollateral() external view returns (IEscrow) {
+        return dataswapContracts.escrowProofAuditCollateral;
     }
 }

@@ -404,6 +404,12 @@ contract Finance is
             base = roles.escrowChallengeCommission();
         } else if (_type == FinanceType.Type.EscrowDatacapCollateral) {
             base = roles.escrowDatacapCollateral();
+        } else if (_type == FinanceType.Type.EscrowChallengeAuditCollateral) {
+            base = roles.escrowChallengeAuditCollateral();
+        } else if (_type == FinanceType.Type.EscrowDisputeAuditCollateral) {
+            base = roles.escrowDisputeAuditCollateral();
+        } else if (_type == FinanceType.Type.EscrowProofAuditCollateral) {
+            base = roles.escrowProofAuditCollateral();
         }
     }
 

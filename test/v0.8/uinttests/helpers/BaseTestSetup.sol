@@ -37,6 +37,9 @@ import {EscrowDataTradingFee} from "src/v0.8/core/finance/escrow/EscrowDataTradi
 import {EscrowDatacapCollateral} from "src/v0.8/core/finance/escrow/EscrowDatacapCollateral.sol";
 import {EscrowChallengeCommission} from "src/v0.8/core/finance/escrow/EscrowChallengeCommission.sol";
 import {EscrowDatacapChunkLandCollateral} from "src/v0.8/core/finance/escrow/EscrowDatacapChunkLandCollateral.sol";
+import {EscrowChallengeAuditCollateral} from "src/v0.8/core/finance/escrow/EscrowChallengeAuditCollateral.sol";
+import {EscrowDisputeAuditCollateral} from "src/v0.8/core/finance/escrow/EscrowDisputeAuditCollateral.sol";
+import {EscrowProofAuditCollateral} from "src/v0.8/core/finance/escrow/EscrowProofAuditCollateral.sol";
 
 /// @title BaseTestSetup
 /// @notice This contract is used for setting up the base test setup contract for testing.
@@ -55,6 +58,9 @@ contract BaseTestSetup {
         EscrowDatacapCollateral escrowDatacapCollateral;
         EscrowChallengeCommission escrowChallengeCommission;
         EscrowDatacapChunkLandCollateral escrowDatacapChunkLandCollateral;
+        EscrowChallengeAuditCollateral escrowChallengeAuditCollateral;
+        EscrowDisputeAuditCollateral escrowDisputeAuditCollateral;
+        EscrowProofAuditCollateral escrowProofAuditCollateral;
         Datasets datasets;
         DatasetsProof datasetsProof;
         DatasetsChallenge datasetsChallenge;
@@ -95,6 +101,13 @@ contract BaseTestSetup {
         base
             .escrowDatacapChunkLandCollateral = new EscrowDatacapChunkLandCollateral();
         base.escrowDatacapChunkLandCollateral.initialize(address(base.role));
+        base
+            .escrowChallengeAuditCollateral = new EscrowChallengeAuditCollateral();
+        base.escrowChallengeAuditCollateral.initialize(address(base.role));
+        base.escrowDisputeAuditCollateral = new EscrowDisputeAuditCollateral();
+        base.escrowDisputeAuditCollateral.initialize(address(base.role));
+        base.escrowProofAuditCollateral = new EscrowProofAuditCollateral();
+        base.escrowProofAuditCollateral.initialize(address(base.role));
 
         base.merkleUtils = new MockMerkleUtils();
         base.merkleUtils.initialize(address(base.role));
@@ -155,7 +168,7 @@ contract BaseTestSetup {
         );
         base.storages.registDataswapDatacap(100000000000000);
 
-        address[] memory _contracts = new address[](15);
+        address[] memory _contracts = new address[](22);
         _contracts[0] = address(0);
         _contracts[1] = address(base.role);
         _contracts[2] = address(base.filplus);
@@ -172,6 +185,14 @@ contract BaseTestSetup {
         _contracts[12] = address(base.filecoin);
         _contracts[13] = address(base.merkleUtils);
         _contracts[14] = address(base.finance);
+        _contracts[15] = address(base.escrowDataTradingFee);
+        _contracts[16] = address(base.escrowDatacapCollateral);
+        _contracts[17] = address(base.escrowChallengeCommission);
+        _contracts[18] = address(base.escrowDatacapChunkLandCollateral);
+        _contracts[19] = address(base.escrowChallengeAuditCollateral);
+        _contracts[20] = address(base.escrowDisputeAuditCollateral);
+        _contracts[21] = address(base.escrowProofAuditCollateral);
+
         base.role.grantDataswapContractRole(_contracts);
 
         base.role.registerContract(
@@ -243,24 +264,16 @@ contract BaseTestSetup {
             address(base.escrowDatacapChunkLandCollateral)
         );
         base.role.registerContract(
-            RolesType.ContractType.Finance,
-            address(base.finance)
+            RolesType.ContractType.EscrowChallengeAuditCollateral,
+            address(base.escrowChallengeAuditCollateral)
         );
         base.role.registerContract(
-            RolesType.ContractType.EscrowDataTradingFee,
-            address(base.escrowDataTradingFee)
+            RolesType.ContractType.EscrowDisputeAuditCollateral,
+            address(base.escrowDisputeAuditCollateral)
         );
         base.role.registerContract(
-            RolesType.ContractType.EscrowDatacapCollateral,
-            address(base.escrowDatacapCollateral)
-        );
-        base.role.registerContract(
-            RolesType.ContractType.EscrowChallengeCommission,
-            address(base.escrowChallengeCommission)
-        );
-        base.role.registerContract(
-            RolesType.ContractType.EscrowDatacapChunkLandCollateral,
-            address(base.escrowDatacapChunkLandCollateral)
+            RolesType.ContractType.EscrowProofAuditCollateral,
+            address(base.escrowProofAuditCollateral)
         );
     }
 
