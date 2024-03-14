@@ -157,6 +157,7 @@ EscrowDataTradingFeeAddress=$(npx hardhat getProxyAddress --type localnet --name
 EscrowDatacapChunkLandCollateralAddress=$(npx hardhat getProxyAddress --type localnet --name EscrowDatacapChunkLandCollateral)
 EscrowDatacapCollateralAddress=$(npx hardhat getProxyAddress --type localnet --name EscrowDatacapCollateral)
 EscrowChallengeCommissionAddress=$(npx hardhat getProxyAddress --type localnet --name EscrowChallengeCommission)
+EscrowChallengeAuditCollateral=$(npx hardhat getProxyAddress --type localnet --name EscrowChallengeAuditCollateral)
 
 cat >"${BASEDIR}/contract" <<EOF
 export RolesAddress=$RolesAddress
@@ -177,6 +178,7 @@ export EscrowDataTradingFeeAddress=$EscrowDataTradingFeeAddress
 export EscrowDatacapChunkLandCollateralAddress=$EscrowDatacapChunkLandCollateralAddress
 export EscrowDatacapCollateralAddress=$EscrowDatacapCollateralAddress
 export EscrowChallengeCommissionAddress=$EscrowChallengeCommissionAddress
+export EscrowChallengeAuditCollateralAddress=$EscrowChallengeAuditCollateral
 EOF
 
 PRIVATE_KEY="0x0a3570f105ea5d06c355ea1a7a1fea441e90e44984896779b6c44c2ca5a8e16b"
@@ -197,6 +199,7 @@ ${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async
 ${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 14 $EscrowDatacapChunkLandCollateralAddress
 ${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 15 $EscrowDatacapCollateralAddress
 ${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 16 $EscrowChallengeCommissionAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 17 $EscrowChallengeAuditCollateralAddress
 
 echo "filplusAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "filplus()(address)")
 echo "financeAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "finance()(address)")
@@ -215,6 +218,7 @@ echo "escrowDataTradingFeeAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-ur
 echo "escrowDatacapChunkLandCollateralAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "escrowDatacapChunkLandCollateral()(address)")
 echo "escrowChallengeCommissionAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "escrowChallengeCommission()(address)")
 echo "escrowDatacapCollateralAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "escrowDatacapCollateral()(address)")
+echo "escrowChallengeAuditCollateralAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "escrowChallengeAuditCollateral()(address)")
 
 DATASWAPROLE="0xd4c6f45e959193f4fa6251e76cc3d999512eb8b529a40dac0d5e892efe8ea48e"
 
@@ -236,6 +240,7 @@ ${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async
 ${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowDatacapChunkLandCollateralAddress
 ${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowDatacapCollateralAddress
 ${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowChallengeCommissionAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowChallengeAuditCollateralAddress
 
 echo "roles role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $RolesAddress)
 echo "filplus role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $FilplusAddress)
@@ -255,6 +260,7 @@ echo "escrowDataTradingFee role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url 
 echo "escrowDatacapChunkLandCollateral role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $EscrowDatacapChunkLandCollateralAddress)
 echo "escrowDatacapCollateral role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $EscrowDatacapCollateralAddress)
 echo "escrowChallengeCommission role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $EscrowChallengeCommissionAddress)
+echo "escrowChallengeAuditCollateral role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $EscrowChallengeAuditCollateralAddress)
 
 
 RootAddress=$(lotus msig inspect f080 | grep t0100 | awk '{print $2}')

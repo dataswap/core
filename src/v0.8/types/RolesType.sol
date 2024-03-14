@@ -17,6 +17,21 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 pragma solidity ^0.8.21;
+import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
+import {IEscrow} from "src/v0.8/interfaces/core/IEscrow.sol";
+import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
+import {IFinance} from "src/v0.8/interfaces/core/IFinance.sol";
+import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
+import {ICarstore} from "src/v0.8/interfaces/core/ICarstore.sol";
+import {IStorages} from "src/v0.8/interfaces/module/IStorages.sol";
+import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
+import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
+import {IDatasetsProof} from "src/v0.8/interfaces/module/IDatasetsProof.sol";
+import {IDatasetsChallenge} from "src/v0.8/interfaces/module/IDatasetsChallenge.sol";
+import {IDatasetsRequirement} from "src/v0.8/interfaces/module/IDatasetsRequirement.sol";
+import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
+import {IMatchingsBids} from "src/v0.8/interfaces/module/IMatchingsBids.sol";
+import {IMatchingsTarget} from "src/v0.8/interfaces/module/IMatchingsTarget.sol";
 
 /// @title RolesType Library
 /// @notice This library defines constants for different roles within the system.
@@ -45,6 +60,32 @@ library RolesType {
         EscrowDataTradingFee,
         EscrowDatacapChunkLandCollateral,
         EscrowDatacapCollateral,
-        EscrowChallengeCommission
+        EscrowChallengeCommission,
+        EscrowChallengeAuditCollateral,
+        EscrowDisputeAuditCollateral,
+        EscrowProofAuditCollateral
+    }
+
+    struct DataswapContracts {
+        IFilplus filplus;
+        IFinance finance;
+        IFilecoin filecoin;
+        ICarstore carstore;
+        IStorages storages;
+        IMerkleUtils merkleUtils;
+        IDatasets datasets;
+        IDatasetsProof datasetsProof;
+        IDatasetsChallenge datasetsChallenge;
+        IDatasetsRequirement datasetsRequirement;
+        IMatchings matchings;
+        IMatchingsBids matchingsBids;
+        IMatchingsTarget matchingsTarget;
+        IEscrow escrowDataTradingFee;
+        IEscrow escrowDatacapCollateral;
+        IEscrow escrowChallengeCommission;
+        IEscrow escrowDatacapChunkLandCollateral;
+        IEscrow escrowChallengeAuditCollateral;
+        IEscrow escrowDisputeAuditCollateral;
+        IEscrow escrowProofAuditCollateral;
     }
 }

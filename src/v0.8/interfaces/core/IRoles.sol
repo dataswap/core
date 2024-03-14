@@ -163,4 +163,16 @@ interface IRoles is IAccessControlEnumerableUpgradeable {
     /// @notice Get the EscrowDatacapCollateral contract.
     /// @return EscrowDatacapCollateral contract address.
     function escrowDatacapCollateral() external view returns (IEscrow);
+
+    /// @notice Get the EscrowChallengeAuditCollateral contract.
+    /// @return EscrowChallengeAuditCollateral contract address.
+    function escrowChallengeAuditCollateral() external view returns (IEscrow);
+
+    /// @notice Get the EscrowDisputeAuditCollateral contract.
+    /// @return EscrowDisputeAuditCollateral contract address.
+    function escrowDisputeAuditCollateral() external view returns (IEscrow);
+
+    /// @notice Get the EscrowProofAuditCollateral contract.
+    /// @return EscrowProofAuditCollateral contract address.
+    function escrowProofAuditCollateral() external view returns (IEscrow);
 }
