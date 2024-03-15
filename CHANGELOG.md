@@ -1,5 +1,20 @@
 
 
+# [0.8.0](https://github.com/dataswap/core/compare/v0.7.0...v0.8.0) (2024-03-15)
+
+
+### Bug Fixes
+
+* 🐛 Finance Subsidy requirement error ([0146215](https://github.com/dataswap/core/commit/0146215c418417da5659a2c6488c7739487ef97c)), closes [#326](https://github.com/dataswap/core/issues/326)
+* 🐛 optimize the state variables in the 'roles' contract ([c1613f4](https://github.com/dataswap/core/commit/c1613f4a507cc0ca08db914cfd51e7aab286722b)), closes [#330](https://github.com/dataswap/core/issues/330)
+
+
+### Features
+
+* 🎸 design dataset auditors election ([c494037](https://github.com/dataswap/core/commit/c4940379f518d0cf6b22940d269874329030c5e7)), closes [#253](https://github.com/dataswap/core/issues/253)
+* 🎸 Handling of the addCanceled function in the Storages ([008abe4](https://github.com/dataswap/core/commit/008abe4a807ffc89f17e99bc4dc28901cf577be7)), closes [#218](https://github.com/dataswap/core/issues/218)
+* 🎸 impl dataset auditor election ([7512a6b](https://github.com/dataswap/core/commit/7512a6b728493aaf8e50b49751244f7d39d22188)), closes [#337](https://github.com/dataswap/core/issues/337)
+
 # [0.7.0](https://github.com/dataswap/core/compare/v0.6.0...v0.7.0) (2024-03-11)
 
 
