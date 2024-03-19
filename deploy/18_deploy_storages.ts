@@ -12,7 +12,7 @@ const deployFunction: DeployFunction = async function (
   await deployAndSaveContract(
     "Storages",
     [
-      governanceAddress,
+      await governanceAddress(),
       roles.address,
     ],
     hre

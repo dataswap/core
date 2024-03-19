@@ -7,7 +7,7 @@ import { governanceAddress } from "../scripts/constants";
 const deployFunction: DeployFunction = async function (hre: HardhatRuntimeEnvironment) {
     const { deployments } = hre;
     const roles = await deployments.get("Roles");
-    await deployAndSaveContract("Filplus", [governanceAddress, roles.address], hre);
+    await deployAndSaveContract("Filplus", [await governanceAddress(), roles.address], hre);
 };
 
 export default deployFunction;

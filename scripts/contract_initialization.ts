@@ -28,6 +28,7 @@ async function main(): Promise<void> {
         "EscrowDatacapChunkLandCollateral",
         "EscrowDatacapCollateral",
         "EscrowChallengeCommission",
+        "EscrowChallengeAuditCollateral",
         "Roles"
     ]
 

@@ -11,7 +11,7 @@ const deployFunction: DeployFunction = async function (
   const roles = await deployments.get("Roles");
   await deployAndSaveContract(
     "Datasets",
-    [governanceAddress, roles.address],
+    [await governanceAddress(), roles.address],
     hre
   );
 };

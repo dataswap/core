@@ -97,7 +97,13 @@ const config: HardhatUserConfig = {
     filecoin: {
       url: `${process.env.FILECOIN_MAINNET_RPC_URL}`,
       chainId: 314,
-      ledgerAccounts: [`${process.env.DEPLOYER_ADDRESS}`],
+      accounts: [
+        `${process.env.PRIVATE_KEY}`,
+        `${process.env.PRIVATE_KEY_METADATASUBMITTER}`,
+        `${process.env.PRIVATE_KEY_PROOFSUBMITTER}`,
+        `${process.env.PRIVATE_KEY_DATASETAUDITOR}`,
+        `${process.env.PRIVATE_KEY_BIDDER}`
+      ],
       live: true,
       saveDeployments: true,
       timeout: 2600000,
