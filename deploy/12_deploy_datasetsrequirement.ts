@@ -12,7 +12,7 @@ const deployFunction: DeployFunction = async function (
   await deployAndSaveContract(
     "DatasetsRequirement",
     [
-      governanceAddress,
+      await governanceAddress(),
       roles.address,
     ],
     hre

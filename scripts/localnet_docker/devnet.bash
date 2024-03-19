@@ -23,7 +23,7 @@ if [ -z "$DEVNET" ]; then
 fi
 
 BASEDIR="/root"
-
+NETWORK_RPC_URL="http://127.0.0.1:1234/rpc/v1"
 if [ "$BUILD" == "yes" ]; then
   git clone --branch "$BRANCH" https://github.com/filecoin-project/lotus.git "${BASEDIR}/build"
 fi
@@ -157,7 +157,7 @@ EscrowDataTradingFeeAddress=$(npx hardhat getProxyAddress --type localnet --name
 EscrowDatacapChunkLandCollateralAddress=$(npx hardhat getProxyAddress --type localnet --name EscrowDatacapChunkLandCollateral)
 EscrowDatacapCollateralAddress=$(npx hardhat getProxyAddress --type localnet --name EscrowDatacapCollateral)
 EscrowChallengeCommissionAddress=$(npx hardhat getProxyAddress --type localnet --name EscrowChallengeCommission)
-EscrowChallengeAuditCollateral=$(npx hardhat getProxyAddress --type localnet --name EscrowChallengeAuditCollateral)
+EscrowChallengeAuditCollateralAddress=$(npx hardhat getProxyAddress --type localnet --name EscrowChallengeAuditCollateral)
 
 cat >"${BASEDIR}/contract" <<EOF
 export RolesAddress=$RolesAddress
@@ -178,89 +178,93 @@ export EscrowDataTradingFeeAddress=$EscrowDataTradingFeeAddress
 export EscrowDatacapChunkLandCollateralAddress=$EscrowDatacapChunkLandCollateralAddress
 export EscrowDatacapCollateralAddress=$EscrowDatacapCollateralAddress
 export EscrowChallengeCommissionAddress=$EscrowChallengeCommissionAddress
-export EscrowChallengeAuditCollateralAddress=$EscrowChallengeAuditCollateral
+export EscrowChallengeAuditCollateralAddress=$EscrowChallengeAuditCollateralAddress
 EOF
 
 PRIVATE_KEY="0x0a3570f105ea5d06c355ea1a7a1fea441e90e44984896779b6c44c2ca5a8e16b"
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 0 $FilplusAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 1 $FinanceAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 2 $FilecoinAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 3 $CarstoreAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 4 $StoragesAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 5 $MerkleUtilsAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 6 $DatasetsAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 7 $DatasetsProofAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 8 $DatasetsChallengeAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 9 $DatasetsRequirementAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 10 $MatchingsAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 11 $MatchingsBidsAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 12 $MatchingsTargetAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 13 $EscrowDataTradingFeeAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 14 $EscrowDatacapChunkLandCollateralAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 15 $EscrowDatacapCollateralAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 16 $EscrowChallengeCommissionAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 17 $EscrowChallengeAuditCollateralAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 0 $FilplusAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 1 $FinanceAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 2 $FilecoinAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 3 $CarstoreAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 4 $StoragesAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 5 $MerkleUtilsAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 6 $DatasetsAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 7 $DatasetsProofAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 8 $DatasetsChallengeAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 9 $DatasetsRequirementAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 10 $MatchingsAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 11 $MatchingsBidsAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 12 $MatchingsTargetAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 13 $EscrowDataTradingFeeAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 14 $EscrowDatacapChunkLandCollateralAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 15 $EscrowDatacapCollateralAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 16 $EscrowChallengeCommissionAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "registerContract(uint8,address)" 17 $EscrowChallengeAuditCollateralAddress
 
-echo "filplusAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "filplus()(address)")
-echo "financeAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "finance()(address)")
-echo "filecoinAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "filecoin()(address)")
-echo "carstoreAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "carstore()(address)")
-echo "storagesAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "storages()(address)")
-echo "merkleUtilsAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "merkleUtils()(address)")
-echo "datasetsAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "datasets()(address)")
-echo "datasetsProofAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "datasetsProof()(address)")
-echo "datasetsChallengeAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "datasetsChallenge()(address)")
-echo "datasetsRequirementAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "datasetsRequirement()(address)")
-echo "matchingsAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "matchings()(address)")
-echo "matchingsBidsAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "matchingsBids()(address)")
-echo "matchingsTargetAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "matchingsTarget()(address)")
-echo "escrowDataTradingFeeAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "escrowDataTradingFee()(address)")
-echo "escrowDatacapChunkLandCollateralAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "escrowDatacapChunkLandCollateral()(address)")
-echo "escrowChallengeCommissionAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "escrowChallengeCommission()(address)")
-echo "escrowDatacapCollateralAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "escrowDatacapCollateral()(address)")
-echo "escrowChallengeAuditCollateralAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "escrowChallengeAuditCollateral()(address)")
+sleep 15s
+
+echo "filplusAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "filplus()(address)")
+echo "financeAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "finance()(address)")
+echo "filecoinAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "filecoin()(address)")
+echo "carstoreAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "carstore()(address)")
+echo "storagesAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "storages()(address)")
+echo "merkleUtilsAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "merkleUtils()(address)")
+echo "datasetsAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "datasets()(address)")
+echo "datasetsProofAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "datasetsProof()(address)")
+echo "datasetsChallengeAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "datasetsChallenge()(address)")
+echo "datasetsRequirementAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "datasetsRequirement()(address)")
+echo "matchingsAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "matchings()(address)")
+echo "matchingsBidsAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "matchingsBids()(address)")
+echo "matchingsTargetAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "matchingsTarget()(address)")
+echo "escrowDataTradingFeeAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "escrowDataTradingFee()(address)")
+echo "escrowDatacapChunkLandCollateralAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "escrowDatacapChunkLandCollateral()(address)")
+echo "escrowChallengeCommissionAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "escrowChallengeCommission()(address)")
+echo "escrowDatacapCollateralAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "escrowDatacapCollateral()(address)")
+echo "escrowChallengeAuditCollateralAddress:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "escrowChallengeAuditCollateral()(address)")
 
 DATASWAPROLE="0xd4c6f45e959193f4fa6251e76cc3d999512eb8b529a40dac0d5e892efe8ea48e"
 
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $RolesAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $FilplusAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $FinanceAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $FilecoinAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $CarstoreAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $StoragesAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $MerkleUtilsAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $DatasetsAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $DatasetsProofAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $DatasetsChallengeAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $DatasetsRequirementAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $MatchingsAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $MatchingsBidsAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $MatchingsTargetAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowDataTradingFeeAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowDatacapChunkLandCollateralAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowDatacapCollateralAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowChallengeCommissionAddress
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowChallengeAuditCollateralAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $RolesAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $FilplusAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $FinanceAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $FilecoinAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $CarstoreAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $StoragesAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $MerkleUtilsAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $DatasetsAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $DatasetsProofAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $DatasetsChallengeAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $DatasetsRequirementAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $MatchingsAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $MatchingsBidsAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $MatchingsTargetAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowDataTradingFeeAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowDatacapChunkLandCollateralAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowDatacapCollateralAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowChallengeCommissionAddress
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $RolesAddress "grantRole(bytes32,address)" $DATASWAPROLE $EscrowChallengeAuditCollateralAddress
 
-echo "roles role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $RolesAddress)
-echo "filplus role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $FilplusAddress)
-echo "finance role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $FinanceAddress)
-echo "filecoin role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $FilecoinAddress)
-echo "carstore role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $CarstoreAddress)
-echo "storages role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $StoragesAddress)
-echo "merkleUtils role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $MerkleUtilsAddress)
-echo "datasets role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $DatasetsAddress)
-echo "datasetsProof role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $DatasetsProofAddress)
-echo "datasetsChallenge role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $DatasetsChallengeAddress)
-echo "datasetsRequirement role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $DatasetsRequirementAddress)
-echo "matchings role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $MatchingsAddress)
-echo "matchingsBids role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $MatchingsBidsAddress)
-echo "matchingsTarget role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $MatchingsTargetAddress)
-echo "escrowDataTradingFee role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $EscrowDataTradingFeeAddress)
-echo "escrowDatacapChunkLandCollateral role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $EscrowDatacapChunkLandCollateralAddress)
-echo "escrowDatacapCollateral role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $EscrowDatacapCollateralAddress)
-echo "escrowChallengeCommission role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $EscrowChallengeCommissionAddress)
-echo "escrowChallengeAuditCollateral role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url http://127.0.0.1:1234/rpc/v1 $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $EscrowChallengeAuditCollateralAddress)
+sleep 15s
+
+echo "roles role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $RolesAddress)
+echo "filplus role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $FilplusAddress)
+echo "finance role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $FinanceAddress)
+echo "filecoin role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $FilecoinAddress)
+echo "carstore role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $CarstoreAddress)
+echo "storages role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $StoragesAddress)
+echo "merkleUtils role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $MerkleUtilsAddress)
+echo "datasets role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $DatasetsAddress)
+echo "datasetsProof role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $DatasetsProofAddress)
+echo "datasetsChallenge role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $DatasetsChallengeAddress)
+echo "datasetsRequirement role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $DatasetsRequirementAddress)
+echo "matchings role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $MatchingsAddress)
+echo "matchingsBids role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $MatchingsBidsAddress)
+echo "matchingsTarget role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $MatchingsTargetAddress)
+echo "escrowDataTradingFee role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $EscrowDataTradingFeeAddress)
+echo "escrowDatacapChunkLandCollateral role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $EscrowDatacapChunkLandCollateralAddress)
+echo "escrowDatacapCollateral role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $EscrowDatacapCollateralAddress)
+echo "escrowChallengeCommission role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $EscrowChallengeCommissionAddress)
+echo "escrowChallengeAuditCollateral role:" $(${BASEDIR}/.foundry/bin/cast call --rpc-url $NETWORK_RPC_URL $RolesAddress "hasRole(bytes32,address)(bool)" $DATASWAPROLE $EscrowChallengeAuditCollateralAddress)
 
 
 RootAddress=$(lotus msig inspect f080 | grep t0100 | awk '{print $2}')
@@ -268,7 +272,7 @@ NotariyAddress=$(lotus evm stat $FilecoinAddress | grep "ID address" | awk '{pri
 lotus-shed verifreg add-verifier $RootAddress $NotariyAddress 100000000000000000
 lotus filplus list-notaries
 
-${BASEDIR}/.foundry/bin/cast send --rpc-url http://127.0.0.1:1234/rpc/v1 --async --private-key $PRIVATE_KEY $StoragesAddress "registDataswapDatacap(uint256)" 100000000000000000
+${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-key $PRIVATE_KEY $StoragesAddress "registDataswapDatacap(uint256)" 100000000000000000
 
 cd ..
 
