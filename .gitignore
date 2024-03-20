@@ -27,4 +27,3 @@ deployments/
 
 # npm file
 package-lock.json
-yarn.lock
