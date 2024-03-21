@@ -34,7 +34,8 @@
     "git-cz": "^4.9.0",
     "global": "^4.4.0",
     "hardhat-abi-exporter": "2.10.1",
-    "release-it": "^17.1.1"
+    "release-it": "^17.1.1",
+    "solidity-cborutils": "^2.0.0"
   },
   "devDependencies": {
     "@glif/filecoin-address": "^2.0.43",

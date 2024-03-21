@@ -35,7 +35,9 @@ library AccountCBOR {
     /// @notice serialize AuthenticateMessageParams struct to cbor in order to pass as arguments to an account actor
     /// @param params AuthenticateMessageParams to serialize as cbor
     /// @return cbor serialized data as bytes
-    function serializeAuthenticateMessageParams(AccountTypes.AuthenticateMessageParams memory params) internal pure returns (bytes memory) {
+    function serializeAuthenticateMessageParams(
+        AccountTypes.AuthenticateMessageParams memory params
+    ) internal pure returns (bytes memory) {
         uint256 capacity = 0;
 
         capacity += Misc.getPrefixSize(2);
@@ -54,7 +56,13 @@ library AccountCBOR {
     /// @notice deserialize AuthenticateMessageParams struct from cbor encoded bytes coming from an account actor call
     /// @param rawResp cbor encoded response
     /// @return ret new instance of AuthenticateMessageParams created based on parsed data
-    function deserializeAuthenticateMessageParams(bytes memory rawResp) internal pure returns (AccountTypes.AuthenticateMessageParams memory ret) {
+    function deserializeAuthenticateMessageParams(
+        bytes memory rawResp
+    )
+        internal
+        pure
+        returns (AccountTypes.AuthenticateMessageParams memory ret)
+    {
         uint byteIdx = 0;
         uint len;
 
