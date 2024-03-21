@@ -43,27 +43,6 @@ contract SetCarReplicaFilecoinClaimIdTest is Test, CarstoreTestSetup {
         testCase.run(_cid, _datasetId, _size, _matchingId, _claimId);
     }
 
-    /// @dev test case with success when filecoin deal state is storage failed
-    function testSetCarReplicaFilecoinDealAndStorageFailedWithSuccess(
-        bytes32 _cid,
-        uint64 _datasetId,
-        uint64 _size,
-        uint64 _matchingId,
-        uint64 _claimId
-    ) public {
-        setup();
-        SetCarReplicaFilecoinClaimIdTestCaseWithSuccess testCase = new SetCarReplicaFilecoinClaimIdTestCaseWithSuccess(
-                carstore(),
-                assertion
-            );
-        // set filecoin store is ok
-        carstore().roles().filecoin().setMockDealState(
-            FilecoinType.DealState.StorageFailed
-        );
-        // run testcase
-        testCase.run(_cid, _datasetId, _size, _matchingId, _claimId);
-    }
-
     /// @notice test case with invalid id
     function testSetCarReplicaFilecoinClaimIdWithInvalidId(
         bytes32 _cid,

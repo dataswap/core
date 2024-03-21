@@ -44,15 +44,15 @@ abstract contract MockFilecoinDealTestSuiteBase is
     ) internal virtual {}
 
     /// @dev The main action of the test, the mock Filecoin deal state for a replica.
-    /// @param _cid The CID (Content Identifier) of the replica.
+    /// @param /*_cid*/ The CID (Content Identifier) of the replica.
     /// @param _claimId The filecoin Deal ID.
     /// @param _state The filecoin Deal ID state.
     function action(
-        bytes32 _cid,
+        bytes32 /*_cid*/,
         uint64 _claimId,
         FilecoinType.DealState _state
     ) internal virtual {
-        assertion.setMockDealStateAssertion(_cid, _claimId, _state);
+        assertion.setMockDealStateAssertion(_claimId, _state);
     }
 
     /// @dev Called after running the test to perform any necessary cleanup or validation.

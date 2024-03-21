@@ -23,22 +23,18 @@ import {FilecoinType} from "src/v0.8/types/FilecoinType.sol";
 /// @dev All methods that do not change the state must be tested by methods that will change the state to ensure test coverage.
 interface IFilecoinAssertion {
     /// @notice Asserts the mock Filecoin deal state for a replica.
-    /// @param _cid The CID (Content Identifier) of the replica.
-    /// @param _claimId The ID of the Filecoin storage deal.
+    /// @param _dealId The ID of the Filecoin storage deal.
     /// @param _expectState The expected state of the Filecoin storage deal.
     function getReplicaDealStateAssertion(
-        bytes32 _cid,
-        uint64 _claimId,
+        uint64 _dealId,
         FilecoinType.DealState _expectState
     ) external;
 
     /// @dev This function does nothing and is for testing purposes only.
-    /// @param _cid The CID of the replica.
-    /// @param _claimId The ID of the Filecoin storage deal.
+    /// @param _dealId The ID of the Filecoin storage deal.
     /// @param _state The state to set for mock purposes.
     function setMockDealStateAssertion(
-        bytes32 _cid,
-        uint64 _claimId,
+        uint64 _dealId,
         FilecoinType.DealState _state
     ) external;
 }

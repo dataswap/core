@@ -68,7 +68,6 @@ contract MockFilecoin is
 
     /// @dev get replica filecoin storage state
     function getReplicaDealState(
-        bytes32,
         uint64
     ) external view override returns (FilecoinType.DealState) {
         return mockDealState;

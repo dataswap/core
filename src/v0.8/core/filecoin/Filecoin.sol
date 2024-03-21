@@ -17,13 +17,13 @@
 
 pragma solidity ^0.8.21;
 
-import {MarketAPI} from "src/v0.8/vendor/filecoin-solidity/contracts/v0.8/MarketAPI.sol";
-import {VerifRegAPI} from "src/v0.8/vendor/filecoin-solidity/contracts/v0.8/VerifRegAPI.sol";
-import {FilAddresses} from "src/v0.8/vendor/filecoin-solidity/contracts/v0.8/utils/FilAddresses.sol";
-import {BigInts} from "src/v0.8/vendor/filecoin-solidity/contracts/v0.8/utils/BigInts.sol";
-import {MarketTypes} from "src/v0.8/vendor/filecoin-solidity/contracts/v0.8/types/MarketTypes.sol";
-import {VerifRegTypes} from "src/v0.8/vendor/filecoin-solidity/contracts/v0.8/types/VerifRegTypes.sol";
-import {CommonTypes} from "src/v0.8/vendor/filecoin-solidity/contracts/v0.8/types/CommonTypes.sol";
+import {MarketAPI} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/MarketAPI.sol";
+import {VerifRegAPI} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/VerifRegAPI.sol";
+import {FilAddresses} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/utils/FilAddresses.sol";
+import {BigInts} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/utils/BigInts.sol";
+import {MarketTypes} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/types/MarketTypes.sol";
+import {VerifRegTypes} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/types/VerifRegTypes.sol";
+import {CommonTypes} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/types/CommonTypes.sol";
 ///interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";
@@ -82,30 +82,27 @@ contract Filecoin is Initializable, UUPSUpgradeable, IFilecoin, RolesModifiers {
     }
 
     /// @notice Internal function to get the state of a Filecoin storage deal for a replica.
-    /// @dev TODO:check _claimId belongs to the _cid, now filecoin-solidity is not support
-    ///           https://github.com/dataswap/core/issues/41
     function getReplicaDealState(
-        bytes32 /*_cid*/,
-        uint64 _claimId
-    ) external returns (FilecoinType.DealState) {
+        uint64 _dealId
+    ) external view returns (FilecoinType.DealState) {
         //get expired info
-        MarketTypes.GetDealTermReturn memory dealTerm = MarketAPI.getDealTerm(
-            _claimId
-        );
+        (, MarketTypes.GetDealTermReturn memory dealTerm) = MarketAPI
+            .getDealTerm(_dealId);
         if (
-            CommonTypes.ChainEpoch.unwrap(dealTerm.end) < int256(block.number)
+            CommonTypes.ChainEpoch.unwrap(dealTerm.start) +
+                CommonTypes.ChainEpoch.unwrap(dealTerm.duration) <
+            int256(block.number)
         ) {
             return FilecoinType.DealState.Expired;
         }
 
         //get slashed info
         // solhint-disable-next-line
-        MarketTypes.GetDealActivationReturn memory DealActivation = MarketAPI
-            .getDealActivation(_claimId);
-        if (
-            CommonTypes.ChainEpoch.unwrap(DealActivation.terminated) <
-            int256(block.number)
-        ) {
+        (
+            ,
+            MarketTypes.GetDealActivationReturn memory dealActivation
+        ) = MarketAPI.getDealActivation(_dealId);
+        if (CommonTypes.ChainEpoch.unwrap(dealActivation.terminated) > 0) {
             return FilecoinType.DealState.Slashed;
         }
 
@@ -116,11 +113,15 @@ contract Filecoin is Initializable, UUPSUpgradeable, IFilecoin, RolesModifiers {
     // solhint-disable-next-line
     function setMockDealState(FilecoinType.DealState _state) external {}
 
-    /// @notice Internal function to get the claim of a Filecoin storage for a replica.
-    function getReplicaClaimData(
+    /// @notice Retrieves claim data on provider and claim ID.
+    /// @dev This function is for internal use only and is view-only.
+    /// @param _provider The ID of the provider.
+    /// @param _claimId The ID of the claim.
+    /// @return A memory struct containing the claim data.
+    function _getClaim(
         uint64 _provider,
         uint64 _claimId
-    ) external returns (bytes memory) {
+    ) internal view returns (VerifRegTypes.Claim memory) {
         CommonTypes.FilActorId[] memory actorIds = new CommonTypes.FilActorId[](
             1
         );
@@ -130,13 +131,22 @@ contract Filecoin is Initializable, UUPSUpgradeable, IFilecoin, RolesModifiers {
         VerifRegTypes.GetClaimsParams memory params = VerifRegTypes
             .GetClaimsParams(CommonTypes.FilActorId.wrap(_provider), actorIds);
 
-        VerifRegTypes.GetClaimsReturn memory claims = VerifRegAPI.getClaims(
+        (, VerifRegTypes.GetClaimsReturn memory claims) = VerifRegAPI.getClaims(
             params
         );
 
         require(claims.claims.length > 0, "length mast greater than 0");
 
-        return claims.claims[0].data;
+        return claims.claims[0];
+    }
+
+    /// @notice Internal function to get the claim of a Filecoin storage for a replica.
+    function getReplicaClaimData(
+        uint64 _provider,
+        uint64 _claimId
+    ) external view returns (bytes memory cid) {
+        VerifRegTypes.Claim memory claim = _getClaim(_provider, _claimId);
+        cid = claim.data;
     }
 
     /// @dev mock the filecoin claim data
@@ -144,7 +154,9 @@ contract Filecoin is Initializable, UUPSUpgradeable, IFilecoin, RolesModifiers {
     function setMockClaimData(uint64 claimId, bytes memory _data) external {}
 
     /// @notice Set the Roles contract.
-    function setRoles(address _roles) external onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
-         roles = IRoles(_roles);
+    function setRoles(
+        address _roles
+    ) external onlyRole(roles, RolesType.DEFAULT_ADMIN_ROLE) {
+        roles = IRoles(_roles);
     }
 }
