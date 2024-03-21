@@ -96,21 +96,4 @@ contract CarstoreModifiers is RolesModifiers, FilplusModifiers {
         }
         _;
     }
-
-    /// @dev Modifier to ensure that a replica filecoin deal state before function do.
-    modifier onlyCarReplicaFilecoinDealState(
-        ICarstore _carstore,
-        IFilecoin _filecoin,
-        uint64 _id,
-        uint64 _claimId,
-        FilecoinType.DealState _filecoinDealState
-    ) {
-        if (
-            _filecoinDealState !=
-            _filecoin.getReplicaDealState(_carstore.getCarHash(_id), _claimId)
-        ) {
-            revert Errors.InvalidReplicaFilecoinDealState(_id, _claimId);
-        }
-        _;
-    }
 }

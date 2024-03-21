@@ -199,37 +199,36 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         _emitRepicaEvent(_id, _matchingId, CarReplicaType.Event.StorageFailed);
     }
 
+    /// @notice Checks the state of a deal associated with a car replica.
+    /// @dev This function is internally callable and view-only.
+    /// @param _id The ID of the car replica.
+    /// @param _dealId The ID of the deal associated with the car replica.
+    /// @param _dealState The state of the deal associated with the car replica.
     function _checkCarReplicaDealState(
         uint64 _id,
-        uint64 _claimId,
+        uint64 _dealId,
         FilecoinType.DealState _dealState
-    ) internal {
-        if (
-            _dealState !=
-            roles.filecoin().getReplicaDealState(getCarHash(_id), _claimId)
-        ) {
-            revert Errors.InvalidReplicaFilecoinDealState(_id, _claimId);
+    ) internal view {
+        if (_dealState != roles.filecoin().getReplicaDealState(_dealId)) {
+            revert Errors.InvalidReplicaFilecoinDealState(_id, _dealId);
         }
     }
 
-    /// @notice Report that storage deal for a replica has expired.
-    /// @dev This function allows reporting that the storage deal for a replica has expired.
-    /// @param _id Car ID associated with the replica.
-    /// @param _matchingId Matching ID of the replica.
+    /// @notice Reports the expiration of a car replica.
+    /// @dev This function is externally callable.
+    /// @param _id The ID of the expired car replica.
+    /// @param _matchingId The ID of the matching car replica.
+    /// @param _dealId The ID of the deal associated with the expired car replica.
     function __reportCarReplicaExpired(
         uint64 _id,
         uint64 _matchingId,
-        uint64 _claimId
+        uint64 _dealId
     )
         external
         onlyRole(roles, RolesType.DATASWAP_CONTRACT)
         onlyCarReplicaState(this, _id, _matchingId, CarReplicaType.State.Stored)
     {
-        _checkCarReplicaDealState(
-            _id,
-            _claimId,
-            FilecoinType.DealState.Expired
-        );
+        _checkCarReplicaDealState(_id, _dealId, FilecoinType.DealState.Expired);
         _emitRepicaEvent(
             _id,
             _matchingId,
@@ -238,24 +237,21 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         emit CarstoreEvents.CarReplicaExpired(_id, _matchingId);
     }
 
-    /// @notice Report that storage of a replica has been slashed.
-    /// @dev This function allows reporting that the storage of a replica has been slashed.
-    /// @param _id Car ID associated with the replica.
-    /// @param _matchingId Matching ID of the replica.
+    /// @notice Reports the slashing of a car replica.
+    /// @dev This function is externally callable.
+    /// @param _id The ID of the slashed car replica.
+    /// @param _matchingId The ID of the matching car replica.
+    /// @param _dealId The ID of the deal associated with the slashed car replica.
     function __reportCarReplicaSlashed(
         uint64 _id,
         uint64 _matchingId,
-        uint64 _claimId
+        uint64 _dealId
     )
         external
         onlyRole(roles, RolesType.DATASWAP_CONTRACT)
         onlyCarReplicaState(this, _id, _matchingId, CarReplicaType.State.Stored)
     {
-        _checkCarReplicaDealState(
-            _id,
-            _claimId,
-            FilecoinType.DealState.Slashed
-        );
+        _checkCarReplicaDealState(_id, _dealId, FilecoinType.DealState.Slashed);
         _emitRepicaEvent(_id, _matchingId, CarReplicaType.Event.StorageSlashed);
         emit CarstoreEvents.CarReplicaSlashed(_id, _matchingId);
     }
@@ -284,7 +280,6 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
         external
         onlyRole(roles, RolesType.DATASWAP_CONTRACT)
         onlyCarExist(this, _id)
-        //onlyNotZero(_matchingId | _claimId)
         onlyCarReplicaExist(this, _id, _matchingId)
         onlyUnsetCarReplicaFilecoinClaimId(this, _id, _matchingId)
     {
@@ -293,14 +288,8 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
             "Matching ID or Filecoin claim ID is 0"
         );
         _checkCarReplicaState(_id, _matchingId, CarReplicaType.State.Matched);
-        bytes32 _hash = _getHash(_id);
         CarReplicaType.Car storage car = _getCar(_id);
-        car._setReplicaFilecoinClaimId(
-            _hash,
-            _matchingId,
-            _claimId,
-            roles.filecoin()
-        );
+        car._setReplicaFilecoinClaimId(_matchingId, _claimId);
 
         emit CarstoreEvents.CarReplicaFilecoinClaimIdSet(
             _id,

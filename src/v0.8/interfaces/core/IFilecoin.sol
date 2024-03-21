@@ -29,9 +29,8 @@ interface IFilecoin {
 
     /// @notice The function to get the state of a Filecoin storage deal for a replica.
     function getReplicaDealState(
-        bytes32 _cid,
-        uint64 _claimId
-    ) external returns (FilecoinType.DealState);
+        uint64 _dealId
+    ) external view returns (FilecoinType.DealState);
 
     /// @dev do nothing,just for mock
     function setMockDealState(FilecoinType.DealState _state) external;
@@ -40,13 +39,13 @@ interface IFilecoin {
     function getReplicaClaimData(
         uint64 _provider,
         uint64 _claimId
-    ) external returns (bytes memory);
+    ) external view returns (bytes memory);
 
     /// @dev mock the filecoin claim data
     function setMockClaimData(uint64 claimId, bytes memory _data) external;
 
     /// @notice Set the Roles contract.
-    function setRoles(address _roles) external ;
+    function setRoles(address _roles) external;
 
     /// @notice Get the Roles contract.
     /// @return Roles contract address.

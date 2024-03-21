@@ -115,10 +115,8 @@ library CarLIB {
     /// @param _claimId The new Filecoin claim ID to set.
     function _setReplicaFilecoinClaimId(
         CarReplicaType.Car storage self,
-        bytes32 _cid,
         uint64 _matchingId,
-        uint64 _claimId,
-        IFilecoin _filecoin
+        uint64 _claimId
     ) internal {
         require(_matchingId != 0, "Invalid matching id");
         require(_claimId != 0, "Invalid filecoin claim id");
@@ -127,23 +125,11 @@ library CarLIB {
         CarReplicaType.Replica storage replica = self.replicas[index];
 
         replica._setFilecoinClaimId(_claimId);
-
-        if (
-            FilecoinType.DealState.Stored ==
-            _filecoin.getReplicaDealState(_cid, _claimId)
-        ) {
-            _emitRepicaEvent(
-                self,
-                _matchingId,
-                CarReplicaType.Event.StorageCompleted
-            );
-        } else {
-            _emitRepicaEvent(
-                self,
-                _matchingId,
-                CarReplicaType.Event.StorageFailed
-            );
-        }
+        _emitRepicaEvent(
+            self,
+            _matchingId,
+            CarReplicaType.Event.StorageCompleted
+        );
     }
 
     /// @notice Get the dataset ID associated with a car.
