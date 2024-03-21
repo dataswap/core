@@ -1,0 +1,63 @@
+{
+    "name": "filecoin-solidity-api",
+    "version": "1.1.1",
+    "description": "Filecoin EVM Solidity APIs",
+    "main": "",
+    "directories": {
+        "doc": "docs"
+    },
+    "scripts": {
+        "format": "prettier --write contracts"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/filecoin-project/filecoin-solidity.git"
+    },
+    "keywords": [
+        "FEVM",
+        "EVM",
+        "Solidity",
+        "Filecoin"
+    ],
+    "author": "[Protocol Labs, Filecoin Core Devs]",
+    "license": "MIT OR Apache-2.0",
+    "bugs": {
+        "url": "https://github.com/filecoin-project/filecoin-solidity/issues"
+    },
+    "homepage": "https://github.com/filecoin-project/filecoin-solidity#readme",
+    "files": [
+        "contracts/",
+        "!/contracts/v0.8/tests/**/*"
+    ],
+    "publishConfig": {
+        "access": "public"
+    },
+    "devDependencies": {
+        "@nomicfoundation/hardhat-ethers": "^3.0.4",
+        "@nomicfoundation/hardhat-foundry": "^1.0.3",
+        "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@^0.3.0-beta.13",
+        "@openzeppelin/hardhat-upgrades": "^1.28.0",
+        "@typechain/ethers-v6": "^0.5.0",
+        "@typechain/hardhat": "^6.1.2",
+        "ethers": "^5.5.1",
+        "hardhat": "^2.11.2",
+        "prettier": "^2.7.1",
+        "prettier-plugin-solidity": "^1.0.0",
+        "typechain": "^8.3.1",
+        "@glif/filecoin-address": "^2.0.43",
+        "@nomiclabs/hardhat-etherscan": "^3.1.7",
+        "@typechain/ethers-v5": "^11.1.1",
+        "@types/chai": "^4.3.5",
+        "@types/mocha": "^10.0.1",
+        "@types/node": "^20.5.0",
+        "chai": "^4.3.7",
+        "cids": "^1.1.9",
+        "hardhat-contract-sizer": "^2.10.0",
+        "hardhat-deploy-ethers": "^0.3.0-beta.13",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.2.2"
+    },
+    "dependencies": {
+        "solidity-cborutils": "^2.0.0"
+    }
+}
