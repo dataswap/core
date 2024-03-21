@@ -31,7 +31,6 @@
     "@openzeppelin/contracts": "^4.9.3",
     "@openzeppelin/contracts-upgradeable": "^4.9.3",
     "@release-it/conventional-changelog": "^8.0.1",
-    "@zondax/filecoin-solidity": "^4.0.3",
     "git-cz": "^4.9.0",
     "global": "^4.4.0",
     "hardhat-abi-exporter": "2.10.1",
