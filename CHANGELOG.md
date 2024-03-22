@@ -1,5 +1,24 @@
 
 
+# [0.9.0](https://github.com/dataswap/core/compare/v0.8.0...v0.9.0) (2024-03-22)
+
+
+### Bug Fixes
+
+* 🐛 add filecoin-solidity-api v1.1.1 ([cb71eaa](https://github.com/dataswap/core/commit/cb71eaabcc449a934cde1e9c2843f848566827d5))
+* 🐛 Add lock version file ([01b3e51](https://github.com/dataswap/core/commit/01b3e51f509b016781bdd737722228e90b68c773)), closes [#346](https://github.com/dataswap/core/issues/346)
+* 🐛 compile and deserializeGetClaimsReturn failure ([b710380](https://github.com/dataswap/core/commit/b710380db9502885e424e25e442d94d3f3560c72))
+* 🐛 getReplicaClaimData failure ([bc56b11](https://github.com/dataswap/core/commit/bc56b1155e44154736979275eb98484db03afd6d)), closes [#329](https://github.com/dataswap/core/issues/329)
+* 🐛 Improve the configuration of the deployment tool ([c949a0e](https://github.com/dataswap/core/commit/c949a0e9f21f471925d8bdf6b76429365d2a74d7)), closes [#341](https://github.com/dataswap/core/issues/341)
+* 🐛 remove getChallengeAuditCollateralRequirement ([7d4bc90](https://github.com/dataswap/core/commit/7d4bc9025c8643bb59403b2cfa7bf54dfafed36f)), closes [#349](https://github.com/dataswap/core/issues/349)
+* 🐛 remove zondex  filecoin-solidity ([6833787](https://github.com/dataswap/core/commit/6833787e4370038afb015100a37deff34623b23d))
+* 🐛 renaming of filplus rules ([446b9fd](https://github.com/dataswap/core/commit/446b9fd6e8798e8c9d618c03b673a675753a71de)), closes [#351](https://github.com/dataswap/core/issues/351)
+
+
+### Features
+
+* 🎸 add statistics events ([d0e08dc](https://github.com/dataswap/core/commit/d0e08dc6b7ea90978104282f36e2926516e34b43)), closes [#344](https://github.com/dataswap/core/issues/344)
+
 # [0.8.0](https://github.com/dataswap/core/compare/v0.7.0...v0.8.0) (2024-03-15)
 
 
