@@ -23,11 +23,9 @@ import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 
 /// @title IDatasetsChallenge
 interface IDatasetsChallenge {
-    /// @notice Stake function for auditors.
-    /// @dev Allows auditors to stake tokens for a specific dataset.
-    /// @param _datasetId The ID of the dataset for which auditors are staking tokens.
-    /// @param _amount The amount of tokens to stake.
-    function auditorStake(uint64 _datasetId, uint256 _amount) external;
+    /// @dev Allows a user to nominate themselves as a candidate for dataset auditor election.
+    /// @param _datasetId The ID of the dataset for which the user is nominating themselves as a candidate.
+    function nominateAsDatasetAuditorCandidate(uint64 _datasetId) external;
 
     ///@notice Submit challenge proof for a dataset
     /// Based on merkle proof challenge.
@@ -102,13 +100,6 @@ interface IDatasetsChallenge {
     function getAuditorElectionEndHeight(
         uint64 _datasetId
     ) external view returns (uint64);
-
-    /// @notice Retrieves the required collateral for challenge audits.
-    /// @return The amount of collateral required for challenge audits.
-    function getChallengeAuditCollateralRequirement()
-        external
-        view
-        returns (uint256);
 
     /// @dev Checks whether the given account is a winner for a specific dataset ID.
     /// @param _datasetId The ID of the dataset being checked.

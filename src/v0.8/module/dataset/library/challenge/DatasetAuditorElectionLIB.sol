@@ -23,28 +23,9 @@ import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 library DatasetAuditorElectionLIB {
     ///@notice Internal function to stake tokens.
     ///@param self The storage to store candidate.
-    ///@param _roles The contract instance of IRoles.
-    ///@param _datasetId The ID of the dataset.
-    ///@param _token The address of the token to stake.
-    function _stake(
-        DatasetType.DatasetAuditorElection storage self,
-        IRoles _roles,
-        uint64 _datasetId,
-        address _token
+    function _nominateAsDatasetAuditorCandidate(
+        DatasetType.DatasetAuditorElection storage self
     ) internal {
-        (, , uint256 escrow, ) = _roles.finance().getAccountEscrow(
-            _datasetId,
-            0,
-            msg.sender,
-            _token,
-            FinanceType.Type.EscrowChallengeAuditCollateral
-        );
-
-        require(
-            escrow >= _getChallengeAuditCollateralRequirement(_roles),
-            "auditor escrow value invalid"
-        );
-
         // Add or update candidate
         bool isNewCandidate = true;
         for (uint256 i = 0; i < self.candidates.length; i++) {
@@ -138,14 +119,5 @@ library DatasetAuditorElectionLIB {
         }
 
         return false;
-    }
-
-    /// @dev Retrieves the required collateral for challenge audits.
-    /// @param _roles The Roles contract instance.
-    /// @return The amount of collateral required for challenge audits.
-    function _getChallengeAuditCollateralRequirement(
-        IRoles _roles
-    ) internal view returns (uint256) {
-        return _roles.filplus().finaceRuleDatasetProofCollateral() * 3;
     }
 }

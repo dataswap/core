@@ -84,14 +84,20 @@ contract DatasetsChallenge is
         return _getImplementation();
     }
 
-    /// @notice Stake function for auditors.
-    /// @dev Allows auditors to stake tokens for a specific dataset.
-    /// @param _datasetId The ID of the dataset for which auditors are staking tokens.
-    /// @param _amount The amount of tokens to stake.
-    function auditorStake(uint64 _datasetId, uint256 _amount) external {
+    /// @dev Allows a user to nominate themselves as a candidate for dataset auditor election.
+    /// @param _datasetId The ID of the dataset for which the user is nominating themselves as a candidate.
+    function nominateAsDatasetAuditorCandidate(uint64 _datasetId) external {
         require(
             uint64(block.number) < getAuditorElectionEndHeight(_datasetId),
             "auditors election timeout"
+        );
+
+        uint256 _amount = roles.finance().getEscrowRequirement(
+            _datasetId,
+            0,
+            msg.sender,
+            FinanceType.FIL,
+            FinanceType.Type.EscrowChallengeAuditCollateral
         );
 
         roles.finance().__escrow(
@@ -105,11 +111,7 @@ contract DatasetsChallenge is
 
         DatasetType.DatasetChallengeProof
             storage datasetChallengeProof = datasetChallengeProofs[_datasetId];
-        datasetChallengeProof.election._stake(
-            roles,
-            _datasetId,
-            FinanceType.FIL
-        );
+        datasetChallengeProof.election._nominateAsDatasetAuditorCandidate();
     }
 
     ///@notice Submit challenge proof for a dataset
@@ -367,19 +369,6 @@ contract DatasetsChallenge is
         return
             proofCompleteHeight +
             roles.filplus().datasetRuleAuditorsElectionTime();
-    }
-
-    /// @dev Retrieves the required collateral for challenge audits.
-    /// @return The amount of collateral required for challenge audits.
-    function getChallengeAuditCollateralRequirement()
-        public
-        view
-        returns (uint256)
-    {
-        return
-            DatasetAuditorElectionLIB._getChallengeAuditCollateralRequirement(
-                roles
-            );
     }
 
     /// @dev Checks whether the given account is a winner for a specific dataset ID.
