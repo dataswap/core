@@ -55,14 +55,16 @@ contract EscrowDatacapChunkLandCollateral is EscrowBase {
             FinanceType.Type.EscrowDatacapChunkLandCollateral
         );
 
-        uint256 price = roles.filplus().getDatacapChunkLandPricePreByte();
+        uint256 price = roles
+            .filplus()
+            .financeRuleDatacapChunkLandPricePreByte();
         (uint256 totalSize, , , , , , ) = roles
             .storages()
             .getMatchingStorageOverview(_matchingId);
 
         uint64 maxAllocated = roles
             .filplus()
-            .datacapRulesMaxAllocatedSizePerTime();
+            .datacapRuleMaxAllocatedSizePerTime();
 
         amount = Math.min(totalSize, maxAllocated) * price;
 
@@ -103,7 +105,9 @@ contract EscrowDatacapChunkLandCollateral is EscrowBase {
             .storages()
             .getMatchingStorageOverview(_matchingId);
 
-        uint256 price = roles.filplus().getDatacapChunkLandPricePreByte();
+        uint256 price = roles
+            .filplus()
+            .financeRuleDatacapChunkLandPricePreByte();
         uint256 burned = (totalSize - storedSize) * price;
 
         return burned < current ? current - burned : 0;
@@ -132,7 +136,9 @@ contract EscrowDatacapChunkLandCollateral is EscrowBase {
             .storages()
             .getMatchingStorageOverview(_matchingId);
 
-        uint256 price = roles.filplus().getDatacapChunkLandPricePreByte();
+        uint256 price = roles
+            .filplus()
+            .financeRuleDatacapChunkLandPricePreByte();
         uint256 burned = (totalSize - storedSize) * price;
 
         amount = Math.min(current, burned);

@@ -38,7 +38,13 @@ contract EscrowChallengeCommission is EscrowBase {
         uint64 _matchingId,
         address _payer,
         address _token
-    ) public view override onlyRole(roles, RolesType.DATASWAP_CONTRACT) returns (uint256 amount) {
+    )
+        public
+        view
+        override
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
+        returns (uint256 amount)
+    {
         (, , uint256 current, ) = roles.finance().getAccountEscrow(
             _datasetId,
             _matchingId,
@@ -49,8 +55,7 @@ contract EscrowChallengeCommission is EscrowBase {
 
         amount =
             roles.datasetsChallenge().getChallengeSubmissionCount(_datasetId) *
-            roles.filplus().getChallengeProofsSubmiterCount() *
-            roles.filplus().getChallengeProofsPricePrePoint();
+            roles.filplus().financeRuleChallengeProofsPricePrePoint();
 
         amount = current >= amount ? 0 : amount - current;
     }
@@ -129,8 +134,7 @@ contract EscrowChallengeCommission is EscrowBase {
         uint64 _datasetId,
         uint64 /*_matchingId*/
     ) internal view override returns (bool refund) {
-                return (
-            roles.datasets().getDatasetState(_datasetId) ==
+        return (roles.datasets().getDatasetState(_datasetId) ==
             DatasetType.State.Rejected);
     }
 

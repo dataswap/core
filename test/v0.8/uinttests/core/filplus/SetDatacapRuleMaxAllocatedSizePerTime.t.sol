@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {SetDatacapRulesMaxAllocatedSizePerTimeTestCaseWithSuccess, SetDatacapRulesMaxAllocatedSizePerTimeTestCaseWithInvalidGovernancer} from "test/v0.8/testcases/core/filplus/SetDatacapRulesMaxAllocatedSizePerTimeTestSuite.sol";
+import {SetDatacapRuleMaxAllocatedSizePerTimeTestCaseWithSuccess, SetDatacapRuleMaxAllocatedSizePerTimeTestCaseWithInvalidGovernancer} from "test/v0.8/testcases/core/filplus/SetDatacapRuleMaxAllocatedSizePerTimeTestSuite.sol";
 import {FilplusTestSetup} from "test/v0.8/uinttests/core/filplus/setup/FilplusTestSetup.sol";
 
 contract SetDatacapRulesMaxAllocatedSizePerTimeTest is Test, FilplusTestSetup {
@@ -26,7 +26,7 @@ contract SetDatacapRulesMaxAllocatedSizePerTimeTest is Test, FilplusTestSetup {
         uint64 _newValue
     ) public {
         setup();
-        SetDatacapRulesMaxAllocatedSizePerTimeTestCaseWithSuccess testCase = new SetDatacapRulesMaxAllocatedSizePerTimeTestCaseWithSuccess(
+        SetDatacapRuleMaxAllocatedSizePerTimeTestCaseWithSuccess testCase = new SetDatacapRuleMaxAllocatedSizePerTimeTestCaseWithSuccess(
                 filplus(),
                 assertion,
                 generator(),
@@ -40,7 +40,7 @@ contract SetDatacapRulesMaxAllocatedSizePerTimeTest is Test, FilplusTestSetup {
         uint64 _newValue
     ) public {
         setup();
-        SetDatacapRulesMaxAllocatedSizePerTimeTestCaseWithInvalidGovernancer testCase = new SetDatacapRulesMaxAllocatedSizePerTimeTestCaseWithInvalidGovernancer(
+        SetDatacapRuleMaxAllocatedSizePerTimeTestCaseWithInvalidGovernancer testCase = new SetDatacapRuleMaxAllocatedSizePerTimeTestCaseWithInvalidGovernancer(
                 filplus(),
                 assertion,
                 generator(),

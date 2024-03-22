@@ -67,9 +67,9 @@ interface IFilplus {
         uint16 _newValue
     ) external;
 
-    function setDatacapRulesMaxAllocatedSizePerTime(uint64 _newValue) external;
+    function setDatacapRuleMaxAllocatedSizePerTime(uint64 _newValue) external;
 
-    function setDatacapRulesMaxRemainingPercentageForNext(
+    function setDatacapRuleMaxRemainingPercentageForNext(
         uint8 _newValue
     ) external;
 
@@ -88,31 +88,43 @@ interface IFilplus {
     ) external;
 
     /// @notice Set the datacap price pre byte complies with filplus rules.
-    function setDatacapPricePreByte(uint256 _newValue) external;
+    function setFinanceRuleDatacapPricePreByte(uint256 _newValue) external;
 
     /// @notice Set the datacap chunk land price pre byte complies with filplus rules.
-    function setDatacapChunkLandPricePreByte(uint256 _newValue) external;
+    function setFinanceRuleDatacapChunkLandPricePreByte(
+        uint256 _newValue
+    ) external;
 
     /// @notice Set the challenge proofs submiter Count complies with filplus rules.
-    function setChallengeProofsSubmiterCount(uint16 _newValue) external;
+    function setDatasetRuleMaxChallengeProofsSubmitersPerDataset(
+        uint16 _newValue
+    ) external;
 
     /// @notice Set the datacap collateral lock days when dataset approved complies with filplus rules.
-    function setDatacapdatasetApprovedLockDays(uint64 _newValue) external;
+    function setFinanceRuleDatacapDatasetApprovedLockDays(
+        uint64 _newValue
+    ) external;
 
     /// @notice Set the datacap collateral lock max days complies with filplus rules.
-    function setDatacapCollateralMaxLockDays(uint64 _newValue) external;
+    function setFinanceRuleDatacapCollateralMaxLockDays(
+        uint64 _newValue
+    ) external;
 
     /// @notice Set the challenge audit fee complies with filplus rules.
-    function setChallengeAuditFee(uint256 _newValue) external;
+    function setFinaceRuleDatasetChallengeProofCollateral(
+        uint256 _newValue
+    ) external;
 
     /// @notice Set the proof audit fee complies with filplus rules.
-    function setProofAuditFee(uint256 _newValue) external;
+    function setFinaceRuleDatasetProofCollateral(uint256 _newValue) external;
 
     /// @notice Set the dispute audit fee complies with filplus rules.
-    function setDisputeAuditFee(uint256 _newValue) external;
+    function setFinanceRuleDisputeAuditCollateral(uint256 _newValue) external;
 
     /// @notice Set the challenge proofs price pre point complies with filplus rules.
-    function setChallengeProofsPricePrePoint(uint256 _newValue) external;
+    function setFinanceRuleChallengeProofsPricePrePoint(
+        uint256 _newValue
+    ) external;
 
     ///@notice Sets the election time for auditors.
     ///@param _blocks The number of blocks to set as the election time.
@@ -147,40 +159,55 @@ interface IFilplus {
     function getPerDayBlocknumber() external view returns (uint64);
 
     /// @notice Returns the datacap collateral days when dataset approved
-    function getDatacapdatasetApprovedLockDays() external view returns (uint64);
+    function financeRuleDatacapDatasetApprovedLockDays()
+        external
+        view
+        returns (uint64);
 
     /// @notice Returns the datacap collateral max lock days
-    function getDatacapCollateralMaxLockDays() external view returns (uint64);
+    function financeRuleDatacapCollateralMaxLockDays()
+        external
+        view
+        returns (uint64);
 
     /// @notice Returns the challenge audit fee
-    function getChallengeAuditFee() external view returns (uint256);
+    function finaceRuleDatasetChallengeProofCollateral()
+        external
+        view
+        returns (uint256);
 
     /// @notice Returns the proof audit fee
-    function getProofAuditFee() external view returns (uint256);
+    function finaceRuleDatasetProofCollateral() external view returns (uint256);
 
     /// @notice Returns the dispute audit fee
-    function getDisputeAuditFee() external view returns (uint256);
+    function financeRuleDisputeAuditCollateral()
+        external
+        view
+        returns (uint256);
 
     /// @notice Get the challenge proofs price pre point complies with filplus rules.
-    function getChallengeProofsPricePrePoint()
+    function financeRuleChallengeProofsPricePrePoint()
         external
         view
         returns (uint256 price);
 
     /// @notice Get the challenge proofs submiter count complies with filplus rules.
-    function getChallengeProofsSubmiterCount()
+    function datasetRuleMaxChallengeProofsSubmitersPerDataset()
         external
         view
         returns (uint16 count);
 
     /// @notice Get the datacap chunk land price pre byte complies with filplus rules.
-    function getDatacapChunkLandPricePreByte()
+    function financeRuleDatacapChunkLandPricePreByte()
         external
         view
         returns (uint256 price);
 
     /// @notice Get the datacap price pre byte complies with filplus rules.
-    function getDatacapPricePreByte() external view returns (uint256 price);
+    function financeRuleDatacapPricePreByte()
+        external
+        view
+        returns (uint256 price);
 
     /// @notice Returns the minimum proof submission timeout for the dataset rule.
     function datasetRuleMinProofTimeout() external view returns (uint64);
@@ -228,13 +255,13 @@ interface IFilplus {
         returns (uint16);
 
     /// @notice Returns the maximum size that can be allocated per time for datacap rules.
-    function datacapRulesMaxAllocatedSizePerTime()
+    function datacapRuleMaxAllocatedSizePerTime()
         external
         view
         returns (uint64);
 
     /// @notice Returns the maximum remaining percentage allowed for the next datacap rule.
-    function datacapRulesMaxRemainingPercentageForNext()
+    function datacapRuleMaxRemainingPercentageForNext()
         external
         view
         returns (uint8);

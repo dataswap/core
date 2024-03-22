@@ -40,7 +40,13 @@ contract EscrowDatacapCollateral is EscrowBase {
         uint64 _matchingId,
         address _payer,
         address _token
-    ) public view override onlyRole(roles, RolesType.DATASWAP_CONTRACT) returns (uint256 amount) {
+    )
+        public
+        view
+        override
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
+        returns (uint256 amount)
+    {
         (, , uint256 current, ) = roles.finance().getAccountEscrow(
             _datasetId,
             _matchingId,
@@ -67,7 +73,7 @@ contract EscrowDatacapCollateral is EscrowBase {
         amount =
             datasetSize *
             roles.datasetsRequirement().getDatasetReplicasCount(_datasetId) *
-            roles.filplus().getDatacapPricePreByte();
+            roles.filplus().financeRuleDatacapPricePreByte();
 
         amount = current >= amount ? 0 : amount - current;
     }
@@ -126,9 +132,13 @@ contract EscrowDatacapCollateral is EscrowBase {
         if (
             (state == DatasetType.State.Approved &&
                 block.number >
-                (latestHeight + roles.filplus().getDatacapdatasetApprovedLockDays())) ||
+                (latestHeight +
+                    roles
+                        .filplus()
+                        .financeRuleDatacapDatasetApprovedLockDays())) ||
             block.number >
-            (latestHeight + roles.filplus().getDatacapCollateralMaxLockDays())
+            (latestHeight +
+                roles.filplus().financeRuleDatacapCollateralMaxLockDays())
         ) {
             return true;
         }

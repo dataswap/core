@@ -17,7 +17,7 @@
 pragma solidity ^0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {SetDatacapRulesMaxRemainingPercentageForNextTestCaseWithSuccess, SetDatacapRulesMaxRemainingPercentageForNextTestCaseWithInvalidGovernancer} from "test/v0.8/testcases/core/filplus/SetDatacapRulesMaxRemainingPercentageForNextTestSuite.sol";
+import {SetDatacapRuleMaxRemainingPercentageForNextTestCaseWithSuccess, SetDatacapRuleMaxRemainingPercentageForNextTestCaseWithInvalidGovernancer} from "test/v0.8/testcases/core/filplus/SetDatacapRuleMaxRemainingPercentageForNextTestSuite.sol";
 import {FilplusTestSetup} from "test/v0.8/uinttests/core/filplus/setup/FilplusTestSetup.sol";
 
 contract SetDatacapRulesMaxRemainingPercentageForNextTest is
@@ -29,7 +29,7 @@ contract SetDatacapRulesMaxRemainingPercentageForNextTest is
         uint8 _newValue
     ) public {
         setup();
-        SetDatacapRulesMaxRemainingPercentageForNextTestCaseWithSuccess testCase = new SetDatacapRulesMaxRemainingPercentageForNextTestCaseWithSuccess(
+        SetDatacapRuleMaxRemainingPercentageForNextTestCaseWithSuccess testCase = new SetDatacapRuleMaxRemainingPercentageForNextTestCaseWithSuccess(
                 filplus(),
                 assertion,
                 generator(),
@@ -43,7 +43,7 @@ contract SetDatacapRulesMaxRemainingPercentageForNextTest is
         uint8 _newValue
     ) public {
         setup();
-        SetDatacapRulesMaxRemainingPercentageForNextTestCaseWithInvalidGovernancer testCase = new SetDatacapRulesMaxRemainingPercentageForNextTestCaseWithInvalidGovernancer(
+        SetDatacapRuleMaxRemainingPercentageForNextTestCaseWithInvalidGovernancer testCase = new SetDatacapRuleMaxRemainingPercentageForNextTestCaseWithInvalidGovernancer(
                 filplus(),
                 assertion,
                 generator(),
