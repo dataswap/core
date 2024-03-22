@@ -40,7 +40,13 @@ contract EscrowProofAuditCollateral is EscrowBase {
         uint64 _matchingId,
         address _payer,
         address _token
-    ) public view override onlyRole(roles, RolesType.DATASWAP_CONTRACT) returns (uint256 amount) {
+    )
+        public
+        view
+        override
+        onlyRole(roles, RolesType.DATASWAP_CONTRACT)
+        returns (uint256 amount)
+    {
         (, , uint256 current, ) = roles.finance().getAccountEscrow(
             _datasetId,
             _matchingId,
@@ -49,7 +55,7 @@ contract EscrowProofAuditCollateral is EscrowBase {
             FinanceType.Type.EscrowProofAuditCollateral
         );
 
-        amount = roles.filplus().getProofAuditFee();
+        amount = roles.filplus().finaceRuleDatasetProofCollateral();
 
         amount = current >= amount ? 0 : amount - current;
     }
@@ -94,7 +100,7 @@ contract EscrowProofAuditCollateral is EscrowBase {
             _payer,
             _token,
             FinanceType.Type.EscrowProofAuditCollateral
-        ); 
+        );
     }
 
     /// @dev Internal function to get payment amount.
@@ -115,7 +121,7 @@ contract EscrowProofAuditCollateral is EscrowBase {
             _payer,
             _token,
             FinanceType.Type.EscrowProofAuditCollateral
-        ); 
+        );
     }
 
     /// @dev Internal function to check if a refund is applicable.

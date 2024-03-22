@@ -21,11 +21,11 @@ import {FilplusEvents} from "src/v0.8/shared/events/FilplusEvents.sol";
 import {Generator} from "test/v0.8/helpers/utils/Generator.sol";
 import {IFilplus} from "src/v0.8/interfaces/core/IFilplus.sol";
 import {IFilplusAssertion} from "test/v0.8/interfaces/assertions/core/IFilplusAssertion.sol";
-import {SetVariableOfUint64TestSuiteBase} from "test/v0.8/testcases/core/filplus/abstract/FilplusTestSuiteBase.sol";
+import {SetVariableOfUint8TestSuiteBase} from "test/v0.8/testcases/core/filplus/abstract/FilplusTestSuiteBase.sol";
 
-/// @notice set datacapRulesMaxAllocatedSizePerTime test case,it should be success
-contract SetDatacapRulesMaxAllocatedSizePerTimeTestCaseWithSuccess is
-    SetVariableOfUint64TestSuiteBase
+/// @notice set datacapRuleMaxRemainingPercentageForNext test case,it should be success
+contract SetDatacapRuleMaxRemainingPercentageForNextTestCaseWithSuccess is
+    SetVariableOfUint8TestSuiteBase
 {
     constructor(
         IFilplus _filplus,
@@ -33,7 +33,7 @@ contract SetDatacapRulesMaxAllocatedSizePerTimeTestCaseWithSuccess is
         Generator _generator,
         address _governanceContractAddresss
     )
-        SetVariableOfUint64TestSuiteBase(
+        SetVariableOfUint8TestSuiteBase(
             _filplus,
             _assertion,
             _generator,
@@ -41,21 +41,23 @@ contract SetDatacapRulesMaxAllocatedSizePerTimeTestCaseWithSuccess is
         ) // solhint-disable-next-line
     {}
 
-    function before(uint64 _newValue) internal virtual override {}
+    function before(uint8 _newValue) internal virtual override {}
 
-    function action(uint64 _newValue) internal virtual override {
+    function action(uint8 _newValue) internal virtual override {
         vm.expectEmit(true, false, false, true);
-        emit FilplusEvents.SetDatacapRulesMaxAllocatedSizePerTime(_newValue);
-        assertion.setDatacapRulesMaxAllocatedSizePerTimeAssertion(
+        emit FilplusEvents.SetDatacapRuleMaxRemainingPercentageForNext(
+            _newValue
+        );
+        assertion.setDatacapRulesMaxRemainingPercentageForNextAssertion(
             governanceContractAddresss,
             _newValue
         );
     }
 }
 
-/// @notice set datacapRulesMaxAllocatedSizePerTime test case with invalid governancer,it should be capture revert
-contract SetDatacapRulesMaxAllocatedSizePerTimeTestCaseWithInvalidGovernancer is
-    SetVariableOfUint64TestSuiteBase
+/// @notice set datacapRuleMaxRemainingPercentageForNext test case with invalid governancer,it should be capture revert
+contract SetDatacapRuleMaxRemainingPercentageForNextTestCaseWithInvalidGovernancer is
+    SetVariableOfUint8TestSuiteBase
 {
     constructor(
         IFilplus _filplus,
@@ -63,7 +65,7 @@ contract SetDatacapRulesMaxAllocatedSizePerTimeTestCaseWithInvalidGovernancer is
         Generator _generator,
         address _governanceContractAddresss
     )
-        SetVariableOfUint64TestSuiteBase(
+        SetVariableOfUint8TestSuiteBase(
             _filplus,
             _assertion,
             _generator,
@@ -71,12 +73,12 @@ contract SetDatacapRulesMaxAllocatedSizePerTimeTestCaseWithInvalidGovernancer is
         ) // solhint-disable-next-line
     {}
 
-    function before(uint64 _newValue) internal virtual override {}
+    function before(uint8 _newValue) internal virtual override {}
 
-    function action(uint64 _newValue) internal virtual override {
+    function action(uint8 _newValue) internal virtual override {
         address addr = generator.generateAddress(100);
         vm.expectRevert(bytes("Only allowed address can call"));
-        assertion.setDatacapRulesMaxAllocatedSizePerTimeAssertion(
+        assertion.setDatacapRulesMaxRemainingPercentageForNextAssertion(
             addr,
             _newValue
         );

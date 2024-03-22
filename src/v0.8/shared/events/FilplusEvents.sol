@@ -63,38 +63,38 @@ library FilplusEvents {
     event SetDatasetRuleMaxTotalReplicasPerDataset(uint32 _newValue);
 
     // Event emitted when the maximum allocated datacap size per time rule is set
-    event SetDatacapRulesMaxAllocatedSizePerTime(uint64 _newValue);
+    event SetDatacapRuleMaxAllocatedSizePerTime(uint64 _newValue);
 
     // Event emitted when the maximum remaining percentage for the next allocation rule is set
-    event SetDatacapRulesMaxRemainingPercentageForNext(uint64 _newValue);
+    event SetDatacapRuleMaxRemainingPercentageForNext(uint64 _newValue);
 
     // Event emitted when the datacap chunk land price pre byte rule is set
-    event SetDatacapChunkLandPricePreByte(uint256 _newValue);
+    event SetFinanceRuleDatacapChunkLandPricePreByte(uint256 _newValue);
 
     // Event emitted when the challenge proofs submiter count rule is set
-    event SetChallengeProofsSubmiterCount(uint16 _newValue);
+    event SetDatasetRuleMaxChallengeProofsSubmitersPerDataset(uint16 _newValue);
 
     // Event emitted when the challenge proofs price pre point rule is set
-    event SetChallengeProofsPricePrePoint(uint256 _newValue);
+    event SetFinanceRuleChallengeProofsPricePrePoint(uint256 _newValue);
 
     // Event emitted when the datacap price pre byte rule is set
-    event SetDatacapPricePreByte(uint256 _newValue);
+    event SetFinanceRuleDatacapPricePreByte(uint256 _newValue);
 
     // Event emitted when datacap collateral lock days when dataset approved rule is set
-    event SetDatacapdatasetApprovedLockDays(uint64 _newValue);
+    event SetFinanceRuleDatacapDatasetApprovedLockDays(uint64 _newValue);
 
     // Event emitted when auditor elections time rule is set
     event SetAuditorsElectionTime(uint64 _newValue);
 
     // Event emitted when datacap collateral max lock days rule is set
-    event SetDatacapCollateralMaxLockDays(uint64 _newValue);
+    event SetFinanceRuleDatacapCollateralMaxLockDays(uint64 _newValue);
 
     // Event emitted when proof audit fee rule is set
-    event SetProofAuditFee(uint256 _newValue);
+    event SetFinaceRuleDatasetProofCollateral(uint256 _newValue);
 
     // Event emitted when challenge audit fee rule is set
-    event SetChallengeAuditFee(uint256 _newValue);
+    event SetFinaceRuleDatasetChallengeProofCollateral(uint256 _newValue);
 
     // Event emitted when dispute audit fee rule is set
-    event SetDisputeAuditFee(uint256 _newValue);
+    event SetFinanceRuleDisputeAuditCollateral(uint256 _newValue);
 }

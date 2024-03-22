@@ -154,7 +154,7 @@ contract FilplusAssertion is DSTest, Test, IFilplusAssertion {
         uint64 _newValue
     ) external {
         vm.prank(_caller);
-        filplus.setDatacapRulesMaxAllocatedSizePerTime(_newValue);
+        filplus.setDatacapRuleMaxAllocatedSizePerTime(_newValue);
         datacapRulesMaxAllocatedSizePerTimeAssertion(_newValue);
     }
 
@@ -166,7 +166,7 @@ contract FilplusAssertion is DSTest, Test, IFilplusAssertion {
         uint8 _newValue
     ) external {
         vm.prank(_caller);
-        filplus.setDatacapRulesMaxRemainingPercentageForNext(_newValue);
+        filplus.setDatacapRuleMaxRemainingPercentageForNext(_newValue);
         datacapRulesMaxRemainingPercentageForNextAssertion(_newValue);
     }
 
@@ -243,7 +243,7 @@ contract FilplusAssertion is DSTest, Test, IFilplusAssertion {
     function datacapRulesMaxAllocatedSizePerTimeAssertion(
         uint64 _expectSize
     ) public {
-        assertEq(filplus.datacapRulesMaxAllocatedSizePerTime(), _expectSize);
+        assertEq(filplus.datacapRuleMaxAllocatedSizePerTime(), _expectSize);
     }
 
     /// @notice Asserts the maximum remaining percentage for the next data allocation for datacap rules.
@@ -252,7 +252,7 @@ contract FilplusAssertion is DSTest, Test, IFilplusAssertion {
         uint8 _expectPercentrage
     ) public {
         assertEq(
-            filplus.datacapRulesMaxRemainingPercentageForNext(),
+            filplus.datacapRuleMaxRemainingPercentageForNext(),
             _expectPercentrage
         );
     }

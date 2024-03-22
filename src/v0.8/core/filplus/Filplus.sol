@@ -80,23 +80,31 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         rules.datasetRuleRequirementTimeout = 2880 * 2;
 
         //defalut datacap rules
-        rules.datacapRulesMaxAllocatedSizePerTime =
+        rules.datacapRuleMaxAllocatedSizePerTime =
             50 *
             1024 *
             1024 *
             1024 *
             1024; //50TB
-        rules.datacapRulesMaxRemainingPercentageForNext = 20; //20%
-        rules.datacapChunkLandPricePreByte = (1000000000000000000 /
+        rules.datacapRuleMaxRemainingPercentageForNext = 20; //20%
+        rules.financeRuleDatacapChunkLandPricePreByte = (1000000000000000000 /
             PER_TIB_BYTE); // 1/1T
-        rules.challengeProofsPricePrePoint = (1000000000000000000 / 1000); // 0.0001/POINT
-        rules.challengeProofsSubmiterCount = 10; // 10
-        rules.datacapPricePreByte = rules.datacapChunkLandPricePreByte; // 1/1T
-        rules.datacapCollateralMaxLockDays = 365 * PER_DAY_BLOCKNUMBER; // 1 year
-        rules.datacapdatasetApprovedLockDays = 180 * PER_DAY_BLOCKNUMBER; // 180 days
-        rules.proofAuditFee = 1000000000000000000;
-        rules.challengeAuditFee = rules.proofAuditFee;
-        rules.disputeAuditFee = rules.proofAuditFee;
+        rules.financeRuleChallengeProofsPricePrePoint = (1000000000000000000 /
+            1000); // 0.0001/POINT
+        rules.datasetRuleMaxChallengeProofsSubmitersPerDataset = 10; // 10
+        rules.financeRuleDatacapPricePreByte = rules
+            .financeRuleDatacapChunkLandPricePreByte; // 1/1T
+        rules.financeRuleDatacapCollateralMaxLockDays =
+            365 *
+            PER_DAY_BLOCKNUMBER; // 1 year
+        rules.financeRuleDatacapDatasetApprovedLockDays =
+            180 *
+            PER_DAY_BLOCKNUMBER; // 180 days
+        rules.finaceRuleDatasetProofCollateral = 1000000000000000000;
+        rules.finaceRuleDatasetChallengeProofCollateral = rules
+            .finaceRuleDatasetProofCollateral;
+        rules.financeRuleDisputeAuditCollateral = rules
+            .finaceRuleDatasetProofCollateral;
         rules.datasetRuleAuditorsElectionTime = 2880;
 
         __UUPSUpgradeable_init();
@@ -207,18 +215,18 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         emit FilplusEvents.SetDatasetRuleMaxTotalReplicasPerDataset(_newValue);
     }
 
-    function setDatacapRulesMaxAllocatedSizePerTime(
+    function setDatacapRuleMaxAllocatedSizePerTime(
         uint64 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        rules.datacapRulesMaxAllocatedSizePerTime = _newValue;
-        emit FilplusEvents.SetDatacapRulesMaxAllocatedSizePerTime(_newValue);
+        rules.datacapRuleMaxAllocatedSizePerTime = _newValue;
+        emit FilplusEvents.SetDatacapRuleMaxAllocatedSizePerTime(_newValue);
     }
 
-    function setDatacapRulesMaxRemainingPercentageForNext(
+    function setDatacapRuleMaxRemainingPercentageForNext(
         uint8 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        rules.datacapRulesMaxRemainingPercentageForNext = _newValue;
-        emit FilplusEvents.SetDatacapRulesMaxRemainingPercentageForNext(
+        rules.datacapRuleMaxRemainingPercentageForNext = _newValue;
+        emit FilplusEvents.SetDatacapRuleMaxRemainingPercentageForNext(
             _newValue
         );
     }
@@ -240,75 +248,87 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     ) external {}
 
     /// @notice Set the datacap price pre byte complies with filplus rules.
-    function setDatacapPricePreByte(
+    function setFinanceRuleDatacapPricePreByte(
         uint256 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        rules.datacapPricePreByte = _newValue;
-        emit FilplusEvents.SetDatacapPricePreByte(_newValue);
+        rules.financeRuleDatacapPricePreByte = _newValue;
+        emit FilplusEvents.SetFinanceRuleDatacapPricePreByte(_newValue);
     }
 
     /// @notice Set the datacap chunk land price pre byte complies with filplus rules.
-    function setDatacapChunkLandPricePreByte(
+    function setFinanceRuleDatacapChunkLandPricePreByte(
         uint256 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        rules.datacapChunkLandPricePreByte = _newValue;
-        emit FilplusEvents.SetDatacapChunkLandPricePreByte(_newValue);
+        rules.financeRuleDatacapChunkLandPricePreByte = _newValue;
+        emit FilplusEvents.SetFinanceRuleDatacapChunkLandPricePreByte(
+            _newValue
+        );
     }
 
     /// @notice Set the challenge proofs submiter Count complies with filplus rules.
-    function setChallengeProofsSubmiterCount(
+    function setDatasetRuleMaxChallengeProofsSubmitersPerDataset(
         uint16 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        rules.challengeProofsSubmiterCount = _newValue;
-        emit FilplusEvents.SetChallengeProofsSubmiterCount(_newValue);
+        rules.datasetRuleMaxChallengeProofsSubmitersPerDataset = _newValue;
+        emit FilplusEvents.SetDatasetRuleMaxChallengeProofsSubmitersPerDataset(
+            _newValue
+        );
     }
 
     /// @notice Set the challenge proofs price pre point complies with filplus rules.
-    function setChallengeProofsPricePrePoint(
+    function setFinanceRuleChallengeProofsPricePrePoint(
         uint256 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        rules.challengeProofsPricePrePoint = _newValue;
-        emit FilplusEvents.SetChallengeProofsPricePrePoint(_newValue);
+        rules.financeRuleChallengeProofsPricePrePoint = _newValue;
+        emit FilplusEvents.SetFinanceRuleChallengeProofsPricePrePoint(
+            _newValue
+        );
     }
 
     /// @notice Set the datacap collateral lock days when dataset approved complies with filplus rules.
-    function setDatacapdatasetApprovedLockDays(
+    function setFinanceRuleDatacapDatasetApprovedLockDays(
         uint64 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        rules.datacapdatasetApprovedLockDays = _newValue;
-        emit FilplusEvents.SetDatacapdatasetApprovedLockDays(_newValue);
+        rules.financeRuleDatacapDatasetApprovedLockDays = _newValue;
+        emit FilplusEvents.SetFinanceRuleDatacapDatasetApprovedLockDays(
+            _newValue
+        );
     }
 
     /// @notice Set the challenge audit fee complies with filplus rules.
-    function setChallengeAuditFee(
+    function setFinaceRuleDatasetChallengeProofCollateral(
         uint256 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        rules.challengeAuditFee = _newValue;
-        emit FilplusEvents.SetChallengeAuditFee(_newValue);
+        rules.finaceRuleDatasetChallengeProofCollateral = _newValue;
+        emit FilplusEvents.SetFinaceRuleDatasetChallengeProofCollateral(
+            _newValue
+        );
     }
 
     /// @notice Set the proof audit fee complies with filplus rules.
-    function setProofAuditFee(
+    function setFinaceRuleDatasetProofCollateral(
         uint256 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        rules.proofAuditFee = _newValue;
-        emit FilplusEvents.SetProofAuditFee(_newValue);
+        rules.finaceRuleDatasetProofCollateral = _newValue;
+        emit FilplusEvents.SetFinaceRuleDatasetProofCollateral(_newValue);
     }
 
     /// @notice Set the dispute audit fee complies with filplus rules.
-    function setDisputeAuditFee(
+    function setFinanceRuleDisputeAuditCollateral(
         uint256 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        rules.disputeAuditFee = _newValue;
-        emit FilplusEvents.SetDisputeAuditFee(_newValue);
+        rules.financeRuleDisputeAuditCollateral = _newValue;
+        emit FilplusEvents.SetFinanceRuleDisputeAuditCollateral(_newValue);
     }
 
     /// @notice Set the datacap collateral lock max days complies with filplus rules.
-    function setDatacapCollateralMaxLockDays(
+    function setFinanceRuleDatacapCollateralMaxLockDays(
         uint64 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        rules.datacapCollateralMaxLockDays = _newValue;
-        emit FilplusEvents.SetDatacapCollateralMaxLockDays(_newValue);
+        rules.financeRuleDatacapCollateralMaxLockDays = _newValue;
+        emit FilplusEvents.SetFinanceRuleDatacapCollateralMaxLockDays(
+            _newValue
+        );
     }
 
     ///@notice Sets the election time for auditors.
@@ -373,64 +393,84 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     }
 
     /// @notice Returns the datacap collateral days when dataset approved
-    function getDatacapdatasetApprovedLockDays()
+    function financeRuleDatacapDatasetApprovedLockDays()
         external
         view
         returns (uint64)
     {
-        return rules.datacapdatasetApprovedLockDays;
+        return rules.financeRuleDatacapDatasetApprovedLockDays;
     }
 
     /// @notice Returns the datacap collateral max lock days
-    function getDatacapCollateralMaxLockDays() external view returns (uint64) {
-        return rules.datacapCollateralMaxLockDays;
+    function financeRuleDatacapCollateralMaxLockDays()
+        external
+        view
+        returns (uint64)
+    {
+        return rules.financeRuleDatacapCollateralMaxLockDays;
     }
 
     /// @notice Returns the proof audit fee
-    function getProofAuditFee() external view returns (uint256) {
-        return rules.proofAuditFee;
+    function finaceRuleDatasetProofCollateral()
+        external
+        view
+        returns (uint256)
+    {
+        return rules.finaceRuleDatasetProofCollateral;
     }
 
     /// @notice Returns the dispute audit fee
-    function getDisputeAuditFee() external view returns (uint256) {
-        return rules.disputeAuditFee;
+    function financeRuleDisputeAuditCollateral()
+        external
+        view
+        returns (uint256)
+    {
+        return rules.financeRuleDisputeAuditCollateral;
     }
 
     /// @notice Returns the challenge audit fee
-    function getChallengeAuditFee() external view returns (uint256) {
-        return rules.challengeAuditFee;
+    function finaceRuleDatasetChallengeProofCollateral()
+        external
+        view
+        returns (uint256)
+    {
+        return rules.finaceRuleDatasetChallengeProofCollateral;
     }
 
     /// @notice Get the challenge proofs price pre point complies with filplus rules.
-    function getChallengeProofsPricePrePoint()
+    function financeRuleChallengeProofsPricePrePoint()
         external
         view
         returns (uint256 price)
     {
-        price = rules.challengeProofsPricePrePoint;
+        price = rules.financeRuleChallengeProofsPricePrePoint;
     }
 
     /// @notice Get the challenge proofs submiter count complies with filplus rules.
-    function getChallengeProofsSubmiterCount()
+    function datasetRuleMaxChallengeProofsSubmitersPerDataset()
         external
         view
         returns (uint16 count)
     {
-        count = rules.challengeProofsSubmiterCount;
+        count = rules.datasetRuleMaxChallengeProofsSubmitersPerDataset;
     }
 
     /// @notice Get the datacap price pre byte complies with filplus rules.
-    function getDatacapPricePreByte() external view returns (uint256 price) {
-        price = rules.datacapPricePreByte;
-    }
-
-    /// @notice Get the datacap chunk land price pre byte complies with filplus rules.
-    function getDatacapChunkLandPricePreByte()
+    function financeRuleDatacapPricePreByte()
         external
         view
         returns (uint256 price)
     {
-        price = rules.datacapChunkLandPricePreByte;
+        price = rules.financeRuleDatacapPricePreByte;
+    }
+
+    /// @notice Get the datacap chunk land price pre byte complies with filplus rules.
+    function financeRuleDatacapChunkLandPricePreByte()
+        external
+        view
+        returns (uint256 price)
+    {
+        price = rules.financeRuleDatacapChunkLandPricePreByte;
     }
 
     /// @notice The default minimum dataset proof submission timeout
@@ -505,21 +545,21 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
     }
 
     /// @notice Returns the maximum size that can be allocated per time for datacap rules.
-    function datacapRulesMaxAllocatedSizePerTime()
+    function datacapRuleMaxAllocatedSizePerTime()
         external
         view
         returns (uint64)
     {
-        return rules.datacapRulesMaxAllocatedSizePerTime;
+        return rules.datacapRuleMaxAllocatedSizePerTime;
     }
 
     /// @notice Returns the maximum remaining percentage allowed for the next datacap rule.
-    function datacapRulesMaxRemainingPercentageForNext()
+    function datacapRuleMaxRemainingPercentageForNext()
         external
         view
         returns (uint8)
     {
-        return rules.datacapRulesMaxRemainingPercentageForNext;
+        return rules.datacapRuleMaxRemainingPercentageForNext;
     }
 
     ///@notice Returns the election time for auditors.

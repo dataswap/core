@@ -146,6 +146,6 @@ library DatasetAuditorElectionLIB {
     function _getChallengeAuditCollateralRequirement(
         IRoles _roles
     ) internal view returns (uint256) {
-        return _roles.filplus().getProofAuditFee() * 3;
+        return _roles.filplus().finaceRuleDatasetProofCollateral() * 3;
     }
 }

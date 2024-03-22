@@ -140,7 +140,9 @@ contract DatasetsChallenge is
             storage datasetChallengeProof = datasetChallengeProofs[_datasetId];
         require(
             datasetChallengeProof.auditors.length <=
-                roles.filplus().getChallengeProofsSubmiterCount(),
+                roles
+                    .filplus()
+                    .datasetRuleMaxChallengeProofsSubmitersPerDataset(),
             "exceeds maximum challenge submitters count of filplus"
         );
         require(

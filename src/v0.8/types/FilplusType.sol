@@ -35,17 +35,19 @@ library FilplusType {
         uint64 datasetRuleMinAuditTimeout;
         uint64 datasetRuleRequirementTimeout;
         uint64 datasetRuleAuditorsElectionTime; // The election time for auditors.
+        /// @notice dataset da rules
+        uint16 datasetRuleMaxChallengeProofsSubmitersPerDataset; // The challenge proofs submiter count.
         ///@notice datacap rules
-        uint64 datacapRulesMaxAllocatedSizePerTime; // Maximum allocate datacap size per time.
-        uint8 datacapRulesMaxRemainingPercentageForNext; // Minimum completion percentage for the next allocation.
-        uint256 datacapPricePreByte; // The datacap price pre byte.
-        uint256 datacapChunkLandPricePreByte; // The datacap chunk land price pre byte.
-        uint256 challengeProofsPricePrePoint; // The challenge proofs price pre point.
-        uint16 challengeProofsSubmiterCount; // The challenge proofs submiter count.
-        uint64 datacapdatasetApprovedLockDays; // The datacap collateral days when dataset approved.
-        uint64 datacapCollateralMaxLockDays; // The datacap collateral max lock days.
-        uint256 proofAuditFee; // The proof audit fee.
-        uint256 challengeAuditFee; // The challenge audit fee.
-        uint256 disputeAuditFee; // The dispute audit fee.
+        uint64 datacapRuleMaxAllocatedSizePerTime; // Maximum allocate datacap size per time.
+        uint8 datacapRuleMaxRemainingPercentageForNext; // Minimum completion percentage for the next allocation.
+        ///@notice finance rules
+        uint256 financeRuleDatacapPricePreByte; // The datacap price pre byte.
+        uint256 financeRuleDatacapChunkLandPricePreByte; // The datacap chunk land price pre byte.
+        uint256 financeRuleChallengeProofsPricePrePoint; // The challenge proofs price pre point.
+        uint64 financeRuleDatacapDatasetApprovedLockDays; // The datacap collateral days when dataset approved.
+        uint64 financeRuleDatacapCollateralMaxLockDays; // The datacap collateral max lock days.
+        uint256 finaceRuleDatasetProofCollateral; // The proof audit fee.
+        uint256 finaceRuleDatasetChallengeProofCollateral; // The challenge audit fee.
+        uint256 financeRuleDisputeAuditCollateral; // The dispute audit fee.
     }
 }

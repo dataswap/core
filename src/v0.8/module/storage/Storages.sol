@@ -333,7 +333,7 @@ contract Storages is
         ) = getMatchingStorageOverview(_matchingId);
         uint64 maxAllocateCapacityPreTime = roles
             .filplus()
-            .datacapRulesMaxAllocatedSizePerTime();
+            .datacapRuleMaxAllocatedSizePerTime();
         (uint64 datasetId, , uint16 replicaIndex) = _getDatasetInfo(
             _matchingId
         );
@@ -399,8 +399,8 @@ contract Storages is
         );
         uint64 allocationThreshold = (roles
             .filplus()
-            .datacapRulesMaxRemainingPercentageForNext() / 100) *
-            roles.filplus().datacapRulesMaxAllocatedSizePerTime();
+            .datacapRuleMaxRemainingPercentageForNext() / 100) *
+            roles.filplus().datacapRuleMaxAllocatedSizePerTime();
 
         if (allocatedDatacap > totalDatacapAllocationRequirement) {
             revert Errors.AllocatedDatacapExceedsTotalRequirement(

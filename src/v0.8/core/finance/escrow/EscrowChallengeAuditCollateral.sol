@@ -53,7 +53,7 @@ contract EscrowChallengeAuditCollateral is EscrowBase {
             FinanceType.Type.EscrowChallengeAuditCollateral
         );
 
-        amount = roles.filplus().getChallengeAuditFee();
+        amount = roles.filplus().finaceRuleDatasetChallengeProofCollateral();
 
         amount = current >= amount ? 0 : amount - current;
     }
