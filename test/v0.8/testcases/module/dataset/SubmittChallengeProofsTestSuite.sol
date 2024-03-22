@@ -234,9 +234,7 @@ contract ResubmittDatasetChallengeProofsTestCaseWithSuccess is
             address(199),
             FinanceType.FIL
         );
-        uint256 amount = datasetsChallenge
-            .getChallengeAuditCollateralRequirement();
-        datasetsChallenge.auditorStake(_id, amount);
+        datasetsChallenge.nominateAsDatasetAuditorCandidate(_id);
         vm.stopPrank();
         uint64 delayBlocks = datasetsChallenge.getAuditorElectionEndHeight(_id);
         vm.roll(delayBlocks);

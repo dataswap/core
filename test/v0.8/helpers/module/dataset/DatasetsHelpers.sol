@@ -380,10 +380,7 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
             caller,
             FinanceType.FIL
         );
-        uint256 amount = roles
-            .datasetsChallenge()
-            .getChallengeAuditCollateralRequirement();
-        roles.datasetsChallenge().auditorStake(_datasetId, amount);
+        roles.datasetsChallenge().nominateAsDatasetAuditorCandidate(_datasetId);
         uint64 delayBlocks = roles
             .datasetsChallenge()
             .getAuditorElectionEndHeight(_datasetId);

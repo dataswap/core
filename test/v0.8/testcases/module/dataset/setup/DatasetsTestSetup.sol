@@ -192,14 +192,10 @@ contract DatasetsTestSetup is Test {
             _caller,
             FinanceType.FIL
         );
-        uint256 amount = _datasetsHelpers
+        _datasetsHelpers
             .getRoles()
             .datasetsChallenge()
-            .getChallengeAuditCollateralRequirement();
-        _datasetsHelpers.getRoles().datasetsChallenge().auditorStake(
-            id,
-            amount
-        );
+            .nominateAsDatasetAuditorCandidate(id);
         vm.stopPrank();
         uint64 delayBlocks = _datasetsHelpers
             .getRoles()
