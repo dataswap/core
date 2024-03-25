@@ -1,5 +1,13 @@
 
 
+## [0.9.1](https://github.com/dataswap/core/compare/v0.9.0...v0.9.1) (2024-03-25)
+
+
+### Bug Fixes
+
+* 🐛 add func getDatasetProofRootHash ([012b05a](https://github.com/dataswap/core/commit/012b05ad4797a93ab7d82f5db972ff3aaf962c03)), closes [#354](https://github.com/dataswap/core/issues/354)
+* 🐛 merge count and size statistics ([8d85490](https://github.com/dataswap/core/commit/8d85490150065d5a9005f422bf8e9f5d6edff680)), closes [#356](https://github.com/dataswap/core/issues/356)
+
 # [0.9.0](https://github.com/dataswap/core/compare/v0.8.0...v0.9.0) (2024-03-22)
 
 
