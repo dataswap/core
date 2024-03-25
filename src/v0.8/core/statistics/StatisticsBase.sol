@@ -42,11 +42,14 @@ contract StatisticsBase is Initializable, IStatistics {
     /// @param _size Size to be added to the total count.
     function _addCountTotal(uint256 _size) internal {
         count.addTotal(_size);
-        emit StatisticsEvents.CountStatistics(
+        emit StatisticsEvents.DataStatistics(
             uint64(block.number),
             count.total,
             count.success,
-            count.failed
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
         );
     }
 
@@ -54,11 +57,14 @@ contract StatisticsBase is Initializable, IStatistics {
     /// @param _size Size to be added to the total size.
     function _addSizeTotal(uint256 _size) internal {
         size.addTotal(_size);
-        emit StatisticsEvents.SizeStatistics(
+        emit StatisticsEvents.DataStatistics(
             uint64(block.number),
             count.total,
             count.success,
-            count.failed
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
         );
     }
 
@@ -66,11 +72,14 @@ contract StatisticsBase is Initializable, IStatistics {
     /// @param _size Size to be added to the success count.
     function _addCountSuccess(uint256 _size) internal {
         count.addSuccess(_size);
-        emit StatisticsEvents.CountStatistics(
+        emit StatisticsEvents.DataStatistics(
             uint64(block.number),
             count.total,
             count.success,
-            count.failed
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
         );
     }
 
@@ -78,11 +87,14 @@ contract StatisticsBase is Initializable, IStatistics {
     /// @param _size Size to be added to the success size.
     function _addSizeSuccess(uint256 _size) internal {
         size.addSuccess(_size);
-        emit StatisticsEvents.SizeStatistics(
+        emit StatisticsEvents.DataStatistics(
             uint64(block.number),
             count.total,
             count.success,
-            count.failed
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
         );
     }
 
@@ -90,11 +102,14 @@ contract StatisticsBase is Initializable, IStatistics {
     /// @param _size Size to be added to the failed count.
     function _addCountFailed(uint256 _size) internal {
         count.addFailed(_size);
-        emit StatisticsEvents.CountStatistics(
+        emit StatisticsEvents.DataStatistics(
             uint64(block.number),
             count.total,
             count.success,
-            count.failed
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
         );
     }
 
@@ -102,11 +117,14 @@ contract StatisticsBase is Initializable, IStatistics {
     /// @param _size Size to be added to the failed size.
     function _addSizeFailed(uint256 _size) internal {
         size.addFailed(_size);
-        emit StatisticsEvents.SizeStatistics(
+        emit StatisticsEvents.DataStatistics(
             uint64(block.number),
             count.total,
             count.success,
-            count.failed
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
         );
     }
 
