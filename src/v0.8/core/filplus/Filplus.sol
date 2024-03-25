@@ -333,7 +333,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
 
     ///@notice Sets the election time for auditors.
     ///@param _blocks The number of blocks to set as the election time.
-    function setAuditorsElectionTime(
+    function setDatasetRuleAuditorsElectionTime(
         uint64 _blocks
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
         rules.datasetRuleAuditorsElectionTime = _blocks;

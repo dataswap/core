@@ -128,7 +128,7 @@ interface IFilplus {
 
     ///@notice Sets the election time for auditors.
     ///@param _blocks The number of blocks to set as the election time.
-    function setAuditorsElectionTime(uint64 _blocks) external;
+    function setDatasetRuleAuditorsElectionTime(uint64 _blocks) external;
 
     function getIncomeReleaseRule(
         FinanceType.Type _type
