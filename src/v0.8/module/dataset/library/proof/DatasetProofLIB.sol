@@ -163,6 +163,23 @@ library DatasetProofLIB {
         return self.proofSubmitter;
     }
 
+    /// @notice Retrieves the root hash of the dataset proof for the specified data type.
+    /// @param self The storage reference to the dataset proof.
+    /// @param _dataType The type of data for which to retrieve the root hash.
+    /// @return The root hash of the dataset proof.
+    function getDatasetRootHash(
+        DatasetType.DatasetProof storage self,
+        DatasetType.DataType _dataType
+    ) internal view returns (bytes32) {
+        DatasetType.Proof storage proof;
+        if (_dataType == DatasetType.DataType.Source) {
+            proof = self.sourceProof;
+        } else {
+            proof = self.mappingFilesProof;
+        }
+        return proof.rootHash;
+    }
+
     /// @notice Check if a dataset has submitter
     /// @param self The dataset from which to retrieve the source dataset proof.
     /// @param submitter The address being compared.

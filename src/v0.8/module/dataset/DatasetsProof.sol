@@ -577,6 +577,20 @@ contract DatasetsProof is
         return datasetProof.completedHeight;
     }
 
+    /// @notice Retrieves the Merkle root hash of the dataset for the specified dataset ID and data type.
+    /// @param _datasetId The ID of the dataset for which to retrieve the Merkle root hash.
+    /// @param _dataType The type of data for which to retrieve the Merkle root hash.
+    /// @return rootHash The Merkle root hash of the dataset.
+    function getDatasetProofRootHash(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType
+    ) external view onlyNotZero(_datasetId) returns (bytes32 rootHash) {
+        DatasetType.DatasetProof storage datasetProof = datasetProofs[
+            _datasetId
+        ];
+        rootHash = datasetProof.getDatasetRootHash(_dataType);
+    }
+
     ///@notice Check if a dataset proof all completed
     function isDatasetProofallCompleted(
         uint64 _datasetId,
