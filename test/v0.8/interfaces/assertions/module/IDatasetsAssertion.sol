@@ -256,4 +256,14 @@ interface IDatasetsAssertion is IStatisticsBaseAssertion {
         uint64 _datasetId,
         uint64 _expectCount
     ) external;
+
+    /// Checks whether an account is expected to be a winner for a dataset.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _account The address of the account to check.
+    /// @param expectResult The expected result indicating whether the account is a winner.
+    function isWinnerAssersion(
+        uint64 _datasetId,
+        address _account,
+        bool expectResult
+    ) external;
 }
