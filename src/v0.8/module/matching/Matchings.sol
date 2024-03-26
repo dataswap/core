@@ -23,6 +23,7 @@ import {IMatchings} from "src/v0.8/interfaces/module/IMatchings.sol";
 
 /// shared
 import {MatchingsEvents} from "src/v0.8/shared/events/MatchingsEvents.sol";
+import {StatisticsEvents} from "src/v0.8/shared/events/StatisticsEvents.sol";
 import {MatchingsModifiers} from "src/v0.8/shared/modifiers/MatchingsModifiers.sol";
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 import {StatisticsBase} from "src/v0.8/core/statistics/StatisticsBase.sol";
@@ -136,6 +137,15 @@ contract Matchings is
         matching.initiator = msg.sender;
         matching.createdBlockNumber = uint64(block.number);
         emit MatchingsEvents.MatchingCreated(matchingsCount(), msg.sender);
+        emit StatisticsEvents.MatchingsStatistics(
+            uint64(block.number),
+            count.total,
+            count.success,
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
+        );
         return matchingsCount();
     }
 
@@ -225,6 +235,15 @@ contract Matchings is
         MatchingType.Matching storage matching = matchings[_matchingId];
         _addSizeTotal(_size);
         matching._publishMatching();
+        emit StatisticsEvents.MatchingsStatistics(
+            uint64(block.number),
+            count.total,
+            count.success,
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
+        );
     }
 
     /// @notice Function for report canceling a matching
@@ -238,6 +257,15 @@ contract Matchings is
         _addCountFailed(1);
         _addSizeFailed(_size);
         emit MatchingsEvents.MatchingCancelled(_matchingId);
+        emit StatisticsEvents.MatchingsStatistics(
+            uint64(block.number),
+            count.total,
+            count.success,
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
+        );
     }
 
     /// @notice Function for closing a matching
@@ -270,6 +298,15 @@ contract Matchings is
             _size
         );
         emit MatchingsEvents.MatchingHasWinner(_matchingId, _winner);
+        emit StatisticsEvents.MatchingsStatistics(
+            uint64(block.number),
+            count.total,
+            count.success,
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
+        );
     }
 
     /// @notice Function for report complete a matching without winner.
@@ -283,6 +320,15 @@ contract Matchings is
         _addCountFailed(1);
         _addSizeFailed(_size);
         emit MatchingsEvents.MatchingNoWinner(_matchingId);
+        emit StatisticsEvents.MatchingsStatistics(
+            uint64(block.number),
+            count.total,
+            count.success,
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
+        );
     }
 
     /// @notice Returns the count of matchings.

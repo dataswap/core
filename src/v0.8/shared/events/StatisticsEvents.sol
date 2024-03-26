@@ -19,7 +19,7 @@ pragma solidity ^0.8.21;
 
 library StatisticsEvents {
     /**
-     * @dev Event triggered to record count statistics.
+     * @dev Event triggered to record count and size statistics.
      *
      * @param _height The height of the statistics.
      * @param _totalCount The total count.
@@ -29,7 +29,49 @@ library StatisticsEvents {
      * @param _successSize The size of successful operations.
      * @param _failedSize The size of failed operations.
      */
-    event DataStatistics(
+    event DatasetsStatistics(
+        uint64 indexed _height,
+        uint256 _totalCount,
+        uint256 _successCount,
+        uint256 _failedCount,
+        uint256 _totalSize,
+        uint256 _successSize,
+        uint256 _failedSize
+    );
+
+    /**
+     * @dev Event triggered to record count and size statistics.
+     *
+     * @param _height The height of the statistics.
+     * @param _totalCount The total count.
+     * @param _successCount The count of successful operations.
+     * @param _failedCount The count of failed operations.
+     * @param _totalSize The total size.
+     * @param _successSize The size of successful operations.
+     * @param _failedSize The size of failed operations.
+     */
+    event MatchingsStatistics(
+        uint64 indexed _height,
+        uint256 _totalCount,
+        uint256 _successCount,
+        uint256 _failedCount,
+        uint256 _totalSize,
+        uint256 _successSize,
+        uint256 _failedSize
+    );
+
+    /**
+     * @dev Event triggered to record count and size statistics.
+     *
+     * @param _height The height of the statistics.
+     * @param _totalCount The total count.
+     * @param _successCount The count of successful operations.
+     * @param _failedCount The count of failed operations.
+     * @param _totalSize The total size.
+     * @param _successSize The size of successful operations.
+     * @param _failedSize The size of failed operations.
+     */
+    event StoragesStatistics(
         uint64 indexed _height,
         uint256 _totalCount,
         uint256 _successCount,

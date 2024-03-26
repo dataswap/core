@@ -24,6 +24,7 @@ import {IDatasets} from "src/v0.8/interfaces/module/IDatasets.sol";
 
 ///shared
 import {DatasetsEvents} from "src/v0.8/shared/events/DatasetsEvents.sol";
+import {StatisticsEvents} from "src/v0.8/shared/events/StatisticsEvents.sol";
 import {DatasetsModifiers} from "src/v0.8/shared/modifiers/DatasetsModifiers.sol";
 import {StatisticsBase} from "src/v0.8/core/statistics/StatisticsBase.sol";
 
@@ -134,6 +135,15 @@ contract Datasets is
         _claimDatasetEscrow(_datasetId);
 
         emit DatasetsEvents.DatasetApproved(_datasetId);
+        emit StatisticsEvents.DatasetsStatistics(
+            uint64(block.number),
+            count.total,
+            count.success,
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
+        );
     }
 
     ///@notice Reject a dataset.
@@ -163,6 +173,15 @@ contract Datasets is
         _addCountFailed(1);
         _addSizeFailed(mappingSize + sourceSize);
         emit DatasetsEvents.DatasetRejected(_datasetId);
+        emit StatisticsEvents.DatasetsStatistics(
+            uint64(block.number),
+            count.total,
+            count.success,
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
+        );
     }
 
     ///@notice Submit metadata for a dataset
@@ -210,6 +229,16 @@ contract Datasets is
             datasetsCount(),
             msg.sender
         );
+        emit StatisticsEvents.DatasetsStatistics(
+            uint64(block.number),
+            count.total,
+            count.success,
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
+        );
+
         return datasetsCount();
     }
 
@@ -457,6 +486,15 @@ contract Datasets is
         _addCountFailed(1);
         _addSizeFailed(mappingSize + sourceSize);
         emit DatasetsEvents.DatasetRejected(_datasetId);
+        emit StatisticsEvents.DatasetsStatistics(
+            uint64(block.number),
+            count.total,
+            count.success,
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
+        );
     }
 
     /// @notice Reports that a challenge has been submitted for a dataset.
