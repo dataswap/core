@@ -1,5 +1,13 @@
 
 
+## [0.9.2](https://github.com/dataswap/core/compare/v0.9.1...v0.9.2) (2024-03-26)
+
+
+### Bug Fixes
+
+* 🐛 change isWinner to view ([24dc9da](https://github.com/dataswap/core/commit/24dc9dafaf0023fcde2576a9e513b255167c2889)), closes [#361](https://github.com/dataswap/core/issues/361)
+* 🐛 fix statistics events ([fcad941](https://github.com/dataswap/core/commit/fcad94124d6a4ba5c31442ea1224d36949d8e9b6)), closes [#359](https://github.com/dataswap/core/issues/359)
+
 ## [0.9.1](https://github.com/dataswap/core/compare/v0.9.0...v0.9.1) (2024-03-25)
 
 
