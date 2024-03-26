@@ -28,6 +28,7 @@ import {StorageProvidersStatisticsLIB} from "src/v0.8/core/statistics/library/St
 import {StatisticsBase} from "src/v0.8/core/statistics/StatisticsBase.sol";
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {RolesModifiers} from "src/v0.8/shared/modifiers/RolesModifiers.sol";
+import {StatisticsEvents} from "src/v0.8/shared/events/StatisticsEvents.sol";
 import {RolesType} from "src/v0.8/types/RolesType.sol";
 
 contract StorageStatisticsBase is
@@ -77,73 +78,82 @@ contract StorageStatisticsBase is
     }
 
     /// @notice Regist datacap information for a specific dataset and matching ID.
-    /// @param datasetId Dataset ID for which to add datacap information.
-    /// @param replicaIndex Replica index for which to add datacap information.
-    /// @param matchingId Matching ID associated with the datacap information.
-    /// @param size Size of the datacap to be added.
+    /// @param _datasetId Dataset ID for which to add datacap information.
+    /// @param _replicaIndex Replica index for which to add datacap information.
+    /// @param _matchingId Matching ID associated with the datacap information.
+    /// @param _size Size of the datacap to be added.
     function __registMatched(
-        uint64 datasetId,
-        uint64 replicaIndex,
-        uint64 matchingId,
-        uint256 size
+        uint64 _datasetId,
+        uint64 _replicaIndex,
+        uint64 _matchingId,
+        uint256 _size
     ) external onlyRole(roles, RolesType.DATASWAP_CONTRACT) {
         (uint256 total, , , , , ) = storageOverview.getOverview();
         require(
-            (total + size) < dataswapTotalDatacap,
+            (total + _size) < dataswapTotalDatacap,
             "Datacap of Dataswap is insufficient"
         );
         _addCountTotal(1);
-        _addSizeTotal(size);
+        _addSizeTotal(_size);
 
         StatisticsType.StorageStatistics
             storage matchingStorageStatistics = matchingsStorageStatistics[
-                matchingId
+                _matchingId
             ];
 
-        matchingStorageStatistics.total += size;
+        matchingStorageStatistics.total += _size;
 
-        bytes32 key = _getReplicaKey(datasetId, replicaIndex);
+        bytes32 key = _getReplicaKey(_datasetId, _replicaIndex);
         StatisticsType.StorageStatistics
             storage replicaStorageStatistics = replicasStorageStatistics[key];
-        replicaStorageStatistics.total += size;
+        replicaStorageStatistics.total += _size;
 
         StatisticsType.StorageStatistics
             storage datasetStorageStatistics = datasetsStorageStatistics[
-                datasetId
+                _datasetId
             ];
 
-        datasetStorageStatistics.total += size;
+        datasetStorageStatistics.total += _size;
 
-        storageOverview.total += size;
+        storageOverview.total += _size;
+        emit StatisticsEvents.StoragesStatistics(
+            uint64(block.number),
+            count.total,
+            count.success,
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
+        );
     }
 
     /// @notice Internal function to add storaged size for a specific replica, matching, and storage provider.
-    /// @param datasetId Dataset ID associated with the replica.
-    /// @param replicaIndex Index of the replica within the dataset.
-    /// @param matchingId Matching ID of the replica.
-    /// @param storageProvider ID of the storage provider.
-    /// @param size Size to be added for the storage provider.
+    /// @param _datasetId Dataset ID associated with the replica.
+    /// @param _replicaIndex Index of the replica within the dataset.
+    /// @param _matchingId Matching ID of the replica.
+    /// @param _storageProvider ID of the storage provider.
+    /// @param _size Size to be added for the storage provider.
     function _addStoraged(
-        uint64 datasetId,
-        uint64 replicaIndex,
-        uint64 matchingId,
-        uint64 storageProvider,
-        uint256 size
+        uint64 _datasetId,
+        uint64 _replicaIndex,
+        uint64 _matchingId,
+        uint64 _storageProvider,
+        uint256 _size
     ) internal {
-        _addSizeSuccess(size);
+        _addSizeSuccess(_size);
         StatisticsType.StorageProvidersStatistics
             storage matchingStorageProvidersStatistics = matchingsStorageProvidersStatistics[
-                matchingId
+                _matchingId
             ];
 
-        matchingStorageProvidersStatistics.addStoraged(storageProvider, size);
+        matchingStorageProvidersStatistics.addStoraged(_storageProvider, _size);
 
         StatisticsType.StorageStatistics
             storage matchingStorageStatistics = matchingsStorageStatistics[
-                matchingId
+                _matchingId
             ];
 
-        matchingStorageStatistics.addStoraged(size);
+        matchingStorageStatistics.addStoraged(_size);
 
         if (matchingStorageStatistics.isStorageCompleted()) {
             if (matchingStorageStatistics.isStorageSuccessful()) {
@@ -153,69 +163,78 @@ contract StorageStatisticsBase is
             }
         }
 
-        bytes32 key = _getReplicaKey(datasetId, replicaIndex);
+        bytes32 key = _getReplicaKey(_datasetId, _replicaIndex);
         StatisticsType.StorageStatistics
             storage replicaStorageStatistics = replicasStorageStatistics[key];
 
-        replicaStorageStatistics.addStoraged(size);
+        replicaStorageStatistics.addStoraged(_size);
         StatisticsType.StorageStatistics
             storage datasetStorageStatistics = datasetsStorageStatistics[
-                datasetId
+                _datasetId
             ];
 
-        datasetStorageStatistics.addStoraged(size);
-        storageOverview.addStoraged(size);
+        datasetStorageStatistics.addStoraged(_size);
+        storageOverview.addStoraged(_size);
+        emit StatisticsEvents.StoragesStatistics(
+            uint64(block.number),
+            count.total,
+            count.success,
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
+        );
     }
 
     /// @notice Add allocated datacap for a specific dataset and matching ID.
-    /// @param datasetId Dataset ID for which to add allocated datacap.
-    /// @param replicaIndex Replica index for which to add datacap information.
-    /// @param matchingId Matching ID associated with the allocated datacap.
-    /// @param size Size of the allocated datacap to be added.
+    /// @param _datasetId Dataset ID for which to add allocated datacap.
+    /// @param _replicaIndex Replica index for which to add datacap information.
+    /// @param _matchingId Matching ID associated with the allocated datacap.
+    /// @param _size Size of the allocated datacap to be added.
     function _addAllocated(
-        uint64 datasetId,
-        uint64 replicaIndex,
-        uint64 matchingId,
-        uint256 size
+        uint64 _datasetId,
+        uint64 _replicaIndex,
+        uint64 _matchingId,
+        uint256 _size
     ) internal {
         StatisticsType.StorageStatistics
             storage matchingStorageStatistics = matchingsStorageStatistics[
-                matchingId
+                _matchingId
             ];
 
-        matchingStorageStatistics.addAllocated(size);
-        bytes32 key = _getReplicaKey(datasetId, replicaIndex);
+        matchingStorageStatistics.addAllocated(_size);
+        bytes32 key = _getReplicaKey(_datasetId, _replicaIndex);
         StatisticsType.StorageStatistics
             storage replicaStorageStatistics = replicasStorageStatistics[key];
 
-        replicaStorageStatistics.addAllocated(size);
+        replicaStorageStatistics.addAllocated(_size);
         StatisticsType.StorageStatistics
             storage datasetStorageStatistics = datasetsStorageStatistics[
-                datasetId
+                _datasetId
             ];
 
-        datasetStorageStatistics.addAllocated(size);
-        storageOverview.addAllocated(size);
+        datasetStorageStatistics.addAllocated(_size);
+        storageOverview.addAllocated(_size);
     }
 
     /// @notice Add canceled datacap for a specific dataset and matching ID.
-    /// @param datasetId Dataset ID for which to add canceled datacap.
-    /// @param replicaIndex Replica index for which to add datacap information.
-    /// @param matchingId Matching ID associated with the canceled datacap.
-    /// @param size Size of the canceled datacap to be added.
+    /// @param _datasetId Dataset ID for which to add canceled datacap.
+    /// @param _replicaIndex Replica index for which to add datacap information.
+    /// @param _matchingId Matching ID associated with the canceled datacap.
+    /// @param _size Size of the canceled datacap to be added.
     function _addCanceled(
-        uint64 datasetId,
-        uint64 replicaIndex,
-        uint64 matchingId,
-        uint256 size
+        uint64 _datasetId,
+        uint64 _replicaIndex,
+        uint64 _matchingId,
+        uint256 _size
     ) internal {
-        _addSizeFailed(size);
+        _addSizeFailed(_size);
         StatisticsType.StorageStatistics
             storage matchingStorageStatistics = matchingsStorageStatistics[
-                matchingId
+                _matchingId
             ];
 
-        matchingStorageStatistics.addCanceled(size);
+        matchingStorageStatistics.addCanceled(_size);
 
         if (matchingStorageStatistics.isStorageCompleted()) {
             if (matchingStorageStatistics.isStorageSuccessful()) {
@@ -225,18 +244,27 @@ contract StorageStatisticsBase is
             }
         }
 
-        bytes32 key = _getReplicaKey(datasetId, replicaIndex);
+        bytes32 key = _getReplicaKey(_datasetId, _replicaIndex);
         StatisticsType.StorageStatistics
             storage replicaStorageStatistics = replicasStorageStatistics[key];
 
-        replicaStorageStatistics.addCanceled(size);
+        replicaStorageStatistics.addCanceled(_size);
         StatisticsType.StorageStatistics
             storage datasetStorageStatistics = datasetsStorageStatistics[
-                datasetId
+                _datasetId
             ];
 
-        datasetStorageStatistics.addCanceled(size);
-        storageOverview.addCanceled(size);
+        datasetStorageStatistics.addCanceled(_size);
+        storageOverview.addCanceled(_size);
+        emit StatisticsEvents.StoragesStatistics(
+            uint64(block.number),
+            count.total,
+            count.success,
+            count.failed,
+            size.total,
+            size.success,
+            size.failed
+        );
     }
 
     /// @notice Get an overview of the storage statistics.

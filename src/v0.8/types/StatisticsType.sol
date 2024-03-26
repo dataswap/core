@@ -24,6 +24,15 @@ pragma solidity ^0.8.21;
 /// @title StaticsType Library
 /// @notice Library for handling statistical data with total, success, and failed counts
 library StatisticsType {
+    /**
+     * Enumerates the source of statistics data.
+     */
+    enum StatisticsSourceType {
+        Datasets, // Statistics data type for datasets.
+        Matchings, // Statistics data type for matchings.
+        Storages // Statistics data type for storages.
+    }
+
     /// @notice Struct to hold statistical data
     struct Statistics {
         uint256 total; // Total count
