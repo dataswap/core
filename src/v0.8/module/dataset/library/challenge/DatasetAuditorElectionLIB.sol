@@ -62,10 +62,24 @@ library DatasetAuditorElectionLIB {
         _hash = blockhash(uint32(_targetHeight));
     }
 
+    /// Internal function to retrieve the election seed for dataset auditor election at a specific height.
+    /// @param self The storage reference to the dataset auditor election.
+    /// @param _height The height at which to retrieve the election seed.
+    /// @return The election seed for the specified height.
+    function _getElectSeed(
+        DatasetType.DatasetAuditorElection storage self,
+        uint64 _height
+    ) internal view returns (bytes32) {
+        if (self.seed == bytes32(0)) {
+            return _getBlockHashBaseHeight(_height);
+        }
+        return self.seed;
+    }
+
     /// @dev Internal function to retrieve the block hash at a specified height.
     /// @param self The storage reference to the dataset auditor candidate.
     /// @param _height The target block height to retrieve the hash for.
-    /// @return blockHash The block hash at the specified height.
+    /// @return The election seed for the specified height.
     function _electSeed(
         DatasetType.DatasetAuditorElection storage self,
         uint64 _height
@@ -78,21 +92,27 @@ library DatasetAuditorElectionLIB {
 
     /// @dev Internal function to process the ticket result.
     /// @param self The storage reference to the dataset auditor candidate.
-    /// @param _height The target block height.
+    /// @param _electionEndHeight The end height of the election.
     /// @param _account The account address.
     /// @param _numWinners The number of winners to be selected.
+    /// @param _seed The seed used for randomness in the election process.
     /// @return success A boolean indicating whether the ticket result is successfully processed.
-    function _processTicketResult(
+    function _processCandidateTicketResult(
         DatasetType.DatasetAuditorElection storage self,
-        uint64 _height,
+        uint64 _electionEndHeight,
         address _account,
-        uint256 _numWinners
-    ) internal returns (bool) {
+        uint256 _numWinners,
+        bytes32 _seed
+    ) internal view returns (bool) {
         require(
             _numWinners <= self.candidates.length,
             "The number of candidates is insufficient"
         );
-        bytes32 _seed = _electSeed(self, _height);
+
+        require(
+            uint64(block.number) >= _electionEndHeight,
+            "auditor election not completed"
+        );
 
         bytes32[] memory weights = new bytes32[](self.candidates.length);
 

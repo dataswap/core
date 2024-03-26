@@ -136,8 +136,6 @@ contract DatasetsChallenge is
             return;
         }
 
-        require(isWinner(_datasetId, msg.sender), "Not an election winner");
-
         DatasetType.DatasetChallengeProof
             storage datasetChallengeProof = datasetChallengeProofs[_datasetId];
         require(
@@ -147,6 +145,21 @@ contract DatasetsChallenge is
                     .datasetRuleMaxChallengeProofsSubmitersPerDataset(),
             "exceeds maximum challenge submitters count of filplus"
         );
+
+        bytes32 seed = datasetChallengeProof.election._electSeed(
+            getAuditorElectionEndHeight(_datasetId)
+        );
+
+        require(
+            datasetChallengeProof.election._processCandidateTicketResult(
+                getAuditorElectionEndHeight(_datasetId),
+                msg.sender,
+                getChallengeSubmissionCount(_datasetId),
+                seed
+            ),
+            "Not an election winner"
+        );
+
         require(
             getDatasetChallengeProofsCount(_datasetId) <
                 getChallengeSubmissionCount(_datasetId),
@@ -378,20 +391,20 @@ contract DatasetsChallenge is
     function isWinner(
         uint64 _datasetId,
         address _account
-    ) public returns (bool) {
-        require(
-            uint64(block.number) >= getAuditorElectionEndHeight(_datasetId),
-            "auditor election not completed"
-        );
-
+    ) public view returns (bool) {
         DatasetType.DatasetChallengeProof
             storage datasetChallengeProof = datasetChallengeProofs[_datasetId];
 
+        bytes32 _seed = datasetChallengeProof.election._getElectSeed(
+            getAuditorElectionEndHeight(_datasetId)
+        );
+
         return
-            datasetChallengeProof.election._processTicketResult(
+            datasetChallengeProof.election._processCandidateTicketResult(
                 getAuditorElectionEndHeight(_datasetId),
                 _account,
-                getChallengeSubmissionCount(_datasetId)
+                getChallengeSubmissionCount(_datasetId),
+                _seed
             );
     }
 }

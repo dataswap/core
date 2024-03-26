@@ -65,6 +65,8 @@ contract SubmittChallengeProofsTestCaseWithSuccess is DatasetsTestBase {
         uint32[] memory paths = new uint32[](pointCount);
         uint64 randomSeed;
 
+        datasetsAssertion.isWinnerAssersion(_id, address(199), true);
+
         (randomSeed, leaves, siblings, paths) = datasetsHelpers
             .generateVerification(pointCount);
 

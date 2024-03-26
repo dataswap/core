@@ -795,7 +795,7 @@ contract DatasetsAssertion is
 
         for (uint64 i = 0; i < auditors.length; i++) {
             assertEq(auditors[i], _expectAuditors[i], "auditor not matched");
-            (bytes32[] memory leaves, ,, ) = datasetsChallenge
+            (bytes32[] memory leaves, , , ) = datasetsChallenge
                 .getDatasetChallengeProofs(_datasetId, auditors[i]);
             assertEq(
                 leaves.length,
@@ -857,7 +857,7 @@ contract DatasetsAssertion is
             }
         }
 
-        assertEq(randomSeed,_expectRandomSeed,"randomseed not matched");
+        assertEq(randomSeed, _expectRandomSeed, "randomseed not matched");
     }
 
     /// @notice Assertion function for getting dataset verification count.
@@ -979,6 +979,22 @@ contract DatasetsAssertion is
             datasetsChallenge.getChallengeSubmissionCount(_datasetId),
             _expectCount,
             "challenge count not matched"
+        );
+    }
+
+    /// Checks whether an account is expected to be a winner for a dataset.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _account The address of the account to check.
+    /// @param expectResult The expected result indicating whether the account is a winner.
+    function isWinnerAssersion(
+        uint64 _datasetId,
+        address _account,
+        bool expectResult
+    ) external {
+        assertEq(
+            datasetsChallenge.isWinner(_datasetId, _account),
+            expectResult,
+            "is winner not matched"
         );
     }
 }
