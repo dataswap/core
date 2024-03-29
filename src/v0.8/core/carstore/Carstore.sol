@@ -22,6 +22,7 @@ import {CarstoreEvents} from "src/v0.8/shared/events/CarstoreEvents.sol";
 import {Errors} from "src/v0.8/shared/errors/Errors.sol";
 ///library
 import {CarLIB} from "src/v0.8/core/carstore/library/CarLIB.sol";
+import {CidUtils} from "src/v0.8/shared/utils/cid/CidUtils.sol";
 ///abstract
 import {CarstoreBase} from "src/v0.8/core/carstore/abstract/CarstoreBase.sol";
 ///type
@@ -388,6 +389,25 @@ contract Carstore is Initializable, UUPSUpgradeable, CarstoreBase {
             size += getCarSize(_ids[i]);
         }
         return size;
+    }
+
+    /// @notice Get a car associated with piece size.
+    /// @param _id Car ID to check.
+    /// @return pieceSize The car piece size of the car.dsfasd
+    function getPieceSize(uint64 _id) public view returns (uint64 pieceSize) {
+        uint64 carSize = getCarSize(_id);
+        return CidUtils.carSizeToPieceSize(carSize);
+    }
+
+    /// @notice Get the total size of cars associated with piece size based on an array of car IDs.
+    /// @param _ids An array of car IDs for which to calculate the size.
+    /// @return piecesSize The total size of cars associated with piece.
+    function getPiecesSize(
+        uint64[] memory _ids
+    ) external view returns (uint64 piecesSize) {
+        for (uint64 i = 0; i < _ids.length; i++) {
+            piecesSize += getPieceSize(_ids[i]);
+        }
     }
 
     /// @notice Get the dataset ID associated with a car.

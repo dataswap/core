@@ -19,6 +19,18 @@ pragma solidity ^0.8.21;
 
 /// @title CidUtils
 library CidUtils {
+    /// @notice Convert car size to piece size.
+    /// @param _size The input car size.
+    /// @return The piece size.
+    function carSizeToPieceSize(uint64 _size) internal pure returns (uint64) {
+        // Hardcoded, to be refined for full implementation.
+        // From https://github.com/dataswap/go-metadata/blob/main/service/proof.go#GenCommP
+        uint64 sourceChunkSize = 127;
+        uint64 mod = _size % sourceChunkSize;
+        uint64 size = (mod != 0) ? _size + sourceChunkSize - mod : _size;
+        return calculatePaddedPieceSize(size);
+    }
+
     /// @notice Convert a bytes32 hash to a CID.
     /// @dev This function converts a bytes32 hash to a CID using the specified encoding.
     /// @return The CID corresponding to the input hash.
@@ -77,5 +89,51 @@ library CidUtils {
         }
 
         return result;
+    }
+
+    /**
+     * @dev Calculates the number of set bits (ones) in a 64-bit unsigned integer.
+     * @param _x The input 64-bit unsigned integer.
+     * @return The number of set bits in the input integer.
+     */
+    function onesCount64(uint64 _x) public pure returns (uint256) {
+        uint256 count = 0;
+        for (uint256 i = 0; i < 64; i++) {
+            if ((_x & (1 << i)) != 0) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    /**
+     * @dev Calculates the number of leading zeros in a 64-bit unsigned integer.
+     * @param _x The input 64-bit unsigned integer.
+     * @return The number of leading zeros in the input integer.
+     */
+    function leadingZeros64(uint64 _x) public pure returns (uint256) {
+        uint256 count = 0;
+        for (uint256 i = 63; i >= 0; i--) {
+            if ((_x & (1 << i)) == 0) {
+                count++;
+            } else {
+                break;
+            }
+        }
+        return count;
+    }
+
+    /// @notice Calculates the padded piece size to the nearest power of two greater than or equal to the input size.
+    /// @param _size The input size.
+    /// @return The nearest power of two size.
+    function calculatePaddedPieceSize(
+        uint64 _size
+    ) public pure returns (uint64) {
+        if (onesCount64(_size) != 1) {
+            uint256 lz = leadingZeros64(_size);
+            return uint64(1 << (64 - lz));
+        } else {
+            return _size;
+        }
     }
 }
