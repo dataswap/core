@@ -18,8 +18,8 @@
 
 pragma solidity ^0.8.21;
 
-import {SendAPI} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/SendAPI.sol";
-import {FilAddresses} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/utils/FilAddresses.sol";
+import {SendAPI} from "filecoin-solidity-api/contracts/v0.8/SendAPI.sol";
+import {FilAddresses} from "filecoin-solidity-api/contracts/v0.8/utils/FilAddresses.sol";
 
 // upgrade
 import {RolesType} from "src/v0.8/types/RolesType.sol";
