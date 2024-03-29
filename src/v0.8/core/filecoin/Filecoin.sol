@@ -17,13 +17,13 @@
 
 pragma solidity ^0.8.21;
 
-import {MarketAPI} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/MarketAPI.sol";
-import {VerifRegAPI} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/VerifRegAPI.sol";
-import {FilAddresses} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/utils/FilAddresses.sol";
-import {BigInts} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/utils/BigInts.sol";
-import {MarketTypes} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/types/MarketTypes.sol";
-import {VerifRegTypes} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/types/VerifRegTypes.sol";
-import {CommonTypes} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/types/CommonTypes.sol";
+import {MarketAPI} from "filecoin-solidity-api/contracts/v0.8/MarketAPI.sol";
+import {VerifRegAPI} from "filecoin-solidity-api/contracts/v0.8/VerifRegAPI.sol";
+import {FilAddresses} from "filecoin-solidity-api/contracts/v0.8/utils/FilAddresses.sol";
+import {BigInts} from "filecoin-solidity-api/contracts/v0.8/utils/BigInts.sol";
+import {MarketTypes} from "filecoin-solidity-api/contracts/v0.8/types/MarketTypes.sol";
+import {VerifRegTypes} from "filecoin-solidity-api/contracts/v0.8/types/VerifRegTypes.sol";
+import {CommonTypes} from "filecoin-solidity-api/contracts/v0.8/types/CommonTypes.sol";
 ///interface
 import {IRoles} from "src/v0.8/interfaces/core/IRoles.sol";
 import {IFilecoin} from "src/v0.8/interfaces/core/IFilecoin.sol";

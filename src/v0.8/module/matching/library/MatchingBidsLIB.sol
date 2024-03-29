@@ -18,8 +18,8 @@
 
 pragma solidity ^0.8.21;
 
-import {SendAPI} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/SendAPI.sol";
-import {FilAddresses} from "src/v0.8/vendor/filecoin-solidity-api/contracts/v0.8/utils/FilAddresses.sol";
+import {SendAPI} from "filecoin-solidity-api/contracts/v0.8/SendAPI.sol";
+import {FilAddresses} from "filecoin-solidity-api/contracts/v0.8/utils/FilAddresses.sol";
 
 import {MatchingType} from "src/v0.8/types/MatchingType.sol";
 import {MatchingStateMachineLIB} from "src/v0.8/module/matching/library/MatchingStateMachineLIB.sol";
