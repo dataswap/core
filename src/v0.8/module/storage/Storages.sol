@@ -132,6 +132,12 @@ contract Storages is
         uint64[] memory _ids,
         uint64[] memory _claimIds
     ) external {
+        require(
+            MatchingType.State.Completed ==
+                roles.matchings().getMatchingState(_matchingId),
+            "invalid matching state"
+        );
+
         require(isStorageExpiration(_matchingId) != true, "Storage expiration");
         if (_ids.length != _claimIds.length) {
             revert Errors.ParamLengthMismatch(_ids.length, _claimIds.length);
@@ -322,6 +328,12 @@ contract Storages is
         validNextDatacapAllocation(this, _matchingId)
         returns (uint64)
     {
+        require(
+            MatchingType.State.Completed ==
+                roles.matchings().getMatchingState(_matchingId),
+            "invalid matching state"
+        );
+
         (
             ,
             ,
