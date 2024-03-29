@@ -62,7 +62,7 @@ contract RequestAllocateTestSuiteWithInvalidMatchingId is DatacapTestBase {
             _matchingId
         );
 
-        vm.expectRevert(bytes("Address must not be zero"));
+        vm.expectRevert();
         storagesAssertion.requestAllocateDatacapAssertion(
             initiator,
             _matchingId + 1

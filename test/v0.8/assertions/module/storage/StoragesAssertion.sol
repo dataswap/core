@@ -93,7 +93,7 @@ contract StoragesAssertion is
             _cids,
             _claimIds
         );
-        uint64 size = storages.roles().carstore().getCarsSize(_cids);
+        uint64 size = storages.roles().carstore().getPiecesSize(_cids);
         uint64[] memory sps = _getStorageProviders(storageProviders, _provider);
         getMatchingStorageOverviewAssertion(
             _matchingId,
@@ -141,7 +141,7 @@ contract StoragesAssertion is
             _cids,
             _claimIds
         );
-        uint64 size = storages.roles().carstore().getCarsSize(_cids);
+        uint64 size = storages.roles().carstore().getPiecesSize(_cids);
         getReplicaStorageOverviewAssertion(
             datasetId,
             replicaIndex,
@@ -188,7 +188,7 @@ contract StoragesAssertion is
             _cids,
             _claimIds
         );
-        uint64 size = storages.roles().carstore().getCarsSize(_cids);
+        uint64 size = storages.roles().carstore().getPiecesSize(_cids);
 
         getDatasetStorageOverviewAssertion(
             datasetId,
@@ -232,7 +232,7 @@ contract StoragesAssertion is
             _cids,
             _claimIds
         );
-        uint64 size = storages.roles().carstore().getCarsSize(_cids);
+        uint64 size = storages.roles().carstore().getPiecesSize(_cids);
         getStorageOverviewAssertion(
             dataswapTotal,
             total,
@@ -335,7 +335,7 @@ contract StoragesAssertion is
 
         storages.completeStorage(_matchingId, _ids);
 
-        uint64 _size = storages.roles().carstore().getCarsSize(_ids);
+        uint64 _size = storages.roles().carstore().getPiecesSize(_ids);
 
         getMatchingStorageOverviewAssertion(
             _matchingId,

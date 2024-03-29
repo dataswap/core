@@ -445,7 +445,6 @@ contract DatasetsAssertion is
     /// @param _datasetId The ID of the dataset for which to submit proof.
     /// @param _dataType The data type of the proof.
     /// @param _leafHashes The leaf hashes of the proof.
-    /// @param _leafSizes The sizes of the leaf hashes.
     /// @param _oldProofCount A boolean indicating if the proof is completed.
     /// @param _oldDatasetSize A boolean indicating if the proof is completed.
     function _afterSubmitDatasetProof(
@@ -453,7 +452,7 @@ contract DatasetsAssertion is
         uint64 _datasetId,
         DatasetType.DataType _dataType,
         bytes32[] calldata _leafHashes,
-        uint64[] calldata _leafSizes,
+        uint64[] calldata /*_leafSizes*/,
         uint64 _oldProofCount,
         uint64 _oldDatasetSize
     ) internal {
@@ -481,7 +480,7 @@ contract DatasetsAssertion is
         getDatasetSizeAssertion(
             _datasetId,
             _dataType,
-            _getDatasetSizeWithNewProof(_oldDatasetSize, _leafSizes)
+            _getDatasetSizeWithNewProof(_oldDatasetSize, _leafHashes)
         );
 
         // Check dataset submitter.
@@ -497,16 +496,15 @@ contract DatasetsAssertion is
 
     /// @notice Calculate the new size of the target.
     /// @param _oldDatasetSize The old value of the target.
-    /// @param _leafSizes The _leafSizes array used for updating the size of the target.
+    /// @param _leafHashes The _leafHashes array used for updating the size of the target.
     /// @return The new size value of the target.
     function _getDatasetSizeWithNewProof(
         uint64 _oldDatasetSize,
-        uint64[] memory _leafSizes
-    ) internal pure returns (uint64) {
+        bytes32[] memory _leafHashes
+    ) internal view returns (uint64) {
         uint64 newDatasetSize = _oldDatasetSize;
-        for (uint64 i = 0; i < _leafSizes.length; i++) {
-            newDatasetSize += _leafSizes[i];
-        }
+        uint64[] memory _leafIds = carstore.getCarsIds(_leafHashes);
+        newDatasetSize += carstore.getPiecesSize(_leafIds);
         return newDatasetSize;
     }
 

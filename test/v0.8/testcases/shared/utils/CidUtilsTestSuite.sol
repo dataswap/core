@@ -31,5 +31,7 @@ contract CidUtilsTestCaseWithSuccess is TestCaseBase, Test {
             CidUtils.hashToCID(hash),
             hex"0181e20392202003b2ed13af20471b3eea52c329c29bba17568ecf0190f50c9e675cf5a453b813"
         );
+
+        assertEq(CidUtils.carSizeToPieceSize(16107711314), 17179869184);
     }
 }

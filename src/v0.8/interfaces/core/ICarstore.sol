@@ -42,13 +42,23 @@ interface ICarstoreReadOnly {
 
     /// @notice Get the dataset ID associated with a car.
     /// @param _id Car ID to check.
-    /// @return The car size of the car.
+    /// @return The car size of the car.dsfasd
     function getCarSize(uint64 _id) external view returns (uint64);
 
     /// @notice Get the total size of cars based on an array of car IDs.
     /// @param _ids An array of car IDs for which to calculate the size.
     /// @return The total size of cars.
     function getCarsSize(uint64[] memory _ids) external view returns (uint64);
+
+    /// @notice Get a car associated with piece size.
+    /// @param _id Car ID to check.
+    /// @return The car piece size of the car.dsfasd
+    function getPieceSize(uint64 _id) external view returns (uint64);
+
+    /// @notice Get the total size of cars associated with piece size based on an array of car IDs.
+    /// @param _ids An array of car IDs for which to calculate the size.
+    /// @return The total size of cars associated with piece.
+    function getPiecesSize(uint64[] memory _ids) external view returns (uint64);
 
     /// @notice Get the dataset ID associated with a car.
     /// @param _id Car ID to check.

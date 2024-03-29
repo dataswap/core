@@ -298,7 +298,7 @@ contract MatchingsAssertion is
         bool complete
     ) public {
         uint64[] memory _cars = _carsStarts.mergeSequentialArray(_carsEnds);
-        uint64 _size = carstore.getCarsSize(_cars);
+        uint64 _size = carstore.getPiecesSize(_cars);
 
         (
             ,
@@ -432,15 +432,21 @@ contract MatchingsAssertion is
     /// @notice Assertion function to test the 'closeMatching' function of IMatchings contract.
     /// @param _caller The address of the caller.
     /// @param _matchingId The ID of the matching to close.
-    function _closeMathingWithMatchingStroageStatistics(address _caller,uint64 _matchingId) internal returns(uint64) {
-       (
+    function _closeMathingWithMatchingStroageStatistics(
+        address _caller,
+        uint64 _matchingId
+    ) internal returns (uint64) {
+        (
             uint256 expectTotal,
             ,
             ,
             ,
             ,
             uint256 expectUnallocatedDatacap,
-       )= matchings.roles().storages().getMatchingStorageOverview(_matchingId);
+
+        ) = matchings.roles().storages().getMatchingStorageOverview(
+                _matchingId
+            );
 
         // Perform the action
         vm.prank(_caller);
@@ -448,16 +454,13 @@ contract MatchingsAssertion is
 
         (, , uint64 _size, , , ) = matchingsTarget.getMatchingTarget(
             _matchingId
-        ); 
-        (  uint256 total,
-            ,
-            ,
-            ,
-            ,
-            uint256 unallocatedDatacap,
-        )= matchings.roles().storages().getMatchingStorageOverview(_matchingId);
-        assertEq(expectTotal+_size, total);
-        assertEq(expectUnallocatedDatacap+_size, unallocatedDatacap);
+        );
+        (uint256 total, , , , , uint256 unallocatedDatacap, ) = matchings
+            .roles()
+            .storages()
+            .getMatchingStorageOverview(_matchingId);
+        assertEq(expectTotal + _size, total);
+        assertEq(expectUnallocatedDatacap + _size, unallocatedDatacap);
         return _size;
     }
 
@@ -486,7 +489,10 @@ contract MatchingsAssertion is
         ) = matchings.getCountOverview();
 
         // Perform the action
-       uint64 _size = _closeMathingWithMatchingStroageStatistics(caller,_matchingId);
+        uint64 _size = _closeMathingWithMatchingStroageStatistics(
+            caller,
+            _matchingId
+        );
         // After the action, check the state and winner of the matching.
         address winner = matchingsBids.getMatchingWinner(_matchingId);
         if (winner == address(0)) {

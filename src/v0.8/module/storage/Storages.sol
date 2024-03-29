@@ -155,7 +155,7 @@ contract Storages is
             .matchingsTarget()
             .getMatchingTarget(_matchingId);
 
-        uint64 _size = roles.carstore().getCarsSize(_ids);
+        uint64 _size = roles.carstore().getPiecesSize(_ids);
         _addStoraged(datasetId, replicaIndex, _matchingId, _provider, _size);
 
         // Payment data trading fee
@@ -200,8 +200,8 @@ contract Storages is
                     _ids[i],
                     _matchingId
                 );
-                uint64 carSize = roles.carstore().getCarSize(_ids[i]);
-                _addCanceled(datasetId, replicaIndex, _matchingId, carSize);
+                uint64 pieceSize = roles.carstore().getPieceSize(_ids[i]);
+                _addCanceled(datasetId, replicaIndex, _matchingId, pieceSize);
             }
         }
 
@@ -409,12 +409,11 @@ contract Storages is
         uint64 allocatedDatacap = uint64(
             totalDatacapAllocationRequirement - unallocatedDatacap
         );
-        uint64 allocationThreshold = (roles
-            .filplus()
-            .datacapRuleMaxRemainingPercentageForNext() / 100) *
-            roles.filplus().datacapRuleMaxAllocatedSizePerTime();
+        uint64 allocationThreshold = ((
+            roles.filplus().datacapRuleMaxRemainingPercentageForNext()
+        ) * roles.filplus().datacapRuleMaxAllocatedSizePerTime()) / 100;
 
-        if (allocatedDatacap > totalDatacapAllocationRequirement) {
+        if (allocatedDatacap >= totalDatacapAllocationRequirement) {
             revert Errors.AllocatedDatacapExceedsTotalRequirement(
                 allocatedDatacap,
                 uint64(totalDatacapAllocationRequirement)

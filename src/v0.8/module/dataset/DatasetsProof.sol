@@ -173,7 +173,7 @@ contract DatasetsProof is
                 );
             }
         }
-        size = roles.carstore().getCarsSize(leafIds);
+        size = roles.carstore().getPiecesSize(leafIds);
         return (leafIds, size);
     }
 
@@ -284,7 +284,7 @@ contract DatasetsProof is
                 );
             }
         }
-        size = roles.carstore().getCarsSize(leafIds);
+        size = roles.carstore().getPiecesSize(leafIds);
         return (leafIds, size);
     }
 

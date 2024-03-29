@@ -153,7 +153,7 @@ contract MatchingsTarget is
         MatchingType.MatchingTarget storage target = targets[_matchingId];
         uint64[] memory _cars = _carsStarts.mergeSequentialArray(_carsEnds);
         uint64 _size;
-        try roles.carstore().getCarsSize(_cars) returns (uint64 carSize) {
+        try roles.carstore().getPiecesSize(_cars) returns (uint64 carSize) {
             _size = carSize;
         } catch {
             revert("Get cars size failed");
