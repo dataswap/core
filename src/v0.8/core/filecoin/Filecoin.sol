@@ -140,13 +140,25 @@ contract Filecoin is Initializable, UUPSUpgradeable, IFilecoin, RolesModifiers {
         return claims.claims[0];
     }
 
+    ///@dev Trim the CID (Content Identifier) from the given data.
+    ///@param data The data containing the CID.
+    ///@return The trimmed CID.
+    function _trimCid(bytes memory data) internal pure returns (bytes memory) {
+        require(data.length >= 1, "Input data length must be at least 1");
+        bytes memory slicedData = new bytes(data.length - 1);
+        for (uint i = 1; i < data.length; i++) {
+            slicedData[i - 1] = data[i];
+        }
+        return slicedData;
+    }
+
     /// @notice Internal function to get the claim of a Filecoin storage for a replica.
     function getReplicaClaimData(
         uint64 _provider,
         uint64 _claimId
     ) external view returns (bytes memory cid) {
         VerifRegTypes.Claim memory claim = _getClaim(_provider, _claimId);
-        cid = claim.data;
+        cid = _trimCid(claim.data);
     }
 
     /// @dev mock the filecoin claim data
