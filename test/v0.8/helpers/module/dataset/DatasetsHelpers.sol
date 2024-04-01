@@ -353,47 +353,64 @@ contract DatasetsHelpers is Test, IDatasetsHelpers {
         address caller,
         uint64 _datasetId
     ) public {
-        uint64 randomSeed = generator.generateNonce();
-        uint64 challengeCount = roles
+        uint64 pointsRequirement = roles
             .datasetsChallenge()
-            .getChallengeSubmissionCount(_datasetId);
-        assertion.getChallengeSubmissionCountAssertion(
+            .getChallengePointsCountRequirement(_datasetId);
+        assertion.getChallengePointsCountRequirementAssertion(
             _datasetId,
-            challengeCount
+            pointsRequirement
         );
-        bytes32[][] memory siblings = new bytes32[][](challengeCount);
-        uint32[] memory paths = new uint32[](challengeCount);
-        bytes32[] memory leaves = new bytes32[](challengeCount);
-        for (uint32 i = 0; i < challengeCount; i++) {
-            bytes32[] memory tmpLeaves = new bytes32[](1);
-            (tmpLeaves, ) = generator.generateLeaves(1, 0);
-            leaves[i] = tmpLeaves[0];
-            (siblings[i], ) = generator.generateLeaves(challengeCount, 0);
-            paths[i] = i;
+        uint64 auditorCount = roles
+            .datasetsChallenge()
+            .getChallengeAuditorsCountRequirement(_datasetId);
+
+        for (uint64 ia = 0; ia < auditorCount; ia++) {
+            address auditor = address(uint160(caller) + uint160(ia));
+            vm.startPrank(auditor);
+            vm.deal(auditor, 1000 ether);
+            roles.finance().deposit{value: 1000 ether}(
+                _datasetId,
+                0,
+                auditor,
+                FinanceType.FIL
+            );
+            roles.datasetsChallenge().nominateAsDatasetAuditorCandidate(
+                _datasetId
+            );
+            vm.stopPrank();
         }
 
-        vm.startPrank(caller);
-        vm.deal(caller, 1000 ether);
-        roles.finance().deposit{value: 1000 ether}(
-            _datasetId,
-            0,
-            caller,
-            FinanceType.FIL
-        );
-        roles.datasetsChallenge().nominateAsDatasetAuditorCandidate(_datasetId);
         uint64 delayBlocks = roles
             .datasetsChallenge()
             .getAuditorElectionEndHeight(_datasetId);
         vm.roll(delayBlocks);
 
-        roles.datasetsChallenge().submitDatasetChallengeProofs(
-            _datasetId,
-            randomSeed,
-            leaves,
-            siblings,
-            paths
-        );
-        vm.stopPrank();
+        for (uint64 ia = 0; ia < auditorCount; ia++) {
+            address auditor = address(uint160(caller) + uint160(ia));
+            vm.startPrank(auditor);
+            uint64 randomSeed = generator.generateNonce();
+            bytes32[][] memory siblings = new bytes32[][](pointsRequirement);
+            uint32[] memory paths = new uint32[](pointsRequirement);
+            bytes32[] memory leaves = new bytes32[](pointsRequirement);
+            for (uint32 i = 0; i < pointsRequirement; i++) {
+                bytes32[] memory tmpLeaves = new bytes32[](1);
+                (tmpLeaves, ) = generator.generateLeaves(1, 0);
+                leaves[i] = tmpLeaves[0];
+                (siblings[i], ) = generator.generateLeaves(
+                    pointsRequirement,
+                    0
+                );
+                paths[i] = i;
+            }
+            roles.datasetsChallenge().submitDatasetChallengeProofs(
+                _datasetId,
+                randomSeed,
+                leaves,
+                siblings,
+                paths
+            );
+            vm.stopPrank();
+        }
     }
 
     /// @notice Complete the dataset workflow.

@@ -74,6 +74,9 @@ library FilplusEvents {
     // Event emitted when the challenge proofs submiter count rule is set
     event SetDatasetRuleMaxChallengeProofsSubmitersPerDataset(uint16 _newValue);
 
+    // Event emitted when the challenge points per auditor rule is set
+    event SetDatasetRuleChallengePointsPerAuditor(uint64 _newValue);
+
     // Event emitted when the challenge proofs price pre point rule is set
     event SetFinanceRuleChallengeProofsPricePrePoint(uint256 _newValue);
 

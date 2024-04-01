@@ -95,10 +95,8 @@ interface IFilplus {
         uint256 _newValue
     ) external;
 
-    /// @notice Set the challenge proofs submiter Count complies with filplus rules.
-    function setDatasetRuleMaxChallengeProofsSubmitersPerDataset(
-        uint16 _newValue
-    ) external;
+    /// @notice Set the challenge points per auditor with filplus rules.
+    function setDatasetRuleChallengePointsPerAuditor(uint64 _newValue) external;
 
     /// @notice Set the datacap collateral lock days when dataset approved complies with filplus rules.
     function setFinanceRuleDatacapDatasetApprovedLockDays(
@@ -191,11 +189,12 @@ interface IFilplus {
         view
         returns (uint256 price);
 
-    /// @notice Get the challenge proofs submiter count complies with filplus rules.
-    function datasetRuleMaxChallengeProofsSubmitersPerDataset()
+    /// @dev Returns the number of challenge points per auditor for dataset rules.
+    /// @return count The number of challenge points per auditor.
+    function datasetRuleChallengePointsPerAuditor()
         external
         view
-        returns (uint16 count);
+        returns (uint64 count);
 
     /// @notice Get the datacap chunk land price pre byte complies with filplus rules.
     function financeRuleDatacapChunkLandPricePreByte()

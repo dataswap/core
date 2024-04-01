@@ -54,7 +54,9 @@ contract EscrowChallengeCommission is EscrowBase {
         );
 
         amount =
-            roles.datasetsChallenge().getChallengeSubmissionCount(_datasetId) *
+            roles.datasetsChallenge().getChallengePointsCountRequirement(
+                _datasetId
+            ) *
             roles.filplus().financeRuleChallengeProofsPricePrePoint();
 
         amount = current >= amount ? 0 : amount - current;

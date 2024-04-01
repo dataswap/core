@@ -36,7 +36,7 @@ library FilplusType {
         uint64 datasetRuleRequirementTimeout;
         uint64 datasetRuleAuditorsElectionTime; // The election time for auditors.
         /// @notice dataset da rules
-        uint16 datasetRuleMaxChallengeProofsSubmitersPerDataset; // The challenge proofs submiter count.
+        uint64 datasetRuleChallengePointsPerAuditor; // The challenge points per auditor.
         ///@notice datacap rules
         uint64 datacapRuleMaxAllocatedSizePerTime; // Maximum allocate datacap size per time.
         uint8 datacapRuleMaxRemainingPercentageForNext; // Minimum completion percentage for the next allocation.

@@ -212,7 +212,7 @@ interface IDatasetsAssertion is IStatisticsBaseAssertion {
     /// @notice Asserts the retrieval of the count of dataset verifications.
     /// @param _datasetId The ID of the dataset for which the count of verifications is retrieved.
     /// @param _expectCount The expected count of verifications.
-    function getDatasetChallengeProofsCountAssertion(
+    function getChallengeAuditorsCountSubmittedAssertion(
         uint64 _datasetId,
         uint16 _expectCount
     ) external;
@@ -252,7 +252,15 @@ interface IDatasetsAssertion is IStatisticsBaseAssertion {
     /// @notice Assertion function for checking challenge count.
     /// @param _datasetId The ID of the dataset.
     /// @param _expectCount The expected challenge count.
-    function getChallengeSubmissionCountAssertion(
+    function getChallengeAuditorsCountRequirementAssertion(
+        uint64 _datasetId,
+        uint64 _expectCount
+    ) external;
+
+    /// @notice Assertion function for checking challenge count.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _expectCount The expected challenge count.
+    function getChallengePointsCountRequirementAssertion(
         uint64 _datasetId,
         uint64 _expectCount
     ) external;

@@ -91,7 +91,7 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
             PER_TIB_BYTE); // 1/1T
         rules.financeRuleChallengeProofsPricePrePoint = (1000000000000000000 /
             1000); // 0.0001/POINT
-        rules.datasetRuleMaxChallengeProofsSubmitersPerDataset = 10; // 10
+        rules.datasetRuleChallengePointsPerAuditor = 5;
         rules.financeRuleDatacapPricePreByte = rules
             .financeRuleDatacapChunkLandPricePreByte; // 1/1T
         rules.financeRuleDatacapCollateralMaxLockDays =
@@ -265,16 +265,14 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         );
     }
 
-    /// @notice Set the challenge proofs submiter Count complies with filplus rules.
-    function setDatasetRuleMaxChallengeProofsSubmitersPerDataset(
-        uint16 _newValue
+    /// @notice Set the challenge points per auditor with filplus rules.
+    function setDatasetRuleChallengePointsPerAuditor(
+        uint64 _newValue
     ) external onlyAddress(GOVERNANCE_ADDRESS) {
-        rules.datasetRuleMaxChallengeProofsSubmitersPerDataset = _newValue;
-        emit FilplusEvents.SetDatasetRuleMaxChallengeProofsSubmitersPerDataset(
-            _newValue
-        );
+        require(_newValue > 1, "invalid value");
+        rules.datasetRuleChallengePointsPerAuditor = _newValue;
+        emit FilplusEvents.SetDatasetRuleChallengePointsPerAuditor(_newValue);
     }
-
     /// @notice Set the challenge proofs price pre point complies with filplus rules.
     function setFinanceRuleChallengeProofsPricePrePoint(
         uint256 _newValue
@@ -446,13 +444,14 @@ contract Filplus is Initializable, UUPSUpgradeable, IFilplus, RolesModifiers {
         price = rules.financeRuleChallengeProofsPricePrePoint;
     }
 
-    /// @notice Get the challenge proofs submiter count complies with filplus rules.
-    function datasetRuleMaxChallengeProofsSubmitersPerDataset()
+    /// @dev Returns the number of challenge points per auditor for dataset rules.
+    /// @return count The number of challenge points per auditor.
+    function datasetRuleChallengePointsPerAuditor()
         external
         view
-        returns (uint16 count)
+        returns (uint64 count)
     {
-        count = rules.datasetRuleMaxChallengeProofsSubmitersPerDataset;
+        count = rules.datasetRuleChallengePointsPerAuditor;
     }
 
     /// @notice Get the datacap price pre byte complies with filplus rules.

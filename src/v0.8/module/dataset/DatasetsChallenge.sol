@@ -135,16 +135,14 @@ contract DatasetsChallenge is
             roles.datasets().__reportDatasetWorkflowTimeout(_datasetId);
             return;
         }
+        require(
+            _leaves.length >=
+                roles.filplus().datasetRuleChallengePointsPerAuditor(),
+            "invalid challenge points"
+        );
 
         DatasetType.DatasetChallengeProof
             storage datasetChallengeProof = datasetChallengeProofs[_datasetId];
-        require(
-            datasetChallengeProof.auditors.length <=
-                roles
-                    .filplus()
-                    .datasetRuleMaxChallengeProofsSubmitersPerDataset(),
-            "exceeds maximum challenge submitters count of filplus"
-        );
 
         bytes32 seed = datasetChallengeProof.election._electSeed(
             getAuditorElectionEndHeight(_datasetId)
@@ -154,22 +152,18 @@ contract DatasetsChallenge is
             datasetChallengeProof.election._processCandidateTicketResult(
                 getAuditorElectionEndHeight(_datasetId),
                 msg.sender,
-                getChallengeSubmissionCount(_datasetId),
+                getChallengeAuditorsCountRequirement(_datasetId),
                 seed
             ),
             "Not an election winner"
         );
 
-        require(
-            getDatasetChallengeProofsCount(_datasetId) <
-                getChallengeSubmissionCount(_datasetId),
-            "exceeds maximum challenge proofs count of dataset"
-        );
         bytes32[] memory roots = _getChallengeRoots(
             _datasetId,
             _randomSeed,
-            getChallengeSubmissionCount(_datasetId)
+            getChallengePointsCountRequirement(_datasetId)
         );
+
         datasetChallengeProof._submitDatasetChallengeProofs(
             _randomSeed,
             _leaves,
@@ -180,8 +174,8 @@ contract DatasetsChallenge is
         );
 
         if (
-            getDatasetChallengeProofsCount(_datasetId) ==
-            getChallengeSubmissionCount(_datasetId)
+            getChallengeAuditorsCountSubmitted(_datasetId) ==
+            getChallengeAuditorsCountRequirement(_datasetId)
         ) {
             roles.datasets().__reportDatasetChallengeCompleted(_datasetId);
         }
@@ -242,12 +236,12 @@ contract DatasetsChallenge is
 
     ///@notice Get count of dataset chellange proofs.
     /// @param _datasetId The ID of the dataset for which proof is submitted.
-    function getDatasetChallengeProofsCount(
+    function getChallengeAuditorsCountSubmitted(
         uint64 _datasetId
     ) public view onlyNotZero(_datasetId) returns (uint16) {
         DatasetType.DatasetChallengeProof
             storage datasetChallengeProof = datasetChallengeProofs[_datasetId];
-        return datasetChallengeProof.getDatasetChallengeProofsCount();
+        return datasetChallengeProof.getChallengeAuditorsCountSubmitted();
     }
 
     ///@notice Check if the challenge proof is a duplicate.
@@ -292,19 +286,45 @@ contract DatasetsChallenge is
 
     /// @notice To obtain the number of challenges to be completed
     /// @param _datasetId The ID of the dataset for which proof is submitted.
-    function getChallengeSubmissionCount(
+    function _getSecureDatasetChallengePoints(
         uint64 _datasetId
-    ) public view returns (uint64) {
-        uint32 smallDataSet = 1000;
-        uint64 carCount = roles.datasetsProof().getDatasetProofCount(
+    ) internal view returns (uint64) {
+        uint64 smallDataSet = 1099511627776; //1 point per 1TB
+        uint64 datasetSize = roles.datasetsProof().getDatasetSize(
             _datasetId,
             DatasetType.DataType.Source
         );
-        if (carCount < smallDataSet) {
-            return 1;
-        } else {
-            return carCount / smallDataSet + 1;
-        }
+        return (datasetSize + smallDataSet - 1) / smallDataSet;
+    }
+
+    /// @dev Retrieves the required number of challenge auditors for a dataset.
+    /// @param _datasetId The ID of the dataset.
+    /// @return auditors The required number of challenge auditors.
+    function getChallengeAuditorsCountRequirement(
+        uint64 _datasetId
+    ) public view returns (uint64 auditors) {
+        uint64 requirementPoints = _getSecureDatasetChallengePoints(_datasetId);
+        uint64 challengePointsPerAuditor = roles
+            .filplus()
+            .datasetRuleChallengePointsPerAuditor();
+
+        // Calculate the minimum number of people needed for the challenge
+        auditors =
+            (requirementPoints + challengePointsPerAuditor - 1) /
+            challengePointsPerAuditor;
+    }
+
+    /// @dev Retrieves the required number of challenge points for a dataset.
+    /// @param _datasetId The ID of the dataset.
+    /// @return points The required number of challenge points.
+    function getChallengePointsCountRequirement(
+        uint64 _datasetId
+    ) public view returns (uint64 points) {
+        uint64 auditors = getChallengeAuditorsCountRequirement(_datasetId);
+        // Calculate the actual total challenge points achieved
+        points =
+            auditors *
+            roles.filplus().datasetRuleChallengePointsPerAuditor();
     }
 
     /// @notice generate cars challenge.
@@ -380,8 +400,10 @@ contract DatasetsChallenge is
             .getDatasetProofCompleteHeight(_datasetId);
 
         return
-            proofCompleteHeight +
-            roles.filplus().datasetRuleAuditorsElectionTime();
+            uint64(
+                proofCompleteHeight +
+                    roles.filplus().datasetRuleAuditorsElectionTime()
+            );
     }
 
     /// @dev Checks whether the given account is a winner for a specific dataset ID.
@@ -403,7 +425,7 @@ contract DatasetsChallenge is
             datasetChallengeProof.election._processCandidateTicketResult(
                 getAuditorElectionEndHeight(_datasetId),
                 _account,
-                getChallengeSubmissionCount(_datasetId),
+                getChallengeAuditorsCountRequirement(_datasetId),
                 _seed
             );
     }

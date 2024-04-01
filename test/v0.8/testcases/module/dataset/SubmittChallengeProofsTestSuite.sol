@@ -59,7 +59,10 @@ contract SubmittChallengeProofsTestCaseWithSuccess is DatasetsTestBase {
     }
 
     function action(uint64 _id) internal virtual override {
-        uint64 pointCount = 1;
+        uint64 pointCount = datasets
+            .roles()
+            .filplus()
+            .datasetRuleChallengePointsPerAuditor();
         bytes32[] memory leaves = new bytes32[](pointCount);
         bytes32[][] memory siblings = new bytes32[][](pointCount);
         uint32[] memory paths = new uint32[](pointCount);
@@ -111,7 +114,10 @@ contract SubmittChallengeProofsTestCaseWithFail is DatasetsTestBase {
     }
 
     function action(uint64 _id) internal virtual override {
-        uint64 pointCount = 1;
+        uint64 pointCount = datasets
+            .roles()
+            .filplus()
+            .datasetRuleChallengePointsPerAuditor();
         bytes32[] memory leaves = new bytes32[](pointCount);
         bytes32[][] memory siblings = new bytes32[][](pointCount);
         uint32[] memory paths = new uint32[](pointCount);
@@ -163,7 +169,10 @@ contract SubmittChallengeProofsTestCaseWithTimeout is DatasetsTestBase {
     }
 
     function action(uint64 _id) internal virtual override {
-        uint64 pointCount = 1;
+        uint64 pointCount = datasets
+            .roles()
+            .filplus()
+            .datasetRuleChallengePointsPerAuditor();
         bytes32[] memory leaves = new bytes32[](pointCount);
         bytes32[][] memory siblings = new bytes32[][](pointCount);
         uint32[] memory paths = new uint32[](pointCount);
@@ -220,7 +229,10 @@ contract ResubmittDatasetChallengeProofsTestCaseWithSuccess is
     }
 
     function action(uint64 _id) internal virtual override {
-        uint64 pointCount = 1;
+        uint64 pointCount = datasets
+            .roles()
+            .filplus()
+            .datasetRuleChallengePointsPerAuditor();
         bytes32[] memory leaves = new bytes32[](pointCount);
         bytes32[][] memory siblings = new bytes32[][](pointCount);
         uint32[] memory paths = new uint32[](pointCount);
