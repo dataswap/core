@@ -1,6 +1,6 @@
 {
   "name": "@dataswapcore/contracts",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "Dataswap core contracts",
   "license": "GPL-3.0",
   "private": false,

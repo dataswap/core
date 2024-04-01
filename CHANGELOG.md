@@ -1,5 +1,12 @@
 
 
+## [0.9.4](https://github.com/dataswap/core/compare/v0.9.3...v0.9.4) (2024-04-01)
+
+
+### Bug Fixes
+
+* 🐛 update _getSecureDatasetChallengePoints ([d7ed60f](https://github.com/dataswap/core/commit/d7ed60f325d060522328eb3b5d44be4fad152128)), closes [#375](https://github.com/dataswap/core/issues/375)
+
 ## [0.9.3](https://github.com/dataswap/core/compare/v0.9.2...v0.9.3) (2024-04-01)
 
 
