@@ -1,5 +1,17 @@
 
 
+## [0.9.3](https://github.com/dataswap/core/compare/v0.9.2...v0.9.3) (2024-04-01)
+
+
+### Bug Fixes
+
+* 🐛 “Challenge proof" logical organization submission ([3301a38](https://github.com/dataswap/core/commit/3301a38ee6dce527e9cda3716ab07387354771a2)), closes [#350](https://github.com/dataswap/core/issues/350)
+* 🐛 Fixed piece size error ([c4f9359](https://github.com/dataswap/core/commit/c4f935947b853d6a1a66450abb4b5444b8abc158)), closes [#371](https://github.com/dataswap/core/issues/371)
+* 🐛 remove import of SendAPI from matchingBids ([b394a27](https://github.com/dataswap/core/commit/b394a2743e69a3a6f7e982df50cf73f4c52118b1))
+* 🐛 Remove the vendor directory and use the original version ([f90a9fe](https://github.com/dataswap/core/commit/f90a9fe6dde4c75c7f2dd8e3661b2837158b3bd2)), closes [#367](https://github.com/dataswap/core/issues/367)
+* 🐛 requestAllocateDatacap check if matched ([47bc2db](https://github.com/dataswap/core/commit/47bc2db8963624b54ac173b4f2f2e803d7e6cbbf)), closes [#363](https://github.com/dataswap/core/issues/363)
+* 🐛 Resolving the issue of incorrect CID length ([d16ce2d](https://github.com/dataswap/core/commit/d16ce2dc5b8646c40ffa0aae4ee517add000987c)), closes [#366](https://github.com/dataswap/core/issues/366)
+
 ## [0.9.2](https://github.com/dataswap/core/compare/v0.9.1...v0.9.2) (2024-03-26)
 
 
