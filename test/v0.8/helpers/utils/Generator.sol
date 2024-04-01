@@ -62,7 +62,7 @@ contract Generator {
         for (uint64 i = 0; i < _count; i++) {
             nonce++;
             if (_dataType == DatasetType.DataType.Source) {
-                sizes[i] = nonce * 100;
+                sizes[i] = nonce * 100 + 1024 * 1024 * 1024 * 30;
             } else {
                 sizes[i] = nonce;
             }

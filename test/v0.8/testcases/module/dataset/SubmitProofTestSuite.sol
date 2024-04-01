@@ -367,6 +367,14 @@ contract SubmitProofTestCaseWithInvalidProportion is DatasetsTestBase {
             0
         );
 
+        for (uint64 i = 0; i < sourceLeavesSizes.length; i++) {
+            sourceLeavesSizes[i] =
+                sourceLeavesSizes[i] +
+                1024 *
+                1024 *
+                1024 *
+                30;
+        }
         vm.expectRevert(bytes("Invalid mappingFiles percentage"));
         datasetsAssertion.submitDatasetProofAssertion(
             address(99),

@@ -156,7 +156,7 @@ contract DatasetsTestSetup is Test {
             datasetId,
             DatasetType.DataType.Source,
             "",
-            100,
+            300,
             true
         );
         _datasetsHelpers.submitDatasetProof(
@@ -183,24 +183,35 @@ contract DatasetsTestSetup is Test {
         address _caller
     ) public returns (uint64 id) {
         id = verificationTestSetup(_datasetsHelpers);
-        vm.startPrank(_caller);
-
-        vm.deal(_caller, 1000 ether);
-        _datasetsHelpers.getRoles().finance().deposit{value: 1000 ether}(
-            id,
-            0,
-            _caller,
-            FinanceType.FIL
-        );
-        _datasetsHelpers
+        uint64 auditorsRequirement = _datasetsHelpers
             .getRoles()
             .datasetsChallenge()
-            .nominateAsDatasetAuditorCandidate(id);
-        vm.stopPrank();
+            .getChallengeAuditorsCountRequirement(id);
+
+        for (uint160 i = 0; i < auditorsRequirement; i++) {
+            address caller = address(uint160(_caller) + i);
+            vm.startPrank(caller);
+
+            vm.deal(caller, 1000 ether);
+            _datasetsHelpers.getRoles().finance().deposit{value: 1000 ether}(
+                id,
+                0,
+                caller,
+                FinanceType.FIL
+            );
+            _datasetsHelpers
+                .getRoles()
+                .datasetsChallenge()
+                .nominateAsDatasetAuditorCandidate(id);
+
+            vm.stopPrank();
+        }
+
         uint64 delayBlocks = _datasetsHelpers
             .getRoles()
             .datasetsChallenge()
             .getAuditorElectionEndHeight(id);
+
         vm.roll(delayBlocks);
     }
 
