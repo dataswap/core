@@ -91,6 +91,12 @@ interface IDatasetsProof {
         DatasetType.DataType _dataType
     ) external view returns (uint64);
 
+    ///@notice Get dataset unpad size
+    function getDatasetUnpadSize(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType
+    ) external view returns (uint64);
+
     /// @notice Retrieves the height at which the dataset proof is considered complete.
     /// @dev This function returns the height at which the dataset proof is considered complete for the given dataset ID.
     /// @param _datasetId The ID of the dataset.

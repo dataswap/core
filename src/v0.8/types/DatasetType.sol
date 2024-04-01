@@ -79,6 +79,7 @@ library DatasetType {
     /// @notice Struct representing proofs associated with a dataset challenge submitted by reviewers.
     struct Proof {
         uint64 datasetSize;
+        uint64 datasetUnpadSize;
         bytes32 rootHash; // Root hash of the data's Merkle tree.
         bool allCompleted;
         uint64 leafHashesCount;

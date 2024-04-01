@@ -55,7 +55,8 @@ library DatasetProofLIB {
     /// @param _dataType The type of the dataset proof.
     /// @param _leafHashes The leaf hashes of the proof.
     /// @param _leafIndex The sizes of the leaf hashes.
-    /// @param _size The total size of the leaf hashes.
+    /// @param _size The total size of the leaf hashes pieces.
+    /// @param _unpadSize The total size of the leaf hashes cars.
     /// @param _allCompleted A boolean indicating if the proof is completed.
     function addDatasetProofBatch(
         DatasetType.DatasetProof storage self,
@@ -63,6 +64,7 @@ library DatasetProofLIB {
         uint64[] memory _leafHashes,
         uint64 _leafIndex,
         uint64 _size,
+        uint64 _unpadSize,
         bool _allCompleted
     ) internal {
         DatasetType.Proof storage proof;
@@ -77,6 +79,7 @@ library DatasetProofLIB {
         proof.addProofBatch(_leafHashes, _leafIndex);
 
         proof.datasetSize += _size;
+        proof.datasetUnpadSize += _unpadSize;
     }
 
     /// @notice Get the source dataset proof from the submitted dataset proof.
@@ -152,6 +155,23 @@ library DatasetProofLIB {
             proof = self.mappingFilesProof;
         }
         return proof.datasetSize;
+    }
+
+    /// @dev Retrieves the unpadded size of the dataset for a given data type.
+    /// @param self The storage reference to the dataset proof.
+    /// @param _dataType The data type for which to retrieve the unpadded size.
+    /// @return The unpadded size of the dataset.
+    function getDatasetUnpadSize(
+        DatasetType.DatasetProof storage self,
+        DatasetType.DataType _dataType
+    ) internal view returns (uint64) {
+        DatasetType.Proof storage proof;
+        if (_dataType == DatasetType.DataType.Source) {
+            proof = self.sourceProof;
+        } else {
+            proof = self.mappingFilesProof;
+        }
+        return proof.datasetUnpadSize;
     }
 
     /// @notice Get submitter of dataset's proofs.
