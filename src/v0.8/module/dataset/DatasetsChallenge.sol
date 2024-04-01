@@ -161,7 +161,7 @@ contract DatasetsChallenge is
         bytes32[] memory roots = _getChallengeRoots(
             _datasetId,
             _randomSeed,
-            getChallengePointsCountRequirement(_datasetId)
+            roles.filplus().datasetRuleChallengePointsPerAuditor()
         );
 
         datasetChallengeProof._submitDatasetChallengeProofs(

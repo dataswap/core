@@ -69,18 +69,23 @@ contract SubmittChallengeProofsTestCaseWithSuccess is DatasetsTestBase {
         uint64 randomSeed;
 
         datasetsAssertion.isWinnerAssersion(_id, address(199), true);
+        uint64 auditorsRequirement = datasetsChallenge
+            .getChallengeAuditorsCountRequirement(_id);
 
-        (randomSeed, leaves, siblings, paths) = datasetsHelpers
-            .generateVerification(pointCount);
+        for (uint160 i = 0; i < auditorsRequirement; i++) {
+            address caller = address(199 + i);
+            (randomSeed, leaves, siblings, paths) = datasetsHelpers
+                .generateVerification(pointCount);
 
-        datasetsAssertion.submitDatasetChallengeProofsAssertion(
-            address(199),
-            _id,
-            randomSeed,
-            leaves,
-            siblings,
-            paths
-        );
+            datasetsAssertion.submitDatasetChallengeProofsAssertion(
+                caller,
+                _id,
+                randomSeed,
+                leaves,
+                siblings,
+                paths
+            );
+        }
     }
 }
 
