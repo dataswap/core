@@ -290,7 +290,7 @@ contract DatasetsChallenge is
         uint64 _datasetId
     ) internal view returns (uint64) {
         uint64 smallDataSet = 1099511627776; //1 point per 1TB
-        uint64 datasetSize = roles.datasetsProof().getDatasetSize(
+        uint64 datasetSize = roles.datasetsProof().getDatasetUnpadSize(
             _datasetId,
             DatasetType.DataType.Source
         );

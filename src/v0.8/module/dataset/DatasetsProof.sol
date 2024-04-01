@@ -140,11 +140,15 @@ contract DatasetsProof is
     /// @param _leafSizes An array containing the sizes of the data leaves.
     /// @return leafIds An array containing the IDs of the submitted data leaves.
     /// @return size The total size of the submitted data.
+    /// @return unpadSize The total size of the submitted cars.
     function _submitToCarstoreWithHashs(
         bytes32[] memory _leafHashes,
         uint64 _datasetId,
         uint64[] memory _leafSizes
-    ) internal returns (uint64[] memory leafIds, uint64 size) {
+    )
+        internal
+        returns (uint64[] memory leafIds, uint64 size, uint64 unpadSize)
+    {
         require(
             _leafHashes.length == _leafSizes.length,
             "invalid leaves params"
@@ -174,7 +178,8 @@ contract DatasetsProof is
             }
         }
         size = roles.carstore().getPiecesSize(leafIds);
-        return (leafIds, size);
+        unpadSize = roles.carstore().getCarsSize(leafIds);
+        return (leafIds, size, unpadSize);
     }
 
     ///@notice Internal submit proof for a dataset
@@ -198,11 +203,11 @@ contract DatasetsProof is
             "Invalid Dataset submitter"
         );
 
-        (uint64[] memory leafIds, uint64 size) = _submitToCarstoreWithHashs(
-            _leafHashes,
-            _datasetId,
-            _leafSizes
-        );
+        (
+            uint64[] memory leafIds,
+            uint64 size,
+            uint64 unpadSize
+        ) = _submitToCarstoreWithHashs(_leafHashes, _datasetId, _leafSizes);
 
         roles.datasets().__reportDatasetProofSubmitted(size);
 
@@ -211,6 +216,7 @@ contract DatasetsProof is
             leafIds,
             _leafIndex,
             size,
+            unpadSize,
             _completed
         );
     }
@@ -259,11 +265,15 @@ contract DatasetsProof is
     /// @param _datasetId The ID of the dataset associated with the data.
     /// @return leafIds An array containing the IDs of the submitted data leaves.
     /// @return size The total size of the submitted data.
+    /// @return unpadSize The total size of the submitted cars.
     function _submitToCarstoreWithCarIds(
         uint64[] memory _leavesStarts,
         uint64[] memory _leavesEnds,
         uint64 _datasetId
-    ) internal returns (uint64[] memory leafIds, uint64 size) {
+    )
+        internal
+        returns (uint64[] memory leafIds, uint64 size, uint64 unpadSize)
+    {
         require(
             _leavesStarts.length == _leavesEnds.length,
             "invalid leaves params"
@@ -285,7 +295,8 @@ contract DatasetsProof is
             }
         }
         size = roles.carstore().getPiecesSize(leafIds);
-        return (leafIds, size);
+        unpadSize = roles.carstore().getCarsSize(leafIds);
+        return (leafIds, size, unpadSize);
     }
 
     /// @notice Submits dataset proof along with car IDs.
@@ -314,11 +325,11 @@ contract DatasetsProof is
             "Invalid Dataset submitter"
         );
 
-        (uint64[] memory leafIds, uint64 size) = _submitToCarstoreWithCarIds(
-            _leavesStarts,
-            _leavesEnds,
-            _datasetId
-        );
+        (
+            uint64[] memory leafIds,
+            uint64 size,
+            uint64 unpadSize
+        ) = _submitToCarstoreWithCarIds(_leavesStarts, _leavesEnds, _datasetId);
 
         roles.datasets().__reportDatasetProofSubmitted(size);
 
@@ -327,6 +338,7 @@ contract DatasetsProof is
             leafIds,
             _leafIndex,
             size,
+            unpadSize,
             _completed
         );
     }
@@ -562,6 +574,17 @@ contract DatasetsProof is
             _datasetId
         ];
         return datasetProof.getDatasetSize(_dataType);
+    }
+
+    ///@notice Get dataset unpad size
+    function getDatasetUnpadSize(
+        uint64 _datasetId,
+        DatasetType.DataType _dataType
+    ) public view onlyNotZero(_datasetId) returns (uint64) {
+        DatasetType.DatasetProof storage datasetProof = datasetProofs[
+            _datasetId
+        ];
+        return datasetProof.getDatasetUnpadSize(_dataType);
     }
 
     /// @notice Retrieves the height at which the dataset proof is considered complete.
