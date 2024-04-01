@@ -71,7 +71,7 @@ contract DatasetsAssertion is
         getDatasetStateAssertion(_datasetId, DatasetType.State.ProofSubmitted);
 
         // Check verification count, Judgment strategy depends on actual needs
-        getDatasetChallengeProofsCountAssertion(_datasetId, 1);
+        getChallengeAuditorsCountSubmittedAssertion(_datasetId, 1);
         (
             uint256 totalCount,
             uint256 successCount,
@@ -523,7 +523,7 @@ contract DatasetsAssertion is
         uint32[] memory _paths
     ) external {
         // Before the action, capture the initial state.
-        uint16 oldCount = datasetsChallenge.getDatasetChallengeProofsCount(
+        uint16 oldCount = datasetsChallenge.getChallengeAuditorsCountSubmitted(
             _datasetId
         );
 
@@ -550,7 +550,7 @@ contract DatasetsAssertion is
         );
 
         // After the action, check the updated state.
-        getDatasetChallengeProofsCountAssertion(_datasetId, oldCount + 1);
+        getChallengeAuditorsCountSubmittedAssertion(_datasetId, oldCount + 1);
         getDatasetChallengeProofsAssertion(
             _datasetId,
             caller,
@@ -564,8 +564,8 @@ contract DatasetsAssertion is
             expectAuditors
         );
         if (
-            datasetsChallenge.getChallengeSubmissionCount(_datasetId) ==
-            datasetsChallenge.getChallengeSubmissionCount(_datasetId)
+            datasetsChallenge.getChallengeAuditorsCountSubmitted(_datasetId) ==
+            datasetsChallenge.getChallengeAuditorsCountRequirement(_datasetId)
         ) {
             getDatasetStateAssertion(_datasetId, DatasetType.State.Approved);
         }
@@ -861,12 +861,12 @@ contract DatasetsAssertion is
     /// @notice Assertion function for getting dataset verification count.
     /// @param _datasetId The ID of the dataset.
     /// @param _expectCount The expected verification count.
-    function getDatasetChallengeProofsCountAssertion(
+    function getChallengeAuditorsCountSubmittedAssertion(
         uint64 _datasetId,
         uint16 _expectCount
     ) public {
         assertEq(
-            datasetsChallenge.getDatasetChallengeProofsCount(_datasetId),
+            datasetsChallenge.getChallengeAuditorsCountSubmitted(_datasetId),
             _expectCount,
             "count not matched"
         );
@@ -969,14 +969,28 @@ contract DatasetsAssertion is
     /// @notice Assertion function for checking challenge count.
     /// @param _datasetId The ID of the dataset.
     /// @param _expectCount The expected challenge count.
-    function getChallengeSubmissionCountAssertion(
+    function getChallengeAuditorsCountRequirementAssertion(
         uint64 _datasetId,
         uint64 _expectCount
     ) external {
         assertEq(
-            datasetsChallenge.getChallengeSubmissionCount(_datasetId),
+            datasetsChallenge.getChallengeAuditorsCountRequirement(_datasetId),
             _expectCount,
-            "challenge count not matched"
+            "challenge auditors count not matched"
+        );
+    }
+
+    /// @notice Assertion function for checking challenge count.
+    /// @param _datasetId The ID of the dataset.
+    /// @param _expectCount The expected challenge count.
+    function getChallengePointsCountRequirementAssertion(
+        uint64 _datasetId,
+        uint64 _expectCount
+    ) external {
+        assertEq(
+            datasetsChallenge.getChallengePointsCountRequirement(_datasetId),
+            _expectCount,
+            "challenge points count not matched"
         );
     }
 

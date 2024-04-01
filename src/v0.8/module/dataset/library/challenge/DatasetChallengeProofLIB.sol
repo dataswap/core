@@ -48,14 +48,15 @@ library DatasetChallengeProofLIB {
         );
         require(_randomSeed > 0, "Invalid random seed");
 
-       require(
+        require(
             _requireValidChallengeProofs(
                 _leaves,
                 _siblings,
                 _paths,
                 _roots,
                 _merkle
-            ),"Invalid challenge proofs"
+            ),
+            "Invalid challenge proofs"
         );
 
         // Update the dataset state here
@@ -94,6 +95,11 @@ library DatasetChallengeProofLIB {
         require(roots.length == _paths.length, "roots.length != _paths.length");
 
         for (uint32 i = 0; i < roots.length; i++) {
+            require(
+                _leaves[i] !=
+                    0x0000000000000000000000000000000000000000000000000000000000000000,
+                "invalid leaf"
+            );
             if (
                 !_merkle.isValidMerkleProof(
                     roots[i],
@@ -142,13 +148,13 @@ library DatasetChallengeProofLIB {
             siblings[i] = vsiblings;
             paths[i] = path;
         }
-        return (leaves, siblings, paths ,randomSeed);
+        return (leaves, siblings, paths, randomSeed);
     }
 
     /// @notice Get the count of challenge proofs for a dataset.
     /// @dev This function returns the count of challenge proofs conducted on the dataset.
     /// @param self The dataset for which to retrieve the challenge proofs count.
-    function getDatasetChallengeProofsCount(
+    function getChallengeAuditorsCountSubmitted(
         DatasetType.DatasetChallengeProof storage self
     ) internal view returns (uint16) {
         return self.challengesCount;

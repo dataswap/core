@@ -62,7 +62,7 @@ interface IDatasetsChallenge {
         );
 
     ///@notice Get count of dataset challenge proofs
-    function getDatasetChallengeProofsCount(
+    function getChallengeAuditorsCountSubmitted(
         uint64 _datasetId
     ) external view returns (uint16);
 
@@ -81,10 +81,19 @@ interface IDatasetsChallenge {
         uint64 _datasetId
     ) external view returns (bool);
 
-    /// @notice Get a dataset challenge count
-    function getChallengeSubmissionCount(
+    /// @dev Retrieves the required number of challenge auditors for a dataset.
+    /// @param _datasetId The ID of the dataset.
+    /// @return auditors The required number of challenge auditors.
+    function getChallengeAuditorsCountRequirement(
         uint64 _datasetId
-    ) external view returns (uint64);
+    ) external view returns (uint64 auditors);
+
+    /// @dev Retrieves the required number of challenge points for a dataset.
+    /// @param _datasetId The ID of the dataset.
+    /// @return points The required number of challenge points.
+    function getChallengePointsCountRequirement(
+        uint64 _datasetId
+    ) external view returns (uint64 points);
 
     /// @dev Retrieves auditor candidates for a given dataset ID.
     /// @param _datasetId The ID of the dataset for which auditor candidates are requested.
