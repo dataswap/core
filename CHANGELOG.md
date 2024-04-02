@@ -1,5 +1,12 @@
 
 
+## [0.9.5](https://github.com/dataswap/core/compare/v0.9.4...v0.9.5) (2024-04-02)
+
+
+### Bug Fixes
+
+* 🐛 fix submitDatasetChallengeProofs ([5b9a504](https://github.com/dataswap/core/commit/5b9a5047f29d6007e8f7aa33762a39e6c8411e28)), closes [#377](https://github.com/dataswap/core/issues/377)
+
 ## [0.9.4](https://github.com/dataswap/core/compare/v0.9.3...v0.9.4) (2024-04-01)
 
 
