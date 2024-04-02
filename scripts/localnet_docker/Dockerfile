@@ -1,5 +1,5 @@
 #####################################
-FROM golang:1.20.7-bullseye AS lotus-builder
+FROM golang:1.21.7-bullseye AS lotus-builder
 MAINTAINER Lotus Development Team
 
 RUN apt-get update && apt-get install -y ca-certificates build-essential clang ocl-icd-opencl-dev ocl-icd-libopencl1 jq libhwloc-dev 
@@ -31,7 +31,7 @@ RUN set -eux; \
     rustc --version;
 
 #COPY ./lotus/ /opt/filecoin
-RUN git clone -b v1.25.0 https://github.com/filecoin-project/lotus.git /opt/filecoin
+RUN git clone -b v1.26.1 https://github.com/filecoin-project/lotus.git /opt/filecoin
 WORKDIR /opt/filecoin
 
 RUN scripts/docker-git-state-check.sh
@@ -101,7 +101,7 @@ CMD ["-help"]
 #####################################
 FROM lotus-base AS lotus-devnet
 
-RUN apt-get update && apt-get install -y curl git
+RUN apt-get update && apt-get install -y curl net-tools git vim
 
 ENV FILECOIN_PARAMETER_CACHE /var/tmp/filecoin-proof-parameters
 ENV LOTUS_MINER_PATH /root/.lotusminer
