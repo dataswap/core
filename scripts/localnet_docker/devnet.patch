@@ -12,10 +12,10 @@ index 93dfea2fc..edb1a7a10 100644
  			node.Override(new(v1api.RawFullNodeAPI), nodeApi),
  		)
 diff --git a/cmd/lotus/daemon.go b/cmd/lotus/daemon.go
-index 7271a6e53..30172a601 100644
+index 5d8096d1f..54072b865 100644
 --- a/cmd/lotus/daemon.go
 +++ b/cmd/lotus/daemon.go
-@@ -358,7 +358,7 @@ var DaemonCmd = &cli.Command{
+@@ -403,7 +403,7 @@ var DaemonCmd = &cli.Command{
  
  			node.ApplyIf(func(s *node.Settings) bool { return cctx.IsSet("api") },
  				node.Override(node.SetApiEndpointKey, func(lr repo.LockedRepo) error {
@@ -25,7 +25,7 @@ index 7271a6e53..30172a601 100644
  					if err != nil {
  						return err
 diff --git a/node/config/def.go b/node/config/def.go
-index dd36803a0..76f4f535f 100644
+index 7e06eba3a..c1e824249 100644
 --- a/node/config/def.go
 +++ b/node/config/def.go
 @@ -43,7 +43,7 @@ func (b *BatchFeeConfig) FeeForSectors(nSectors int) abi.TokenAmount {
@@ -44,9 +44,9 @@ index dd36803a0..76f4f535f 100644
 -			EnableEthRPC:                 false,
 +			EnableEthRPC:                 true,
  			EthTxHashMappingLifetimeDays: 0,
- 			Events: Events{
- 				DisableRealTimeFilterAPI: false,
-@@ -274,7 +274,7 @@ func DefaultStorageMiner() *StorageMiner {
+ 		},
+ 		Events: EventsConfig{
+@@ -285,7 +285,7 @@ func DefaultStorageMiner() *StorageMiner {
  		},
  	}
  

@@ -277,3 +277,9 @@ ${BASEDIR}/.foundry/bin/cast send --rpc-url $NETWORK_RPC_URL --async --private-k
 cd ..
 
 rm -rf /opt/dataswap
+rm -rf /root/.cache
+rm -rf /root/.npm
+rm -rf /root/.foundry
+rm -rf /usr/local/bin/lotus-shed
+rm -rf /usr/local/bin/lotus-seed
+

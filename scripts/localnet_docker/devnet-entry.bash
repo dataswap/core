@@ -23,7 +23,7 @@ while true; do
 
   sleep 25
 
-  lotus-shed noncefix --addr \$(lotus wallet list) --auto
+#  lotus-shed noncefix --addr \$(lotus wallet list) --auto
 
 done
 EOF
