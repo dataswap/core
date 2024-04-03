@@ -158,11 +158,14 @@ contract DatasetsChallenge is
             "Not an election winner"
         );
 
-        bytes32[] memory roots = _getChallengeRoots(
-            _datasetId,
-            _randomSeed,
-            roles.filplus().datasetRuleChallengePointsPerAuditor()
-        );
+        (
+            bytes32[] memory roots,
+            uint64[] memory leafChallengeCount
+        ) = _getChallengeRoots(
+                _datasetId,
+                _randomSeed,
+                roles.filplus().datasetRuleChallengePointsPerAuditor()
+            );
 
         datasetChallengeProof._submitDatasetChallengeProofs(
             _randomSeed,
@@ -170,6 +173,7 @@ contract DatasetsChallenge is
             _siblings,
             _paths,
             roots,
+            leafChallengeCount,
             roles.merkleUtils()
         );
 
@@ -331,22 +335,36 @@ contract DatasetsChallenge is
     /// @dev This function returns the cars Challenge information for a specific dataset.
     /// @param _datasetId The ID of the dataset for which proof is submitted.
     /// @param _randomSeed The cars challenge random seed.
-    /// @param _carChallengesCount the cars Challenge count for specific dataset.
+    /// @param _challengesCount the Challenge count for specific dataset.
     function _getChallengeRoots(
         uint64 _datasetId,
         uint64 _randomSeed,
-        uint64 _carChallengesCount
-    ) internal view returns (bytes32[] memory) {
-        bytes32[] memory carChallenges = new bytes32[](_carChallengesCount);
-        for (uint64 i = 0; i < _carChallengesCount; i++) {
-            carChallenges[i] = _getChallengeRoot(
+        uint64 _challengesCount
+    ) internal view returns (bytes32[] memory, uint64[] memory) {
+        uint64 carNum = roles.datasetsProof().getDatasetProofCount(
+            _datasetId,
+            DatasetType.DataType.Source
+        );
+
+        uint64 carChallengesCount = DatasetChallengeProofLIB.carChallengeCount(
+            carNum,
+            _challengesCount
+        );
+        uint64[] memory leafChallengeCount = DatasetChallengeProofLIB
+            .leafChallengeCount(carChallengesCount, _challengesCount);
+        bytes32[] memory roots = new bytes32[](carChallengesCount);
+
+        for (uint64 i = 0; i < carChallengesCount; i++) {
+            roots[i] = _getChallengeRoot(
                 _datasetId,
                 _randomSeed,
                 i,
-                _carChallengesCount
+                carChallengesCount,
+                carNum
             );
         }
-        return carChallenges;
+
+        return (roots, leafChallengeCount);
     }
 
     /// @notice generate a car challenge.
@@ -355,24 +373,22 @@ contract DatasetsChallenge is
     /// @param _randomSeed The cars challenge random seed.
     /// @param _index The car index of challenge.
     /// @param _carChallengesCount the cars Challenge count for specific dataset.
+    /// @param _carNum the cars  count for specific dataset.
     function _getChallengeRoot(
         uint64 _datasetId,
         uint64 _randomSeed,
         uint64 _index,
-        uint64 _carChallengesCount
+        uint64 _carChallengesCount,
+        uint64 _carNum
     ) internal view returns (bytes32) {
         uint64 index = 0;
-        uint64 proofsCount = roles.datasetsProof().getDatasetProofCount(
-            _datasetId,
-            DatasetType.DataType.Source
-        );
-        if (_carChallengesCount == proofsCount) {
+        if (_carChallengesCount == _carNum) {
             index = _index;
         } else {
-            index = DatasetChallengeProofLIB.generateChallengeIndex(
+            index = DatasetChallengeProofLIB.genCarChallengeIndex(
                 _randomSeed,
                 _index,
-                proofsCount
+                _carNum
             );
         }
 

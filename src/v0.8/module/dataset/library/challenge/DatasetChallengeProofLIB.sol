@@ -17,6 +17,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 pragma solidity ^0.8.21;
 
+import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
+
 import {DatasetType} from "src/v0.8/types/DatasetType.sol";
 import {IMerkleUtils} from "src/v0.8/interfaces/utils/IMerkleUtils.sol";
 import {DatasetProofLIB} from "src/v0.8/module/dataset/library/proof/DatasetProofLIB.sol";
@@ -39,6 +41,7 @@ library DatasetChallengeProofLIB {
         bytes32[][] memory _siblings,
         uint32[] memory _paths,
         bytes32[] memory _roots,
+        uint64[] memory _leafChallengeCount,
         IMerkleUtils _merkle
     ) internal {
         //For each challenge proofs submitted by an auditor, the random seed must be different.
@@ -54,6 +57,7 @@ library DatasetChallengeProofLIB {
                 _siblings,
                 _paths,
                 _roots,
+                _leafChallengeCount,
                 _merkle
             ),
             "Invalid challenge proofs"
@@ -81,34 +85,29 @@ library DatasetChallengeProofLIB {
         bytes32[] memory _leaves,
         bytes32[][] memory _siblings,
         uint32[] memory _paths,
-        bytes32[] memory roots,
+        bytes32[] memory _roots,
+        uint64[] memory _leafChallengeCount,
         IMerkleUtils _merkle
     ) private view returns (bool) {
-        require(
-            roots.length == _leaves.length,
-            "roots.length != _leaves.length"
-        );
-        require(
-            roots.length == _siblings.length,
-            "roots.length != _siblings.length"
-        );
-        require(roots.length == _paths.length, "roots.length != _paths.length");
-
-        for (uint32 i = 0; i < roots.length; i++) {
-            require(
-                _leaves[i] !=
-                    0x0000000000000000000000000000000000000000000000000000000000000000,
-                "invalid leaf"
-            );
-            if (
-                !_merkle.isValidMerkleProof(
-                    roots[i],
-                    _leaves[i],
-                    _siblings[i],
-                    _paths[i]
-                )
-            ) {
-                return false;
+        uint32 index = 0;
+        for (uint32 i = 0; i < _roots.length; i++) {
+            for (uint32 j = 0; j < _leafChallengeCount[i]; j++) {
+                require(
+                    _leaves[index] !=
+                        0x0000000000000000000000000000000000000000000000000000000000000000,
+                    "invalid leaf"
+                );
+                if (
+                    !_merkle.isValidMerkleProof(
+                        _roots[i],
+                        _leaves[index],
+                        _siblings[index],
+                        _paths[index]
+                    )
+                ) {
+                    return false;
+                }
+                index++;
             }
         }
         return true;
@@ -182,11 +181,11 @@ library DatasetChallengeProofLIB {
     /// @dev This function returns a car Challenge information for a specific dataset.
     /// @param _randomSeed The cars challenge random seed.
     /// @param _index The car index of challenge.
-    /// @param _proofsCount the cars Challenge count for specific dataset.
-    function generateChallengeIndex(
+    /// @param _carNum the cars Challenge count for specific dataset.
+    function genCarChallengeIndex(
         uint64 _randomSeed,
         uint64 _index,
-        uint64 _proofsCount
+        uint64 _carNum
     ) internal pure returns (uint64) {
         // Convert randomness and index to bytes
         bytes memory input = new bytes(16);
@@ -208,6 +207,44 @@ library DatasetChallengeProofLIB {
             carChallenge |= uint64(uint8(hash[i])) << uint64(i * 8);
         }
 
-        return carChallenge % _proofsCount;
+        return carChallenge % _carNum;
+    }
+
+    /**
+     * @dev Calculates the number of challenges per leaf for each car.
+     * @param _carChallengesCount The number of cars participating in challenges.
+     * @param _leavesChallengesCount The total number of challenges across all leaves.
+     * @return An array containing the number of challenges per leaf for each car.
+     */
+    function leafChallengeCount(
+        uint64 _carChallengesCount,
+        uint64 _leavesChallengesCount
+    ) internal pure returns (uint64[] memory) {
+        uint64[] memory count = new uint64[](_carChallengesCount);
+        uint64 equalDistribution = _leavesChallengesCount / _carChallengesCount;
+        uint64 remainder = _leavesChallengesCount % _carChallengesCount;
+
+        for (uint64 i = 0; i < _carChallengesCount; i++) {
+            count[i] = equalDistribution;
+        }
+
+        for (uint64 i = 0; i < remainder; i++) {
+            count[i]++;
+        }
+
+        return count;
+    }
+
+    /**
+     * @dev Calculates the number of challenges for each car based on the number of cars and total challenges.
+     * @param _carNum The number of cars participating in challenges.
+     * @param _leavesChallengesCount The total number of challenges across all leaves.
+     * @return The number of challenges per car.
+     */
+    function carChallengeCount(
+        uint64 _carNum,
+        uint64 _leavesChallengesCount
+    ) internal pure returns (uint64) {
+        return uint64(Math.min(_carNum, _leavesChallengesCount));
     }
 }
