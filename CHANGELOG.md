@@ -1,5 +1,12 @@
 
 
+## [0.9.7](https://github.com/dataswap/core/compare/v0.9.6...v0.9.7) (2024-04-03)
+
+
+### Bug Fixes
+
+* 🐛 Fixed _getChallengeRoots function ([7aa730c](https://github.com/dataswap/core/commit/7aa730c0e25cac7c708bce8cf8e436e0d5a448ff)), closes [#383](https://github.com/dataswap/core/issues/383)
+
 ## [0.9.6](https://github.com/dataswap/core/compare/v0.9.5...v0.9.6) (2024-04-03)
 
 
