@@ -1,5 +1,13 @@
 
 
+## [0.9.6](https://github.com/dataswap/core/compare/v0.9.5...v0.9.6) (2024-04-03)
+
+
+### Bug Fixes
+
+* 🐛 fix generateChallengeIndex ([08657fb](https://github.com/dataswap/core/commit/08657fb30d1dcb59d1b46514dfa74f7ce073c4f2)), closes [#381](https://github.com/dataswap/core/issues/381)
+* 🐛 update docker scripts ([8f4bbd8](https://github.com/dataswap/core/commit/8f4bbd83cdbaa2c2acf026eaf296247ddd2833dc)), closes [#379](https://github.com/dataswap/core/issues/379)
+
 ## [0.9.5](https://github.com/dataswap/core/compare/v0.9.4...v0.9.5) (2024-04-02)
 
 
