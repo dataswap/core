@@ -361,11 +361,20 @@ contract DatasetsChallenge is
         uint64 _index,
         uint64 _carChallengesCount
     ) internal view returns (bytes32) {
-        uint64 index = DatasetChallengeProofLIB.generateChallengeIndex(
-            _randomSeed,
-            _index,
-            _carChallengesCount
+        uint64 index = 0;
+        uint64 proofsCount = roles.datasetsProof().getDatasetProofCount(
+            _datasetId,
+            DatasetType.DataType.Source
         );
+        if (_carChallengesCount == proofsCount) {
+            index = _index;
+        } else {
+            index = DatasetChallengeProofLIB.generateChallengeIndex(
+                _randomSeed,
+                _index,
+                proofsCount
+            );
+        }
 
         return
             roles.datasetsProof().getDatasetProof(

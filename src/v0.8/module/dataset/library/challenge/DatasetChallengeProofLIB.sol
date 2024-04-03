@@ -182,11 +182,11 @@ library DatasetChallengeProofLIB {
     /// @dev This function returns a car Challenge information for a specific dataset.
     /// @param _randomSeed The cars challenge random seed.
     /// @param _index The car index of challenge.
-    /// @param _carChallengesCount the cars Challenge count for specific dataset.
+    /// @param _proofsCount the cars Challenge count for specific dataset.
     function generateChallengeIndex(
         uint64 _randomSeed,
         uint64 _index,
-        uint64 _carChallengesCount
+        uint64 _proofsCount
     ) internal pure returns (uint64) {
         // Convert randomness and index to bytes
         bytes memory input = new bytes(16);
@@ -208,6 +208,6 @@ library DatasetChallengeProofLIB {
             carChallenge |= uint64(uint8(hash[i])) << uint64(i * 8);
         }
 
-        return carChallenge % _carChallengesCount;
+        return carChallenge % _proofsCount;
     }
 }
